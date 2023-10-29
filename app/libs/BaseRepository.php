@@ -2,7 +2,7 @@
 
 namespace App\libs;
 
-class BaseRepository
+abstract class BaseRepository
 {
 
     public $model;
@@ -14,7 +14,6 @@ class BaseRepository
     {
         $this->model = app()->make($model);
     }
-
     public function getModel()
     {
         return $this->model;

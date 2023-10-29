@@ -2,14 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\CreatedAtFromFilter;
+use App\Filters\CreatedAtToFilter;
+use App\Filters\IdFilter;
+use App\Filters\NameFilter;
+use App\Filters\TitleFilter;
 use App\libs\BaseRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Pipeline;
 
 class CrudController extends Controller
 {
-    public $repository;
+    public BaseRepository $repository;
+    public array          $filters = [
+        NameFilter::class,
+        TitleFilter::class,
+        CreatedAtFromFilter::class,
+        CreatedAtToFilter::class,
+        IdFilter::class
+    ];
 
-    public function __construct(BaseRepository $repository)
+    public function setFilters(array $filters): void
+    {
+        $this->filters = $filters;
+    }
+
+    public function setRepository($repository): void
     {
         $this->repository = $repository;
     }
@@ -19,7 +37,8 @@ class CrudController extends Controller
      */
     public function index()
     {
-        return $this->repository->collect($this->repository->paginate());
+        $data = Pipeline::send($this->repository->getModel())->through($this->filters)->thenReturn()->paginate(request()->paginate ?? 15);
+        return $this->repository->collect($data);
     }
 
     /**
@@ -53,7 +72,7 @@ class CrudController extends Controller
      */
     public function destroy($id)
     {
-        $this->repository->destroy($id);
+        return $this->repository->destroy($id);
     }
 
 
