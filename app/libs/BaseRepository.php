@@ -2,62 +2,57 @@
 
 namespace App\libs;
 
+use App\Http\Resources\BaseResource;
+
 abstract class BaseRepository
 {
+    public          $model;
+    public          $resource = BaseResource::class;
+    protected array $rules    = [
+        'create' => [], 'update' => [],
+    ];
 
-    public $model;
-    public $rules;
-
-    public $resource;
-
-    public function setModel($model)
+    public function getCreateRules()
     {
-        $this->model = app()->make($model);
+        return $this->rules['create'];
     }
-    public function getModel()
+
+    public function getUpdateRules()
     {
-        return $this->model;
+        return $this->rules['update'];
     }
 
     public function paginate()
     {
-        return $this->getModel()->query()->paginate();
+        return $this->model->query()->paginate();
     }
 
     public function store($data)
     {
-        return $this->getModel()->query()->create($data);
+        return $this->model->query()->create($data);
     }
 
     public function show($id)
     {
-        return $this->getModel()->find($id);
+        return $this->model->find($id);
     }
 
     public function update($id, $data)
     {
-        return $this->getModel()->find($id)->update($data);
+        return $this->model->find($id)->update($data);
     }
 
     public function destroy($id)
     {
-        return $this->getModel()->find($id)->delete();
+        return $this->model->find($id)->delete();
     }
 
-    public function setStoreValidation(array $rules)
-    {
-        $this->rules = $rules;
-    }
-
-    public function setUpdateValidation(array $rules)
-    {
-        $this->rules = $rules;
-    }
 
     public function setResource($resource)
     {
         $this->resource = $resource;
     }
+
     public function collect($q)
     {
         return $this->resource::collection($q);

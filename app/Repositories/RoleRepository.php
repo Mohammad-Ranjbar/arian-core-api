@@ -8,13 +8,19 @@ use App\Models\Role;
 
 class RoleRepository extends BaseRepository
 {
-    public function __construct()
-    {
-        $this->setModel(Role::class);
-        $this->setResource(RoleResource::class);
+    protected array $rules = [
+        'create' => [
+            'name' => 'required'
+        ],
+        'update'=>[
+            'name' => 'required'
+        ]
+    ];
 
-        $this->setStoreValidation(['name' => 'required']);
-        $this->setUpdateValidation(['name' => 'required']);
+    public function __construct(Role $model)
+    {
+        $this->model = $model;
+        $this->setResource(RoleResource::class);
     }
 
 }

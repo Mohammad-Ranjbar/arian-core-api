@@ -27,17 +27,12 @@ class CrudController extends Controller
         $this->filters = $filters;
     }
 
-    public function setRepository($repository): void
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data = Pipeline::send($this->repository->getModel())->through($this->filters)->thenReturn()->paginate(request()->paginate ?? 15);
+        $data = Pipeline::send($this->repository->model)->through($this->filters)->thenReturn()->paginate(request()->paginate ?? 15);
         return $this->repository->collect($data);
     }
 
@@ -46,7 +41,7 @@ class CrudController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate($this->repository->rules);
+        $request->validate($this->repository->getCreateRules());
         return new $this->repository->resource($this->repository->store($request->toArray()));
     }
 
@@ -63,7 +58,7 @@ class CrudController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate($this->repository->rules);
+        $request->validate($this->repository->getUpdateRules());
         return $this->repository->update($id, $request->toArray());
     }
 
@@ -75,5 +70,12 @@ class CrudController extends Controller
         return $this->repository->destroy($id);
     }
 
+    public function applyAuthorizeResource()
+    {
+        $this->authorizeResource(
+            $this->repository->model->getMorphClass(),
+            $this->repository->model->getMorphClass()
+        );
+    }
 
 }

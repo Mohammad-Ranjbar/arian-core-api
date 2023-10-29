@@ -11,6 +11,7 @@ class RoleController extends CrudController
 {
     public function __construct(RoleRepository $repository)
     {
-        $this->setRepository($repository);
+        $this->repository = $repository;
+        $this->applyAuthorizeResource();
     }
 }
