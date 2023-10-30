@@ -2,13 +2,11 @@
 
 namespace App\libs;
 
-use App\Http\Resources\BaseResource;
-
 abstract class BaseRepository
 {
-    public          $model;
-    public          $resource = BaseResource::class;
-    protected array $rules    = [
+    public $model;
+
+    protected array $rules = [
         'create' => [], 'update' => [],
     ];
 
@@ -32,31 +30,20 @@ abstract class BaseRepository
         return $this->model->query()->create($data);
     }
 
+    public function update($id, $data)
+    {
+        $model = $this->show($id);
+        $model->update($data);
+        return $model;
+    }
+
     public function show($id)
     {
         return $this->model->find($id);
-    }
-
-    public function update($id, $data)
-    {
-        return $this->model->find($id)->update($data);
     }
 
     public function destroy($id)
     {
         return $this->model->find($id)->delete();
     }
-
-
-    public function setResource($resource)
-    {
-        $this->resource = $resource;
-    }
-
-    public function collect($q)
-    {
-        return $this->resource::collection($q);
-    }
-
-
 }

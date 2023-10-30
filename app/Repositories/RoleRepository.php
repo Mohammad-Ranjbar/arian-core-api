@@ -2,25 +2,32 @@
 
 namespace App\Repositories;
 
-use App\Http\Resources\RoleResource;
 use App\libs\BaseRepository;
 use App\Models\Role;
 
 class RoleRepository extends BaseRepository
 {
+
     protected array $rules = [
         'create' => [
-            'name' => 'required'
+            'name'          => 'required|unique:roles,name',
+            'guard_name'    => 'required',
+            'permissions'   => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id'
         ],
-        'update'=>[
-            'name' => 'required'
+        'update' => [
+            'name'          => 'required|unique:roles,name,',
+            'guard_name'    => 'nullable',
+            'permissions'   => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id'
         ]
     ];
 
     public function __construct(Role $model)
     {
         $this->model = $model;
-        $this->setResource(RoleResource::class);
+
+        $this->rules['update']['name'] .= request()->route()->parameter('role');
     }
 
 }

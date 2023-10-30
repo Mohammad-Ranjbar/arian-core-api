@@ -13,5 +13,6 @@ class RoleController extends CrudController
     {
         $this->repository = $repository;
         $this->applyAuthorizeResource();
+        $this->setResource(RoleResource::class);
     }
 }
