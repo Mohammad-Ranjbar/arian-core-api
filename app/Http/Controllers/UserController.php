@@ -7,6 +7,9 @@ use App\Repositories\UserRepository;
 
 class UserController extends CrudController
 {
+    /**
+     * @param  UserRepository  $repository
+     */
     public function __construct(UserRepository $repository)
     {
         $this->repository = $repository;

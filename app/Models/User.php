@@ -47,4 +47,17 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(MakeCode::class);
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Role::class,
+            'model_has_roles',
+            'model_id',
+            'role_id',
+        )->withPivotValue(['model_type' => 'App\Models\User']);
+    }
 }

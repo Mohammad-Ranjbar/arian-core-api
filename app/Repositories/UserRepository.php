@@ -14,16 +14,20 @@ class UserRepository extends BaseRepository
         'create' => [
             'name'     => 'required',
             'email'    => 'unique:users,email',
-            'mobile'   => 'unique:users,mobile',
+            'mobile'   => 'digits:11|starts_with:09|unique:users,mobile',
             'password' => 'required|min:6',
             'avatar'   => 'nullable',
+            'roles'    => 'nullable|array',
+            'roles.*'  => 'exists:roles,id'
         ],
         'update' => [
             'name'     => 'required',
             'email'    => 'required|unique:users,email,',
-            'mobile'   => 'required|unique:users,mobile,',
-            'password' => 'required|min:6',
+            'mobile'   => 'digits:11|starts_with:09|required|unique:users,mobile,',
+            'password' => 'nullable|min:6',
             'avatar'   => 'nullable',
+            'roles'    => 'nullable|array',
+            'roles.*'  => 'exists:roles,id'
         ]
     ];
 
