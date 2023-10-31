@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('make_code_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->index()->constrained()->cascadeOnDelete();
-            $table->timestamps();
         });
     }
 

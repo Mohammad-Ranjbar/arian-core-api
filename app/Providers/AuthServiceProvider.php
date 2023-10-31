@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\CarModel;
 use App\Models\MakeCode;
 use App\Models\Role;
 use App\Policies\CrudPolicy;
@@ -14,7 +15,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $policies = [
-        Role::class => CrudPolicy::class, MakeCode::class => CrudPolicy::class,
+        Role::class => CrudPolicy::class, MakeCode::class => CrudPolicy::class, CarModel::class => CrudPolicy::class
     ];
 
 

@@ -12,14 +12,14 @@ class MakeCodeRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'title'     => 'required|unique:make_codes,title',
-            'reference' => 'required',
+            'reference' => 'required|unique:make_codes,reference',
+            'title'     => 'required',
             'users'     => 'nullable|array',
             'users.*'   => 'exists:users,id'
         ],
         'update' => [
-            'title'     => 'required|unique:roles,name,',
-            'reference' => 'required',
+            'reference' => 'required|unique:make_codes,reference,',
+            'title'     => 'required',
             'users'     => 'nullable|array',
             'users.*'   => 'exists:users,id'
         ]
@@ -32,7 +32,7 @@ class MakeCodeRepository extends BaseRepository
     {
         $this->model = $model;
 
-        $this->rules['update']['title'] .= request()->route()->parameter('makeCode');
+        $this->rules['update']['reference'] .= request()->route()->parameter('makeCode');
     }
 
 }
