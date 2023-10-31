@@ -8,6 +8,9 @@ use App\Models\Role;
 class RoleRepository extends BaseRepository
 {
 
+    /**
+     * @var array|array[]
+     */
     protected array $rules = [
         'create' => [
             'name'          => 'required|unique:roles,name',
@@ -23,6 +26,9 @@ class RoleRepository extends BaseRepository
         ]
     ];
 
+    /**
+     * @param  Role  $model
+     */
     public function __construct(Role $model)
     {
         $this->model = $model;

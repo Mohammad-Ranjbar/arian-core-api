@@ -4,45 +4,77 @@ namespace App\libs;
 
 abstract class BaseRepository
 {
+    /**
+     * @var
+     */
     public $model;
 
+    /**
+     * @var array|array[]
+     */
     protected array $rules = [
         'create' => [], 'update' => [],
     ];
 
-    public function getCreateRules()
+    /**
+     * @return array
+     */
+    public function getCreateRules():array
     {
         return $this->rules['create'];
     }
 
-    public function getUpdateRules()
+    /**
+     * @return array
+     */
+    public function getUpdateRules():array
     {
         return $this->rules['update'];
     }
 
-    public function paginate()
+    /**
+     * @return mixed
+     */
+    public function paginate():mixed
     {
         return $this->model->query()->paginate();
     }
 
-    public function store($data)
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function store($data):mixed
     {
         return $this->model->query()->create($data);
     }
 
-    public function update($id, $data)
+    /**
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function update($id, $data):mixed
     {
         $model = $this->show($id);
         $model->update($data);
         return $model;
     }
 
-    public function show($id)
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function show($id):mixed
     {
         return $this->model->find($id);
     }
 
-    public function destroy($id)
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function destroy($id):bool
     {
         return $this->model->find($id)->delete();
     }

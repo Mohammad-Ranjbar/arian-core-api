@@ -9,6 +9,9 @@ use App\Repositories\RoleRepository;
 
 class RoleController extends CrudController
 {
+    /**
+     * @param  RoleRepository  $repository
+     */
     public function __construct(RoleRepository $repository)
     {
         $this->repository = $repository;
