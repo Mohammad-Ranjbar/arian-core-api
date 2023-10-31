@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResources([
         'roles'      => RoleController::class, 'make-codes' => MakeCodeController::class,
-        'car-models' => CarModelController::class
+        'car-models' => CarModelController::class,
+
     ]);
 });

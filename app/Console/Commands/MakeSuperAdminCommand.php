@@ -15,14 +15,15 @@ class MakeSuperAdminCommand extends Command
     /**
      * @return void
      */
-    public function handle():void
+    public function handle(): void
     {
         $input['email'] = $this->ask('Email?');
         /** @var User $user */
         $user = User::query()->where($input)->first();
-        if(!$user) {
+        if (!$user) {
             $input['name'] = $this->ask('What is the name?');
-            $input['password'] = bcrypt($this->ask('What is the password?'));
+            $input['mobile'] = $this->ask('What is the mobile?');
+            $input['password'] = $this->ask('What is the password?');
             $user = User::query()->create($input);
         }
         $user->assignRole('super-admin');
