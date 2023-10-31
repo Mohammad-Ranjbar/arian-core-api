@@ -24,13 +24,16 @@ class AuthController extends Controller
     {
         try {
             $validatedData = $request->validated();
-            if (!Auth::attempt($validatedData)) {
+            $user = User::query()->where('email', $validatedData['username'])
+                ->orWhere('mobile', $validatedData['username'])
+                ->firstOrFail();
+            if (!Hash::check($validatedData['password'], $user->password)) {
                 return response()->json([
                     'message' => 'Unauthorized'
                 ], 401);
             }
 
-            $user = $request->user();
+            Auth::login($user);
             $tokenResult = $user->createToken('Personal Access Token');
             $token = $tokenResult->plainTextToken;
 
