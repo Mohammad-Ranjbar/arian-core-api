@@ -7,6 +7,7 @@ use App\Http\Requests\ChangePasswordUserRequest;
 use App\Http\Requests\RecoverPasswordRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -59,7 +60,7 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return JsonResponse
      */
-    public function checkUser(Request $request): JsonResponse
+    public function init(Request $request): JsonResponse
     {
         return response()->json([
             'user'        => new UserResource($request->user()),
@@ -105,8 +106,17 @@ class AuthController extends Controller
      * @param  VerifyCodeRequest  $request
      * @return array
      */
-    public function verifyCode(VerifyCodeRequest $request):array
+    public function verifyCode(VerifyCodeRequest $request): array
     {
         return $request->validated();
+    }
+
+    public function checkUserName(Request $request)
+    {
+        $validatedData = $request->validate(['username' => 'required']);
+        $user = User::query()->where('email', $validatedData['username'])
+            ->orWhere('mobile', $validatedData['username'])
+            ->firstOrFail();
+        return new UserResource($user);
     }
 }
