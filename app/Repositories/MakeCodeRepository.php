@@ -35,4 +35,6 @@ class MakeCodeRepository extends BaseRepository
         $this->rules['update']['reference'] .= request()->route()->parameter('makeCode');
     }
 
+
+
 }

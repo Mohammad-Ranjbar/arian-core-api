@@ -19,7 +19,7 @@ abstract class BaseRepository
     /**
      * @return array
      */
-    public function getCreateRules():array
+    public function getCreateRules(): array
     {
         return $this->rules['create'];
     }
@@ -27,7 +27,7 @@ abstract class BaseRepository
     /**
      * @return array
      */
-    public function getUpdateRules():array
+    public function getUpdateRules(): array
     {
         return $this->rules['update'];
     }
@@ -35,7 +35,7 @@ abstract class BaseRepository
     /**
      * @return mixed
      */
-    public function paginate():mixed
+    public function paginate(): mixed
     {
         return $this->model->query()->paginate();
     }
@@ -44,7 +44,7 @@ abstract class BaseRepository
      * @param $data
      * @return mixed
      */
-    public function store($data):mixed
+    public function store($data): mixed
     {
         return $this->model->query()->create($data);
     }
@@ -54,7 +54,7 @@ abstract class BaseRepository
      * @param $data
      * @return mixed
      */
-    public function update($id, $data):mixed
+    public function update($id, $data): mixed
     {
         $model = $this->show($id);
         $model->update($data);
@@ -65,7 +65,7 @@ abstract class BaseRepository
      * @param $id
      * @return mixed
      */
-    public function show($id):mixed
+    public function show($id): mixed
     {
         return $this->model->find($id);
     }
@@ -74,11 +74,12 @@ abstract class BaseRepository
      * @param $id
      * @return bool
      */
-    public function destroy($id):bool
+    public function destroy($id): bool
     {
         return $this->model->find($id)->delete();
     }
-    public function getOptions():array
+
+    public function getOptions(): array
     {
         return $this->model->newQuery()->get()->map(function ($item) {
             return [
@@ -87,4 +88,19 @@ abstract class BaseRepository
             ];
         })->all();
     }
+
+    public function findBy($value, $parameter = 'reference')
+    {
+        return $this->model->newQuery()->where($parameter, $value)->first();
+    }
+
+    public function make($data,$parameter = 'reference')
+    {
+        $record = $this->findBy($data[$parameter],$parameter);
+        if (!$record) {
+            $record = $this->store($data);
+        }
+        return $record;
+    }
+
 }

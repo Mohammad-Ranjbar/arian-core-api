@@ -12,22 +12,26 @@ class UserRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'name'     => 'required',
-            'email'    => 'unique:users,email',
-            'mobile'   => 'digits:11|starts_with:09|unique:users,mobile',
-            'password' => 'required|min:6',
-            'avatar'   => 'nullable',
-            'roles'    => 'nullable|array',
-            'roles.*'  => 'exists:roles,id'
+            'name'       => 'required',
+            'email'      => 'unique:users,email',
+            'mobile'     => 'digits:11|starts_with:09|unique:users,mobile',
+            'password'   => 'required|min:6',
+            'avatar'     => 'nullable',
+            'roles'      => 'nullable|array',
+            'roles.*'    => 'exists:roles,id',
+            'makeCodes'   => 'nullable|array',
+            'makeCodes.*' => 'exists:make_codes,id',
         ],
         'update' => [
-            'name'     => 'required',
-            'email'    => 'required|unique:users,email,',
-            'mobile'   => 'digits:11|starts_with:09|required|unique:users,mobile,',
-            'password' => 'nullable|min:6',
-            'avatar'   => 'nullable',
-            'roles'    => 'nullable|array',
-            'roles.*'  => 'exists:roles,id'
+            'name'       => 'required',
+            'email'      => 'required|unique:users,email,',
+            'mobile'     => 'digits:11|starts_with:09|required|unique:users,mobile,',
+            'password'   => 'nullable|min:6',
+            'avatar'     => 'nullable',
+            'roles'      => 'nullable|array',
+            'roles.*'    => 'exists:roles,id',
+            'makeCodes'   => 'nullable|array',
+            'makeCodes.*' => 'exists:make_codes,id'
         ]
     ];
 
