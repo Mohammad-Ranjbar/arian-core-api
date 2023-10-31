@@ -24,7 +24,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::apiResources([
-        'roles'      => RoleController::class, 'make-codes' => MakeCodeController::class,
-        'car-models' => CarModelController::class, 'users' => UserController::class
+        'roles'      => RoleController::class,
+        'make_codes' => MakeCodeController::class,
+        'car_models' => CarModelController::class,
+        'users'      => UserController::class
     ]);
 });

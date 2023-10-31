@@ -13,7 +13,7 @@ class UpdatePermissionCommand extends Command
     /**
      * @var string
      */
-    protected $signature = 'app:update-permission-command';
+    protected $signature = 'permission:update';
 
     /**
      * @return void
