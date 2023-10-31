@@ -36,4 +36,6 @@ class RoleRepository extends BaseRepository
         $this->rules['update']['name'] .= request()->route()->parameter('role');
     }
 
+
+
 }

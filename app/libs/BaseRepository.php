@@ -78,4 +78,13 @@ abstract class BaseRepository
     {
         return $this->model->find($id)->delete();
     }
+    public function getOptions():array
+    {
+        return $this->model->newQuery()->get()->map(function ($item) {
+            return [
+                'id'    => $item->id,
+                'title' => $item->title,
+            ];
+        })->all();
+    }
 }
