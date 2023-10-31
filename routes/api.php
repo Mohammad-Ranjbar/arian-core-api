@@ -5,6 +5,7 @@ use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -23,7 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResources([
         'roles'      => RoleController::class, 'make-codes' => MakeCodeController::class,
-        'car-models' => CarModelController::class,
-
+        'car-models' => CarModelController::class, 'users' => UserController::class
     ]);
 });
