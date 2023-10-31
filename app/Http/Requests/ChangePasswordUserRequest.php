@@ -21,7 +21,8 @@ class ChangePasswordUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'password' => 'required|string|min:6'
+            'newPassword' => 'required|string|min:6',
+            'oldPassword' => 'required|string',
         ];
     }
 }

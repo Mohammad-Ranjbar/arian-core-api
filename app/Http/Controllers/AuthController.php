@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthRequest;
 use App\Http\Requests\ChangePasswordUserRequest;
+use App\Http\Requests\RecoverPasswordRequest;
+use App\Http\Requests\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -58,7 +61,10 @@ class AuthController extends Controller
      */
     public function checkUser(Request $request): JsonResponse
     {
-        return response()->json(new UserResource($request->user()));
+        return response()->json([
+            'user'        => new UserResource($request->user()),
+            'permissions' => $request->user()->getAllPermissions()->pluck('name')->all()
+        ]);
     }
 
     /**
@@ -69,12 +75,38 @@ class AuthController extends Controller
     {
         $validatedData = $request->validated();
         try {
-            $request->user()->update(['password' => bcrypt($validatedData['password'])]);
+            if (!Hash::check($validatedData['oldPassword'], $request->user()->password)) {
+                return response()->json([
+                    'message' => 'The previous password was entered incorrectly'
+                ], 422);
+            }
+            $request->user()->update(['password' => bcrypt($validatedData['newPassword'])]);
             return response()->json([
                 'message' => 'The password was changed successfully'
             ]);
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), $exception->getCode());
         }
+    }
+
+    /*
+     * TODO implement recover password
+     */
+    /**
+     * @param  RecoverPasswordRequest  $request
+     * @return array
+     */
+    public function recoverPassword(RecoverPasswordRequest $request): array
+    {
+        return $request->validated();
+    }
+
+    /**
+     * @param  VerifyCodeRequest  $request
+     * @return array
+     */
+    public function verifyCode(VerifyCodeRequest $request):array
+    {
+        return $request->validated();
     }
 }
