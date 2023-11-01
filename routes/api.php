@@ -7,6 +7,7 @@ use App\Http\Controllers\OptionController;
 use App\Http\Controllers\ProductionLineController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalonController;
+use App\Http\Controllers\StationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\WorkGroupCenterController;
@@ -37,5 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'salons'             => SalonController::class,
         'production_lines'   => ProductionLineController::class,
         'work_group_centers' => WorkGroupCenterController::class,
+        'stations'           => StationController::class,
     ]);
 });

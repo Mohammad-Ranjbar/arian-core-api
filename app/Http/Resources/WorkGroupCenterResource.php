@@ -15,7 +15,9 @@ class WorkGroupCenterResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'title' => $this->resource->title
+            'id'                 => $this->resource->id,
+            'title'              => $this->resource->title,
+            'production_line_id' => $this->resource->production_line_id
         ];
     }
 }

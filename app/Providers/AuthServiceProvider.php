@@ -7,6 +7,7 @@ use App\Models\MakeCode;
 use App\Models\ProductionLine;
 use App\Models\Role;
 use App\Models\Salon;
+use App\Models\Station;
 use App\Models\User;
 use App\Models\WorkGroupCenter;
 use App\Policies\CrudPolicy;
@@ -26,6 +27,7 @@ class AuthServiceProvider extends ServiceProvider
         Salon::class           => CrudPolicy::class,
         ProductionLine::class  => CrudPolicy::class,
         WorkGroupCenter::class => CrudPolicy::class,
+        Station::class         => CrudPolicy::class,
     ];
 
 
