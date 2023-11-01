@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\MakeCodeRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProductionLineRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SalonRepository;
 use App\Repositories\StationRepository;
 use App\Repositories\WorkGroupCenterRepository;
-use Illuminate\Http\Request;
 
 class OptionController extends Controller
 {
@@ -24,6 +24,7 @@ class OptionController extends Controller
     private ProductionLineRepository  $productionLineRepository;
     private WorkGroupCenterRepository $workGroupCenterRepository;
     private StationRepository         $stationRepository;
+    private MakeCodeRepository        $makeCodeRepository;
 
     /**
      * @param  RoleRepository  $roleRepository
@@ -35,7 +36,8 @@ class OptionController extends Controller
         SalonRepository $salonRepository,
         ProductionLineRepository $productionLineRepository,
         WorkGroupCenterRepository $workGroupCenterRepository,
-        StationRepository $stationRepository
+        StationRepository $stationRepository,
+        MakeCodeRepository $makeCodeRepository
     ) {
         $this->roleRepository = $roleRepository;
         $this->permissionRepository = $permissionRepository;
@@ -43,6 +45,7 @@ class OptionController extends Controller
         $this->productionLineRepository = $productionLineRepository;
         $this->workGroupCenterRepository = $workGroupCenterRepository;
         $this->stationRepository = $stationRepository;
+        $this->makeCodeRepository = $makeCodeRepository;
     }
 
     /**
@@ -91,5 +94,13 @@ class OptionController extends Controller
     public function stations(): array
     {
         return $this->stationRepository->getOptions();
+    }
+
+    /**
+     * @return array
+     */
+    public function makeCodes(): array
+    {
+        return $this->makeCodeRepository->getOptions();
     }
 }

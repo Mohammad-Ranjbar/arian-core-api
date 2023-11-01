@@ -42,6 +42,14 @@ class Vehicle extends Model
     }
 
     /**
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'vin';
+    }
+
+    /**
      * @return BelongsTo
      */
     public function makeCode(): BelongsTo

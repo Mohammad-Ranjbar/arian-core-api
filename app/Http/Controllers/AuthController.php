@@ -28,7 +28,7 @@ class AuthController extends Controller
             $user = User::query()->where('email', $validatedData['username'])
                 ->orWhere('mobile', $validatedData['username'])
                 ->first();
-      
+
             if (!isset($user)) {
                 return response()->json([
                     'message' => 'user not found'
