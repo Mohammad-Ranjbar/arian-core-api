@@ -36,12 +36,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/make-codes', [OptionController::class, 'makeCodes']);
 
     });
-    Route::post('/production_tracking/{vehicle}', [ProductionTrackingController::class, 'enter']);
+    Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'enter']);
 
     Route::apiResources([
-        'roles'              => RoleController::class, 'make_codes' => MakeCodeController::class,
-        'car_models'         => CarModelController::class, 'users' => UserController::class,
-        'salons'             => SalonController::class, 'production_lines' => ProductionLineController::class,
-        'work_group_centers' => WorkGroupCenterController::class, 'stations' => StationController::class,
+        'roles'              => RoleController::class,
+        'make-codes'         => MakeCodeController::class,
+        'car-models'         => CarModelController::class,
+        'users'              => UserController::class,
+        'salons'             => SalonController::class,
+        'production-lines'   => ProductionLineController::class,
+        'work-group-centers' => WorkGroupCenterController::class,
+        'stations'           => StationController::class,
     ]);
 });
