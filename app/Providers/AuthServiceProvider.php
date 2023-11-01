@@ -8,6 +8,7 @@ use App\Models\ProductionLine;
 use App\Models\Role;
 use App\Models\Salon;
 use App\Models\User;
+use App\Models\WorkGroupCenter;
 use App\Policies\CrudPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -18,12 +19,13 @@ class AuthServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $policies = [
-        Role::class           => CrudPolicy::class,
-        MakeCode::class       => CrudPolicy::class,
-        CarModel::class       => CrudPolicy::class,
-        User::class           => CrudPolicy::class,
-        Salon::class          => CrudPolicy::class,
-        ProductionLine::class => CrudPolicy::class,
+        Role::class            => CrudPolicy::class,
+        MakeCode::class        => CrudPolicy::class,
+        CarModel::class        => CrudPolicy::class,
+        User::class            => CrudPolicy::class,
+        Salon::class           => CrudPolicy::class,
+        ProductionLine::class  => CrudPolicy::class,
+        WorkGroupCenter::class => CrudPolicy::class,
     ];
 
 

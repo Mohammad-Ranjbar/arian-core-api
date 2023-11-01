@@ -9,6 +9,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -29,11 +30,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::apiResources([
-        'roles'            => RoleController::class,
-        'make_codes'       => MakeCodeController::class,
-        'car_models'       => CarModelController::class,
-        'users'            => UserController::class,
-        'salons'           => SalonController::class,
-        'production_lines' => ProductionLineController::class,
+        'roles'              => RoleController::class,
+        'make_codes'         => MakeCodeController::class,
+        'car_models'         => CarModelController::class,
+        'users'              => UserController::class,
+        'salons'             => SalonController::class,
+        'production_lines'   => ProductionLineController::class,
+        'work_group_centers' => WorkGroupCenterController::class,
     ]);
 });
