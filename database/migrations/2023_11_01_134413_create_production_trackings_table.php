@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->string('vin')->index();
             $table->string('type');
             $table->morphs('model');
-            $table->unsignedBigInteger('mode_id');
             $table->foreignId('user_id')->index()->constrained()->cascadeOnDelete();
             $table->foreign('vin')->references('vin')->on('vehicles')->cascadeOnDelete();
             $table->timestamps();

@@ -36,7 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/make-codes', [OptionController::class, 'makeCodes']);
 
     });
-    Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'enter']);
+
+    Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
 
     Route::apiResources([
         'roles'              => RoleController::class,

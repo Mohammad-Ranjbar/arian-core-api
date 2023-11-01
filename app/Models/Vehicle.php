@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Vehicle extends Model
@@ -55,5 +56,22 @@ class Vehicle extends Model
     public function makeCode(): BelongsTo
     {
         return $this->belongsTo(MakeCode::class);
+    }
+
+    /**
+     * @param $userId
+     * @return bool
+     */
+    public function hasAccess($userId):bool
+    {
+      return  $this->makeCode->users()->where('users.id',$userId)->exists();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function tracking():HasMany
+    {
+        return $this->hasMany(Tracking::class,'vin');
     }
 }
