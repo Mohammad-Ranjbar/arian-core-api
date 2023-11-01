@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\libs\BaseRepository;
 use App\Models\CarModel;
-use App\Models\MakeCode;
 
 class CarModelRepository extends BaseRepository
 {
@@ -28,8 +27,9 @@ class CarModelRepository extends BaseRepository
     public function __construct(CarModel $model)
     {
         $this->model = $model;
-
-        $this->rules['update']['reference'] .= request()->route()->parameter('carModel');
+        if (request()->route()) {
+            $this->rules['update']['reference'] .= request()->route()->parameter('car_model');
+        }
     }
 
 }

@@ -32,9 +32,10 @@ class MakeCodeRepository extends BaseRepository
     {
         $this->model = $model;
 
-        $this->rules['update']['reference'] .= request()->route()->parameter('makeCode');
+        if (request()->route()) {
+            $this->rules['update']['reference'] .= request()->route()->parameter('make_code');
+        }
     }
-
 
 
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
+use App\Http\Controllers\ProductionLineController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\UserController;
@@ -28,8 +29,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::apiResources([
-        'roles'      => RoleController::class, 'make_codes' => MakeCodeController::class,
-        'car_models' => CarModelController::class, 'users' => UserController::class,
-        'salons'     => SalonController::class
+        'roles'            => RoleController::class,
+        'make_codes'       => MakeCodeController::class,
+        'car_models'       => CarModelController::class,
+        'users'            => UserController::class,
+        'salons'           => SalonController::class,
+        'production_lines' => ProductionLineController::class,
     ]);
 });

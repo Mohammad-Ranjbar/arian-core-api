@@ -24,8 +24,9 @@ class SalonRepository extends BaseRepository
     public function __construct(Salon $model)
     {
         $this->model = $model;
-
-        $this->rules['update']['title'] .= request()->route()->parameter('salon');
+        if (request()->route()) {
+            $this->rules['update']['title'] .= request()->route()->parameter('salon');
+        }
     }
 
 }

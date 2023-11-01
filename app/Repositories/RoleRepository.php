@@ -32,10 +32,10 @@ class RoleRepository extends BaseRepository
     public function __construct(Role $model)
     {
         $this->model = $model;
-
-        $this->rules['update']['name'] .= request()->route()->parameter('role');
+        if (request()->route()) {
+            $this->rules['update']['name'] .= request()->route()->parameter('role');
+        }
     }
-
 
 
 }

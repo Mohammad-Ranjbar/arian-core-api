@@ -53,7 +53,7 @@ class CrudController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => $exception->getMessage()
-            ], $exception->getCode());
+            ],500);
         }
     }
 
@@ -91,7 +91,7 @@ class CrudController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => $exception->getMessage()
-            ], $exception->getCode());
+            ],500);
         }
     }
 
