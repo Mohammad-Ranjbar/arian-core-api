@@ -2,13 +2,32 @@
 
 namespace App\libs;
 
+use App\Filters\CreatedAtFromFilter;
+use App\Filters\CreatedAtToFilter;
+use App\Filters\IdFilter;
+use App\Filters\NameFilter;
+use App\Filters\ProductionLineIdFilter;
+use App\Filters\SalonIdFilter;
+use App\Filters\TitleFilter;
+use App\Filters\WorkGroupCenterIdFilter;
+use Illuminate\Support\Facades\Pipeline;
+
 abstract class BaseRepository
 {
     /**
      * @var
      */
-    public $model;
-
+    public       $model;
+    public array $filters = [
+        NameFilter::class,
+        TitleFilter::class,
+        CreatedAtFromFilter::class,
+        CreatedAtToFilter::class,
+        IdFilter::class,
+        SalonIdFilter::class,
+        ProductionLineIdFilter::class,
+        WorkGroupCenterIdFilter::class,
+    ];
     /**
      * @var array|array[]
      */
@@ -30,23 +49,6 @@ abstract class BaseRepository
     public function getUpdateRules(): array
     {
         return $this->rules['update'];
-    }
-
-    /**
-     * @return mixed
-     */
-    public function paginate(): mixed
-    {
-        return $this->model->query()->paginate();
-    }
-
-    /**
-     * @param $data
-     * @return mixed
-     */
-    public function store($data): mixed
-    {
-        return $this->model->query()->create($data);
     }
 
     /**
@@ -81,7 +83,7 @@ abstract class BaseRepository
 
     public function getOptions(): array
     {
-        return $this->model->newQuery()->get()->map(function ($item) {
+        return $this->get()->map(function ($item) {
             return [
                 'id'    => $item->id,
                 'title' => $item->title,
@@ -89,18 +91,44 @@ abstract class BaseRepository
         })->all();
     }
 
+    public function get()
+    {
+        return $this->makeQuery()->get();
+    }
+
+    public function makeQuery()
+    {
+        return Pipeline::send($this->model)
+            ->through($this->filters)
+            ->thenReturn();
+    }
+
+    public function make($data, $parameter = 'reference')
+    {
+        $record = $this->findBy($data[$parameter], $parameter);
+        if (!$record) {
+            $record = $this->store($data);
+        }
+        return $record;
+    }
+
     public function findBy($value, $parameter = 'reference')
     {
         return $this->model->newQuery()->where($parameter, $value)->first();
     }
 
-    public function make($data,$parameter = 'reference')
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function store($data): mixed
     {
-        $record = $this->findBy($data[$parameter],$parameter);
-        if (!$record) {
-            $record = $this->store($data);
-        }
-        return $record;
+        return $this->model->query()->create($data);
+    }
+
+    public function paginate($perPage)
+    {
+        return $this->makeQuery()->paginate($perPage);
     }
 
 }

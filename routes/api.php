@@ -28,6 +28,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('options')->group(function () {
         Route::get('/permissions', [OptionController::class, 'permissions']);
         Route::get('/roles', [OptionController::class, 'roles']);
+        Route::get('/salons', [OptionController::class, 'salons']);
+        Route::get('/production-lines', [OptionController::class, 'productionLines']);
+        Route::get('/work-group-centers', [OptionController::class, 'workGroupCenters']);
+        Route::get('/stations', [OptionController::class, 'stations']);
+
     });
 
     Route::apiResources([

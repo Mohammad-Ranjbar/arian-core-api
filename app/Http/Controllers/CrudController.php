@@ -18,22 +18,19 @@ class CrudController extends Controller
 {
     public BaseRepository $repository;
     public                $resource = BaseResource::class;
-    public array          $filters  = [
-        NameFilter::class, TitleFilter::class, CreatedAtFromFilter::class, CreatedAtToFilter::class, IdFilter::class
-    ];
-
-    public function setFilters(array $filters): void
-    {
-        $this->filters = $filters;
-    }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = Pipeline::send($this->repository->model)->through($this->filters)->thenReturn()->paginate(request()->paginate ?? 15);
-        return $this->collect($data);
+        $perPage = $request->get('per_page',15);
+        return $this->collect($this->repository->paginate($perPage));
+    }
+
+    public function collect($q)
+    {
+        return $this->resource::collection($q);
     }
 
     /**
@@ -53,7 +50,7 @@ class CrudController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => $exception->getMessage()
-            ],500);
+            ], 500);
         }
     }
 
@@ -91,7 +88,7 @@ class CrudController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => $exception->getMessage()
-            ],500);
+            ], 500);
         }
     }
 
@@ -111,9 +108,5 @@ class CrudController extends Controller
     public function setResource($resource)
     {
         $this->resource = $resource;
-    }
-    public function collect($q)
-    {
-        return $this->resource::collection($q);
     }
 }
