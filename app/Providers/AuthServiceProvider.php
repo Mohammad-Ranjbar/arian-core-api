@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\CarModel;
 use App\Models\MakeCode;
 use App\Models\Role;
+use App\Models\Salon;
 use App\Models\User;
 use App\Policies\CrudPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -20,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
         MakeCode::class => CrudPolicy::class,
         CarModel::class => CrudPolicy::class,
         User::class     => CrudPolicy::class,
+        Salon::class    => CrudPolicy::class,
     ];
 
 

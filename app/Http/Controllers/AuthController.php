@@ -24,9 +24,15 @@ class AuthController extends Controller
     {
         try {
             $validatedData = $request->validated();
-            $user = User::query()->where('email', $validatedData['username'])
+
+            $user = User::query()->where('mobile', $validatedData['username'])
                 ->orWhere('mobile', $validatedData['username'])
-                ->firstOrFail();
+                ->first();
+            if (!isset($user)) {
+                return response()->json([
+                    'message' => 'user not found'
+                ], 404);
+            }
             if (!Hash::check($validatedData['password'], $user->password)) {
                 return response()->json([
                     'message' => 'Unauthorized'
@@ -38,7 +44,8 @@ class AuthController extends Controller
             $token = $tokenResult->plainTextToken;
 
             return response()->json([
-                'accessToken' => $token, 'token_type' => 'Bearer',
+                'accessToken' => $token,
+                'token_type'  => 'Bearer',
             ]);
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), $exception->getCode());
