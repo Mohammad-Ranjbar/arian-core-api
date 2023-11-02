@@ -9,11 +9,9 @@ class TrackingServiceFactory
         if ($model === 'salon') {
             return new SalonTrackingService();
         }
-        //TODO
         if ($model === 'production_line') {
             return new ProductionLineTrackingService();
         }
-
     }
 
 }
