@@ -2,7 +2,7 @@
 
 namespace App\Services\TrackingService;
 
-interface TrackingModelInterface
+interface TrackingServiceInterface
 {
     public function enter($data);
 

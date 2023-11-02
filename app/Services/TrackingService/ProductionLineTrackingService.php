@@ -2,22 +2,24 @@
 
 namespace App\Services\TrackingService;
 
-class SalonTrackingModel extends BaseTrackingModel
+use App\Models\ProductionLine;
+
+class ProductionLineTrackingService extends BaseTrackingService
 {
-    const MODEL_TYPE = 'App\Models\Salon';
+    const MODEL_TYPE = 'App\Models\ProductionLine';
 
     public function enter($data)
     {
+        $productionLine = ProductionLine::find($data['model_id']);
+        $tracking = $this->getLatestRecord(SalonTrackingService::MODEL_TYPE, $productionLine->salon_id, $data['vin']);
+        if (!$tracking or $tracking->type === 'exit') {
+            return false;
+        }
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
         if (!$tracking or $tracking->type === 'exit') {
             return $this->prepareData($data);
         }
         return false;
-    }
-    public function prepareData($data)
-    {
-        $data['model_type'] = self::MODEL_TYPE;
-        return $data;
     }
 
     public function exit($data)
@@ -27,5 +29,11 @@ class SalonTrackingModel extends BaseTrackingModel
             return false;
         }
         return $this->prepareData($data);
+    }
+
+    public function prepareData($data)
+    {
+        $data['model_type'] = self::MODEL_TYPE;
+        return $data;
     }
 }

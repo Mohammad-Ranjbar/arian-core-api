@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TrackingRequest;
 use App\Http\Resources\VehicleResource;
 use App\Models\Vehicle;
-use App\Services\TrackingService\TrackingModelFactory;
+use App\Services\TrackingService\TrackingServiceFactory;
 
 class ProductionTrackingController extends Controller
 {
@@ -19,7 +19,7 @@ class ProductionTrackingController extends Controller
                 'message' => 'user cant access this vehicle'
             ], 403);
         }
-        $modelTrackingService = TrackingModelFactory::getInstance($validatedData['model_type']);
+        $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
         if (!$data = $modelTrackingService->{$validatedData['type']}($validatedData)) {
             return response()->json([
                 'message' => 'cant not exit or enter to this location'

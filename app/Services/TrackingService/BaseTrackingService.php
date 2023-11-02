@@ -4,7 +4,7 @@ namespace App\Services\TrackingService;
 
 use App\Models\Tracking;
 
-abstract class BaseTrackingModel implements TrackingModelInterface
+abstract class BaseTrackingService implements TrackingServiceInterface
 {
     public function getLatestRecord($modelType, $modeId, $vin)
     {

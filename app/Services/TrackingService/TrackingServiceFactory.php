@@ -2,16 +2,16 @@
 
 namespace App\Services\TrackingService;
 
-class TrackingModelFactory
+class TrackingServiceFactory
 {
     public static function getInstance($model)
     {
         if ($model === 'salon') {
-            return new SalonTrackingModel();
+            return new SalonTrackingService();
         }
         //TODO
         if ($model === 'production_line') {
-            return new ProductionLineTrackingModel();
+            return new ProductionLineTrackingService();
         }
 
     }
