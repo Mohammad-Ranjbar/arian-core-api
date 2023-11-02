@@ -14,11 +14,7 @@ class ProductionTrackingController extends Controller
         $validatedData = $request->validated();
         $validatedData['vin'] = $vehicle->vin;
         $validatedData['user_id'] = $request->user()->id;
-        if (!$vehicle->hasAccess($request->user()->id)) {
-            return response([
-                'message' => 'user cant access this vehicle'
-            ], 403);
-        }
+
         $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
         if (!$data = $modelTrackingService->{$validatedData['type']}($validatedData)) {
             return response()->json([

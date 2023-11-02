@@ -9,8 +9,10 @@ use App\Models\Role;
 use App\Models\Salon;
 use App\Models\Station;
 use App\Models\User;
+use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
 use App\Policies\CrudPolicy;
+use App\Policies\VehiclePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -28,6 +30,8 @@ class AuthServiceProvider extends ServiceProvider
         ProductionLine::class  => CrudPolicy::class,
         WorkGroupCenter::class => CrudPolicy::class,
         Station::class         => CrudPolicy::class,
+
+        Vehicle::class => VehiclePolicy::class
     ];
 
 

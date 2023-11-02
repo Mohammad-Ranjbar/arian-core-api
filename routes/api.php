@@ -37,7 +37,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     });
 
-    Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
+    Route::middleware('access.vehicle')->group(function () {
+        Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
+    });
 
     Route::apiResources([
         'roles'              => RoleController::class,
