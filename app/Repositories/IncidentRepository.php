@@ -30,9 +30,9 @@ class IncidentRepository extends BaseRepository
     {
         $this->model = $model;
         if (request()->route()) {
-            $this->rules['update']['title'] .= request()->route()->parameter('title');
-            $this->rules['update']['title_en'] .= request()->route()->parameter('title_en');
-            $this->rules['update']['code'] .= request()->route()->parameter('code');
+            $this->rules['update']['title'] .= request()->route()->parameter('incident');
+            $this->rules['update']['title_en'] .= request()->route()->parameter('incident');
+            $this->rules['update']['code'] .= request()->route()->parameter('incident');
         }
     }
 

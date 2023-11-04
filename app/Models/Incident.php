@@ -10,6 +10,9 @@ class Incident extends Model
 {
     use HasFactory,SoftDeletes;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'title',
         'title_en',

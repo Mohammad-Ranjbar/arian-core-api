@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\CarModel;
+use App\Models\Element;
 use App\Models\Incident;
 use App\Models\MakeCode;
 use App\Models\ProductionLine;
@@ -32,6 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         WorkGroupCenter::class => CrudPolicy::class,
         Station::class         => CrudPolicy::class,
         Incident::class        => CrudPolicy::class,
+        Element::class         => CrudPolicy::class,
 
         Vehicle::class         => VehiclePolicy::class
     ];
