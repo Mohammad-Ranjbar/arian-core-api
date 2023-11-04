@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\ProductionLineController;
@@ -50,5 +51,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'production-lines'   => ProductionLineController::class,
         'work-group-centers' => WorkGroupCenterController::class,
         'stations'           => StationController::class,
+        'incidents'          => IncidentController::class,
     ]);
 });
