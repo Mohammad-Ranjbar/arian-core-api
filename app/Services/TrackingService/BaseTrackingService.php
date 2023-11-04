@@ -5,7 +5,7 @@ namespace App\Services\TrackingService;
 use App\Models\Tracking;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class BaseTrackingModel implements TrackingModelInterface
+abstract class BaseTrackingService implements TrackingServiceInterface
 {
     /**
      * @param $modelType

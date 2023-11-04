@@ -2,9 +2,12 @@
 
 namespace App\Services\TrackingService;
 
-class SalonTrackingModel extends BaseTrackingModel
+use App\Models\Station;
+
+class StationTrackingService extends BaseTrackingService
 {
-    const MODEL_TYPE = 'App\Models\Salon';
+    const MODEL_TYPE = 'App\Models\Station';
+
 
     /**
      * @param $data
@@ -12,6 +15,16 @@ class SalonTrackingModel extends BaseTrackingModel
      */
     public function enter($data): array|false
     {
+        $station = Station::query()->find($data['model_id']);
+        $tracking = $this
+            ->getLatestRecord(
+                SalonTrackingService::MODEL_TYPE,
+                $station->workGroupCenter->salon_id,
+                $data['vin']
+            );
+        if (!$tracking or $tracking->type === 'exit') {
+            return false;
+        }
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
         if (!$tracking or $tracking->type === 'exit') {
             return $this->prepareData($data);
@@ -29,13 +42,19 @@ class SalonTrackingModel extends BaseTrackingModel
         return $data;
     }
 
+
     /**
      * @param $data
      * @return array|false
      */
     public function exit($data): array|false
     {
-        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
+        $tracking = $this->getLatestRecord(
+            self::MODEL_TYPE,
+            $data['model_id'],
+            $data['vin']
+        );
+
         if (!$tracking or $tracking->type === 'exit') {
             return false;
         }

@@ -2,7 +2,7 @@
 
 namespace App\Services\TrackingService;
 
-interface TrackingModelInterface
+interface TrackingServiceInterface
 {
     /**
      * @param $data
