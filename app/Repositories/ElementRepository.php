@@ -12,13 +12,13 @@ class ElementRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'title'    => 'required|unique:elements,title',
-            'title_en' => 'required|unique:elements,title_en',
+            'title'    => 'required|string',
+            'title_en' => 'required|string',
             'code'     => 'required|unique:elements,code',
         ],
         'update' => [
-            'title'    => 'required|unique:elements,title,',
-            'title_en' => 'required|unique:elements,title_en,',
+            'title'    => 'required|string',
+            'title_en' => 'required|string',
             'code'     => 'required|unique:elements,code,',
         ]
     ];
@@ -30,8 +30,6 @@ class ElementRepository extends BaseRepository
     {
         $this->model = $model;
         if (request()->route()) {
-            $this->rules['update']['title'] .= request()->route()->parameter('element');
-            $this->rules['update']['title_en'] .= request()->route()->parameter('element');
             $this->rules['update']['code'] .= request()->route()->parameter('element');
         }
     }

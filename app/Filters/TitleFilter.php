@@ -6,7 +6,12 @@ use Closure;
 
 class TitleFilter
 {
-    public function handle($request, Closure $next)
+    /**
+     * @param $request
+     * @param  Closure  $next
+     * @return mixed
+     */
+    public function handle($request, Closure $next):mixed
     {
         if (!request()->has('title')) {
             return $next($request);

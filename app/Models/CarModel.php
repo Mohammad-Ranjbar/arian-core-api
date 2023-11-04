@@ -9,6 +9,9 @@ class CarModel extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'title',
         'reference'

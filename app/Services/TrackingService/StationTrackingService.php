@@ -18,8 +18,8 @@ class StationTrackingService extends BaseTrackingService
         $station = Station::query()->find($data['model_id']);
         $tracking = $this
             ->getLatestRecord(
-                SalonTrackingService::MODEL_TYPE,
-                $station->workGroupCenter->salon_id,
+                ProductionLineTrackingService::MODEL_TYPE,
+                $station->workGroupCenter->production_line_id,
                 $data['vin']
             );
         if (!$tracking or $tracking->type === 'exit') {

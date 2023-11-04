@@ -13,8 +13,8 @@ return new class extends Migration {
     {
         Schema::create('incidents', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->unique();
-            $table->string('title_en')->unique();
+            $table->string('title');
+            $table->string('title_en');
             $table->string('code')->unique();
             $table->softDeletes();
             $table->timestamps();

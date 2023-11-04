@@ -8,6 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AccessVehicleMiddleware
 {
+    /**
+     * @param  Request  $request
+     * @param  Closure  $next
+     * @return Response
+     */
     public function handle(Request $request, Closure $next): Response
     {
         if(auth()->user()->can('access', $request->route('vehicle'))) {

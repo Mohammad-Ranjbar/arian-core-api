@@ -14,7 +14,7 @@ return new class extends Migration {
         Schema::create('work_group_centers', function (Blueprint $table) {
             $table->id();
             $table->string('title')->unique();
-            $table->foreignId('salon_id')->index()->constrained()->cascadeOnDelete();
+            $table->foreignId('production_line_id')->index()->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

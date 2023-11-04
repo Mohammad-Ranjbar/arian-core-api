@@ -8,8 +8,11 @@ use Illuminate\Auth\Access\Response;
 
 class VehiclePolicy
 {
+
     /**
-     * Create a new policy instance.
+     * @param  User  $user
+     * @param  Vehicle  $vehicle
+     * @return Response
      */
     public function access(User $user, Vehicle $vehicle): Response
     {

@@ -9,21 +9,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WorkGroupCenter extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     /**
      * @var string[]
      */
     protected $fillable = [
         'title',
-        'salon_id'
+        'production_line_id'
     ];
 
     /**
      * @return BelongsTo
      */
-    public function salon(): BelongsTo
+    public function ProductionLine(): BelongsTo
     {
-        return $this->belongsTo(Salon::class);
+        return $this->belongsTo(ProductionLine::class);
     }
 }

@@ -12,13 +12,13 @@ class IncidentRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'title'    => 'required|unique:incidents,title',
-            'title_en' => 'required|unique:incidents,title_en',
+            'title'    => 'required|string',
+            'title_en' => 'required|string',
             'code'     => 'required|unique:incidents,code',
         ],
         'update' => [
-            'title'    => 'required|unique:incidents,title,',
-            'title_en' => 'required|unique:incidents,title_en,',
+            'title'    => 'required|string',
+            'title_en' => 'required|string',
             'code'     => 'required|unique:incidents,code,',
         ]
     ];
@@ -30,8 +30,6 @@ class IncidentRepository extends BaseRepository
     {
         $this->model = $model;
         if (request()->route()) {
-            $this->rules['update']['title'] .= request()->route()->parameter('incident');
-            $this->rules['update']['title_en'] .= request()->route()->parameter('incident');
             $this->rules['update']['code'] .= request()->route()->parameter('incident');
         }
     }
