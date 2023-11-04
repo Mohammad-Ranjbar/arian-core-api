@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property mixed $carModel
+ */
 class Vehicle extends Model
 {
     use HasFactory, SoftDeletes;
@@ -43,14 +46,6 @@ class Vehicle extends Model
     }
 
     /**
-     * @return string
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'vin';
-    }
-
-    /**
      * @return BelongsTo
      */
     public function makeCode(): BelongsTo
@@ -62,16 +57,17 @@ class Vehicle extends Model
      * @param $userId
      * @return bool
      */
-    public function hasAccess($userId):bool
+    public function hasAccess($userId): bool
     {
-      return  $this->makeCode->users()->where('users.id',$userId)->exists();
+        return $this->makeCode->users()->where('users.id', $userId)->exists();
     }
 
     /**
      * @return HasMany
      */
-    public function tracking():HasMany
+    public function tracking(): HasMany
     {
-        return $this->hasMany(Tracking::class,'vin');
+        return $this->hasMany(Tracking::class, 'vin');
     }
+
 }

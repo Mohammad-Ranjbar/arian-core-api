@@ -9,6 +9,8 @@ use App\Filters\NameFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\TitleFilter;
+use App\Filters\TypeFilter;
+use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Illuminate\Support\Facades\Pipeline;
 
@@ -27,6 +29,8 @@ abstract class BaseRepository
         SalonIdFilter::class,
         ProductionLineIdFilter::class,
         WorkGroupCenterIdFilter::class,
+        VinFilter::class,
+        TypeFilter::class
     ];
     /**
      * @var array|array[]
@@ -49,27 +53,6 @@ abstract class BaseRepository
     public function getUpdateRules(): array
     {
         return $this->rules['update'];
-    }
-
-    /**
-     * @param $id
-     * @param $data
-     * @return mixed
-     */
-    public function update($id, $data): mixed
-    {
-        $model = $this->show($id);
-        $model->update($data);
-        return $model;
-    }
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function show($id): mixed
-    {
-        return $this->model->find($id);
     }
 
     /**
@@ -131,4 +114,38 @@ abstract class BaseRepository
         return $this->makeQuery()->paginate($perPage);
     }
 
+    public function upsert(array $input)
+    {
+        $record = $this->findWhere($input);
+        if (!$record) {
+            return $this->store($input);
+        }
+        return $record->update($input);
+    }
+
+    public function findWhere(array $where)
+    {
+        return $this->model->newQuery()->where($where)->first();
+    }
+
+    /**
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function update($id, $data): mixed
+    {
+        $model = $this->show($id);
+        $model->update($data);
+        return $model;
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function show($id): mixed
+    {
+        return $this->model->find($id);
+    }
 }

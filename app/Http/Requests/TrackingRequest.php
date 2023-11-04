@@ -40,7 +40,7 @@ class TrackingRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
-            'vin'     =>request()->segment(count(request()->segments())),
+            'vin'     => $this->route()->parameter('vehicle')->vin,
             'user_id' => Auth::id()
         ]);
     }

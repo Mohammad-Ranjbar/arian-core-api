@@ -13,14 +13,13 @@ use App\Http\Controllers\SalonController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/vehicles/{vin}', [VehicleController::class, 'getByVin']);
-
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/init', [AuthController::class, 'init']);
@@ -40,19 +39,19 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('access.vehicle')->group(function () {
+        Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
+            Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
+            Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);
+        });
         Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
     });
 
     Route::apiResources([
-        'roles'              => RoleController::class,
-        'make-codes'         => MakeCodeController::class,
-        'car-models'         => CarModelController::class,
-        'users'              => UserController::class,
-        'salons'             => SalonController::class,
-        'production-lines'   => ProductionLineController::class,
-        'work-group-centers' => WorkGroupCenterController::class,
-        'stations'           => StationController::class,
-        'incidents'          => IncidentController::class,
-        'elements'           => ElementController::class,
+        'roles'              => RoleController::class, 'make-codes' => MakeCodeController::class,
+        'car-models'         => CarModelController::class, 'users' => UserController::class,
+        'salons'             => SalonController::class, 'production-lines' => ProductionLineController::class,
+        'work-group-centers' => WorkGroupCenterController::class, 'stations' => StationController::class,
+        'incidents'          => IncidentController::class, 'elements' => ElementController::class,
     ]);
 });

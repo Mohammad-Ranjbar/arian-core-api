@@ -18,9 +18,16 @@ class UpdatePermissionCommand extends Command
     /**
      * @return void
      */
-    public function handle():void
+    public function handle(): void
     {
-        $list = [];
+        $list = [
+            'vehicles.faults.qc.index',
+            'vehicles.faults.evaluation.index',
+            'vehicles.faults.qc.submit',
+            'vehicles.faults.evaluation.submit',
+            'vehicles.faults.qc.report',
+            'vehicles.faults.evaluation.report',
+        ];
         $routeCollection = Route::getRoutes();
         foreach ($routeCollection as $route) {
             if ($route->getName() && str_contains($route->getPrefix(), 'api')) {

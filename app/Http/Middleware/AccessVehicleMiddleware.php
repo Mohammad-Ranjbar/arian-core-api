@@ -15,7 +15,7 @@ class AccessVehicleMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(auth()->user()->can('access', $request->route('vehicle'))) {
+        if(auth()->user()->can('access', $request->route()->parameter('vehicle'))) {
             return $next($request);
         }
         abort('403', 'access denied');
