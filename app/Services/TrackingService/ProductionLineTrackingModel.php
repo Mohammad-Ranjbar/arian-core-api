@@ -6,11 +6,16 @@ use App\Models\ProductionLine;
 
 class ProductionLineTrackingModel extends BaseTrackingModel
 {
+
     const MODEL_TYPE = 'App\Models\ProductionLine';
 
-    public function enter($data)
+    /**
+     * @param $data
+     * @return false|string
+     */
+    public function enter($data): array|false
     {
-        $productionLine = ProductionLine::find($data['model_id']);
+        $productionLine = ProductionLine::query()->find($data['model_id']);
         $tracking = $this->getLatestRecord(SalonTrackingModel::MODEL_TYPE, $productionLine->salon_id, $data['vin']);
         if (!$tracking or $tracking->type === 'exit') {
             return false;
@@ -22,18 +27,26 @@ class ProductionLineTrackingModel extends BaseTrackingModel
         return false;
     }
 
-    public function exit($data)
+    /**
+     * @param $data
+     * @return array
+     */
+    public function prepareData($data): array
+    {
+        $data['model_type'] = self::MODEL_TYPE;
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @return string|false
+     */
+    public function exit($data): array|false
     {
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
         if (!$tracking or $tracking->type === 'exit') {
             return false;
         }
         return $this->prepareData($data);
-    }
-
-    public function prepareData($data)
-    {
-        $data['model_type'] = self::MODEL_TYPE;
-        return $data;
     }
 }

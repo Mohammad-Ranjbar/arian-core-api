@@ -4,9 +4,23 @@ namespace App\Services\TrackingService;
 
 interface TrackingModelInterface
 {
-    public function enter($data);
+    /**
+     * @param $data
+     * @return array|false
+     */
+    public function enter($data): array|false;
 
-    public function exit($data);
 
-    public function prepareData($data);
+    /**
+     * @param $data
+     * @return array|false
+     */
+    public function exit($data): array|false;
+
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public function prepareData($data): array;
 }

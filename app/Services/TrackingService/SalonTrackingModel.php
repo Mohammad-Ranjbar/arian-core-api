@@ -6,7 +6,11 @@ class SalonTrackingModel extends BaseTrackingModel
 {
     const MODEL_TYPE = 'App\Models\Salon';
 
-    public function enter($data)
+    /**
+     * @param $data
+     * @return array|false
+     */
+    public function enter($data): array|false
     {
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
         if (!$tracking or $tracking->type === 'exit') {
@@ -14,13 +18,22 @@ class SalonTrackingModel extends BaseTrackingModel
         }
         return false;
     }
-    public function prepareData($data)
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public function prepareData($data): array
     {
         $data['model_type'] = self::MODEL_TYPE;
         return $data;
     }
 
-    public function exit($data)
+    /**
+     * @param $data
+     * @return array|false
+     */
+    public function exit($data): array|false
     {
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
         if (!$tracking or $tracking->type === 'exit') {
