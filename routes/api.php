@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\IncidentController;
@@ -59,5 +60,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'salons'             => SalonController::class, 'production-lines' => ProductionLineController::class,
         'work-group-centers' => WorkGroupCenterController::class, 'stations' => StationController::class,
         'incidents'          => IncidentController::class, 'elements' => ElementController::class,
+        'block-reasons'      => BlockReasonController::class,
     ]);
 });
