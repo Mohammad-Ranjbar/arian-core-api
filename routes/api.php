@@ -47,6 +47,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
     });
 
+    Route::prefix('/incident-sources')->group(function () {
+        Route::put('/{incidentSource}/update', [VehicleFaultController::class, 'updateIncidentSource']);
+        Route::get('/list', [VehicleFaultController::class, 'listIncidentSource']);
+    });
+
+
     Route::apiResources([
         'roles'              => RoleController::class, 'make-codes' => MakeCodeController::class,
         'car-models'         => CarModelController::class, 'users' => UserController::class,

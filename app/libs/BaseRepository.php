@@ -2,9 +2,12 @@
 
 namespace App\libs;
 
+use App\Filters\CarModelIdFilter;
 use App\Filters\CreatedAtFromFilter;
 use App\Filters\CreatedAtToFilter;
+use App\Filters\ElementIdFilter;
 use App\Filters\IdFilter;
+use App\Filters\IncidentIdFilter;
 use App\Filters\NameFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\SalonIdFilter;
@@ -30,7 +33,10 @@ abstract class BaseRepository
         ProductionLineIdFilter::class,
         WorkGroupCenterIdFilter::class,
         VinFilter::class,
-        TypeFilter::class
+        TypeFilter::class,
+        CarModelIdFilter::class,
+        ElementIdFilter::class,
+        IncidentIdFilter::class,
     ];
     /**
      * @var array|array[]
