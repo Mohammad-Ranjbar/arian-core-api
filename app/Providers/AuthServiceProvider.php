@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\BlockItem;
 use App\Models\BlockReason;
 use App\Models\CarModel;
 use App\Models\Element;
@@ -36,6 +37,7 @@ class AuthServiceProvider extends ServiceProvider
         Incident::class        => CrudPolicy::class,
         Element::class         => CrudPolicy::class,
         BlockReason::class     => CrudPolicy::class,
+        BlockItem::class       => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];

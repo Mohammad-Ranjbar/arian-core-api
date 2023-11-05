@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ElementController;
@@ -55,11 +56,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::apiResources([
-        'roles'              => RoleController::class, 'make-codes' => MakeCodeController::class,
-        'car-models'         => CarModelController::class, 'users' => UserController::class,
-        'salons'             => SalonController::class, 'production-lines' => ProductionLineController::class,
-        'work-group-centers' => WorkGroupCenterController::class, 'stations' => StationController::class,
-        'incidents'          => IncidentController::class, 'elements' => ElementController::class,
+        'roles'              => RoleController::class,
+        'make-codes'         => MakeCodeController::class,
+        'car-models'         => CarModelController::class,
+        'users'              => UserController::class,
+        'salons'             => SalonController::class,
+        'production-lines'   => ProductionLineController::class,
+        'work-group-centers' => WorkGroupCenterController::class,
+        'stations'           => StationController::class,
+        'incidents'          => IncidentController::class,
+        'elements'           => ElementController::class,
         'block-reasons'      => BlockReasonController::class,
+        'block-items'        => BlockItemController::class,
     ]);
 });
