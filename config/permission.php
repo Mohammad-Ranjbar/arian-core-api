@@ -75,7 +75,7 @@ return [
         /*
          * Change this if you want to name the related pivots other than defaults
          */
-        'role_pivot_key' => null, //default 'role_id',
+        'role_pivot_key'       => null, //default 'role_id',
         'permission_pivot_key' => null, //default 'permission_id',
 
         /*
@@ -109,7 +109,7 @@ return [
      * TickTerminated, TaskTerminated and RequestTerminated
      * NOTE: This should not be needed in most cases, but an Octane/Vapor combination benefited from it.
      */
-    'register_octane_reset_listener' => false,
+    'register_octane_reset_listener'   => false,
 
     /*
      * Teams Feature.
@@ -118,7 +118,7 @@ return [
      * set this to true before doing the migration.
      * If you already did the migration then you must make a new migration to also
      * add 'team_foreign_key' to 'roles', 'model_has_roles', and 'model_has_permissions'
-     * (view the latest version of this package's migration file)
+     * (views the latest version of this package's migration file)
      */
 
     'teams' => false,
@@ -168,7 +168,7 @@ return [
          * When permissions or roles are updated the cache is flushed automatically.
          */
 
-        'expiration_time' => \DateInterval::createFromDateString('24 hours'),
+        'expiration_time' => DateInterval::createFromDateString('24 hours'),
 
         /*
          * The cache key used to store all permissions.
