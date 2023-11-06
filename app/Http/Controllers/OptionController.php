@@ -8,6 +8,10 @@ use App\Repositories\ProductionLineRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SalonRepository;
 use App\Repositories\StationRepository;
+use App\Repositories\TransitCompanyRepository;
+use App\Repositories\TransitDestinationRepository;
+use App\Repositories\TransitDriverRepository;
+use App\Repositories\TransitSourceRepository;
 use App\Repositories\WorkGroupCenterRepository;
 
 class OptionController extends Controller
@@ -19,16 +23,57 @@ class OptionController extends Controller
     /**
      * @var PermissionRepository
      */
-    private PermissionRepository      $permissionRepository;
-    private SalonRepository           $salonRepository;
-    private ProductionLineRepository  $productionLineRepository;
-    private WorkGroupCenterRepository $workGroupCenterRepository;
-    private StationRepository         $stationRepository;
-    private MakeCodeRepository        $makeCodeRepository;
+    private PermissionRepository         $permissionRepository;
+    /**
+     * @var SalonRepository
+     */
+    private SalonRepository              $salonRepository;
+    /**
+     * @var ProductionLineRepository
+     */
+    private ProductionLineRepository     $productionLineRepository;
+    /**
+     * @var WorkGroupCenterRepository
+     */
+    private WorkGroupCenterRepository    $workGroupCenterRepository;
+    /**
+     * @var StationRepository
+     */
+    private StationRepository            $stationRepository;
+    /**
+     * @var MakeCodeRepository
+     */
+    private MakeCodeRepository           $makeCodeRepository;
+    /**
+     * @var TransitSourceRepository
+     */
+    private TransitSourceRepository      $transitSourceRepository;
+    /**
+     * @var TransitDestinationRepository
+     */
+    private TransitDestinationRepository $transitDestinationRepository;
+    /**
+     * @var TransitDriverRepository
+     */
+    private TransitDriverRepository  $transitDriverRepository;
+    /**
+     * @var TransitCompanyRepository
+     */
+    private TransitCompanyRepository $transitCompanyRepository;
+
 
     /**
      * @param  RoleRepository  $roleRepository
      * @param  PermissionRepository  $permissionRepository
+     * @param  SalonRepository  $salonRepository
+     * @param  ProductionLineRepository  $productionLineRepository
+     * @param  WorkGroupCenterRepository  $workGroupCenterRepository
+     * @param  StationRepository  $stationRepository
+     * @param  MakeCodeRepository  $makeCodeRepository
+     * @param  TransitSourceRepository  $transitSourceRepository
+     * @param  TransitDestinationRepository  $transitDestinationRepository
+     * @param  TransitDriverRepository  $transitDriverRepository
+     * @param  TransitCompanyRepository  $transitCompanyRepository
      */
     public function __construct(
         RoleRepository $roleRepository,
@@ -37,7 +82,11 @@ class OptionController extends Controller
         ProductionLineRepository $productionLineRepository,
         WorkGroupCenterRepository $workGroupCenterRepository,
         StationRepository $stationRepository,
-        MakeCodeRepository $makeCodeRepository
+        MakeCodeRepository $makeCodeRepository,
+        TransitSourceRepository $transitSourceRepository,
+        TransitDestinationRepository $transitDestinationRepository,
+        TransitDriverRepository $transitDriverRepository,
+        TransitCompanyRepository $transitCompanyRepository
     ) {
         $this->roleRepository = $roleRepository;
         $this->permissionRepository = $permissionRepository;
@@ -46,6 +95,10 @@ class OptionController extends Controller
         $this->workGroupCenterRepository = $workGroupCenterRepository;
         $this->stationRepository = $stationRepository;
         $this->makeCodeRepository = $makeCodeRepository;
+        $this->transitSourceRepository = $transitSourceRepository;
+        $this->transitDestinationRepository = $transitDestinationRepository;
+        $this->transitDriverRepository = $transitDriverRepository;
+        $this->transitCompanyRepository = $transitCompanyRepository;
     }
 
     /**
@@ -103,4 +156,38 @@ class OptionController extends Controller
     {
         return $this->makeCodeRepository->getOptions();
     }
+
+    /**
+     * @return array
+     */
+    public function transitDriver(): array
+    {
+        return $this->transitDriverRepository->getOptions();
+    }
+
+    /**
+     * @return array
+     */
+    public function transitCompany(): array
+    {
+        return $this->transitCompanyRepository->getOptions();
+    }
+
+    /**
+     * @return array
+     */
+    public function transitSource(): array
+    {
+        return $this->transitSourceRepository->getOptions();
+    }
+
+    /**
+     * @return array
+     */
+    public function transitDestination(): array
+    {
+        return $this->transitDestinationRepository->getOptions();
+    }
+
+
 }

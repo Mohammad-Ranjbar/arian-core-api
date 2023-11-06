@@ -15,6 +15,7 @@ use App\Models\Station;
 use App\Models\TransitActivity;
 use App\Models\TransitCompany;
 use App\Models\TransitDestination;
+use App\Models\TransitDriver;
 use App\Models\TransitSource;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -46,6 +47,7 @@ class AuthServiceProvider extends ServiceProvider
         TransitDestination::class => CrudPolicy::class,
         TransitCompany::class     => CrudPolicy::class,
         TransitActivity::class    => CrudPolicy::class,
+        TransitDriver::class      => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];

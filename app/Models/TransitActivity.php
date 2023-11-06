@@ -11,35 +11,44 @@ class TransitActivity extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
-        'user_id',
-        'transit_source_id',
-        'transit_destination_id',
-        'bill_of_lading',
-        'request_no',
-        'status',
-        'priority',
-        'container',
-        'cottage',
-        'weight',
-        'batch',
-        'description',
-        'exit_by',
+        'user_id', 'transit_source_id', 'transit_destination_id', 'bill_of_lading', 'request_no', 'status', 'priority',
+        'container', 'cottage', 'weight', 'batch', 'description', 'exit_by',
     ];
 
+    /**
+     * @return BelongsTo
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function transitSource(): BelongsTo
     {
         return $this->belongsTo(TransitSource::class);
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function transitDestination(): BelongsTo
     {
         return $this->belongsTo(TransitDestination::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function transitDriver(): BelongsTo
+    {
+        return $this->belongsTo(TransitDriver::class);
     }
 
 

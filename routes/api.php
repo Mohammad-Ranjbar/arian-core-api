@@ -16,6 +16,7 @@ use App\Http\Controllers\StationController;
 use App\Http\Controllers\TransitActivityController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
+use App\Http\Controllers\TransitDriverController;
 use App\Http\Controllers\TransitSourceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
@@ -41,6 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/work-group-centers', [OptionController::class, 'workGroupCenters']);
         Route::get('/stations', [OptionController::class, 'stations']);
         Route::get('/make-codes', [OptionController::class, 'makeCodes']);
+        Route::get('/transit-drivers', [OptionController::class, 'transitDriver']);
+        Route::get('/transit-companies', [OptionController::class, 'transitCompany']);
+        Route::get('/transit-sources', [OptionController::class, 'transitSource']);
+        Route::get('/transit-destinations', [OptionController::class, 'transitDestination']);
 
     });
 
@@ -75,5 +80,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'transit-destinations' => TransitDestinationController::class,
         'transit-companies'    => TransitCompanyController::class,
         'transit-activities'   => TransitActivityController::class,
+        'transit-drivers'      => TransitDriverController::class,
     ]);
 });
