@@ -43,4 +43,12 @@ class ProductionLine extends Model
     {
         return $this->hasManyThrough(Station::class, WorkGroupCenter::class);
     }
+
+    /**
+     * @return HasMany
+     */
+    public function carModels(): HasMany
+    {
+        return $this->hasMany(CarModel::class);
+    }
 }

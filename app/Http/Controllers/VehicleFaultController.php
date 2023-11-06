@@ -61,7 +61,7 @@ class VehicleFaultController extends Controller
             $this->authorize("vehicles.faults.$type.index");
 
             request()->merge([
-                'type' => request()->route()->parameter('type'), 'vin' => request()->route()->parameter('vehicle')->vin,
+                'type' => request()->route()->parameter('type'), 'vin' => $vehicle->vin,
             ]);
 
             $perPage = request()->input('per_page', 15);
@@ -74,19 +74,17 @@ class VehicleFaultController extends Controller
 
     }
 
-    public function updateIncidentSource(IncidentSourceRequest $request, IncidentSource $incidentSource): JsonResponse
+    public function updateIncidentSource(IncidentSourceRequest $request, IncidentSource $incidentSource): IncidentSourceResource|JsonResponse
     {
         try {
             $validatedData = $request->validated();
             $validatedData['model_type'] = match ($validatedData['model_type']) {
-                'salon' => 'App\Models\Salon',
-                'production_line' => 'App\Models\ProductionLine',
-                'station' => 'App\Models\Station',
+                'salons'             => 'App\Models\Salon',
+                'production_lines'   => 'App\Models\ProductionLine',
+                'stations'           => 'App\Models\Station',
             };
             $data = $this->incidentSourceRepository->update($incidentSource->id, $validatedData);
-            return response()->json([
-                'data' => $data, 'message' => 'this incident source has registered'
-            ]);
+            return new IncidentSourceResource($data);
         } catch (Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage()

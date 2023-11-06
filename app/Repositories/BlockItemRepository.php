@@ -16,12 +16,10 @@ class BlockItemRepository extends BaseRepository
         'create' => [
             'block_reason_id' => 'required|exists:block_reasons,id',
             'description'     => 'nullable',
-            'vin'             => 'required|exists:vehicles,vin',
         ],
         'update' => [
             'block_reason_id' => 'required|exists:block_reasons,id',
             'description'     => 'nullable',
-            'vin'             => 'required|exists:vehicles,vin',
         ]
     ];
 

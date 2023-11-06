@@ -42,6 +42,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::get('/block-items',
+                [BlockItemController::class, 'index'])->name('block-items-index')->can('block-items-index');
+            Route::post('/block-items',
+                [BlockItemController::class, 'store'])->name('block-items-store')->can('block-items-store');
+            Route::put('/block-items/{id}/unblock',
+                [BlockItemController::class, 'unblock'])->name('block-items-unblock')->can('block-items-unblock');
             Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
             Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
             Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);
@@ -67,6 +73,5 @@ Route::middleware('auth:sanctum')->group(function () {
         'incidents'          => IncidentController::class,
         'elements'           => ElementController::class,
         'block-reasons'      => BlockReasonController::class,
-        'block-items'        => BlockItemController::class,
     ]);
 });

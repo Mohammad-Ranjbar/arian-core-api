@@ -11,13 +11,13 @@ class TrackingServiceFactory
      */
     public static function getInstance($model)
     {
-        if ($model === 'salon') {
+        if ($model === 'salons') {
             return new SalonTrackingService();
         }
-        if ($model === 'production_line') {
+        if ($model === 'production_lines') {
             return new ProductionLineTrackingService();
         }
-        if ($model === 'station') {
+        if ($model === 'stations') {
             return new StationTrackingService();
         }
 

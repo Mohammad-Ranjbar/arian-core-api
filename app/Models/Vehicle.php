@@ -70,8 +70,13 @@ class Vehicle extends Model
         return $this->hasMany(Tracking::class, 'vin');
     }
 
-    public function vehicleIncidents():HasMany
+    public function vehicleIncidents(): HasMany
     {
         return $this->hasMany(VehicleIncident::class);
+    }
+
+    public function blockItems(): HasMany
+    {
+        return $this->hasMany(BlockItem::class,'vin');
     }
 }

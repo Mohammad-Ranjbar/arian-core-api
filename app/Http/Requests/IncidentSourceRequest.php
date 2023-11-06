@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
 
 class IncidentSourceRequest extends FormRequest
 {
@@ -15,10 +14,10 @@ class IncidentSourceRequest extends FormRequest
 
     public function rules(): array
     {
-        $table = Str::plural($this->input('model_type'));
+
         return [
-            'model_type' => 'required|in:salon,production_line,station',
-            'model_id'   => 'required_if:model_type,!=,""|exists:'.$table.',id',
+            'model_type' => 'bail|required|in:salons,production_lines,stations',
+            'model_id'   => 'required_if:model_type,!=,""|exists:'.$this->input('model_type').',id',
         ];
     }
 }

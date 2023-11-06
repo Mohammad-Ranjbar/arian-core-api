@@ -12,12 +12,14 @@ class CarModelRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'reference' => 'required|unique:car_models,reference',
-            'title'     => 'required',
+            'reference'          => 'required|unique:car_models,reference',
+            'title'              => 'required|string',
+            'production_line_id' => 'required|exists:production_lines,id'
         ],
         'update' => [
-            'reference' => 'required|unique:car_models,reference,',
-            'title'     => 'required',
+            'reference'          => 'required|unique:car_models,reference,',
+            'title'              => 'required|string',
+            'production_line_id' => 'required|exists:production_lines,id'
         ]
     ];
 
