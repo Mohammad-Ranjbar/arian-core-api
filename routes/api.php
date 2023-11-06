@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\StationController;
+use App\Http\Controllers\TransitActivityController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
 use App\Http\Controllers\TransitSourceController;
@@ -73,5 +74,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'block-reasons'        => BlockReasonController::class, 'transit-sources' => TransitSourceController::class,
         'transit-destinations' => TransitDestinationController::class,
         'transit-companies'    => TransitCompanyController::class,
+        'transit-activities'   => TransitActivityController::class,
     ]);
 });
