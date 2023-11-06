@@ -12,6 +12,7 @@ use App\Models\ProductionLine;
 use App\Models\Role;
 use App\Models\Salon;
 use App\Models\Station;
+use App\Models\TransitDestination;
 use App\Models\TransitSource;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -27,19 +28,20 @@ class AuthServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $policies = [
-        Role::class            => CrudPolicy::class,
-        MakeCode::class        => CrudPolicy::class,
-        CarModel::class        => CrudPolicy::class,
-        User::class            => CrudPolicy::class,
-        Salon::class           => CrudPolicy::class,
-        ProductionLine::class  => CrudPolicy::class,
-        WorkGroupCenter::class => CrudPolicy::class,
-        Station::class         => CrudPolicy::class,
-        Incident::class        => CrudPolicy::class,
-        Element::class         => CrudPolicy::class,
-        BlockReason::class     => CrudPolicy::class,
-        BlockItem::class       => CrudPolicy::class,
-        TransitSource::class   => CrudPolicy::class,
+        Role::class               => CrudPolicy::class,
+        MakeCode::class           => CrudPolicy::class,
+        CarModel::class           => CrudPolicy::class,
+        User::class               => CrudPolicy::class,
+        Salon::class              => CrudPolicy::class,
+        ProductionLine::class     => CrudPolicy::class,
+        WorkGroupCenter::class    => CrudPolicy::class,
+        Station::class            => CrudPolicy::class,
+        Incident::class           => CrudPolicy::class,
+        Element::class            => CrudPolicy::class,
+        BlockReason::class        => CrudPolicy::class,
+        BlockItem::class          => CrudPolicy::class,
+        TransitSource::class      => CrudPolicy::class,
+        TransitDestination::class => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];
