@@ -12,6 +12,7 @@ use App\Models\ProductionLine;
 use App\Models\Role;
 use App\Models\Salon;
 use App\Models\Station;
+use App\Models\TransitSource;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
@@ -38,6 +39,7 @@ class AuthServiceProvider extends ServiceProvider
         Element::class         => CrudPolicy::class,
         BlockReason::class     => CrudPolicy::class,
         BlockItem::class       => CrudPolicy::class,
+        TransitSource::class   => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];

@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\StationController;
+use App\Http\Controllers\TransitSourceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
@@ -62,16 +63,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::apiResources([
-        'roles'              => RoleController::class,
-        'make-codes'         => MakeCodeController::class,
-        'car-models'         => CarModelController::class,
-        'users'              => UserController::class,
-        'salons'             => SalonController::class,
-        'production-lines'   => ProductionLineController::class,
-        'work-group-centers' => WorkGroupCenterController::class,
-        'stations'           => StationController::class,
-        'incidents'          => IncidentController::class,
-        'elements'           => ElementController::class,
+        'roles'              => RoleController::class, 'make-codes' => MakeCodeController::class,
+        'car-models'         => CarModelController::class, 'users' => UserController::class,
+        'salons'             => SalonController::class, 'production-lines' => ProductionLineController::class,
+        'work-group-centers' => WorkGroupCenterController::class, 'stations' => StationController::class,
+        'incidents'          => IncidentController::class, 'elements' => ElementController::class,
         'block-reasons'      => BlockReasonController::class,
+        'transit-sources'    => TransitSourceController::class,
     ]);
 });
