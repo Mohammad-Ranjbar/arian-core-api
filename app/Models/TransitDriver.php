@@ -23,6 +23,7 @@ class TransitDriver extends Model
         'plate',
         'car',
         'transit_company_id',
+
     ];
 
     /**
@@ -32,4 +33,6 @@ class TransitDriver extends Model
     {
         return $this->belongsTo(TransitCompany::class);
     }
+
+
 }

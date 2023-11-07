@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TransitActivity extends Model
@@ -16,7 +17,7 @@ class TransitActivity extends Model
      */
     protected $fillable = [
         'user_id', 'transit_source_id', 'transit_destination_id', 'bill_of_lading', 'request_no', 'status', 'priority',
-        'container', 'cottage', 'weight', 'batch', 'description', 'exit_by',
+        'container', 'cottage', 'weight', 'batch', 'description', 'exit_by', 'transit_driver_id',
     ];
 
     /**
@@ -49,6 +50,14 @@ class TransitActivity extends Model
     public function transitDriver(): BelongsTo
     {
         return $this->belongsTo(TransitDriver::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function statuses(): HasMany
+    {
+        return $this->hasMany(TransitStatusLog::class);
     }
 
 

@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('bill_of_lading');
             $table->string('request_no');
             $table->string('status')->default('new');
-            $table->string('priority')->nullable();
+            $table->integer('priority')->nullable();
             $table->string('container')->unique();
             $table->string('cottage');
             $table->string('weight');

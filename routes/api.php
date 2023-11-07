@@ -18,6 +18,7 @@ use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
 use App\Http\Controllers\TransitDriverController;
 use App\Http\Controllers\TransitSourceController;
+use App\Http\Controllers\TransitStatusLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
@@ -68,8 +69,30 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{incidentSource}/update', [VehicleFaultController::class, 'updateIncidentSource']);
         Route::get('/list', [VehicleFaultController::class, 'listIncidentSource']);
     });
-
-
+    Route::put('/transit-activities/{transitActivity}/set-priority',
+        [
+            TransitActivityController::class, 'setPriority'
+        ])->name('transit-activities-set-priority')->can('transit-activities-set-priority');
+    Route::post('/transit-activities/{transitActivity}/change-status-temporary-receipt',
+        [
+            TransitActivityController::class, 'temporaryReceipt'
+        ])->name('transit-activities-set-temporary-receipt')->can('transit-activities-set-temporary-receipt');
+    Route::post('/transit-activities/{transitActivity}/change-status-enter',
+        [
+            TransitActivityController::class, 'enter'
+        ])->name('transit-activities-set-enter')->can('transit-activities-set-enter');
+    Route::post('/transit-activities/{transitActivity}/change-status-discharge',
+        [
+            TransitActivityController::class, 'discharge'
+        ])->name('transit-activities-set-discharge')->can('transit-activities-set-discharge');
+    Route::post('/transit-activities/{transitActivity}/create-exit-permit',
+        [
+            TransitActivityController::class, 'exitPermit'
+        ])->name('transit-activities-set-exit-permit')->can('transit-activities-set-exit-permit');
+    Route::post('/transit-activities/{transitActivity}/exit',
+        [
+            TransitActivityController::class, 'exit'
+        ])->name('transit-activities-set-exit')->can('transit-activities-set-exit');
     Route::apiResources([
         'roles'                => RoleController::class, 'make-codes' => MakeCodeController::class,
         'car-models'           => CarModelController::class, 'users' => UserController::class,
@@ -79,7 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'block-reasons'        => BlockReasonController::class, 'transit-sources' => TransitSourceController::class,
         'transit-destinations' => TransitDestinationController::class,
         'transit-companies'    => TransitCompanyController::class,
-        'transit-activities'   => TransitActivityController::class,
-        'transit-drivers'      => TransitDriverController::class,
+        'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
+        'transit-status-logs'  => TransitStatusLogController::class,
     ]);
 });
