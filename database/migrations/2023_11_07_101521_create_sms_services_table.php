@@ -21,7 +21,7 @@ return new class extends Migration {
         });
         $data = [
             [
-                'type' => '', 'text' => '',
+                'type' => 'driver-enter-notify', 'text' => 'لطفا جهت ورود به درب ورود مراجعه فرمایید',
             ]
         ];
         SmsService::query()->insert($data);

@@ -12,10 +12,8 @@ class SmsServiceRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'type' => 'required|string',
             'text' => 'required',
         ], 'update' => [
-            'type' => 'required|string',
             'text' => 'required',
         ]
     ];

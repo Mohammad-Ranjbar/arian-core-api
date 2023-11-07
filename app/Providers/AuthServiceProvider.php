@@ -11,6 +11,7 @@ use App\Models\MakeCode;
 use App\Models\ProductionLine;
 use App\Models\Role;
 use App\Models\Salon;
+use App\Models\SmsService;
 use App\Models\Station;
 use App\Models\TransitActivity;
 use App\Models\TransitCompany;
@@ -49,7 +50,7 @@ class AuthServiceProvider extends ServiceProvider
         TransitCompany::class     => CrudPolicy::class,
         TransitActivity::class    => CrudPolicy::class,
         TransitDriver::class      => CrudPolicy::class,
-        TransitStatusLog::class   => CrudPolicy::class,
+        SmsService::class         => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];

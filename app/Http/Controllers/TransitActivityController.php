@@ -7,6 +7,7 @@ use App\Http\Requests\TransitActivitySetPriorityRequest;
 use App\Http\Resources\TransitActivityResource;
 use App\Models\TransitActivity;
 use App\Repositories\TransitActivityRepository;
+use App\Services\SmsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,14 +15,17 @@ use Illuminate\Support\Facades\Auth;
 
 class TransitActivityController extends CrudController
 {
+    private SmsService $smsService;
+
     /**
      * @param  TransitActivityRepository  $repository
      */
-    public function __construct(TransitActivityRepository $repository)
+    public function __construct(TransitActivityRepository $repository,SmsService $smsService)
     {
         $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(TransitActivityResource::class);
+        $this->smsService = $smsService;
     }
 
     /**
@@ -196,6 +200,13 @@ class TransitActivityController extends CrudController
                 'message' => $exception->getMessage()
             ], 500);
         }
+    }
+
+    public function notify(TransitActivity $transitActivity)
+    {
+        $phone = $transitActivity->transitDriver->phone;
+        $this->smsService->send($phone,'driver-enter-notify');
+        return true;
     }
 
 }

@@ -16,7 +16,8 @@ class SmsServiceResource extends JsonResource
     {
         return [
             'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'type' => $this->resource->type,
+            'text' => $this->resource->text,
         ];
     }
 }

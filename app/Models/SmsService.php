@@ -14,7 +14,8 @@ class SmsService extends Model
      * @var string[]
      */
     protected $fillable = [
-        'type',
         'text'
     ];
+
+
 }
