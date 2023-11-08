@@ -16,6 +16,7 @@ use App\Http\Controllers\SmsServiceController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\StopFactController;
 use App\Http\Controllers\StopReasonController;
+use App\Http\Controllers\StopTypeController;
 use App\Http\Controllers\TransitActivityController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
@@ -104,7 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'transit-destinations' => TransitDestinationController::class,
         'transit-companies'    => TransitCompanyController::class,
         'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
-        'stop-facts'           => StopFactController::class,
-        'stop-reasons'         => StopReasonController::class,
+        'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
+        'stop-types'           => StopTypeController::class,
     ]);
 });
