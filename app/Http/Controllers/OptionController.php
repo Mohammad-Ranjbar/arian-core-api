@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\ElementRepository;
+use App\Repositories\IncidentRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProductionLineRepository;
@@ -23,31 +25,31 @@ class OptionController extends Controller
     /**
      * @var PermissionRepository
      */
-    private PermissionRepository         $permissionRepository;
+    private PermissionRepository $permissionRepository;
     /**
      * @var SalonRepository
      */
-    private SalonRepository              $salonRepository;
+    private SalonRepository $salonRepository;
     /**
      * @var ProductionLineRepository
      */
-    private ProductionLineRepository     $productionLineRepository;
+    private ProductionLineRepository $productionLineRepository;
     /**
      * @var WorkGroupCenterRepository
      */
-    private WorkGroupCenterRepository    $workGroupCenterRepository;
+    private WorkGroupCenterRepository $workGroupCenterRepository;
     /**
      * @var StationRepository
      */
-    private StationRepository            $stationRepository;
+    private StationRepository $stationRepository;
     /**
      * @var MakeCodeRepository
      */
-    private MakeCodeRepository           $makeCodeRepository;
+    private MakeCodeRepository $makeCodeRepository;
     /**
      * @var TransitSourceRepository
      */
-    private TransitSourceRepository      $transitSourceRepository;
+    private TransitSourceRepository $transitSourceRepository;
     /**
      * @var TransitDestinationRepository
      */
@@ -55,11 +57,16 @@ class OptionController extends Controller
     /**
      * @var TransitDriverRepository
      */
-    private TransitDriverRepository  $transitDriverRepository;
+    private TransitDriverRepository $transitDriverRepository;
     /**
      * @var TransitCompanyRepository
      */
     private TransitCompanyRepository $transitCompanyRepository;
+    /**
+     * @var IncidentRepository
+     */
+    private IncidentRepository $incidentRepository;
+    private ElementRepository  $elementRepository;
 
 
     /**
@@ -86,7 +93,9 @@ class OptionController extends Controller
         TransitSourceRepository $transitSourceRepository,
         TransitDestinationRepository $transitDestinationRepository,
         TransitDriverRepository $transitDriverRepository,
-        TransitCompanyRepository $transitCompanyRepository
+        TransitCompanyRepository $transitCompanyRepository,
+        IncidentRepository $incidentRepository,
+        ElementRepository $elementRepository,
     ) {
         $this->roleRepository = $roleRepository;
         $this->permissionRepository = $permissionRepository;
@@ -99,6 +108,8 @@ class OptionController extends Controller
         $this->transitDestinationRepository = $transitDestinationRepository;
         $this->transitDriverRepository = $transitDriverRepository;
         $this->transitCompanyRepository = $transitCompanyRepository;
+        $this->incidentRepository = $incidentRepository;
+        $this->elementRepository = $elementRepository;
     }
 
     /**
@@ -187,6 +198,22 @@ class OptionController extends Controller
     public function transitDestination(): array
     {
         return $this->transitDestinationRepository->getOptions();
+    }
+
+    /**
+     * @return array
+     */
+    public function incidents(): array
+    {
+        return $this->incidentRepository->getOptions();
+    }
+
+    /**
+     * @return array
+     */
+    public function elements(): array
+    {
+        return $this->elementRepository->getOptions();
     }
 
 

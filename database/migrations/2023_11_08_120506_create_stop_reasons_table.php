@@ -14,6 +14,7 @@ return new class extends Migration {
         Schema::create('stop_reasons', function (Blueprint $table) {
             $table->id();
             $table->string('title')->unique();
+            $table->foreignId('stop_fact_id')->index()->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

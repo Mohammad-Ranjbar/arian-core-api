@@ -12,9 +12,9 @@ class StopFactRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'title' => 'required|string|unique:stop_facts,title'
+            'title'        => 'required|string|unique:stop_facts,title',
         ], 'update' => [
-            'title' => 'required|string|unique:stop_facts,title,'
+            'title'        => 'required|string|unique:stop_facts,title,',
         ]
     ];
 

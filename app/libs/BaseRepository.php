@@ -152,6 +152,6 @@ abstract class BaseRepository
      */
     public function show($id): mixed
     {
-        return $this->model->find($id);
+        return $this->model->findOrFail($id);
     }
 }

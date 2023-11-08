@@ -15,8 +15,10 @@ class StopReasonResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'id'           => $this->resource->id,
+            'title'        => $this->resource->title,
+            'stop_fact_id' => $this->resource->stop_fact_id,
+            'fact'         => new StopFactResource($this->resource->fact)
         ];
     }
 }

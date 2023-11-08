@@ -14,6 +14,6 @@ class StopFact extends Model
      * @var string[]
      */
     protected $fillable = [
-        'title'
+        'title',
     ];
 }

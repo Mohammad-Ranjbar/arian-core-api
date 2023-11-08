@@ -51,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/transit-companies', [OptionController::class, 'transitCompany']);
         Route::get('/transit-sources', [OptionController::class, 'transitSource']);
         Route::get('/transit-destinations', [OptionController::class, 'transitDestination']);
+        Route::get('/incidents', [OptionController::class, 'incidents']);
+        Route::get('/elements', [OptionController::class, 'elements']);
 
     });
 
