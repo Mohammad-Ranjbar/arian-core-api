@@ -14,7 +14,7 @@ class TransitDriverRepository extends BaseRepository
         'create'    => [
             'name'               => 'required|string',
             'national_code'      => 'required|string|digits:10|unique:transit_drivers',
-            'phone'              => 'required|string|unique:transit_drivers',
+            'phone'              => 'required|digits:11|starts_with:09|unique:transit_drivers',
             'bank_information'   => 'nullable|string',
             'plate'              => 'required|json',
             'car'                => 'required|string',
@@ -22,7 +22,7 @@ class TransitDriverRepository extends BaseRepository
         ], 'update' => [
             'name'               => 'required|string',
             'national_code'      => 'required|string|digits:10|unique:transit_drivers,national_code,',
-            'phone'              => 'required|string|unique:transit_drivers,national_code,',
+            'phone'              => 'required|digits:11|starts_with:09|unique:transit_drivers,national_code,',
             'bank_information'   => 'nullable|string',
             'plate'              => 'required|json',
             'car'                => 'required|string',
