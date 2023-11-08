@@ -12,9 +12,21 @@ class ProductionLineActivityRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-
+            'station_id'     => 'required|exists:stations,id',
+            'stop_reason_id' => 'required|exists:stop_reasons,id',
+            'stop_type_id'   => 'required|exists:stop_types,id',
+            'description'    => 'nullable',
+            'note'           => 'nullable',
+            'start_at'       => 'nullable',
+            'end_at'         => 'nullable',
         ], 'update' => [
-
+            'station_id'     => 'required|exists:stations,id',
+            'stop_reason_id' => 'required|exists:stop_reasons,id',
+            'stop_type_id'   => 'required|exists:stop_types,id',
+            'description'    => 'nullable',
+            'note'           => 'nullable',
+            'start_at'       => 'nullable',
+            'end_at'         => 'nullable',
         ]
     ];
 

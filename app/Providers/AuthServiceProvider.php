@@ -9,6 +9,7 @@ use App\Models\Element;
 use App\Models\Incident;
 use App\Models\MakeCode;
 use App\Models\ProductionLine;
+use App\Models\ProductionLineActivity;
 use App\Models\Role;
 use App\Models\Salon;
 use App\Models\SmsService;
@@ -35,27 +36,28 @@ class AuthServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $policies = [
-        Role::class               => CrudPolicy::class,
-        MakeCode::class           => CrudPolicy::class,
-        CarModel::class           => CrudPolicy::class,
-        User::class               => CrudPolicy::class,
-        Salon::class              => CrudPolicy::class,
-        ProductionLine::class     => CrudPolicy::class,
-        WorkGroupCenter::class    => CrudPolicy::class,
-        Station::class            => CrudPolicy::class,
-        Incident::class           => CrudPolicy::class,
-        Element::class            => CrudPolicy::class,
-        BlockReason::class        => CrudPolicy::class,
-        BlockItem::class          => CrudPolicy::class,
-        TransitSource::class      => CrudPolicy::class,
-        TransitDestination::class => CrudPolicy::class,
-        TransitCompany::class     => CrudPolicy::class,
-        TransitActivity::class    => CrudPolicy::class,
-        TransitDriver::class      => CrudPolicy::class,
-        SmsService::class         => CrudPolicy::class,
-        StopFact::class           => CrudPolicy::class,
-        StopReason::class         => CrudPolicy::class,
-        StopType::class           => CrudPolicy::class,
+        Role::class                   => CrudPolicy::class,
+        MakeCode::class               => CrudPolicy::class,
+        CarModel::class               => CrudPolicy::class,
+        User::class                   => CrudPolicy::class,
+        Salon::class                  => CrudPolicy::class,
+        ProductionLine::class         => CrudPolicy::class,
+        WorkGroupCenter::class        => CrudPolicy::class,
+        Station::class                => CrudPolicy::class,
+        Incident::class               => CrudPolicy::class,
+        Element::class                => CrudPolicy::class,
+        BlockReason::class            => CrudPolicy::class,
+        BlockItem::class              => CrudPolicy::class,
+        TransitSource::class          => CrudPolicy::class,
+        TransitDestination::class     => CrudPolicy::class,
+        TransitCompany::class         => CrudPolicy::class,
+        TransitActivity::class        => CrudPolicy::class,
+        TransitDriver::class          => CrudPolicy::class,
+        SmsService::class             => CrudPolicy::class,
+        StopFact::class               => CrudPolicy::class,
+        StopReason::class             => CrudPolicy::class,
+        StopType::class               => CrudPolicy::class,
+        ProductionLineActivity::class => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];

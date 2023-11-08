@@ -51,4 +51,45 @@ class ProductionLine extends Model
     {
         return $this->hasMany(CarModel::class);
     }
+
+    public function isStarted(): bool
+    {
+        $record = $this->logs()
+            ->orderByDesc('id')
+            ->where('action', '!=', 'approved')
+            ->first();
+        if (!$record) {
+            return true;
+        }
+        return $record->action == 'start';
+    }
+
+    public function logs()
+    {
+        return $this->hasManyThrough(ProductionLineActivityLogs::class, ProductionLineActivity::class);
+    }
+
+    public function isStop(): bool
+    {
+        $record = $this->logs()
+            ->orderByDesc('id')
+            ->where('action', '!=', 'approved')
+            ->first();
+        if (!$record) {
+            return false;
+        }
+        return $record->action == 'stop';
+    }
+
+    public function getLatestActivity()
+    {
+        return $this->activities()->orderByDesc('id')->firstOrFail();
+    }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(ProductionLineActivity::class);
+    }
+
+
 }

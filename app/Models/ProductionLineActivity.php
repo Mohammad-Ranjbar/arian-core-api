@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductionLineActivity extends Model
@@ -15,8 +16,8 @@ class ProductionLineActivity extends Model
      * @var string[]
      */
     protected $fillable = [
-        'station_id', 'stop_reason_id', 'stop_type_id', 'description', 'note',
-
+        'production_line_id', 'station_id', 'stop_reason_id', 'stop_type_id', 'description', 'note', 'start_at',
+        'end_at',
     ];
 
     /**
@@ -27,9 +28,34 @@ class ProductionLineActivity extends Model
         return $this->belongsTo(Station::class);
     }
 
-    public function stopReason():BelongsTo
+    /**
+     * @return BelongsTo
+     */
+    public function stopReason(): BelongsTo
     {
         return $this->belongsTo(StopReason::class);
     }
-    
+
+    /**
+     * @return BelongsTo
+     */
+    public function stopType(): BelongsTo
+    {
+        return $this->belongsTo(StopType::class);
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->logs()->orderByDesc('id')->where('action', 'approved')->exists();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function logs(): HasMany
+    {
+        return $this->hasMany(ProductionLineActivityLogs::class);
+    }
+
+
 }

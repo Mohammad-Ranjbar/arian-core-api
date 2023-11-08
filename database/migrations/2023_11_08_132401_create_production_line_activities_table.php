@@ -13,12 +13,14 @@ return new class extends Migration {
     {
         Schema::create('production_line_activities', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('production_line_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignId('station_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignId('stop_reason_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignId('stop_type_id')->index()->constrained()->cascadeOnDelete();
             $table->text('description')->nullable();
             $table->text('note')->nullable();
-
+            $table->timestamp('start_at')->nullable();
+            $table->timestamp('stop_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

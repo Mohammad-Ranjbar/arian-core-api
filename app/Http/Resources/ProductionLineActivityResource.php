@@ -16,7 +16,7 @@ class ProductionLineActivityResource extends JsonResource
     {
         return [
             'id'    => $this->resource->id,
-            'title' => $this->resource->title
+
         ];
     }
 }

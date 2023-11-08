@@ -6,8 +6,10 @@ use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\LineActivityStartStopController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
+use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
 use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\RoleController;
@@ -72,12 +74,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('/incident-sources')->group(function () {
-        Route::get('/', [VehicleFaultController::class, 'listIncidentSource'])
-            ->middleware('can:incident-sources.index')
-            ->name('incident-sources.index');
-        Route::put('/{incidentSource}/update', [VehicleFaultController::class, 'updateIncidentSource'])
-            ->middleware('can:incident-sources.update')
-            ->name('incident-sources.update');
+        Route::get('/', [
+            VehicleFaultController::class, 'listIncidentSource'
+        ])->middleware('can:incident-sources.index')->name('incident-sources.index');
+        Route::put('/{incidentSource}/update', [
+            VehicleFaultController::class, 'updateIncidentSource'
+        ])->middleware('can:incident-sources.update')->name('incident-sources.update');
     });
     Route::put('/transit-activities/{transitActivity}/set-priority', [
         TransitActivityController::class, 'setPriority'
@@ -101,6 +103,21 @@ Route::middleware('auth:sanctum')->group(function () {
         TransitActivityController::class, 'notify'
     ])->name('transit-activities-notify')->can('transit-activities-notify');
     Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update']);
+    Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('create');
+    Route::group([
+        'prefix'     => 'production-lines/{production_line}',
+        'controller' => LineActivityStartStopController::class,
+        'as' => 'production-lines.'
+    ], function () {
+        Route::get('status', 'status')->name('status');
+        Route::post('stop', 'stop')->name('stop');
+        Route::post('start', 'start')->name('start');
+    });
+
+    Route::post('/production-line-activities/{production_line_activity}/approve',
+        [LineActivityStartStopController::class,'approve'])
+        ->name('production-line-activities.approve');
+
     Route::apiResources([
         'roles'                => RoleController::class, 'make-codes' => MakeCodeController::class,
         'car-models'           => CarModelController::class, 'users' => UserController::class,
@@ -113,5 +130,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
         'stop-types'           => StopTypeController::class,
+
     ]);
 });

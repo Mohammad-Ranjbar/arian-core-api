@@ -16,4 +16,5 @@ class ProductionLineActivityController extends CrudController
         $this->applyAuthorizeResource();
         $this->setResource(ProductionLineActivityResource::class);
     }
+
 }
