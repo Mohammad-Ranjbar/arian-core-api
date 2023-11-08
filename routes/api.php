@@ -14,6 +14,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\SmsServiceController;
 use App\Http\Controllers\StationController;
+use App\Http\Controllers\StopFactController;
 use App\Http\Controllers\TransitActivityController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
@@ -71,27 +72,27 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/list', [VehicleFaultController::class, 'listIncidentSource']);
     });
     Route::put('/transit-activities/{transitActivity}/set-priority', [
-            TransitActivityController::class, 'setPriority'
-        ])->name('transit-activities-set-priority')->can('transit-activities-set-priority');
+        TransitActivityController::class, 'setPriority'
+    ])->name('transit-activities-set-priority')->can('transit-activities-set-priority');
     Route::post('/transit-activities/{transitActivity}/change-status-temporary-receipt', [
-            TransitActivityController::class, 'temporaryReceipt'
-        ])->name('transit-activities-set-temporary-receipt')->can('transit-activities-set-temporary-receipt');
+        TransitActivityController::class, 'temporaryReceipt'
+    ])->name('transit-activities-set-temporary-receipt')->can('transit-activities-set-temporary-receipt');
     Route::post('/transit-activities/{transitActivity}/change-status-enter', [
-            TransitActivityController::class, 'enter'
-        ])->name('transit-activities-set-enter')->can('transit-activities-set-enter');
+        TransitActivityController::class, 'enter'
+    ])->name('transit-activities-set-enter')->can('transit-activities-set-enter');
     Route::post('/transit-activities/{transitActivity}/change-status-discharge', [
-            TransitActivityController::class, 'discharge'
-        ])->name('transit-activities-set-discharge')->can('transit-activities-set-discharge');
+        TransitActivityController::class, 'discharge'
+    ])->name('transit-activities-set-discharge')->can('transit-activities-set-discharge');
     Route::post('/transit-activities/{transitActivity}/create-exit-permit', [
-            TransitActivityController::class, 'exitPermit'
-        ])->name('transit-activities-set-exit-permit')->can('transit-activities-set-exit-permit');
+        TransitActivityController::class, 'exitPermit'
+    ])->name('transit-activities-set-exit-permit')->can('transit-activities-set-exit-permit');
     Route::post('/transit-activities/{transitActivity}/exit', [
-            TransitActivityController::class, 'exit'
-        ])->name('transit-activities-set-exit')->can('transit-activities-set-exit');
+        TransitActivityController::class, 'exit'
+    ])->name('transit-activities-set-exit')->can('transit-activities-set-exit');
     Route::post('/transit-activities/{transitActivity}/notify', [
-            TransitActivityController::class, 'notify'
-        ])->name('transit-activities-notify')->can('transit-activities-notify');
-    Route::apiResource('sms-templates', SmsServiceController::class)->only(['index','update']);
+        TransitActivityController::class, 'notify'
+    ])->name('transit-activities-notify')->can('transit-activities-notify');
+    Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update']);
     Route::apiResources([
         'roles'                => RoleController::class, 'make-codes' => MakeCodeController::class,
         'car-models'           => CarModelController::class, 'users' => UserController::class,
@@ -102,5 +103,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'transit-destinations' => TransitDestinationController::class,
         'transit-companies'    => TransitCompanyController::class,
         'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
+        'stop-facts'           => StopFactController::class
     ]);
 });

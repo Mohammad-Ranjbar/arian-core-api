@@ -13,12 +13,12 @@ use App\Models\Role;
 use App\Models\Salon;
 use App\Models\SmsService;
 use App\Models\Station;
+use App\Models\StopFact;
 use App\Models\TransitActivity;
 use App\Models\TransitCompany;
 use App\Models\TransitDestination;
 use App\Models\TransitDriver;
 use App\Models\TransitSource;
-use App\Models\TransitStatusLog;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
@@ -51,6 +51,7 @@ class AuthServiceProvider extends ServiceProvider
         TransitActivity::class    => CrudPolicy::class,
         TransitDriver::class      => CrudPolicy::class,
         SmsService::class         => CrudPolicy::class,
+        StopFact::class           => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];
