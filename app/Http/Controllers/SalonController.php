@@ -10,7 +10,7 @@ class SalonController extends CrudController
     /**
      * @param  SalonRepository  $repository
      */
-    public function __construct(SalonRepository $repository)
+    public function __construct( SalonRepository $repository)
     {
         $this->repository = $repository;
         $this->applyAuthorizeResource();

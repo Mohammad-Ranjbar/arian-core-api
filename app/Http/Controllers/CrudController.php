@@ -37,6 +37,7 @@ class CrudController extends Controller
      */
     public function collect($q): mixed
     {
+//        TODO
         return $this->resource::collection($q);
     }
 

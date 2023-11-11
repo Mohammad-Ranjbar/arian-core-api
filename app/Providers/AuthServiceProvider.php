@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Barcode;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
 use App\Models\CarModel;
@@ -58,6 +59,7 @@ class AuthServiceProvider extends ServiceProvider
         StopReason::class             => CrudPolicy::class,
         StopType::class               => CrudPolicy::class,
         ProductionLineActivity::class => CrudPolicy::class,
+        Barcode::class                => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];

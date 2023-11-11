@@ -45,6 +45,7 @@ class UpdatePermissionCommand extends Command
         $progress->start();
         foreach ($list as $permissionName) {
             try {
+//                TODO
                 $permission = Permission::findByName($permissionName);
             } catch (Exception $exception) {
                 $permission = Permission::create(['name' => $permissionName, 'guard_name' => 'web']);

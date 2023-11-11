@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarModelController;
@@ -101,9 +102,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update']);
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('create');
     Route::group([
-        'prefix'     => 'production-lines/{production_line}',
-        'controller' => LineActivityStartStopController::class,
-        'as'         => 'production-lines.'
+        'prefix' => 'production-lines/{production_line}', 'controller' => LineActivityStartStopController::class,
+        'as'     => 'production-lines.'
     ], function () {
         Route::get('status', 'status')->name('status');
         Route::post('stop', 'stop')->name('stop');
@@ -111,8 +111,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/production-line-activities/{production_line_activity}/approve',
-        [LineActivityStartStopController::class, 'approve'])
-        ->name('production-line-activities.approve');
+        [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
 
     Route::apiResources([
         'roles'                => RoleController::class, 'make-codes' => MakeCodeController::class,
@@ -126,6 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
         'stop-types'           => StopTypeController::class,
+        'barcodes'             => BarcodeController::class
 
     ]);
 });
