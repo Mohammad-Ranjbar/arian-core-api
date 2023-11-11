@@ -6,6 +6,7 @@ use App\Http\Requests\StopLineRequest;
 use App\Http\Resources\ProductionLineActivityResource;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -43,7 +44,7 @@ class LineActivityStartStopController extends Controller
     public function start(
         ProductionLine $productionLine
     ): JsonResponse|ProductionLineActivityResource {
-        $validatedData = $this->authorize('production-lines.start');
+        $this->authorize('production-lines.start');
         if ($productionLine->isStarted()) {
             return response()->json([
                 'message' => 'can not start the line'
@@ -76,15 +77,22 @@ class LineActivityStartStopController extends Controller
 
     public function approve(ProductionLineActivity $productionLineActivity): bool|JsonResponse
     {
-        $this->authorize('production-line-activities.approve');
-        if($productionLineActivity->isApproved()) {
+        try {
+            $this->authorize('production-line-activities.approve');
+            if ($productionLineActivity->isApproved()) {
+                return response()->json([
+                    'message' => 'can not approve the activity'
+                ], 422);
+            }
+            $productionLineActivity->logs()->create([
+                'action' => 'approved', 'user_id' => Auth::id(),
+            ]);
+            return true;
+        } catch (Exception $exception) {
             return response()->json([
-                'message' => 'can not approve the activity'
-            ], 422);
+                'message' => $exception->getMessage()
+            ]);
         }
-        $productionLineActivity->logs()->create([
-            'action' => 'approved', 'user_id' => Auth::id(),
-        ]);
-        return true;
+
     }
 }

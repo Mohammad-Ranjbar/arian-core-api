@@ -2,41 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\CreatedAtFromFilter;
-use App\Filters\CreatedAtToFilter;
-use App\Filters\IdFilter;
-use App\Filters\NameFilter;
-use App\Filters\TitleFilter;
 use App\Http\Resources\BaseResource;
 use App\libs\BaseRepository;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Pipeline;
 
 class CrudController extends Controller
 {
+    /**
+     * @var BaseRepository
+     */
     public BaseRepository $repository;
-    public                $resource = BaseResource::class;
+    /**
+     * @var string
+     */
+    public string $resource = BaseResource::class;
+
 
     /**
-     * Display a listing of the resource.
+     * @param  Request  $request
+     * @return mixed
      */
-    public function index(Request $request)
+    public function index(Request $request): mixed
     {
-        $perPage = $request->get('per_page',15);
+        $perPage = $request->get('per_page', 15);
         return $this->collect($this->repository->paginate($perPage));
     }
 
-    public function collect($q)
+    /**
+     * @param $q
+     * @return mixed
+     */
+    public function collect($q): mixed
     {
         return $this->resource::collection($q);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @param  Request  $request
+     * @return JsonResponse|mixed
      */
-    public function store(Request $request)
+    public function store(Request $request): mixed
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
         try {
@@ -54,7 +62,12 @@ class CrudController extends Controller
         }
     }
 
-    public function afterSave($record, $data)
+    /**
+     * @param $record
+     * @param $data
+     * @return mixed
+     */
+    public function afterSave($record, $data): mixed
     {
         foreach ($data as $key => $input) {
             if (method_exists($record, $key) and is_array($input)) {
@@ -64,18 +77,22 @@ class CrudController extends Controller
         return $record;
     }
 
+
     /**
-     * Display the specified resource.
+     * @param $id
+     * @return mixed
      */
-    public function show($id)
+    public function show($id): mixed
     {
         return new $this->resource($this->repository->show($id));
     }
 
     /**
-     * Update the specified resource in storage.
+     * @param  Request  $request
+     * @param $id
+     * @return JsonResponse|mixed
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): mixed
     {
         $validatedData = $request->validate($this->repository->getUpdateRules());
         try {
@@ -93,19 +110,27 @@ class CrudController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @param $id
+     * @return bool
      */
-    public function destroy($id)
+    public function destroy($id): bool
     {
         return $this->repository->destroy($id);
     }
 
-    public function applyAuthorizeResource()
+    /**
+     * @return void
+     */
+    public function applyAuthorizeResource(): void
     {
         $this->authorizeResource($this->repository->model->getMorphClass(), $this->repository->model->getMorphClass());
     }
 
-    public function setResource($resource)
+    /**
+     * @param $resource
+     * @return void
+     */
+    public function setResource($resource): void
     {
         $this->resource = $resource;
     }

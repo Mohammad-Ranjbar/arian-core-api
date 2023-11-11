@@ -24,7 +24,6 @@ use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
 use App\Http\Controllers\TransitDriverController;
 use App\Http\Controllers\TransitSourceController;
-use App\Http\Controllers\TransitStatusLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
@@ -60,12 +59,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-            Route::get('/block-items',
-                [BlockItemController::class, 'index'])->name('block-items-index')->can('block-items-index');
-            Route::post('/block-items',
-                [BlockItemController::class, 'store'])->name('block-items-store')->can('block-items-store');
+            Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items-index');
+            Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items-store');
             Route::put('/block-items/{id}/unblock',
-                [BlockItemController::class, 'unblock'])->name('block-items-unblock')->can('block-items-unblock');
+                [BlockItemController::class, 'unblock'])->name('block-items-unblock');
             Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
             Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
             Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);
@@ -81,33 +78,32 @@ Route::middleware('auth:sanctum')->group(function () {
             VehicleFaultController::class, 'updateIncidentSource'
         ])->middleware('can:incident-sources.update')->name('incident-sources.update');
     });
-    Route::put('/transit-activities/{transitActivity}/set-priority', [
-        TransitActivityController::class, 'setPriority'
-    ])->name('transit-activities-set-priority')->can('transit-activities-set-priority');
+    Route::put('/transit-activities/{transitActivity}/set-priority',
+        [TransitActivityController::class, 'setPriority'])->name('transit-activities-set-priority');
     Route::post('/transit-activities/{transitActivity}/change-status-temporary-receipt', [
         TransitActivityController::class, 'temporaryReceipt'
-    ])->name('transit-activities-set-temporary-receipt')->can('transit-activities-set-temporary-receipt');
+    ])->name('transit-activities-set-temporary-receipt');
     Route::post('/transit-activities/{transitActivity}/change-status-enter', [
         TransitActivityController::class, 'enter'
-    ])->name('transit-activities-set-enter')->can('transit-activities-set-enter');
+    ])->name('transit-activities-set-enter');
     Route::post('/transit-activities/{transitActivity}/change-status-discharge', [
         TransitActivityController::class, 'discharge'
-    ])->name('transit-activities-set-discharge')->can('transit-activities-set-discharge');
+    ])->name('transit-activities-set-discharge');
     Route::post('/transit-activities/{transitActivity}/create-exit-permit', [
         TransitActivityController::class, 'exitPermit'
-    ])->name('transit-activities-set-exit-permit')->can('transit-activities-set-exit-permit');
+    ])->name('transit-activities-set-exit-permit');
     Route::post('/transit-activities/{transitActivity}/exit', [
         TransitActivityController::class, 'exit'
-    ])->name('transit-activities-set-exit')->can('transit-activities-set-exit');
+    ])->name('transit-activities-set-exit');
     Route::post('/transit-activities/{transitActivity}/notify', [
         TransitActivityController::class, 'notify'
-    ])->name('transit-activities-notify')->can('transit-activities-notify');
+    ])->name('transit-activities-notify');
     Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update']);
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('create');
     Route::group([
         'prefix'     => 'production-lines/{production_line}',
         'controller' => LineActivityStartStopController::class,
-        'as' => 'production-lines.'
+        'as'         => 'production-lines.'
     ], function () {
         Route::get('status', 'status')->name('status');
         Route::post('stop', 'stop')->name('stop');
@@ -115,7 +111,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/production-line-activities/{production_line_activity}/approve',
-        [LineActivityStartStopController::class,'approve'])
+        [LineActivityStartStopController::class, 'approve'])
         ->name('production-line-activities.approve');
 
     Route::apiResources([

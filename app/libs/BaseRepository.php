@@ -19,10 +19,11 @@ use Illuminate\Support\Facades\Pipeline;
 
 abstract class BaseRepository
 {
-    /**
-     * @var
-     */
+
     public       $model;
+    /**
+     * @var array|string[]
+     */
     public array $filters = [
         NameFilter::class,
         TitleFilter::class,
@@ -70,6 +71,9 @@ abstract class BaseRepository
         return $this->model->find($id)->delete();
     }
 
+    /**
+     * @return array
+     */
     public function getOptions(): array
     {
         return $this->get()->map(function ($item) {
@@ -80,19 +84,30 @@ abstract class BaseRepository
         })->all();
     }
 
-    public function get()
+    /**
+     * @return mixed
+     */
+    public function get(): mixed
     {
         return $this->makeQuery()->get();
     }
 
-    public function makeQuery()
+    /**
+     * @return mixed
+     */
+    public function makeQuery(): mixed
     {
         return Pipeline::send($this->model)
             ->through($this->filters)
             ->thenReturn();
     }
 
-    public function make($data, $parameter = 'reference')
+    /**
+     * @param $data
+     * @param  string  $parameter
+     * @return mixed
+     */
+    public function make($data, string $parameter = 'reference'): mixed
     {
         $record = $this->findBy($data[$parameter], $parameter);
         if (!$record) {
@@ -101,7 +116,12 @@ abstract class BaseRepository
         return $record;
     }
 
-    public function findBy($value, $parameter = 'reference')
+    /**
+     * @param $value
+     * @param  string  $parameter
+     * @return mixed
+     */
+    public function findBy($value, string $parameter = 'reference'): mixed
     {
         return $this->model->newQuery()->where($parameter, $value)->first();
     }
@@ -115,12 +135,20 @@ abstract class BaseRepository
         return $this->model->query()->create($data);
     }
 
-    public function paginate($perPage)
+    /**
+     * @param $perPage
+     * @return mixed
+     */
+    public function paginate($perPage): mixed
     {
         return $this->makeQuery()->paginate($perPage);
     }
 
-    public function upsert(array $input)
+    /**
+     * @param  array  $input
+     * @return mixed
+     */
+    public function upsert(array $input): mixed
     {
         $record = $this->findWhere($input);
         if (!$record) {
@@ -129,7 +157,11 @@ abstract class BaseRepository
         return $record->update($input);
     }
 
-    public function findWhere(array $where)
+    /**
+     * @param  array  $where
+     * @return mixed
+     */
+    public function findWhere(array $where): mixed
     {
         return $this->model->newQuery()->where($where)->first();
     }

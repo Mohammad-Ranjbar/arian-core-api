@@ -34,10 +34,5 @@ class MakeCrudCommand extends Command
         File::put("app/Http/Resources/{$name}Resource.php", $resource);
 
         $this->info('add route to section Route::apiResources and add policy to AuthServiceProvider');
-        $result = $this->askWithCompletion('are you added?', ['yes', 'no']);
-
-        if ($result === 'yes') {
-            Artisan::call('permission:update');
-        }
     }
 }

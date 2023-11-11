@@ -64,7 +64,7 @@ class ProductionLine extends Model
         return $record->action == 'start';
     }
 
-    public function logs()
+    public function logs():HasManyThrough
     {
         return $this->hasManyThrough(ProductionLineActivityLogs::class, ProductionLineActivity::class);
     }
@@ -81,7 +81,7 @@ class ProductionLine extends Model
         return $record->action == 'stop';
     }
 
-    public function getLatestActivity()
+    public function getLatestActivity(): Model|HasMany
     {
         return $this->activities()->orderByDesc('id')->firstOrFail();
     }

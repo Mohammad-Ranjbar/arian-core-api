@@ -18,98 +18,21 @@ use App\Repositories\WorkGroupCenterRepository;
 
 class OptionController extends Controller
 {
-    /**
-     * @var RoleRepository
-     */
-    private RoleRepository $roleRepository;
-    /**
-     * @var PermissionRepository
-     */
-    private PermissionRepository $permissionRepository;
-    /**
-     * @var SalonRepository
-     */
-    private SalonRepository $salonRepository;
-    /**
-     * @var ProductionLineRepository
-     */
-    private ProductionLineRepository $productionLineRepository;
-    /**
-     * @var WorkGroupCenterRepository
-     */
-    private WorkGroupCenterRepository $workGroupCenterRepository;
-    /**
-     * @var StationRepository
-     */
-    private StationRepository $stationRepository;
-    /**
-     * @var MakeCodeRepository
-     */
-    private MakeCodeRepository $makeCodeRepository;
-    /**
-     * @var TransitSourceRepository
-     */
-    private TransitSourceRepository $transitSourceRepository;
-    /**
-     * @var TransitDestinationRepository
-     */
-    private TransitDestinationRepository $transitDestinationRepository;
-    /**
-     * @var TransitDriverRepository
-     */
-    private TransitDriverRepository $transitDriverRepository;
-    /**
-     * @var TransitCompanyRepository
-     */
-    private TransitCompanyRepository $transitCompanyRepository;
-    /**
-     * @var IncidentRepository
-     */
-    private IncidentRepository $incidentRepository;
-    private ElementRepository  $elementRepository;
-
-
-    /**
-     * @param  RoleRepository  $roleRepository
-     * @param  PermissionRepository  $permissionRepository
-     * @param  SalonRepository  $salonRepository
-     * @param  ProductionLineRepository  $productionLineRepository
-     * @param  WorkGroupCenterRepository  $workGroupCenterRepository
-     * @param  StationRepository  $stationRepository
-     * @param  MakeCodeRepository  $makeCodeRepository
-     * @param  TransitSourceRepository  $transitSourceRepository
-     * @param  TransitDestinationRepository  $transitDestinationRepository
-     * @param  TransitDriverRepository  $transitDriverRepository
-     * @param  TransitCompanyRepository  $transitCompanyRepository
-     */
     public function __construct(
-        RoleRepository $roleRepository,
-        PermissionRepository $permissionRepository,
-        SalonRepository $salonRepository,
-        ProductionLineRepository $productionLineRepository,
-        WorkGroupCenterRepository $workGroupCenterRepository,
-        StationRepository $stationRepository,
-        MakeCodeRepository $makeCodeRepository,
-        TransitSourceRepository $transitSourceRepository,
-        TransitDestinationRepository $transitDestinationRepository,
-        TransitDriverRepository $transitDriverRepository,
-        TransitCompanyRepository $transitCompanyRepository,
-        IncidentRepository $incidentRepository,
-        ElementRepository $elementRepository,
+        private readonly RoleRepository $roleRepository,
+        private readonly PermissionRepository $permissionRepository,
+        private readonly SalonRepository $salonRepository,
+        private readonly ProductionLineRepository $productionLineRepository,
+        private readonly WorkGroupCenterRepository $workGroupCenterRepository,
+        private readonly StationRepository $stationRepository,
+        private readonly MakeCodeRepository $makeCodeRepository,
+        private readonly TransitSourceRepository $transitSourceRepository,
+        private readonly TransitDestinationRepository $transitDestinationRepository,
+        private readonly TransitDriverRepository $transitDriverRepository,
+        private readonly TransitCompanyRepository $transitCompanyRepository,
+        private readonly IncidentRepository $incidentRepository,
+        private readonly ElementRepository $elementRepository,
     ) {
-        $this->roleRepository = $roleRepository;
-        $this->permissionRepository = $permissionRepository;
-        $this->salonRepository = $salonRepository;
-        $this->productionLineRepository = $productionLineRepository;
-        $this->workGroupCenterRepository = $workGroupCenterRepository;
-        $this->stationRepository = $stationRepository;
-        $this->makeCodeRepository = $makeCodeRepository;
-        $this->transitSourceRepository = $transitSourceRepository;
-        $this->transitDestinationRepository = $transitDestinationRepository;
-        $this->transitDriverRepository = $transitDriverRepository;
-        $this->transitCompanyRepository = $transitCompanyRepository;
-        $this->incidentRepository = $incidentRepository;
-        $this->elementRepository = $elementRepository;
     }
 
     /**

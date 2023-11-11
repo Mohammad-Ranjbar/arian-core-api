@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CarModelResource;
 use App\Repositories\CarModelRepository;
-use Illuminate\Http\Request;
 
 class CarModelController extends CrudController
 {

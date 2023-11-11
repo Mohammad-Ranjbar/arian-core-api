@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\libs\BaseRepository;
 use App\Models\BlockItem;
-use Illuminate\Support\Facades\Auth;
 
 class BlockItemRepository extends BaseRepository
 {

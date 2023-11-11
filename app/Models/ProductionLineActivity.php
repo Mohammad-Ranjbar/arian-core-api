@@ -16,9 +16,23 @@ class ProductionLineActivity extends Model
      * @var string[]
      */
     protected $fillable = [
-        'production_line_id', 'station_id', 'stop_reason_id', 'stop_type_id', 'description', 'note', 'start_at',
+        'production_line_id',
+        'station_id',
+        'stop_reason_id',
+        'stop_type_id',
+        'description',
+        'note',
+        'start_at',
         'end_at',
     ];
+
+    /**
+     * @return BelongsTo
+     */
+    public function productionLine(): BelongsTo
+    {
+        return $this->belongsTo(ProductionLine::class);
+    }
 
     /**
      * @return BelongsTo
@@ -44,6 +58,9 @@ class ProductionLineActivity extends Model
         return $this->belongsTo(StopType::class);
     }
 
+    /**
+     * @return bool
+     */
     public function isApproved(): bool
     {
         return $this->logs()->orderByDesc('id')->where('action', 'approved')->exists();
@@ -56,6 +73,4 @@ class ProductionLineActivity extends Model
     {
         return $this->hasMany(ProductionLineActivityLogs::class);
     }
-
-
 }

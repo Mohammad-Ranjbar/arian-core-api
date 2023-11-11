@@ -15,12 +15,17 @@ use Illuminate\Support\Facades\Auth;
 
 class TransitActivityController extends CrudController
 {
+    /**
+     * @var SmsService
+     */
     private SmsService $smsService;
+
 
     /**
      * @param  TransitActivityRepository  $repository
+     * @param  SmsService  $smsService
      */
-    public function __construct(TransitActivityRepository $repository,SmsService $smsService)
+    public function __construct(TransitActivityRepository $repository, SmsService $smsService)
     {
         $this->repository = $repository;
         $this->applyAuthorizeResource();
@@ -28,11 +33,12 @@ class TransitActivityController extends CrudController
         $this->smsService = $smsService;
     }
 
+
     /**
      * @param  Request  $request
-     * @return TransitActivityResource|JsonResponse|mixed
+     * @return TransitActivityResource|JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): TransitActivityResource|JsonResponse
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
         try {
@@ -56,6 +62,7 @@ class TransitActivityController extends CrudController
         TransitActivitySetPriorityRequest $request
     ): TransitActivityResource|JsonResponse {
         try {
+            $this->authorize('transit-activities-set-priority');
             $validatedData = $request->validated();
             $transitActivity->update($validatedData);
             return new TransitActivityResource($transitActivity);
@@ -66,9 +73,14 @@ class TransitActivityController extends CrudController
         }
     }
 
+    /**
+     * @param  TransitActivity  $transitActivity
+     * @return JsonResponse|TransitActivityResource
+     */
     public function temporaryReceipt(TransitActivity $transitActivity): JsonResponse|TransitActivityResource
     {
         try {
+            $this->authorize('transit-activities-set-temporary-receipt');
             if ($transitActivity->statuses()->count() == 0) {
                 $transitActivity->statuses()->create([
                     'user_id' => Auth::id(),
@@ -87,13 +99,18 @@ class TransitActivityController extends CrudController
         }
     }
 
+    /**
+     * @param  TransitActivity  $transitActivity
+     * @return JsonResponse|TransitActivityResource
+     */
     public function enter(TransitActivity $transitActivity): JsonResponse|TransitActivityResource
     {
         try {
+            $this->authorize('transit-activities-set-enter');
             if (!$transitActivity->statuses()->where('status', 'enter')->exists() &&
                 $transitActivity->statuses()->where('status', 'temporary-receipt')->exists()
             ) {
-                $data = $transitActivity->statuses()->create([
+                $transitActivity->statuses()->create([
                     'user_id' => Auth::id(),
                     'status'  => 'enter'
                 ]);
@@ -110,13 +127,18 @@ class TransitActivityController extends CrudController
         }
     }
 
+    /**
+     * @param  TransitActivity  $transitActivity
+     * @return JsonResponse|TransitActivityResource
+     */
     public function discharge(TransitActivity $transitActivity): JsonResponse|TransitActivityResource
     {
         try {
+            $this->authorize('transit-activities-set-discharge');
             if (!$transitActivity->statuses()->where('status', 'discharge')->exists() &&
                 $transitActivity->statuses()->where('status', 'enter')->exists()
             ) {
-                $data = $transitActivity->statuses()->create([
+                $transitActivity->statuses()->create([
                     'user_id' => Auth::id(),
                     'status'  => 'discharge'
                 ]);
@@ -134,12 +156,18 @@ class TransitActivityController extends CrudController
         }
     }
 
+    /**
+     * @param  TransitActivity  $transitActivity
+     * @param  ExitPermitRequest  $request
+     * @return JsonResponse|TransitActivityResource
+     */
     public function exitPermit(
         TransitActivity $transitActivity,
         ExitPermitRequest $request
     ): JsonResponse|TransitActivityResource {
         $validatedData = $request->validated();
         try {
+            $this->authorize('transit-activities-set-exit-permit');
             if ($transitActivity->statuses()->where('status', 'exit-permit')->exists() ||
                 $transitActivity->statuses()->where('status', 'exit')->exists()
             ) {
@@ -160,7 +188,7 @@ class TransitActivityController extends CrudController
                 }
             }
             $transitActivity->statuses()->where(['status' => 'exit'])->exists();
-            $data = $transitActivity->statuses()->create($validatedData);
+            $transitActivity->statuses()->create($validatedData);
             unset($validatedData['user_id']);
             $transitActivity->update($validatedData);
             return new TransitActivityResource($transitActivity);
@@ -171,9 +199,14 @@ class TransitActivityController extends CrudController
         }
     }
 
+    /**
+     * @param  TransitActivity  $transitActivity
+     * @return JsonResponse|TransitActivityResource
+     */
     public function exit(TransitActivity $transitActivity): JsonResponse|TransitActivityResource
     {
         try {
+            $this->authorize('transit-activities-set-exit');
             if (!$transitActivity->statuses()->where('status', 'exit-permit')->exists() ||
                 $transitActivity->statuses()->where('status', 'exit')->exists()
             ) {
@@ -182,7 +215,7 @@ class TransitActivityController extends CrudController
                 ]);
             }
 
-            $data = $transitActivity->statuses()->create([
+            $transitActivity->statuses()->create([
                 'user_id' => Auth::id(),
                 'status'  => 'exit'
             ]);
@@ -202,11 +235,24 @@ class TransitActivityController extends CrudController
         }
     }
 
-    public function notify(TransitActivity $transitActivity)
+
+    /**
+     * @param  TransitActivity  $transitActivity
+     * @return bool|JsonResponse
+     */
+    public function notify(TransitActivity $transitActivity): bool|JsonResponse
     {
-        $phone = $transitActivity->transitDriver->phone;
-        $this->smsService->send($phone,'driver-enter-notify');
-        return true;
+        try {
+            $this->authorize('transit-activities-notify');
+            $phone = $transitActivity->transitDriver->phone;
+            $this->smsService->send($phone, 'driver-enter-notify');
+            return true;
+        } catch (Exception $exception) {
+            return response()->json([
+                'message' => $exception->getMessage()
+            ]);
+        }
+
     }
 
 }

@@ -122,7 +122,11 @@ class AuthController extends Controller
         return $request->validated();
     }
 
-    public function checkUserName(Request $request)
+    /**
+     * @param  Request  $request
+     * @return UserResource
+     */
+    public function checkUserName(Request $request): UserResource
     {
         $validatedData = $request->validate(['username' => 'required']);
         $user = User::query()->where('email', $validatedData['username'])
