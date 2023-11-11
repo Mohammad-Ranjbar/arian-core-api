@@ -42,23 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
         Route::post('/verify-code', [AuthController::class, 'verifyCode']);
     });
-    Route::prefix('options')->group(function () {
-        Route::get('/permissions', [OptionController::class, 'permissions']);
-        Route::get('/roles', [OptionController::class, 'roles']);
-        Route::get('/salons', [OptionController::class, 'salons']);
-        Route::get('/production-lines', [OptionController::class, 'productionLines']);
-        Route::get('/work-group-centers', [OptionController::class, 'workGroupCenters']);
-        Route::get('/stations', [OptionController::class, 'stations']);
-        Route::get('/make-codes', [OptionController::class, 'makeCodes']);
-        Route::get('/transit-drivers', [OptionController::class, 'transitDriver']);
-        Route::get('/transit-companies', [OptionController::class, 'transitCompany']);
-        Route::get('/transit-sources', [OptionController::class, 'transitSource']);
-        Route::get('/transit-destinations', [OptionController::class, 'transitDestination']);
-        Route::get('/incidents', [OptionController::class, 'incidents']);
-        Route::get('/elements', [OptionController::class, 'elements']);
-
-    });
-
+    Route::get('options/{resource}',OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
             Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items-index');
