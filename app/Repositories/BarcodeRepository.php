@@ -13,11 +13,9 @@ class BarcodeRepository extends BaseRepository
     protected array $rules = [
         'create'    => [
             'vin'     => 'required|string|exists:vehicles,vin',
-            'user_id' => 'required|exists:users,id',
             'code'    => 'required|string'
         ], 'update' => [
             'vin'     => 'required|string|exists:vehicles,vin',
-            'user_id' => 'required|exists:users,id',
             'code'    => 'required|string'
         ]
     ];

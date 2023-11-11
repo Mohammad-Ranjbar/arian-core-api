@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
+use App\Http\Controllers\BasketController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarModelController;
@@ -124,8 +125,8 @@ Route::middleware('auth:sanctum')->group(function () {
         'transit-companies'    => TransitCompanyController::class,
         'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
-        'stop-types'           => StopTypeController::class,
-        'barcodes'             => BarcodeController::class
+        'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
+        'baskets'              => BasketController::class,
 
     ]);
 });
