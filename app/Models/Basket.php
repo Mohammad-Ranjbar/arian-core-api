@@ -21,4 +21,9 @@ class Basket extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function submit():void
+    {
+        $this->update(['status'=> 'submitted']);
+    }
 }

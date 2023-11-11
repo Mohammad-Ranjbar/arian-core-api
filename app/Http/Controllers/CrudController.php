@@ -88,12 +88,8 @@ class CrudController extends Controller
         return new $this->resource($this->repository->show($id));
     }
 
-    /**
-     * @param  Request  $request
-     * @param $id
-     * @return JsonResponse|mixed
-     */
-    public function update(Request $request, $id): mixed
+
+    public function update(Request $request, $id)
     {
         $validatedData = $request->validate($this->repository->getUpdateRules());
         try {

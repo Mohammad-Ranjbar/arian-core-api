@@ -11,24 +11,36 @@ trait HttpServiceTrait
 {
     public function getVehicleByVin($vin)
     {
-        $res = Http::get(config('httpService.url').'/vehicle/'.$vin, [
-            'token' => config('httpService.token')
-        ]);
-        return $res->json();
+        return $this->sendToErp('/vehicle/'.$vin);
     }
 
-    public function sendSms($number, $content)
+    final  public function sendToErp($path, array $params = [], $method = 'get')
     {
         try {
-            $res = Http::get(config('httpService.url').'/send-sms/', [
-                'token' => config('httpService.token'), 'number' => $number, 'content' => $content
-            ]);
+            $res = Http::$method(config('httpService.url').$path, array_merge($params, [
+                'token' => config('httpService.token')
+            ]));
             return $res->json();
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
             return false;
         }
+    }
 
+    public function sendSms($number, $content)
+    {
+        return $this->sendToErp('/send-sms/', compact('number', 'content'));
+
+    }
+
+    public function checkBasket($code)
+    {
+        return $this->sendToErp('/check-basket-barcode/', compact('code'));
+    }
+
+    public function sendBasketToErp($code)
+    {
+        return $this->sendToErp('/submit-basket-barcode/', compact('code'));
     }
 
 }

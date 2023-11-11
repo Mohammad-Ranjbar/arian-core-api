@@ -13,10 +13,7 @@ class BasketRepository extends BaseRepository
     protected array $rules = [
         'create'    => [
             'code'    => 'required|string',
-            'status'  => 'nullable|string',
         ], 'update' => [
-            'code'    => 'required|string',
-            'status'  => 'nullable|string',
         ]
     ];
 
