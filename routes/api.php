@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
         Route::post('/verify-code', [AuthController::class, 'verifyCode']);
     });
-    Route::get('options/{resource}',OptionController::class);
+    Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
             Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items-index');
@@ -52,6 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
             Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
             Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);
+            Route::put('/update-qc-status',
+                [VehicleController::class, 'updateQcStatus'])->name('vehicle.update-qc-status');
+            Route::put('/update-grade-status',
+                [VehicleController::class, 'updateGradeStatus'])->name('vehicle.update-grade-status');
         });
         Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
     });
@@ -97,7 +101,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/production-line-activities/{production_line_activity}/approve',
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
-
     Route::apiResources([
         'roles'                => RoleController::class, 'make-codes' => MakeCodeController::class,
         'car-models'           => CarModelController::class, 'users' => UserController::class,

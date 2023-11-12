@@ -7,6 +7,16 @@ use App\Models\Vehicle;
 
 class VehicleRepository extends BaseRepository
 {
+    /**
+     * @var array|array[]
+     */
+    protected array $rules = [
+        'create'    => [
+
+        ], 'update' => [
+
+        ]
+    ];
 
     /**
      * @param  Vehicle  $model

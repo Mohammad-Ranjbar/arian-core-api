@@ -16,9 +16,11 @@ class VehicleResource extends JsonResource
     {
         return [
             'vin'                     => $this->resource->vin,
+            'grade'                     => $this->resource->grade,
             'production_order_number' => $this->resource->production_order_number,
             'engine_no'               => $this->resource->engine_no,
             'cabin_no'                => $this->resource->cabin_no,
+            'qc_status'                => $this->resource->qc_status,
             'make_code'               => [
                 'title'     => $this->resource->makeCode->title,
                 'reference' => $this->resource->makeCode->reference,

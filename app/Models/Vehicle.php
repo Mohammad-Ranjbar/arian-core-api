@@ -35,6 +35,8 @@ class Vehicle extends Model
         'cabin_no',
         'car_model_id',
         'make_code_id',
+        'qc_status',
+        'grade',
     ];
 
     /**
