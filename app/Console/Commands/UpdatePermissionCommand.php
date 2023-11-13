@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Exception;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Route;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class UpdatePermissionCommand extends Command
 {
@@ -20,37 +19,52 @@ class UpdatePermissionCommand extends Command
      */
     public function handle(): void
     {
-        $list = [
-            'vehicles.faults.qc.index',
-            'vehicles.faults.evaluation.index',
-            'vehicles.faults.qc.submit',
-            'vehicles.faults.evaluation.submit',
-            'vehicles.faults.qc.report',
-            'vehicles.faults.evaluation.report',
-        ];
+        $list = collect([
+            'vehicles.faults.qc.index', 'vehicles.faults.evaluation.index', 'vehicles.faults.qc.submit',
+            'vehicles.faults.evaluation.submit', 'vehicles.faults.qc.report', 'vehicles.faults.evaluation.report',
+        ]);
         $routeCollection = Route::getRoutes();
         foreach ($routeCollection as $route) {
             if ($route->getName() && str_contains($route->getPrefix(), 'api')) {
-                $list[] = $route->getName();
+                $list->push($route->getName());
             }
         }
-        try {
-            /** @var Role $role */
-            $role = Role::findByName('super-admin');
-        } catch (Exception $exception) {
-            /** @var Role $role */
-            $role = Role::create(['name' => 'super-admin', 'guard_name' => 'web']);
+
+        $oldList = array_diff(Permission::query()->get()->pluck('name')->all(), $list->all());
+        if (!empty($oldList)) {
+            $progressDelete = $this->output->createProgressBar(count($oldList));
+            $progressDelete->setBarCharacter('-');
+            $progressDelete->start();
+            foreach ($oldList as $old) {
+                Permission::query()->where('name', $old)->delete();
+                $progressDelete->advance();
+            }
+            $progressDelete->finish();
         }
-        $progress = $this->output->createProgressBar(count($list));
+        $newList = array_diff($list->all(), Permission::query()->get()->pluck('name')->all());
+
+        if (empty($newList)) {
+            $this->info('There in no permission to insert!');
+            return;
+        }
+
+        /** @var Role $role */
+        $role = Role::query()
+            ->where('name', 'super-admin')
+            ->firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
+
+        $this->output->writeln('');
+        $progress = $this->output->createProgressBar(count($newList));
+        $progress->setBarCharacter('+');
         $progress->start();
-        foreach ($list as $permissionName) {
-            try {
-//                TODO
-                $permission = Permission::findByName($permissionName);
-            } catch (Exception $exception) {
-                $permission = Permission::create(['name' => $permissionName, 'guard_name' => 'web']);
-            }
-            $role->givePermissionTo($permission);
+        foreach ($newList as $permissionName) {
+            $permission = Permission::query()->create(
+                [
+                    'name'       => $permissionName,
+                    'guard_name' => 'web'
+                ]
+            );
+            $role->permissions()->attach($permission);
             $progress->advance();
         }
         $progress->finish();

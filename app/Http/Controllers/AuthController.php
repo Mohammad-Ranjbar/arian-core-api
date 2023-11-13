@@ -8,14 +8,31 @@ use App\Http\Requests\RecoverPasswordRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\HttpServiceTrait;
+use App\Services\SmsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /**
+     * @var SmsService
+     */
+    private SmsService $smsService;
+
+    /**
+     * @param  SmsService  $smsService
+     */
+    public function __construct(SmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
+    use HttpServiceTrait;
+
     /**
      * @param  AuthRequest  $request
      * @return JsonResponse
@@ -39,19 +56,26 @@ class AuthController extends Controller
                     'message' => 'Unauthorized'
                 ], 401);
             }
-
-            Auth::login($user);
-            $tokenResult = $user->createToken('Personal Access Token');
-            $token = $tokenResult->plainTextToken;
-
-            return response()->json([
-                'accessToken' => $token,
-                'token_type'  => 'Bearer',
-            ]);
+            return $this->makeToken($user);
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), $exception->getCode());
         }
 
+    }
+
+    /**
+     * @param $user
+     * @return JsonResponse
+     */
+    private function makeToken($user): JsonResponse
+    {
+        $tokenResult = $user->createToken('Personal Access Token');
+        $token = $tokenResult->plainTextToken;
+
+        return response()->json([
+            'accessToken' => $token,
+            'token_type'  => 'Bearer',
+        ]);
     }
 
     /**
@@ -102,24 +126,47 @@ class AuthController extends Controller
     }
 
     /*
-     * TODO implement recover password
+     *
      */
     /**
      * @param  RecoverPasswordRequest  $request
-     * @return array
+     * @return JsonResponse
      */
-    public function recoverPassword(RecoverPasswordRequest $request): array
+    public function recoverPassword(RecoverPasswordRequest $request): JsonResponse
     {
-        return $request->validated();
+        if (Cache::get('AUTH:USER:2FA'.$request->validated('mobile'))) {
+            return response()->json(['message' => 'To many attempt!'], 422);
+        }
+        $code = 11111;
+        if (app()->environment() == 'production') {
+            $code = rand(10000, 99999);
+        }
+        Cache::put('AUTH:USER:2FA'.$request->validated('mobile'), $code, 130);
+        $this->smsService->send($request->validated('mobile'), '2fa', compact('code'));
+        return response()->json([
+            'message' => 'Send!',
+        ]);
     }
+
 
     /**
      * @param  VerifyCodeRequest  $request
-     * @return array
+     * @return JsonResponse
      */
-    public function verifyCode(VerifyCodeRequest $request): array
+    public function verifyCode(VerifyCodeRequest $request): JsonResponse
     {
-        return $request->validated();
+        $code = Cache::get('AUTH:USER:2FA'.$request->validated('mobile'));
+        if (!$code) {
+            return response()->json(
+                ['message' => 'invalid code'], 422);
+        }
+        if ($code != $request->validated('code')) {
+            return response()->json(
+                ['message' => 'invalid code'], 422);
+        }
+        $user = User::query()->where('mobile', $request->validated('mobile'))->first();
+        Cache::delete('AUTH:USER:2FA'.$request->validated('mobile'));
+        return $this->makeToken($user);
     }
 
     /**

@@ -35,13 +35,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
+Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
+Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/init', [AuthController::class, 'init']);
         Route::put('/change-password', [AuthController::class, 'changePassword']);
-        Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
-        Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+
     });
     Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
@@ -115,7 +116,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
         'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
         'baskets'              => BasketController::class,
-        'inventories'          => InventoryController::class
-
+        'inventories'          => InventoryController::class,
     ]);
 });

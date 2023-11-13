@@ -20,7 +20,7 @@ class RecoverPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required|email|exists:users,email'
+            'mobile' => 'required|digits:11|starts_with:09|exists:users,mobile'
         ];
     }
 }

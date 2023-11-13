@@ -11,7 +11,7 @@ class VerifyCodeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -20,7 +20,8 @@ class VerifyCodeRequest extends FormRequest
     public function rules(): array
     {
         return [
-
+            'mobile' => 'required|exists:users',
+            'code' => 'required',
         ];
     }
 }
