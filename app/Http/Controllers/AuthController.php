@@ -18,17 +18,13 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * @var SmsService
-     */
-    private SmsService $smsService;
 
     /**
      * @param  SmsService  $smsService
      */
-    public function __construct(SmsService $smsService)
+    public function __construct(private readonly SmsService $smsService)
     {
-        $this->smsService = $smsService;
+
     }
 
     use HttpServiceTrait;

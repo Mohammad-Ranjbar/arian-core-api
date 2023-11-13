@@ -15,22 +15,11 @@ use Illuminate\Support\Facades\Auth;
 
 class TransitActivityController extends CrudController
 {
-    /**
-     * @var SmsService
-     */
-    private SmsService $smsService;
 
-
-    /**
-     * @param  TransitActivityRepository  $repository
-     * @param  SmsService  $smsService
-     */
-    public function __construct(TransitActivityRepository $repository, SmsService $smsService)
+    public function __construct(private readonly  TransitActivityRepository $repository,private readonly  SmsService $smsService)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(TransitActivityResource::class);
-        $this->smsService = $smsService;
     }
 
 

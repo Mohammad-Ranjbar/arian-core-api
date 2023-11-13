@@ -7,12 +7,8 @@ use App\Repositories\CarModelRepository;
 
 class CarModelController extends CrudController
 {
-    /**
-     * @param  CarModelRepository  $repository
-     */
-    public function __construct(CarModelRepository $repository)
+    public function __construct(public readonly CarModelRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(CarModelResource::class);
     }

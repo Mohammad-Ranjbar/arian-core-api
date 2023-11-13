@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class CrudController extends Controller
 {
-    /**
-     * @var BaseRepository
-     */
-    public BaseRepository $repository;
+
     /**
      * @var string
      */

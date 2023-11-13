@@ -7,12 +7,8 @@ use App\Repositories\InventoryRepository;
 
 class InventoryController extends CrudController
 {
-    /**
-     * @param  InventoryRepository  $repository
-     */
-    public function __construct(InventoryRepository $repository)
+    public function __construct(public readonly InventoryRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(InventoryResource::class);
     }

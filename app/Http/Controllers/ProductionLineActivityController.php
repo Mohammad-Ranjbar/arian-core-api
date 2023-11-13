@@ -7,12 +7,8 @@ use App\Repositories\ProductionLineActivityRepository;
 
 class ProductionLineActivityController extends CrudController
 {
-    /**
-     * @param  ProductionLineActivityRepository  $repository
-     */
-    public function __construct(ProductionLineActivityRepository $repository)
+    public function __construct(public readonly ProductionLineActivityRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(ProductionLineActivityResource::class);
     }

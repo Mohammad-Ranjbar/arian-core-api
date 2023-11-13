@@ -7,12 +7,8 @@ use App\Repositories\StopFactRepository;
 
 class StopFactController extends CrudController
 {
-    /**
-     * @param  StopFactRepository  $repository
-     */
-    public function __construct(StopFactRepository $repository)
+    public function __construct(public readonly StopFactRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(StopFactResource::class);
     }

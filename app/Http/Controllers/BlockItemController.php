@@ -14,13 +14,8 @@ use Illuminate\Support\Facades\Auth;
 
 class BlockItemController extends Controller
 {
-
-    /**
-     * @param  BlockItemRepository  $repository
-     */
-    public function __construct(private readonly BlockItemRepository $repository)
+    public function __construct(public readonly BlockItemRepository $repository)
     {
-
     }
 
     /**

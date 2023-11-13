@@ -13,11 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LineActivityStartStopController extends Controller
 {
-    /**
-     * @param  StopLineRequest  $request
-     * @param  ProductionLine  $productionLine
-     * @return JsonResponse|ProductionLineActivityResource
-     */
+
     public function stop(
         StopLineRequest $request,
         ProductionLine $productionLine

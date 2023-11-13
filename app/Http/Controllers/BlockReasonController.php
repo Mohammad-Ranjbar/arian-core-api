@@ -7,12 +7,8 @@ use App\Repositories\BlockReasonRepository;
 
 class BlockReasonController extends CrudController
 {
-    /**
-     * @param  BlockReasonRepository  $repository
-     */
-    public function __construct(BlockReasonRepository $repository)
+    public function __construct(public readonly BlockReasonRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(BlockReasonResource::class);
     }

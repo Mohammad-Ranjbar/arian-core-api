@@ -15,12 +15,8 @@ class BasketController extends CrudController
 {
     use HttpServiceTrait;
 
-    /**
-     * @param  BasketRepository  $repository
-     */
-    public function __construct(BasketRepository $repository)
+    public function __construct(public readonly BasketRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(BasketResource::class);
     }

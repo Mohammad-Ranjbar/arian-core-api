@@ -8,12 +8,8 @@ use Illuminate\Http\Request;
 
 class ElementController extends CrudController
 {
-    /**
-     * @param  ElementRepository  $repository
-     */
-    public function __construct(ElementRepository $repository)
+    public function __construct(public readonly ElementRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(ElementResource::class);
     }

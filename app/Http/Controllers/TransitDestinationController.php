@@ -7,12 +7,8 @@ use App\Repositories\TransitDestinationRepository;
 
 class TransitDestinationController extends CrudController
 {
-    /**
-     * @param  TransitDestinationRepository  $repository
-     */
-    public function __construct(TransitDestinationRepository $repository)
+    public function __construct(public readonly TransitDestinationRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(TransitDestinationResource::class);
     }

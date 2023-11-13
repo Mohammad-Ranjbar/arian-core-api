@@ -11,12 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 class BarcodeController extends CrudController
 {
-    /**
-     * @param  BarcodeRepository  $repository
-     */
-    public function __construct(BarcodeRepository $repository)
+    public function __construct(public readonly BarcodeRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(BarcodeResource::class);
     }

@@ -7,12 +7,8 @@ use App\Repositories\StationRepository;
 
 class StationController extends CrudController
 {
-    /**
-     * @param  StationRepository  $repository
-     */
-    public function __construct(StationRepository $repository)
+    public function __construct(public readonly StationRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(StationResource::class);
     }

@@ -7,12 +7,8 @@ use App\Repositories\StopTypeRepository;
 
 class StopTypeController extends CrudController
 {
-    /**
-     * @param  StopTypeRepository  $repository
-     */
-    public function __construct(StopTypeRepository $repository)
+    public function __construct(public readonly StopTypeRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(StopTypeResource::class);
     }
