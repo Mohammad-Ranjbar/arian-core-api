@@ -55,7 +55,7 @@ class ProductionLine extends Model
     public function isStarted(): bool
     {
         $record = $this->logs()
-            ->orderByDesc('id')
+            ->latest()
             ->where('action', '!=', 'approved')
             ->first();
         if (!$record) {
@@ -64,7 +64,7 @@ class ProductionLine extends Model
         return $record->action == 'start';
     }
 
-    public function logs():HasManyThrough
+    public function logs(): HasManyThrough
     {
         return $this->hasManyThrough(ProductionLineActivityLogs::class, ProductionLineActivity::class);
     }
@@ -72,7 +72,7 @@ class ProductionLine extends Model
     public function isStop(): bool
     {
         $record = $this->logs()
-            ->orderByDesc('id')
+            ->latest()
             ->where('action', '!=', 'approved')
             ->first();
         if (!$record) {
@@ -83,7 +83,7 @@ class ProductionLine extends Model
 
     public function getLatestActivity(): Model|HasMany
     {
-        return $this->activities()->orderByDesc('id')->firstOrFail();
+        return $this->activities()->latest()->firstOrFail();
     }
 
     public function activities(): HasMany

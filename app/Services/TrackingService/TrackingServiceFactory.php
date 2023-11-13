@@ -5,9 +5,10 @@ namespace App\Services\TrackingService;
 class TrackingServiceFactory
 {
 
+
     /**
      * @param $model
-     * @return ProductionLineTrackingService|SalonTrackingService|StationTrackingService|void
+     * @return InventoryTrackingService|ProductionLineTrackingService|SalonTrackingService|StationTrackingService|void
      */
     public static function getInstance($model)
     {
@@ -20,7 +21,9 @@ class TrackingServiceFactory
         if ($model === 'stations') {
             return new StationTrackingService();
         }
-
+        if ($model === 'inventory') {
+            return new InventoryTrackingService();
+        }
     }
 
 }

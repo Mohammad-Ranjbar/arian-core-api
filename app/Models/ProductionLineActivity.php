@@ -63,7 +63,7 @@ class ProductionLineActivity extends Model
      */
     public function isApproved(): bool
     {
-        return $this->logs()->orderByDesc('id')->where('action', 'approved')->exists();
+        return $this->logs()->latest()->where('action', 'approved')->exists();
     }
 
     /**

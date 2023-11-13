@@ -18,24 +18,14 @@ class VehicleFaultController extends Controller
 {
 
     /**
-     * @var VehicleIncidentRepository
-     */
-    private VehicleIncidentRepository $repository;
-    /**
-     * @var IncidentSourceRepository
-     */
-    private IncidentSourceRepository $incidentSourceRepository;
-
-    /**
      * @param  VehicleIncidentRepository  $repository
      * @param  IncidentSourceRepository  $incidentSourceRepository
      */
     public function __construct(
-        VehicleIncidentRepository $repository,
-        IncidentSourceRepository $incidentSourceRepository
+        private readonly VehicleIncidentRepository $repository,
+        private readonly IncidentSourceRepository $incidentSourceRepository
     ) {
-        $this->repository = $repository;
-        $this->incidentSourceRepository = $incidentSourceRepository;
+
     }
 
     /**
@@ -47,7 +37,7 @@ class VehicleFaultController extends Controller
     {
         try {
             $validatedData = $request->validated();
-            $tracking = $vehicle->tracking()->orderByDesc('id')->first();
+            $tracking = $vehicle->tracking()->latest()->first();
             if (!$tracking) {
                 return response()->json([
                     'message' => 'can not find vehicle location'
@@ -62,7 +52,7 @@ class VehicleFaultController extends Controller
         } catch (Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage()
-            ]);
+            ],500);
         }
 
     }
@@ -88,7 +78,7 @@ class VehicleFaultController extends Controller
         } catch (Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage()
-            ]);
+            ],500);
         }
 
     }

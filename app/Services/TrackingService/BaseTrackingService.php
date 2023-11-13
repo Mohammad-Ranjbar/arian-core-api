@@ -18,7 +18,7 @@ abstract class BaseTrackingService implements TrackingServiceInterface
         $where = [
             'model_type' => $modelType, 'model_id' => $modeId, 'vin' => $vin,
         ];
-        return Tracking::query()->where($where)->orderByDesc('id')->first();
+        return Tracking::query()->where($where)->latest()->first();
     }
 
 }
