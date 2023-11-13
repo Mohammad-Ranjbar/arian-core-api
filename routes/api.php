@@ -8,6 +8,7 @@ use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LineActivityStartStopController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
@@ -114,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
         'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
         'baskets'              => BasketController::class,
+        'inventories'          => InventoryController::class
 
     ]);
 });

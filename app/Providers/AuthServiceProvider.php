@@ -9,6 +9,7 @@ use App\Models\BlockReason;
 use App\Models\CarModel;
 use App\Models\Element;
 use App\Models\Incident;
+use App\Models\Inventory;
 use App\Models\MakeCode;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
@@ -62,6 +63,7 @@ class AuthServiceProvider extends ServiceProvider
         ProductionLineActivity::class => CrudPolicy::class,
         Barcode::class                => CrudPolicy::class,
         Basket::class                 => CrudPolicy::class,
+        Inventory::class              => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class
     ];
