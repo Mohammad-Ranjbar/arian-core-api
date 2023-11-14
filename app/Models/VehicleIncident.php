@@ -67,4 +67,5 @@ class VehicleIncident extends Model
     {
         return $this->hasMany(IncidentSource::class,'incident_id');
     }
+
 }

@@ -15,15 +15,15 @@ class VehicleIncidentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                     => $this->resource->id,
+            'id'                     => (int) $this->resource->id,
             'type'                   => $this->resource->type,
             'intensity'              => $this->resource->intensity,
             'method'                 => $this->resource->method,
             'description'            => $this->resource->description,
-            'user_id'                => $this->resource->user_id,
-            'production_tracking_id' => $this->resource->production_tracking_id,
-            'element_id'             => $this->resource->element_id,
-            'incident_id'            => $this->resource->incident_id,
+            'user_id'                => (int) $this->resource->user_id,
+            'production_tracking_id' => (int) $this->resource->production_tracking_id,
+            'element_id'             => (int) $this->resource->element_id,
+            'incident_id'            => (int) $this->resource->incident_id,
             'vin'                    => $this->resource->vin,
             'checked_at'             => $this->resource->checked_at,
             'vehicle'                => new VehicleResource($this->resource->vehicle),
@@ -31,7 +31,7 @@ class VehicleIncidentResource extends JsonResource
             'incident'               => new IncidentResource($this->resource->incident),
             'element'                => new ElementResource($this->resource->element),
             'productionTracking'     => new ProductionLineResource($this->resource->productionTracking),
-
+            'created_at'             => $this->resource->created_at,
         ];
     }
 }

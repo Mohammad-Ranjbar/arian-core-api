@@ -15,7 +15,7 @@ class ProductionLineResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'       => $this->resource->id,
+            'id'       =>(int)  $this->resource->id,
             'title'    => $this->resource->title,
             'salon_id' => $this->resource->salon_id
         ];
