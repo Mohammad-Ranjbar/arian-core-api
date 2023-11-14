@@ -26,6 +26,7 @@ class BarcodeController extends CrudController
         try {
             $validatedData['user_id'] = Auth::id();
             $saveItem = $this->repository->store($validatedData);
+            $saveItem->updateErpProductItemId();
             return new $this->resource($saveItem);
         } catch (Exception $exception) {
             return response()->json([

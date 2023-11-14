@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Barcode;
 use App\Models\ErpProductItem;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,17 +15,38 @@ class SyncProductItem implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
+    /**
+     * @param  array  $data
+     */
     public function __construct(private readonly array $data)
     {
 
     }
 
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
-        ErpProductItem::query()->where('reference', $this->data['reference'])
-            ->firstOrNew()
-            ->fill($this->data)
-            ->save();
+        $record = ErpProductItem::query()->where('reference', $this->data['reference'])
+            ->firstOrCreate($this->data);
+        if ($record->wasRecentlyCreated) {
+            $this->updateBarcodes($record->tracking_code, $record->id);
+        } else {
+            if ($record->tracking_code != $this->data['tracking_code']) {
+                Barcode::query()->where('erp_product_item_id', $record->id)
+                    ->update(['erp_product_item_id' => null]);
+                $this->updateBarcodes($record->tracking_code, $record->id);
+            }
+            $record->update($this->data);
+        }
+    }
+
+    private function updateBarcodes(string $trackingCode, int $id)
+    {
+        Barcode::query()
+            ->where('tracking_code', 'LIKE', '%'.$trackingCode.'%')
+            ->update(['erp_product_item_id' => $id]);
     }
 }

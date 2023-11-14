@@ -17,7 +17,8 @@ class Barcode extends Model
     protected $fillable = [
         'vin',
         'user_id',
-        'code'
+        'code',
+        'erp_product_item_id'
     ];
 
     /**
@@ -31,9 +32,30 @@ class Barcode extends Model
     /**
      * @return BelongsTo
      */
-    public function vehicle():BelongsTo
+    public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class, 'vin');
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function erpProductItem(): BelongsTo
+    {
+        return $this->belongsTo(ErpProductItem::class);
+    }
+
+    /**
+     * @return void
+     */
+    public function updateErpProductItemId():void
+    {
+        $record = ErpProductItem::query()->whereNotNull('tracking_code')
+            ->where('tracking_code', '!=', '')
+            ->whereRaw("'{$this->code}' LIKE concat ('%',tracking_code,'%')")->first();
+
+        if ($record){
+            $this->update(['erp_product_item_id' => $record->id]);
+        }
+    }
 }
