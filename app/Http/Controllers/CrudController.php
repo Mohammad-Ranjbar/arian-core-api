@@ -7,6 +7,7 @@ use App\libs\BaseRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CrudController extends Controller
@@ -16,6 +17,10 @@ class CrudController extends Controller
      * @var string
      */
     public string $resource = BaseResource::class;
+    /**
+     * @var bool
+     */
+   protected  bool $appendUserId = false;
 
 
     /**
@@ -45,6 +50,9 @@ class CrudController extends Controller
     public function store(Request $request): mixed
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
+        if ($this->appendUserId){
+            $validatedData['user_id'] = Auth::id();
+        }
         try {
             DB::beginTransaction();
             $saveItem = $this->repository->store($validatedData);
@@ -86,21 +94,15 @@ class CrudController extends Controller
     }
 
 
+    /**
+     * @param  Request  $request
+     * @param $id
+     * @return JsonResponse|mixed
+     */
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate($this->repository->getUpdateRules());
-        try {
-            DB::beginTransaction();
-            $model = $this->repository->update($id, $validatedData);
-            $model = $this->afterSave($model, $validatedData);
-            DB::commit();
-            return new $this->resource($model);
-        } catch (Exception $exception) {
-            DB::rollBack();
-            return response()->json([
-                'message' => $exception->getMessage()
-            ], 500);
-        }
+        return $this->doUpdate($id,$validatedData);
     }
 
     /**
@@ -128,4 +130,22 @@ class CrudController extends Controller
     {
         $this->resource = $resource;
     }
+
+    public function doUpdate($id, $data)
+    {
+        try {
+            DB::beginTransaction();
+            $model = $this->repository->update($id, $data);
+            $model = $this->afterSave($model, $data);
+            DB::commit();
+            return new $this->resource($model);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $exception->getMessage()
+            ], 500);
+        }
+    }
+
+
 }

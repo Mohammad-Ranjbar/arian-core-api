@@ -13,7 +13,7 @@ class ExitPermitRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+      return $this->user()->can('transit-activities-set-exit-permit');
     }
 
     /**
@@ -23,18 +23,7 @@ class ExitPermitRequest extends FormRequest
     {
         return [
             'exit_by' => 'nullable|unique:transit_activities,exit_by|exists:transit_activities,id',
-            'user_id' => 'nullable',
-            'status' => 'nullable',
         ];
     }
-    /**
-     * @return void
-     */
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'user_id' => Auth::id(),
-            'status'  => 'exit-permit'
-        ]);
-    }
+
 }

@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class TransitActivity extends Model
 {
@@ -53,11 +55,58 @@ class TransitActivity extends Model
     }
 
     /**
+     * @param $status
+     * @return void
+     */
+    public function setStatus($status): void
+    {
+        $this->update(['status' => $status]);
+        $this->createStatusLog($status);
+    }
+
+    /**
+     * @param  string  $status
+     * @return void
+     */
+    public function createStatusLog(string $status): void
+    {
+        $this->statuses()->create([
+            'user_id' => Auth::id(),
+            'status'  => $status
+        ]);
+    }
+
+    /**
      * @return HasMany
      */
     public function statuses(): HasMany
     {
         return $this->hasMany(TransitStatusLog::class);
+    }
+
+    /**
+     * @param  string  $string
+     * @return bool
+     */
+    public function hasStatus(string $string): bool
+    {
+        return $this->statuses()->where('status', 'enter')->exists();
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function child(): HasOne
+    {
+        return $this->hasOne(TransitActivity::class, 'exit_by');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(TransitActivity::class, 'exit_by');
     }
 
 
