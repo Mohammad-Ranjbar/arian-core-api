@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\ContainerRepository;
 use App\Repositories\ElementRepository;
 use App\Repositories\IncidentRepository;
 use App\Repositories\MakeCodeRepository;
@@ -55,6 +56,7 @@ class OptionController extends Controller
             'transit-destinations' => TransitDestinationRepository::class,
             'incidents' => IncidentRepository::class,
             'elements' => ElementRepository::class,
+            'containers' => ContainerRepository::class,
             default => false,
         };
     }

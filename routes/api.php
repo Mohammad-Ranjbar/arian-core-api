@@ -6,6 +6,7 @@ use App\Http\Controllers\BasketController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\InventoryController;
@@ -118,7 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
         'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
-        'baskets'              => BasketController::class,
-        'inventories'          => InventoryController::class,
+        'baskets'              => BasketController::class, 'inventories' => InventoryController::class,
+        'containers'           => ContainerController::class
     ]);
 });

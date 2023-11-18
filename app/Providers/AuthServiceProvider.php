@@ -7,6 +7,7 @@ use App\Models\Basket;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
 use App\Models\CarModel;
+use App\Models\Container;
 use App\Models\Element;
 use App\Models\Incident;
 use App\Models\Inventory;
@@ -64,8 +65,8 @@ class AuthServiceProvider extends ServiceProvider
         Barcode::class                => CrudPolicy::class,
         Basket::class                 => CrudPolicy::class,
         Inventory::class              => CrudPolicy::class,
-
-        Vehicle::class => VehiclePolicy::class
+        Container::class              => CrudPolicy::class,
+        Vehicle::class                => VehiclePolicy::class
     ];
 
 
