@@ -43,14 +43,10 @@ class AuthController extends Controller
                 ->first();
 
             if (!isset($user)) {
-                return response()->json([
-                    'message' => 'user not found'
-                ], 404);
+                return $this->responseError('user not found', 404);
             }
             if (!Hash::check($validatedData['password'], $user->password)) {
-                return response()->json([
-                    'message' => 'Unauthorized'
-                ], 401);
+                return $this->responseError('Unauthorized', 401);
             }
             return $this->makeToken($user);
         } catch (Exception $exception) {
@@ -108,9 +104,7 @@ class AuthController extends Controller
         $validatedData = $request->validated();
         try {
             if (!Hash::check($validatedData['oldPassword'], $request->user()->password)) {
-                return response()->json([
-                    'message' => 'The previous password was entered incorrectly'
-                ], 422);
+                return $this->responseError('The previous password was entered incorrectly');
             }
             $request->user()->update(['password' => bcrypt($validatedData['newPassword'])]);
             return response()->json([
@@ -131,7 +125,7 @@ class AuthController extends Controller
     public function recoverPassword(RecoverPasswordRequest $request): JsonResponse
     {
         if (Cache::get('AUTH:USER:2FA'.$request->validated('mobile'))) {
-            return response()->json(['message' => 'To many attempt!'], 422);
+            return $this->responseError('To many attempt!');
         }
         $code = 11111;
         if (app()->environment() == 'production') {
@@ -157,8 +151,7 @@ class AuthController extends Controller
                 ['message' => 'invalid code'], 422);
         }
         if ($code != $request->validated('code')) {
-            return response()->json(
-                ['message' => 'invalid code'], 422);
+            return $this->responseError('invalid code');
         }
         $user = User::query()->where('mobile', $request->validated('mobile'))->first();
         Cache::delete('AUTH:USER:2FA'.$request->validated('mobile'));

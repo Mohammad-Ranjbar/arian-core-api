@@ -109,11 +109,7 @@ abstract class BaseRepository
      */
     public function make($data, string $parameter = 'reference'): mixed
     {
-        $record = $this->findBy($data[$parameter], $parameter);
-        if (!$record) {
-            $record = $this->store($data);
-        }
-        return $record;
+        return $this->model->query()->firstOrCreate([$parameter=> $data[$parameter]],$data);
     }
 
     /**

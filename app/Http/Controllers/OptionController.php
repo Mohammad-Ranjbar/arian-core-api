@@ -16,21 +16,23 @@ use App\Repositories\TransitDriverRepository;
 use App\Repositories\TransitSourceRepository;
 use App\Repositories\WorkGroupCenterRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Http\JsonResponse;
 
 class OptionController extends Controller
 {
+
     /**
      * @param $resource
-     * @return mixed
+     * @return JsonResponse|array
      * @throws BindingResolutionException
      */
-    public function __invoke($resource):mixed
+    public function __invoke($resource): JsonResponse|array
     {
-        $repo = $this->match($resource);
-        if (!$repo) {
-            abort(404);
+        $repository = $this->match($resource);
+        if (!$repository) {
+            return $this->responseError('repository not found', 404);
         }
-        return app()->make($repo)->getOptions();
+        return app()->make($repository)->getOptions();
     }
 
     /**

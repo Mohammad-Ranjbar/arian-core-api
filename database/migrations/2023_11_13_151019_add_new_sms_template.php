@@ -1,27 +1,26 @@
 <?php
 
+use App\Models\SmsService;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
+
     /**
-     * Run the migrations.
+     * @return void
      */
     public function up(): void
     {
-        \App\Models\SmsService::query()->insert([
-            'text' => 'Code: {{$code}}',
-            'type' => '2fa',
+        SmsService::query()->insert([
+            'text' => 'Code: {{$code}}', 'type' => '2fa',
         ]);
     }
 
+
     /**
-     * Reverse the migrations.
+     * @return void
      */
     public function down(): void
     {
-        \App\Models\SmsService::query()->whereType('2fa')->delete();
+        SmsService::query()->where('type', '2fa')->delete();
     }
 };

@@ -21,9 +21,7 @@ class ProductionTrackingController extends Controller
         $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
         $data = $modelTrackingService->{$validatedData['type']}($validatedData);
         if (!$data) {
-            return response()->json([
-                'message' => 'cant not exit or enter to this location'
-            ]);
+            return $this->responseError('cant not exit or enter to this location',400);
         }
         $vehicle->tracking()->create($data);
         return new VehicleResource($vehicle);

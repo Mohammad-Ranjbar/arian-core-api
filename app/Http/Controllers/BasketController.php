@@ -15,25 +15,27 @@ class BasketController extends CrudController
 {
     use HttpServiceTrait;
 
+    /**
+     * @param  BasketRepository  $repository
+     */
     public function __construct(public readonly BasketRepository $repository)
     {
         $this->applyAuthorizeResource();
         $this->setResource(BasketResource::class);
     }
 
+
     /**
      * @param  Request  $request
-     * @return JsonResponse|mixed
+     * @return JsonResponse
      */
-    public function store(Request $request): mixed
+    public function store(Request $request):JsonResponse
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
         request()->merge(['code' => $validatedData['code'], 'created_at_from' => Carbon::now()->subMinutes(10)]);
         $collection = $this->repository->get();
         if ($collection->count() > 0) {
-            return response()->json([
-                'message' => 'cant create this basket!'
-            ]);
+            return $this->responseError('cant create this basket!');
         }
         try {
             $validatedData['user_id'] = Auth::id();
@@ -41,46 +43,40 @@ class BasketController extends CrudController
             $response = $this->checkBasket($validatedData['code']);
 
             if (!$response) {
-                return response()->json([
-                    'message' => 'internal server error !'
-                ], 500);
+                return $this->responseError('internal server error !');
             }
+
             if (!$response->status) {
-                return response()->json([
-                    'message' => $response->message
-                ], 422);
+                return $this->responseError($response->message);
             }
 
 
             $saveItem = $this->repository->store($validatedData);
             return new $this->resource($saveItem);
         } catch (Exception $exception) {
-            return response()->json([
-                'message' => $exception->getMessage()
-            ], 500);
+            return $this->responseError($exception->getMessage(), 500);
         }
     }
 
 
-    public function update(Request $request, $id)
+    /**
+     * @param  Request  $request
+     * @param $id
+     * @return JsonResponse|true
+     */
+    public function update(Request $request, $id): bool|JsonResponse
     {
         $basket = $this->repository->show($id);
         if ($basket->status == 'new') {
-            return response()->json([
-                'message' => 'cant update this basket'
-            ], 422);
+            return $this->responseError('cant update this basket');
         }
         $response = $this->sendBasketToErp($basket->code);
 
         if (!$response) {
-            return response()->json([
-                'message' => 'internal server error !'
-            ], 500);
+            return $this->responseError('internal server error !', 500);
         }
         if (!$response->status) {
-            return response()->json([
-                'message' => $response->message
-            ], 422);
+            return $this->responseError($response->message);
         }
         $basket->submit();
 

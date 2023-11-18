@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property mixed $carModel
+ * @property mixed $vin
+ * @property mixed $makeCode
  */
 class Vehicle extends Model
 {

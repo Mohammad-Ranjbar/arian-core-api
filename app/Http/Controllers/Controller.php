@@ -12,7 +12,12 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    public function responseError(string $message, $code = 422): JsonResponse
+    /**
+     * @param  string  $message
+     * @param int $code
+     * @return JsonResponse
+     */
+    public function responseError(string $message,int $code = 422): JsonResponse
     {
         return response()->json([
             'message' => $message

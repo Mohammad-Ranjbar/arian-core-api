@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BaseResource;
-use App\libs\BaseRepository;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,31 +21,21 @@ class CrudController extends Controller
    protected  bool $appendUserId = false;
 
 
-    /**
-     * @param  Request  $request
-     * @return mixed
-     */
-    public function index(Request $request): mixed
+
+    public function index(Request $request)
     {
         $perPage = $request->get('per_page', 15);
         return $this->collect($this->repository->paginate($perPage));
     }
 
-    /**
-     * @param $q
-     * @return mixed
-     */
-    public function collect($q): mixed
+    public function collect($q)
     {
 //        TODO
         return $this->resource::collection($q);
     }
 
-    /**
-     * @param  Request  $request
-     * @return JsonResponse|mixed
-     */
-    public function store(Request $request): mixed
+
+    public function store(Request $request)
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
         if ($this->appendUserId){
@@ -94,11 +82,7 @@ class CrudController extends Controller
     }
 
 
-    /**
-     * @param  Request  $request
-     * @param $id
-     * @return JsonResponse|mixed
-     */
+
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate($this->repository->getUpdateRules());

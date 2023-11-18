@@ -20,9 +20,7 @@ class LineActivityStartStopController extends Controller
     ): JsonResponse|ProductionLineActivityResource {
         $validatedData = $request->validated();
         if ($productionLine->isStop()) {
-            return response()->json([
-                'message' => 'can not stop the line'
-            ], 422);
+            return $this->responseError('can not stop the line');
         }
         $activity = $productionLine->activities()->create($validatedData);
         $activity->logs()->create([
@@ -42,9 +40,7 @@ class LineActivityStartStopController extends Controller
     ): JsonResponse|ProductionLineActivityResource {
         $this->authorize('production-lines.start');
         if ($productionLine->isStarted()) {
-            return response()->json([
-                'message' => 'can not start the line'
-            ], 422);
+            return $this->responseError('can not start the line');
         }
 
         $activity = $productionLine->getLatestActivity();
@@ -71,24 +67,18 @@ class LineActivityStartStopController extends Controller
         ]);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function approve(ProductionLineActivity $productionLineActivity): bool|JsonResponse
     {
-        try {
             $this->authorize('production-line-activities.approve');
             if ($productionLineActivity->isApproved()) {
-                return response()->json([
-                    'message' => 'can not approve the activity'
-                ], 422);
+                return $this->responseError('can not approve the activity');
             }
             $productionLineActivity->logs()->create([
                 'action' => 'approved', 'user_id' => Auth::id(),
             ]);
             return true;
-        } catch (Exception $exception) {
-            return response()->json([
-                'message' => $exception->getMessage()
-            ]);
-        }
-
     }
 }

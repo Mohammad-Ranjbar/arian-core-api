@@ -11,13 +11,18 @@ use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
 use App\Services\HttpServiceTrait;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class VehicleController extends CrudController
 {
     use HttpServiceTrait;
 
+    /**
+     * @param  MakeCodeRepository  $makeCodeRepository
+     * @param  CarModelRepository  $carModelRepository
+     * @param  VehicleRepository  $vehicleRepository
+     */
     public function __construct(
         private readonly MakeCodeRepository $makeCodeRepository,
         private readonly CarModelRepository $carModelRepository,
@@ -26,7 +31,13 @@ class VehicleController extends CrudController
 
     }
 
-    public function getByVin(Request $request, $vin)
+
+    /**
+     * @param $vin
+     * @return VehicleResource
+     * @throws AuthorizationException
+     */
+    public function getByVin( $vin): VehicleResource
     {
         $obj = $this->getVehicleByVin($vin);
         $makeCode = $this->makeCodeRepository->make($obj['make_code']);
@@ -37,14 +48,15 @@ class VehicleController extends CrudController
             'car_model_id' => $carModel->id,
         ];
         $vehicle = $this->vehicleRepository->make($data, 'vin');
-
-        $user = $request->user();
-        if ($user->makeCodes()->where('make_codes.id', $makeCode->id)->exists()) {
-            return new VehicleResource($vehicle);
-        }
-        abort(403);
+        $this->authorize('access', $vehicle);
+        return new VehicleResource($vehicle);
     }
 
+    /**
+     * @param  UpdateQcStatusRequest  $request
+     * @param  Vehicle  $vehicle
+     * @return JsonResponse|VehicleResource
+     */
     public function updateQcStatus(
         UpdateQcStatusRequest $request,
         Vehicle $vehicle
@@ -54,11 +66,15 @@ class VehicleController extends CrudController
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {
-            return response()->json([
-                'message' => 'cant update qc status'
-            ], 500);
+            return $this->responseError($exception->getMessage(), 500);
         }
     }
+
+    /**
+     * @param  UpdateGradeRequest  $request
+     * @param  Vehicle  $vehicle
+     * @return JsonResponse|VehicleResource
+     */
     public function updateGradeStatus(
         UpdateGradeRequest $request,
         Vehicle $vehicle
@@ -68,9 +84,7 @@ class VehicleController extends CrudController
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {
-            return response()->json([
-                'message' => 'cant update qc status'
-            ], 500);
+            return $this->responseError($exception->getMessage(), 500);
         }
     }
 }

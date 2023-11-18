@@ -11,6 +11,7 @@ use App\Models\Vehicle;
 use App\Repositories\IncidentSourceRepository;
 use App\Repositories\VehicleIncidentRepository;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -39,9 +40,7 @@ class VehicleFaultController extends Controller
             $validatedData = $request->validated();
             $tracking = $vehicle->tracking()->latest()->first();
             if (!$tracking) {
-                return response()->json([
-                    'message' => 'can not find vehicle location'
-                ], 422);
+                return $this->responseError('can not find vehicle location');
             }
             $validatedData['production_tracking_id'] = $tracking->id;
             $this->incidentSourceRepository->upsert([
@@ -50,9 +49,7 @@ class VehicleFaultController extends Controller
             ]);
             return new VehicleIncidentResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
-            return response()->json([
-                'message' => $exception->getMessage()
-            ],500);
+            return $this->responseError($exception->getMessage(),500);
         }
 
     }
@@ -61,12 +58,12 @@ class VehicleFaultController extends Controller
      * @param  Vehicle  $vehicle
      * @param $type
      * @return JsonResponse|AnonymousResourceCollection
+     * @throws AuthorizationException
      */
     public function index(
         Vehicle $vehicle,
         $type
     ): JsonResponse|AnonymousResourceCollection {
-        try {
             $this->authorize("vehicles.faults.$type.index");
 
             request()->merge([
@@ -75,11 +72,6 @@ class VehicleFaultController extends Controller
 
             $perPage = request()->input('per_page', 15);
             return VehicleIncidentResource::collection($this->repository->paginate($perPage));
-        } catch (Exception $exception) {
-            return response()->json([
-                'message' => $exception->getMessage()
-            ],500);
-        }
 
     }
 
@@ -102,19 +94,20 @@ class VehicleFaultController extends Controller
             $data = $this->incidentSourceRepository->update($incidentSource->id, $validatedData);
             return new IncidentSourceResource($data);
         } catch (Exception $exception) {
-            return response()->json([
-                'message' => $exception->getMessage()
-            ]);
+            return $this->responseError($exception->getMessage(),500);
         }
     }
 
+
     /**
-     * @return AnonymousResourceCollection
+     * @return JsonResponse|AnonymousResourceCollection
      */
-    public function listIncidentSource(): AnonymousResourceCollection
+    public function listIncidentSource(): JsonResponse|AnonymousResourceCollection
     {
         $data = $this->incidentSourceRepository->paginate(request()->input('paginate', 15));
-
+        if ($data->count() === 0) {
+            return $this->responseError('there is no incident source', 404);
+        }
         return IncidentSourceResource::collection($data);
     }
 
