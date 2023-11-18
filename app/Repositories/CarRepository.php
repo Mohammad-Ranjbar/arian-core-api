@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\libs\BaseRepository;
-use App\Models\TransitCar;
+use App\Models\Car;
 
 class CarRepository extends BaseRepository
 {
@@ -31,9 +31,9 @@ class CarRepository extends BaseRepository
     ];
 
     /**
-     * @param  TransitCar  $model
+     * @param  Car  $model
      */
-    public function __construct(TransitCar $model)
+    public function __construct(Car $model)
     {
         $this->model = $model;
         if (request()->route()) {

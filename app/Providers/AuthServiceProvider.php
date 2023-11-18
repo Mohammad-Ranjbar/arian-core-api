@@ -6,9 +6,11 @@ use App\Models\Barcode;
 use App\Models\Basket;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
+use App\Models\Car;
 use App\Models\CarModel;
 use App\Models\Container;
 use App\Models\Element;
+use App\Models\GatePermit;
 use App\Models\Incident;
 use App\Models\Inventory;
 use App\Models\MakeCode;
@@ -24,7 +26,6 @@ use App\Models\StopType;
 use App\Models\TransitActivity;
 use App\Models\TransitCompany;
 use App\Models\TransitDestination;
-use App\Models\TransitCar;
 use App\Models\TransitSource;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -56,7 +57,7 @@ class AuthServiceProvider extends ServiceProvider
         TransitDestination::class     => CrudPolicy::class,
         TransitCompany::class         => CrudPolicy::class,
         TransitActivity::class        => CrudPolicy::class,
-        TransitCar::class             => CrudPolicy::class,
+        Car::class                    => CrudPolicy::class,
         SmsService::class             => CrudPolicy::class,
         StopFact::class               => CrudPolicy::class,
         StopReason::class             => CrudPolicy::class,
@@ -66,6 +67,7 @@ class AuthServiceProvider extends ServiceProvider
         Basket::class                 => CrudPolicy::class,
         Inventory::class              => CrudPolicy::class,
         Container::class              => CrudPolicy::class,
+        GatePermit::class             => CrudPolicy::class,
         Vehicle::class                => VehiclePolicy::class
     ];
 

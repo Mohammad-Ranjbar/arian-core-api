@@ -48,7 +48,7 @@ class BillOfLading extends Model
      */
     public function transitDriver(): BelongsTo
     {
-        return $this->belongsTo(TransitCar::class);
+        return $this->belongsTo(Car::class);
     }
 
     /**
