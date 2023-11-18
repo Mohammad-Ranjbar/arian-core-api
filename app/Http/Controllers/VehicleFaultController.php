@@ -49,7 +49,7 @@ class VehicleFaultController extends Controller
             ]);
             return new VehicleIncidentResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(),500);
+            return $this->responseError($exception->getMessage(), 500);
         }
 
     }
@@ -64,14 +64,14 @@ class VehicleFaultController extends Controller
         Vehicle $vehicle,
         $type
     ): JsonResponse|AnonymousResourceCollection {
-            $this->authorize("vehicles.faults.$type.index");
+        $this->authorize("vehicles.faults.$type.index");
 
-            request()->merge([
-                'type' => request()->route()->parameter('type'), 'vin' => $vehicle->vin,
-            ]);
+        request()->merge([
+            'type' => request()->route()->parameter('type'), 'vin' => $vehicle->vin,
+        ]);
 
-            $perPage = request()->input('per_page', 15);
-            return VehicleIncidentResource::collection($this->repository->paginate($perPage));
+        $perPage = request()->input('per_page', 15);
+        return VehicleIncidentResource::collection($this->repository->paginate($perPage));
 
     }
 
@@ -94,8 +94,17 @@ class VehicleFaultController extends Controller
             $data = $this->incidentSourceRepository->update($incidentSource->id, $validatedData);
             return new IncidentSourceResource($data);
         } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(),500);
+            return $this->responseError($exception->getMessage(), 500);
         }
+    }
+
+    /**
+     * @param  IncidentSource  $incidentSource
+     * @return IncidentSourceResource
+     */
+    public function showIncidentSource(IncidentSource $incidentSource): IncidentSourceResource
+    {
+        return new IncidentSourceResource($incidentSource);
     }
 
 

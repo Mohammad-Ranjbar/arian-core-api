@@ -69,6 +69,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{incidentSource}/update', [
             VehicleFaultController::class, 'updateIncidentSource'
         ])->middleware('can:incident-sources.update')->name('incident-sources.update');
+        Route::get('/{incidentSource}', [
+            VehicleFaultController::class, 'showIncidentSource'
+        ])->middleware('can:incident-sources.show')->name('incident-sources.show');
     });
     Route::put('/transit-activities/{transitActivity}/set-priority',
         [TransitActivityController::class, 'setPriority'])->name('transit-activities-set-priority');

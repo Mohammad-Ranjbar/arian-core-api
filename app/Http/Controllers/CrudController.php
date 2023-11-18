@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class CrudController extends Controller
 {
-
     /**
      * @var string
      */
