@@ -24,9 +24,9 @@ use App\Http\Controllers\StopFactController;
 use App\Http\Controllers\StopReasonController;
 use App\Http\Controllers\StopTypeController;
 use App\Http\Controllers\TransitActivityController;
+use App\Http\Controllers\CarController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
-use App\Http\Controllers\TransitDriverController;
 use App\Http\Controllers\TransitSourceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
@@ -116,7 +116,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'block-reasons'        => BlockReasonController::class, 'transit-sources' => TransitSourceController::class,
         'transit-destinations' => TransitDestinationController::class,
         'transit-companies'    => TransitCompanyController::class,
-        'transit-activities'   => TransitActivityController::class, 'transit-drivers' => TransitDriverController::class,
+        'transit-activities'   => TransitActivityController::class, 'cars' => CarController::class,
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
         'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
         'baskets'              => BasketController::class, 'inventories' => InventoryController::class,

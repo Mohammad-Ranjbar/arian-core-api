@@ -18,8 +18,8 @@ class TransitActivity extends Model
      * @var string[]
      */
     protected $fillable = [
-        'user_id', 'transit_source_id', 'transit_destination_id', 'bill_of_lading', 'request_no', 'status', 'priority',
-        'container', 'cottage', 'weight', 'batch', 'description', 'exit_by', 'transit_driver_id',
+        'user_id', 'transit_source_id', 'transit_destination_id', 'bill_of_lading', 'request_no', 'status', 'priority'
+        , 'cottage', 'weight', 'batch', 'description', 'transit_driver_id',
     ];
 
     /**
@@ -51,7 +51,7 @@ class TransitActivity extends Model
      */
     public function transitDriver(): BelongsTo
     {
-        return $this->belongsTo(TransitDriver::class);
+        return $this->belongsTo(TransitCar::class);
     }
 
     /**

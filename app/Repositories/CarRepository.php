@@ -3,9 +3,9 @@
 namespace App\Repositories;
 
 use App\libs\BaseRepository;
-use App\Models\TransitDriver;
+use App\Models\TransitCar;
 
-class TransitDriverRepository extends BaseRepository
+class CarRepository extends BaseRepository
 {
     /**
      * @var array|array[]
@@ -31,9 +31,9 @@ class TransitDriverRepository extends BaseRepository
     ];
 
     /**
-     * @param  TransitDriver  $model
+     * @param  TransitCar  $model
      */
-    public function __construct(TransitDriver $model)
+    public function __construct(TransitCar $model)
     {
         $this->model = $model;
         if (request()->route()) {

@@ -13,7 +13,7 @@ use App\Repositories\SalonRepository;
 use App\Repositories\StationRepository;
 use App\Repositories\TransitCompanyRepository;
 use App\Repositories\TransitDestinationRepository;
-use App\Repositories\TransitDriverRepository;
+use App\Repositories\CarRepository;
 use App\Repositories\TransitSourceRepository;
 use App\Repositories\WorkGroupCenterRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -50,7 +50,7 @@ class OptionController extends Controller
             'work-group-centers' => WorkGroupCenterRepository::class,
             'stations' => StationRepository::class,
             'make-codes' => MakeCodeRepository::class,
-            'transit-drivers' => TransitDriverRepository::class,
+            'transit-drivers' => CarRepository::class,
             'transit-companies' => TransitCompanyRepository::class,
             'transit-sources' => TransitSourceRepository::class,
             'transit-destinations' => TransitDestinationRepository::class,
