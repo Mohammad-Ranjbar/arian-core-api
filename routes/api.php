@@ -67,7 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [
             VehicleFaultController::class, 'listIncidentSource'
         ])->middleware('can:incident-sources.index')->name('incident-sources.index');
-        Route::put('/{incidentSource}/update', [
+        Route::put('/{incidentSource}', [
             VehicleFaultController::class, 'updateIncidentSource'
         ])->middleware('can:incident-sources.update')->name('incident-sources.update');
         Route::get('/{incidentSource}', [
