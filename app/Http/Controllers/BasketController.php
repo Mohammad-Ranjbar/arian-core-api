@@ -31,9 +31,9 @@ class BasketController extends CrudController
         $validatedData = $request->validate($this->repository->getCreateRules());
         request()->merge(['code' => $validatedData['code'], 'created_at_from' => Carbon::now()->subMinutes(10)]);
         $collection = $this->repository->get();
-        if ($collection->count() > 0) {
-            return $this->responseError('cant create this basket!');
-        }
+//        if ($collection->count() > 0) {
+//            return $this->responseError('cant create this basket!');
+//        }
         try {
             $validatedData['user_id'] = Auth::id();
 
