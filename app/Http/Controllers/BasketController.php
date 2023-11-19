@@ -25,11 +25,8 @@ class BasketController extends CrudController
     }
 
 
-    /**
-     * @param  Request  $request
-     * @return JsonResponse
-     */
-    public function store(Request $request):JsonResponse
+
+    public function store(Request $request)
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
         request()->merge(['code' => $validatedData['code'], 'created_at_from' => Carbon::now()->subMinutes(10)]);
