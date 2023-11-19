@@ -35,11 +35,17 @@ trait HttpServiceTrait
 
     public function checkBasket($code)
     {
+        return [
+            'status' => true
+        ];
         return $this->sendToErp('/check-basket-barcode/', compact('code'));
     }
 
     public function sendBasketToErp($code)
     {
+        return [
+            'status' => true
+        ];
         return $this->sendToErp('/submit-basket-barcode/', compact('code'));
     }
 
