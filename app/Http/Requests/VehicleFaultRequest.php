@@ -23,15 +23,15 @@ class VehicleFaultRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type'        => [
-                'required', 'in:qc,evaluation',
-                Rule::unique('vehicle_incidents')->where(function ($query) {
-                    return $query->where('incident_id', $this->input('incident_id'))
-                        ->where('element_id', $this->input('element_id'))
-                        ->where('type', $this->input('type'))
-                        ->where('vin', $this->input('vin'));
-                })
-            ],
+//            'type'        => [
+//                'required', 'in:qc,evaluation',
+//                Rule::unique('vehicle_incidents')->where(function ($query) {
+//                    return $query->where('incident_id', $this->input('incident_id'))
+//                        ->where('element_id', $this->input('element_id'))
+//                        ->where('type', $this->input('type'))
+//                        ->where('vin', $this->input('vin'));
+//                })
+//            ],
             'intensity'   => 'required|string',
             'method'      => 'required|string',
             'description' => 'nullable',
