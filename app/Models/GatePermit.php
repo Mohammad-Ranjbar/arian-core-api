@@ -4,25 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GatePermit extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * @var string[]
      */
     protected $fillable = [
-        'car_id', 'status', 'type'
+        'model_type', 'model_id', 'type', 'status'
     ];
 
     /**
-     * @return BelongsTo
+     * @return MorphTo
      */
-    public function car(): BelongsTo
+    public function model(): MorphTo
     {
-        return $this->belongsTo(Car::class);
+        return $this->morphTo();
     }
 
 }

@@ -6,18 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
 
+    /**
+     * @return void
+     */
     public function up(): void
     {
         Schema::create('gate_permits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('car_id')->index()->constrained()->cascadeOnDelete();
-            $table->string('status')->default('new');
+            $table->morphs('model');
+            $table->string('status');
             $table->string('type');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
 
 
+    /**
+     * @return void
+     */
     public function down(): void
     {
         Schema::dropIfExists('gate_permits');

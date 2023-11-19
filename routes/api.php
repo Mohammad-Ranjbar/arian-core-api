@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BasketController;
+use App\Http\Controllers\BillOfLadingController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
@@ -25,7 +26,6 @@ use App\Http\Controllers\StationController;
 use App\Http\Controllers\StopFactController;
 use App\Http\Controllers\StopReasonController;
 use App\Http\Controllers\StopTypeController;
-use App\Http\Controllers\TransitActivityController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
 use App\Http\Controllers\TransitSourceController;
@@ -75,26 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
             VehicleFaultController::class, 'showIncidentSource'
         ])->middleware('can:incident-sources.show')->name('incident-sources.show');
     });
-    Route::put('/transit-activities/{transitActivity}/set-priority',
-        [TransitActivityController::class, 'setPriority'])->name('transit-activities-set-priority');
-    Route::post('/transit-activities/{transitActivity}/change-status-temporary-receipt', [
-        TransitActivityController::class, 'temporaryReceipt'
-    ])->name('transit-activities-set-temporary-receipt');
-    Route::post('/transit-activities/{transitActivity}/change-status-enter', [
-        TransitActivityController::class, 'enter'
-    ])->name('transit-activities-set-enter');
-    Route::post('/transit-activities/{transitActivity}/change-status-discharge', [
-        TransitActivityController::class, 'discharge'
-    ])->name('transit-activities-set-discharge');
-    Route::post('/transit-activities/{transitActivity}/create-exit-permit', [
-        TransitActivityController::class, 'exitPermit'
-    ])->name('transit-activities-set-exit-permit');
-    Route::post('/transit-activities/{transitActivity}/exit', [
-        TransitActivityController::class, 'exit'
-    ])->name('transit-activities-set-exit');
-    Route::post('/transit-activities/{transitActivity}/notify', [
-        TransitActivityController::class, 'notify'
-    ])->name('transit-activities-notify');
+
     Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update']);
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('create');
     Route::group([
@@ -116,12 +97,11 @@ Route::middleware('auth:sanctum')->group(function () {
         'incidents'            => IncidentController::class, 'elements' => ElementController::class,
         'block-reasons'        => BlockReasonController::class, 'transit-sources' => TransitSourceController::class,
         'transit-destinations' => TransitDestinationController::class,
-        'transit-companies'    => TransitCompanyController::class,
-        'transit-activities'   => TransitActivityController::class, 'cars' => CarController::class,
+        'transit-companies'    => TransitCompanyController::class, 'cars' => CarController::class,
         'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
         'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
         'baskets'              => BasketController::class, 'inventories' => InventoryController::class,
-        'containers'           => ContainerController::class,
-        'gate-permits'         => GatePermitController::class
+        'containers'           => ContainerController::class, 'gate-permits' => GatePermitController::class,
+        'bill-of-ladings'       => BillOfLadingController::class
     ]);
 });

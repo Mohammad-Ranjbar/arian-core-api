@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Barcode;
 use App\Models\Basket;
+use App\Models\BillOfLading;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
 use App\Models\Car;
@@ -56,7 +57,6 @@ class AuthServiceProvider extends ServiceProvider
         TransitSource::class          => CrudPolicy::class,
         TransitDestination::class     => CrudPolicy::class,
         TransitCompany::class         => CrudPolicy::class,
-        TransitActivity::class        => CrudPolicy::class,
         Car::class                    => CrudPolicy::class,
         SmsService::class             => CrudPolicy::class,
         StopFact::class               => CrudPolicy::class,
@@ -68,6 +68,7 @@ class AuthServiceProvider extends ServiceProvider
         Inventory::class              => CrudPolicy::class,
         Container::class              => CrudPolicy::class,
         GatePermit::class             => CrudPolicy::class,
+        BillOfLading::class           => CrudPolicy::class,
         Vehicle::class                => VehiclePolicy::class
     ];
 

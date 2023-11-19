@@ -23,7 +23,7 @@ class CarResource extends JsonResource
             'plate'              => $this->resource->plate,
             'car'                => $this->resource->car,
             'transit_company_id' => $this->resource->transit_company_id,
-            'transitCompany'     => new TransitActivityResource($this->resource->transitCompany),
+            'transitCompany'     => new TransitCompanyResource($this->resource->transitCompany),
             'created_at'         => $this->resource->created_at
         ];
     }

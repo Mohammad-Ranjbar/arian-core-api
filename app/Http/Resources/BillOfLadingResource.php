@@ -15,8 +15,20 @@ class BillOfLadingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'id'                     => $this->resource->id,
+            'transit_source_id'      => $this->resource->transit_source_id,
+            'transit_destination_id' => $this->resource->transit_destination_id,
+            'code'                   => $this->resource->code,
+            'request_no'             => $this->resource->request_no,
+            'priority'               => $this->resource->priority,
+            'cottage'                => $this->resource->cottage,
+            'weight'                 => $this->resource->weight,
+            'batch'                  => $this->resource->batch,
+            'car_id'                 => $this->resource->car_id,
+            'transitSource'          => new TransitSourceResource($this->resource->transitSource),
+            'transitDestination'     => new TransitDestinationResource($this->resource->transitDestination),
+            'car'                    => new CarShortResource($this->resource->car),
+            'created_at'             => $this->resource->created_at,
         ];
     }
 }
