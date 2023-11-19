@@ -25,10 +25,11 @@ class BillOfLadingResource extends JsonResource
             'weight'                 => $this->resource->weight,
             'batch'                  => $this->resource->batch,
             'car_id'                 => $this->resource->car_id,
+            'description'            => $this->resource->description,
+            'created_at'             => $this->resource->created_at,
             'transitSource'          => new TransitSourceResource($this->resource->transitSource),
             'transitDestination'     => new TransitDestinationResource($this->resource->transitDestination),
             'car'                    => new CarShortResource($this->resource->car),
-            'created_at'             => $this->resource->created_at,
         ];
     }
 }

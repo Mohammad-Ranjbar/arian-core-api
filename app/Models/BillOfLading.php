@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BillOfLading extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * @var string[]
@@ -17,7 +19,7 @@ class BillOfLading extends Model
     protected $fillable = [
         'user_id', 'transit_source_id', 'transit_destination_id', 'code', 'request_no',
         'status', 'priority', 'cottage',
-        'weight', 'batch', 'description', 'car_id','type'
+        'weight', 'batch', 'description', 'car_id'
     ];
 
     /**
@@ -58,6 +60,19 @@ class BillOfLading extends Model
     public function containers(): MorphToMany
     {
         return $this->morphedByMany(Container::class, 'model', 'bill_of_lading_item');
+    }
+
+    /**
+     * @return MorphMany
+     */
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'model');
+    }
+
+    public function permits():MorphMany
+    {
+        return $this->morphMany(GatePermit::class,'owner');
     }
 
 }

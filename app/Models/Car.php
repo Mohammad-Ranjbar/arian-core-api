@@ -32,7 +32,7 @@ class Car extends Model
     /**
      * @return MorphMany
      */
-    public function fatePermits(): MorphMany
+    public function gatePermits(): MorphMany
     {
         return $this->morphMany(GatePermit::class, 'model');
     }

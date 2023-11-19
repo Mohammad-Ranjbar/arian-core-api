@@ -15,11 +15,9 @@ class GatePermitResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'     => $this->resource->id,
-            'car_id' => $this->resource->car_id,
-            'status' => $this->resource->status,
-            'type'   => $this->resource->type,
-            'car'    => new CarResource($this->resource->car)
+            'id'         => $this->resource->id,
+            'type'       => $this->resource->type,
+            'deleted_at' => $this->resource->deleted_at
         ];
     }
 }

@@ -77,7 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update']);
-    Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('create');
+    Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
+    Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
     Route::group([
         'prefix' => 'production-lines/{production_line}', 'controller' => LineActivityStartStopController::class,
         'as'     => 'production-lines.'
@@ -102,6 +103,5 @@ Route::middleware('auth:sanctum')->group(function () {
         'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
         'baskets'              => BasketController::class, 'inventories' => InventoryController::class,
         'containers'           => ContainerController::class, 'gate-permits' => GatePermitController::class,
-        'bill-of-ladings'       => BillOfLadingController::class
     ]);
 });

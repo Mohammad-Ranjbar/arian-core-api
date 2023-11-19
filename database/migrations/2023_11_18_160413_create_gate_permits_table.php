@@ -14,8 +14,8 @@ return new class extends Migration {
         Schema::create('gate_permits', function (Blueprint $table) {
             $table->id();
             $table->morphs('model');
-            $table->string('status');
             $table->string('type');
+            $table->morphs('owner');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -10,7 +10,7 @@ class Container extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code'];
+    protected $fillable = ['code','on_shipping'];
 
     /**
      * @return Attribute

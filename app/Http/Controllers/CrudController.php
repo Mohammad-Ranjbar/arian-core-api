@@ -14,6 +14,7 @@ class CrudController extends Controller
      * @var string
      */
     public string $resource = BaseResource::class;
+    protected array $appendStoreData = [];
     /**
      * @var bool
      */
@@ -36,7 +37,8 @@ class CrudController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate($this->repository->getCreateRules());
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),$this->customStoreRules()));
+        $validatedData = array_merge($validatedData,$this->appendStoreData);
         if ($this->appendUserId){
             $validatedData['user_id'] = Auth::id();
         }
@@ -55,12 +57,8 @@ class CrudController extends Controller
         }
     }
 
-    /**
-     * @param $record
-     * @param $data
-     * @return mixed
-     */
-    public function afterSave($record, $data): mixed
+
+    public function afterSave($record, $data)
     {
         foreach ($data as $key => $input) {
             if (method_exists($record, $key) and is_array($input)) {
@@ -88,11 +86,7 @@ class CrudController extends Controller
         return $this->doUpdate($id,$validatedData);
     }
 
-    /**
-     * @param $id
-     * @return bool
-     */
-    public function destroy($id): bool
+    public function destroy($id)
     {
         return $this->repository->destroy($id);
     }
@@ -130,5 +124,9 @@ class CrudController extends Controller
         }
     }
 
+    public function customStoreRules(): array
+    {
+        return [];
+    }
 
 }

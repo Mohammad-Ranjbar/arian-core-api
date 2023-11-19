@@ -15,7 +15,7 @@ class GatePermit extends Model
      * @var string[]
      */
     protected $fillable = [
-        'model_type', 'model_id', 'type', 'status'
+        'model_type', 'model_id', 'type', 'status','owner_id','owner_type'
     ];
 
     /**
