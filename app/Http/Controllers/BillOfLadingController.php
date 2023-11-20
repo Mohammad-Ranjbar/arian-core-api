@@ -3,9 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BillOfLadingResource;
+use App\Models\BillOfLading;
 use App\Repositories\BillOfLadingRepository;
+use App\Services\SmsService;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class BillOfLadingController extends CrudController
@@ -17,8 +22,10 @@ class BillOfLadingController extends CrudController
     protected array $appendStoreData = ['status' => 'new'];
 
 
-    public function __construct(public readonly BillOfLadingRepository $repository)
-    {
+    public function __construct(
+        public readonly BillOfLadingRepository $repository,
+        private readonly SmsService $smsService
+    ) {
 
         $this->applyAuthorizeResource();
         $this->setResource(BillOfLadingResource::class);
@@ -28,38 +35,36 @@ class BillOfLadingController extends CrudController
     /**
      * @throws Exception
      */
-    public function afterSave($item, $data)
+    public function afterSave($record, $data)
     {
         if ($data['type'] == 'containers') {
-            $item->containers()->sync($data['items']);
-            $item->containers()->update(['on_shipping' => true]);
+            $record->containers()->sync($data['items']);
+            $record->containers()->update(['on_shipping' => true]);
         }
-        $item->permits()->forceDelete();
+        $record->permits()->forceDelete();
 
-        $item->car->gatePermits()->create([
-            'type'       => 'enter', 'owner_id' => $item->id,
-            'owner_type' => $item->getMorphClass()
+        $record->car->gatePermits()->create([
+            'type' => 'enter', 'owner_id' => $record->id, 'owner_type' => $record->getMorphClass()
         ]);
 
-        $action = $item->wasRecentlyCreated ? 'new' : 'edit';
-        $item->actionLogs()->create(['user_id' => Auth::id(), 'action' => $action]);
+        $action = $record->wasRecentlyCreated ? 'new' : 'edit';
+        $record->actionLogs()->create(['user_id' => Auth::id(), 'action' => $action]);
 
-        return $item;
+        return $record;
     }
 
     public function customStoreRules(): array
     {
         return [
-            'items.*' => Rule::exists('containers', 'id')
-                ->where('on_shipping', false),
+            'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
         ];
     }
 
     public function destroy($id)
     {
         $model = $this->repository->show($id);
-        if($model->status != 'new') {
-            return $this->responseError('Can not delete this item',400);
+        if ($model->status != 'new') {
+            return $this->responseError('Can not delete this item', 400);
         }
 
         $model->containers()->update(['on_shipping' => false]);
@@ -67,5 +72,52 @@ class BillOfLadingController extends CrudController
         $model->permits()->forceDelete();
         $model->actionLogs()->delete();
         return $model->forceDelete();
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function changeStatus(
+        BillOfLading $billOfLading,
+        string $status
+    ): BillOfLadingResource|JsonResponse {
+        $this->authorize('bill-of-lading.change-status');
+        if (!in_array($status, BillOfLading::STATUSES)) {
+            return $this->responseError('The selected status must be one of the allowed values');
+        }
+        if (!$this->checkCanChangeStatus($billOfLading, $status)) {
+            return $this->responseError('The selected status is available in registered statuses');
+        }
+        try {
+            DB::beginTransaction();
+            $this->repository->update($billOfLading->getAttribute('id'), compact('status'));
+            $this->actionLog($billOfLading, $status);
+            if ($status === 'notice') {
+                $this->smsService->send($billOfLading->car->phone, 'driver-enter-notify');
+
+            }
+            DB::commit();
+            return new BillOfLadingResource($billOfLading);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return $this->responseError($exception->getMessage(), 500);
+        }
+    }
+
+    private function checkCanChangeStatus(BillOfLading $billOfLading, $status): bool
+    {
+        return !$billOfLading->actionLogs()->where('action', $status)->exists();
+    }
+
+    private function actionLog(BillOfLading $billOfLading, $status): void
+    {
+        $billOfLading->actionLogs()->create([
+            'user_id' => Auth::id(), 'action' => $status
+        ]);
+        if ($status === 'discharge') {
+            $billOfLading->containers()->update(['on_shipping' => true]);
+        } else {
+            $billOfLading->containers()->update(['on_shipping' => false]);
+        }
     }
 }

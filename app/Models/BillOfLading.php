@@ -22,6 +22,7 @@ class BillOfLading extends Model
         'weight', 'batch', 'description', 'car_id'
     ];
 
+    const STATUSES = array('temporaryـreceipt', 'notice', 'discharge');
     /**
      * @return BelongsTo
      */
@@ -74,5 +75,6 @@ class BillOfLading extends Model
     {
         return $this->morphMany(GatePermit::class,'owner');
     }
+
 
 }

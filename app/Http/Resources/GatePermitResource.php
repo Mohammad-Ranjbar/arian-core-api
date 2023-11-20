@@ -7,7 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class GatePermitResource extends JsonResource
 {
-
     /**
      * @param  Request  $request
      * @return array
@@ -17,6 +16,9 @@ class GatePermitResource extends JsonResource
         return [
             'id'         => $this->resource->id,
             'type'       => $this->resource->type,
+            'model_type' => $this->resource->model->getTable(),
+            'model_id'   => $this->resource->model->id,
+            'model'      => $this->resource->model,
             'deleted_at' => $this->resource->deleted_at
         ];
     }

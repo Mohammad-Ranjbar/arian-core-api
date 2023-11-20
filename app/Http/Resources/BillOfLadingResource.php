@@ -21,6 +21,7 @@ class BillOfLadingResource extends JsonResource
             'code'                   => $this->resource->code,
             'request_no'             => $this->resource->request_no,
             'priority'               => $this->resource->priority,
+            'status'                 => $this->resource->status,
             'cottage'                => $this->resource->cottage,
             'weight'                 => $this->resource->weight,
             'batch'                  => $this->resource->batch,
@@ -30,6 +31,8 @@ class BillOfLadingResource extends JsonResource
             'transitSource'          => new TransitSourceResource($this->resource->transitSource),
             'transitDestination'     => new TransitDestinationResource($this->resource->transitDestination),
             'car'                    => new CarShortResource($this->resource->car),
+            'containers'             => ContainerResource::collection($this->resource->containers),
+            'actionLogs'             => ActionLogResource::collection($this->resource->actionLogs),
         ];
     }
 }
