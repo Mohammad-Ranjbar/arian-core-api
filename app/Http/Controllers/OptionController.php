@@ -11,6 +11,9 @@ use App\Repositories\ProductionLineRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SalonRepository;
 use App\Repositories\StationRepository;
+use App\Repositories\StopFactRepository;
+use App\Repositories\StopReasonRepository;
+use App\Repositories\StopTypeRepository;
 use App\Repositories\TransitCompanyRepository;
 use App\Repositories\TransitDestinationRepository;
 use App\Repositories\CarRepository;
@@ -57,6 +60,9 @@ class OptionController extends Controller
             'incidents' => IncidentRepository::class,
             'elements' => ElementRepository::class,
             'containers' => ContainerRepository::class,
+            'stop-facts' => StopFactRepository::class,
+            'stop-types' => StopTypeRepository::class,
+            'stop-reasons' => StopReasonRepository::class,
             default => false,
         };
     }
