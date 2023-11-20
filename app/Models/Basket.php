@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class Basket extends Model
 {
@@ -16,6 +18,13 @@ class Basket extends Model
         'user_id',
         'status'
     ];
+
+    public static function booted(): void
+    {
+        static::addGlobalScope('new', function (Builder $builder) {
+            $builder->where('status', 'new');
+        });
+    }
 
     public function user(): BelongsTo
     {
