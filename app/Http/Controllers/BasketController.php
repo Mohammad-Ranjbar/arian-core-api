@@ -64,7 +64,7 @@ class BasketController extends CrudController
     public function update(Request $request, $id): bool|JsonResponse
     {
         $basket = $this->repository->show($id);
-        if ($basket->status == 'new') {
+        if ($basket->status != 'new') {
             return $this->responseError('cant update this basket');
         }
         $response = $this->sendBasketToErp($basket->code);
