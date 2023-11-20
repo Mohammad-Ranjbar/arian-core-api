@@ -22,7 +22,6 @@ class BillOfLading extends Model
         'weight', 'batch', 'description', 'car_id'
     ];
 
-    const STATUSES = array('temporaryـreceipt', 'notice', 'discharge');
     /**
      * @return BelongsTo
      */

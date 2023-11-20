@@ -82,10 +82,8 @@ class BillOfLadingController extends CrudController
         BillOfLading $billOfLading,
         string $status
     ): BillOfLadingResource|JsonResponse {
-        $this->authorize('bill-of-lading.change-status');
-        if (!in_array($status, BillOfLading::STATUSES)) {
-            return $this->responseError('The selected status must be one of the allowed values');
-        }
+        $this->authorize('bill-of-lading.change-status.'.$status);
+
         if (!$this->checkCanChangeStatus($billOfLading, $status)) {
             return $this->responseError('The selected status is available in registered statuses');
         }
@@ -93,8 +91,8 @@ class BillOfLadingController extends CrudController
             DB::beginTransaction();
             $this->repository->update($billOfLading->getAttribute('id'), compact('status'));
             $this->actionLog($billOfLading, $status);
-            if ($status === 'notice') {
-                $this->smsService->send($billOfLading->car->driver->phone, 'driver-enter-notify');
+            if ($status === 'discharge') {
+                $billOfLading->containers()->update(['on_shipping' => false]);
             }
             DB::commit();
             return new BillOfLadingResource($billOfLading);
@@ -114,11 +112,7 @@ class BillOfLadingController extends CrudController
         $billOfLading->actionLogs()->create([
             'user_id' => Auth::id(), 'action' => $status
         ]);
-        if ($status === 'discharge') {
-            $billOfLading->containers()->update(['on_shipping' => true]);
-        } else {
-            $billOfLading->containers()->update(['on_shipping' => false]);
-        }
+
     }
 
     public function setPriority(BillOfLading $billOfLading, SetPriorityRequest $request): BillOfLadingResource

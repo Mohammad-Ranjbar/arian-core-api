@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::group(['prefix' => '/bill-of-lading/{bill_of_lading}'], function () {
         Route::put('/change-status/{status}',
-            [BillOfLadingController::class, 'changeStatus'])->name('bill-of-lading.change-status');
+            [BillOfLadingController::class, 'changeStatus']);
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
