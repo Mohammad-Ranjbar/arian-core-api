@@ -26,4 +26,7 @@ class StopReason extends Model
     {
         return $this->belongsTo(StopFact::class,'stop_fact_id');
     }
+
+
 }
+

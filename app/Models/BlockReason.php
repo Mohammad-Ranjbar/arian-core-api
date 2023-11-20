@@ -13,4 +13,5 @@ class BlockReason extends Model
     protected $fillable = [
         'title'
     ];
+
 }

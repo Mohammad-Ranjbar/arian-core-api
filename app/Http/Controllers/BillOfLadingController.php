@@ -121,4 +121,9 @@ class BillOfLadingController extends CrudController
         $billOfLading->update($validatedData);
         return new BillOfLadingResource($billOfLading);
     }
+
+    public function notice(BillOfLading $billOfLading)
+    {
+        return $this->smsService->send($billOfLading->car->driver->phone, 'driver-enter-notify');
+    }
 }

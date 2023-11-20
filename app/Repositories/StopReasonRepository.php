@@ -30,5 +30,14 @@ class StopReasonRepository extends BaseRepository
             $this->rules['update']['title'] .= request()->route()->parameter('stop_reason');
         }
     }
+    public function getOptions(): array
+    {
+        return $this->get()->map(function ($item) {
+            return [
+                'id'    => $item->id,
+                'title' => $item->fact->title.' - '.$item->title,
+            ];
+        })->all();
+    }
 
 }
