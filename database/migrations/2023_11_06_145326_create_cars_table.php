@@ -12,10 +12,7 @@ return new class extends Migration {
     {
         Schema::create('cars', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('national_code', 10)->index()->unique();
-            $table->string('phone')->unique();
-            $table->string('bank_information')->nullable();
+
             $table->json('plate');
             $table->string('car');
             $table->foreignId('transit_company_id')->index()->constrained()->cascadeOnDelete();

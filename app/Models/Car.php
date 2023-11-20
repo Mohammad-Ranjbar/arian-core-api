@@ -17,8 +17,7 @@ class Car extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name', 'national_code', 'phone', 'bank_information', 'plate', 'car', 'transit_company_id',
-
+        'driver_id', 'plate', 'car', 'transit_company_id',
     ];
 
     /**
@@ -37,4 +36,11 @@ class Car extends Model
         return $this->morphMany(GatePermit::class, 'model');
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function driver():BelongsTo
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }

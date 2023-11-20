@@ -9,6 +9,7 @@ use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\IncidentController;
@@ -110,5 +111,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
         'baskets'              => BasketController::class, 'inventories' => InventoryController::class,
         'containers'           => ContainerController::class, 'gate-permits' => GatePermitController::class,
+        'drivers'              => DriverController::class
     ]);
 });

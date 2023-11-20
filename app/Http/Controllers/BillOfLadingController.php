@@ -94,8 +94,7 @@ class BillOfLadingController extends CrudController
             $this->repository->update($billOfLading->getAttribute('id'), compact('status'));
             $this->actionLog($billOfLading, $status);
             if ($status === 'notice') {
-                $this->smsService->send($billOfLading->car->phone, 'driver-enter-notify');
-
+                $this->smsService->send($billOfLading->car->driver->phone, 'driver-enter-notify');
             }
             DB::commit();
             return new BillOfLadingResource($billOfLading);
@@ -122,7 +121,7 @@ class BillOfLadingController extends CrudController
         }
     }
 
-    public function setPriority(BillOfLading $billOfLading,SetPriorityRequest $request)
+    public function setPriority(BillOfLading $billOfLading, SetPriorityRequest $request): BillOfLadingResource
     {
         $validatedData = $request->validated();
         $billOfLading->update($validatedData);

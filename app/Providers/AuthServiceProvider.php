@@ -10,6 +10,7 @@ use App\Models\BlockReason;
 use App\Models\Car;
 use App\Models\CarModel;
 use App\Models\Container;
+use App\Models\Driver;
 use App\Models\Element;
 use App\Models\GatePermit;
 use App\Models\Incident;
@@ -69,6 +70,7 @@ class AuthServiceProvider extends ServiceProvider
         Container::class              => CrudPolicy::class,
         GatePermit::class             => CrudPolicy::class,
         BillOfLading::class           => CrudPolicy::class,
+        Driver::class                 => CrudPolicy::class,
         Vehicle::class                => VehiclePolicy::class
     ];
 
