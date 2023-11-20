@@ -46,7 +46,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/change-password', [AuthController::class, 'changePassword']);
     });
 
-    Route::put('/bill-of-lading/{bill_of_lading}/change-status/{status}',[BillOfLadingController::class,'changeStatus'])->name('bill-of-lading.change-status');
+    Route::group(['prefix' => '/bill-of-lading/{bill_of_lading}'], function () {
+        Route::put('/change-status/{status}',
+            [BillOfLadingController::class, 'changeStatus'])->name('bill-of-lading.change-status');
+        Route::put('/set-priority',
+            [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
+    });
+
     Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {

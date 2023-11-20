@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SetPriorityRequest;
 use App\Http\Resources\BillOfLadingResource;
 use App\Models\BillOfLading;
 use App\Repositories\BillOfLadingRepository;
@@ -119,5 +120,12 @@ class BillOfLadingController extends CrudController
         } else {
             $billOfLading->containers()->update(['on_shipping' => false]);
         }
+    }
+
+    public function setPriority(BillOfLading $billOfLading,SetPriorityRequest $request)
+    {
+        $validatedData = $request->validated();
+        $billOfLading->update($validatedData);
+        return new BillOfLadingResource($billOfLading);
     }
 }

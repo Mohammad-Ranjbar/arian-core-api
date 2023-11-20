@@ -18,7 +18,6 @@ class BillOfLadingRepository extends BaseRepository
             'transit_destination_id' => 'required|exists:transit_destinations,id',
             'code'                   => 'required|string|unique:bill_of_ladings,code',
             'request_no'             => 'required|string',
-            'priority'               => 'required|string',
             'cottage'                => 'required|string',
             'weight'                 => 'required|string',
             'batch'                  => 'required|string',
