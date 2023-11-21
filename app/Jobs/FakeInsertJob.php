@@ -22,9 +22,6 @@ class FakeInsertJob implements ShouldQueue
     public function handle()
     {
         $client = EsClient::getInstance();
-        $params = [
-            'index' => 'fakes', 'body' => $this->data
-        ];
-        $client->index($params);
+        $client->bulk($this->data);
     }
 }
