@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\FakeInsertJob;
-use Elastic\Elasticsearch\ClientBuilder;
 use Illuminate\Console\Command;
 
 class SendFakeDataToElasticCommand extends Command
@@ -17,20 +16,10 @@ class SendFakeDataToElasticCommand extends Command
 
     public function handle(): void
     {
-        $client = ClientBuilder::create()->build();
-
-        for ($i=0;$i<=50;$i++){
-
-            dispatch(new FakeInsertJob($data));
+        for ($i = 0; $i <= 50; $i++) {
+            $data = ['a' => 123];
+            FakeInsertJob::dispatch($data);
         }
-
-        $params = [
-            'index' => 'test2',
-            'body'  => [ 'testField' => 'abc']
-        ];
-
-        $response = $client->index($params);
-
 
     }
 }
