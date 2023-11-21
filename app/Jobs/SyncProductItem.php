@@ -18,7 +18,7 @@ class SyncProductItem implements ShouldQueue
     /**
      * @param  array  $data
      */
-    public function __construct(private readonly array $data)
+    public function __construct(public readonly array $data)
     {
 
     }
@@ -29,8 +29,10 @@ class SyncProductItem implements ShouldQueue
      */
     public function handle(): void
     {
+
         $record = ErpProductItem::query()->where('reference', $this->data['reference'])
             ->firstOrCreate($this->data);
+
         if ($record->wasRecentlyCreated) {
             $this->updateBarcodes($record->tracking_code, $record->id);
         } else {
@@ -46,7 +48,7 @@ class SyncProductItem implements ShouldQueue
     private function updateBarcodes(string $trackingCode, int $id)
     {
         Barcode::query()
-            ->where('tracking_code', 'LIKE', '%'.$trackingCode.'%')
+            ->where('code', 'LIKE', '%'.$trackingCode.'%')
             ->update(['erp_product_item_id' => $id]);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\BlockReasonRepository;
+use App\Repositories\CarRepository;
 use App\Repositories\ContainerRepository;
 use App\Repositories\ElementRepository;
 use App\Repositories\IncidentRepository;
@@ -16,7 +18,6 @@ use App\Repositories\StopReasonRepository;
 use App\Repositories\StopTypeRepository;
 use App\Repositories\TransitCompanyRepository;
 use App\Repositories\TransitDestinationRepository;
-use App\Repositories\CarRepository;
 use App\Repositories\TransitSourceRepository;
 use App\Repositories\WorkGroupCenterRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -63,6 +64,7 @@ class OptionController extends Controller
             'stop-facts' => StopFactRepository::class,
             'stop-types' => StopTypeRepository::class,
             'stop-reasons' => StopReasonRepository::class,
+            'block-reasons' => BlockReasonRepository::class,
             default => false,
         };
     }

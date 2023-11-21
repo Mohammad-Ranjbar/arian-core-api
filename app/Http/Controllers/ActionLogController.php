@@ -10,9 +10,8 @@ class ActionLogController extends CrudController
     /**
      * @param  ActionLogRepository  $repository
      */
-    public function __construct(ActionLogRepository $repository)
+    public function __construct(public readonly  ActionLogRepository $repository)
     {
-        $this->repository = $repository;
         $this->applyAuthorizeResource();
         $this->setResource(ActionLogResource::class);
     }
