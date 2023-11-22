@@ -14,7 +14,8 @@ class BlockItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'               => $this->resource->id, 'blocked_by_id' => $this->resource->blockedBy->id,
+            'id'               => $this->resource->id,
+            'blocked_by_id' => $this->resource->blockedBy->id,
             'blocked_by_email' => $this->resource->blockedBy->email,
             'blocked_by_name'  => $this->resource->blockedBy->name,
 
