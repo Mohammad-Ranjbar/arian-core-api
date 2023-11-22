@@ -59,10 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-            Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items-index');
-            Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items-store');
-            Route::put('/block-items/{id}/unblock',
-                [BlockItemController::class, 'unblock'])->name('block-items-unblock');
+            Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items.index');
+            Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items.store');
+            Route::put('/block-items/{id}/unblock', [BlockItemController::class, 'unblock'])->name('block-items.unblock');
             Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
             Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
             Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);

@@ -28,7 +28,7 @@ class BlockItemController extends Controller
         Request $request,
         Vehicle $vehicle
     ): JsonResponse|AnonymousResourceCollection {
-        $this->authorize('block-items-index');
+        $this->authorize('block-items.index');
         $perPage = $request->get('per_page', 15);
         return BlockItemResource::collection($vehicle->blockItems()->paginate($perPage));
     }
@@ -41,7 +41,7 @@ class BlockItemController extends Controller
      */
     public function store(Request $request, Vehicle $vehicle): JsonResponse|BlockItemResource
     {
-        $this->authorize('block-items-store');
+        $this->authorize('block-items.store');
         $validatedData = $request->validate($this->repository->getCreateRules());
         $validatedData['blocked_by'] = Auth::id();
         $validatedData['vin'] = $vehicle->vin;
@@ -56,7 +56,7 @@ class BlockItemController extends Controller
      */
     public function unblock(Vehicle $vehicle, $id): BlockItemResource|JsonResponse
     {
-        $this->authorize('block-items-unblock');
+        $this->authorize('block-items.unblock');
         $data = [
             'unblocked_by' => Auth::id(), 'unblocked_at' => Carbon::now(),
         ];
