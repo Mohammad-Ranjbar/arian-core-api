@@ -30,12 +30,15 @@ use App\Http\Controllers\StopTypeController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
 use App\Http\Controllers\TransitSourceController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::post('/upload', UploadController::class);
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
@@ -48,10 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::group(['prefix' => '/bill-of-lading/{bill_of_lading}'], function () {
-        Route::put('/change-status/{status}',
-            [BillOfLadingController::class, 'changeStatus']);
-        Route::get('/notice',
-            [BillOfLadingController::class, 'notice']);
+        Route::put('/change-status/{status}', [BillOfLadingController::class, 'changeStatus']);
+        Route::get('/notice', [BillOfLadingController::class, 'notice']);
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
@@ -61,7 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
             Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items.index');
             Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items.store');
-            Route::put('/block-items/{id}/unblock', [BlockItemController::class, 'unblock'])->name('block-items.unblock');
+            Route::put('/block-items/{id}/unblock',
+                [BlockItemController::class, 'unblock'])->name('block-items.unblock');
             Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
             Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
             Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);

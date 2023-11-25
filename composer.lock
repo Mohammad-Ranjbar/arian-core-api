@@ -4043,7 +4043,7 @@
         },
         {
             "name": "spiral/core",
-            "version": "3.9.1",
+            "version": "3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spiral/core.git",
@@ -4197,22 +4197,22 @@
         },
         {
             "name": "spiral/logger",
-            "version": "3.9.1",
+            "version": "3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spiral/logger.git",
-                "reference": "87c448e8c38eb346526584c24a1ca285bec1ce58"
+                "reference": "5e9889231bf0f7af8354c877d93214c556e8cf41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spiral/logger/zipball/87c448e8c38eb346526584c24a1ca285bec1ce58",
-                "reference": "87c448e8c38eb346526584c24a1ca285bec1ce58",
+                "url": "https://api.github.com/repos/spiral/logger/zipball/5e9889231bf0f7af8354c877d93214c556e8cf41",
+                "reference": "5e9889231bf0f7af8354c877d93214c556e8cf41",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.1",
                 "psr/log": "1 - 3",
-                "spiral/core": "^3.9.1"
+                "spiral/core": "^3.10"
             },
             "require-dev": {
                 "mockery/mockery": "^1.5",
@@ -4258,20 +4258,20 @@
                 "issues": "https://github.com/spiral/framework/issues",
                 "source": "https://github.com/spiral/logger"
             },
-            "time": "2023-10-24T14:07:14+00:00"
+            "time": "2023-10-24T14:14:39+00:00"
         },
         {
             "name": "spiral/roadrunner",
-            "version": "v2023.3.5",
+            "version": "v2023.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roadrunner-server/roadrunner.git",
-                "reference": "2c69fed9020a336c89ab2c25f897f5738d4f59d3"
+                "reference": "fa7db309156d5090ac92a041416b387547df982e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/roadrunner-server/roadrunner/zipball/2c69fed9020a336c89ab2c25f897f5738d4f59d3",
-                "reference": "2c69fed9020a336c89ab2c25f897f5738d4f59d3",
+                "url": "https://api.github.com/repos/roadrunner-server/roadrunner/zipball/fa7db309156d5090ac92a041416b387547df982e",
+                "reference": "fa7db309156d5090ac92a041416b387547df982e",
                 "shasum": ""
             },
             "type": "metapackage",
@@ -4300,7 +4300,7 @@
                 "docs": "https://roadrunner.dev/docs",
                 "forum": "https://forum.roadrunner.dev/",
                 "issues": "https://github.com/roadrunner-server/roadrunner/issues",
-                "source": "https://github.com/roadrunner-server/roadrunner/tree/v2023.3.5"
+                "source": "https://github.com/roadrunner-server/roadrunner/tree/v2023.3.6"
             },
             "funding": [
                 {
@@ -4308,7 +4308,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-11-16T13:58:20+00:00"
+            "time": "2023-11-23T16:23:27+00:00"
         },
         {
             "name": "spiral/roadrunner-cli",
@@ -4549,30 +4549,30 @@
         },
         {
             "name": "spiral/tokenizer",
-            "version": "3.9.1",
+            "version": "3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spiral/tokenizer.git",
-                "reference": "05aa5ab2b984545b5e383059d0fae32e1a885ac6"
+                "reference": "ee35d00ad553ef5c3d1fe6c5e7b88acd43b71aab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spiral/tokenizer/zipball/05aa5ab2b984545b5e383059d0fae32e1a885ac6",
-                "reference": "05aa5ab2b984545b5e383059d0fae32e1a885ac6",
+                "url": "https://api.github.com/repos/spiral/tokenizer/zipball/ee35d00ad553ef5c3d1fe6c5e7b88acd43b71aab",
+                "reference": "ee35d00ad553ef5c3d1fe6c5e7b88acd43b71aab",
                 "shasum": ""
             },
             "require": {
                 "ext-tokenizer": "*",
                 "php": ">=8.1",
-                "spiral/core": "^3.9.1",
-                "spiral/logger": "^3.9.1",
+                "spiral/core": "^3.10",
+                "spiral/logger": "^3.10",
                 "symfony/finder": "^5.3.7|^6.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.1",
                 "spiral/attributes": "^2.8|^3.0",
-                "spiral/boot": "^3.9.1",
-                "spiral/files": "^3.9.1",
+                "spiral/boot": "^3.10",
+                "spiral/files": "^3.10",
                 "vimeo/psalm": "^5.9"
             },
             "type": "library",
@@ -4614,7 +4614,7 @@
                 "issues": "https://github.com/spiral/framework/issues",
                 "source": "https://github.com/spiral/tokenizer"
             },
-            "time": "2023-10-24T14:07:58+00:00"
+            "time": "2023-10-24T14:16:52+00:00"
         },
         {
             "name": "symfony/console",
@@ -8207,16 +8207,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "10.1.8",
+            "version": "10.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "84838eed9ded511f61dc3e8b5944a52d9017b297"
+                "reference": "a56a9ab2f680246adcf3db43f38ddf1765774735"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/84838eed9ded511f61dc3e8b5944a52d9017b297",
-                "reference": "84838eed9ded511f61dc3e8b5944a52d9017b297",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/a56a9ab2f680246adcf3db43f38ddf1765774735",
+                "reference": "a56a9ab2f680246adcf3db43f38ddf1765774735",
                 "shasum": ""
             },
             "require": {
@@ -8273,7 +8273,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/10.1.8"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/10.1.9"
             },
             "funding": [
                 {
@@ -8281,7 +8281,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-11-15T13:31:15+00:00"
+            "time": "2023-11-23T12:23:20+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
