@@ -87,7 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ])->middleware('can:incident-sources.show')->name('incident-sources.show');
     });
 
-    Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update']);
+    Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update', 'show']);
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
     Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
     Route::group([
