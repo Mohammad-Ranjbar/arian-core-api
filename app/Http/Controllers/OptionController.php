@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Repositories\BlockReasonRepository;
 use App\Repositories\CarRepository;
 use App\Repositories\ContainerRepository;
+use App\Repositories\DriverRepository;
 use App\Repositories\ElementRepository;
 use App\Repositories\IncidentRepository;
 use App\Repositories\MakeCodeRepository;
@@ -65,6 +66,7 @@ class OptionController extends Controller
             'stop-types' => StopTypeRepository::class,
             'stop-reasons' => StopReasonRepository::class,
             'block-reasons' => BlockReasonRepository::class,
+            'drivers' => DriverRepository::class,
             default => false,
         };
     }
