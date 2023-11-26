@@ -13,7 +13,7 @@ class TrackingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('production-tracking.'.$this->input('model_type'));
     }
 
 
