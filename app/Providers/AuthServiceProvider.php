@@ -25,7 +25,6 @@ use App\Models\Station;
 use App\Models\StopFact;
 use App\Models\StopReason;
 use App\Models\StopType;
-use App\Models\TransitActivity;
 use App\Models\TransitCompany;
 use App\Models\TransitDestination;
 use App\Models\TransitSource;

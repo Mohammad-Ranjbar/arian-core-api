@@ -8,6 +8,9 @@ use TusPhp\Tus\Server as TusServer;
 class TusServiceProvider extends ServiceProvider
 {
 
+    /**
+     * @return void
+     */
     public function register(): void
     {
 
@@ -25,6 +28,9 @@ class TusServiceProvider extends ServiceProvider
     }
 
 
+    /**
+     * @return void
+     */
     public function boot(): void
     {
         //
