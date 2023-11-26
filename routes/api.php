@@ -43,10 +43,11 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+Route::any('/tus/{any?}', function () {
+    return app('tus-server')->serve();
+})->where('any', '.*')->name('tus');
 Route::middleware('auth:sanctum')->group(function () {
-    Route::any('/tus/{any?}', function () {
-        return app('tus-server')->serve();
-    })->where('any', '.*')->name('tus');
+
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/init', [AuthController::class, 'init']);
