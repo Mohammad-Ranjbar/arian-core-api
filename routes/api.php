@@ -44,6 +44,9 @@ Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::middleware('auth:sanctum')->group(function () {
+    Route::any('/tus/{any?}', function () {
+        return app('tus-server')->serve();
+    })->where('any', '.*');
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/init', [AuthController::class, 'init']);
