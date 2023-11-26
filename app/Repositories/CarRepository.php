@@ -14,12 +14,12 @@ class CarRepository extends BaseRepository
         'create'    => [
             'driver_id'          => 'required|exists:drivers,id',
             'plate'              => 'required|json',
-            'name'                => 'required|string',
+            'car'                => 'required|string',
             'transit_company_id' => 'required|exists:transit_companies,id',
         ], 'update' => [
             'driver_id'          => 'required|exists:drivers,id',
             'plate'              => 'required|json',
-            'name'                => 'required|string',
+            'car'                => 'required|string',
             'transit_company_id' => 'required|exists:transit_companies,id',
         ]
     ];

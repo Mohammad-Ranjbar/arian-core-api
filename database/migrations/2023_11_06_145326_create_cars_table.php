@@ -12,7 +12,6 @@ return new class extends Migration {
     {
         Schema::create('cars', function (Blueprint $table) {
             $table->id();
-
             $table->json('plate');
             $table->string('car');
             $table->foreignId('transit_company_id')->index()->constrained()->cascadeOnDelete();
