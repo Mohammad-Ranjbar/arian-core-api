@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\AccessVehicleMiddleware;
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -35,10 +36,14 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
-        TrustProxies::class, HandleCors::class,
+        TrustProxies::class,
+        HandleCors::class,
         PreventRequestsDuringMaintenance::class,
-        ValidatePostSize::class, TrimStrings::class,
+        ValidatePostSize::class,
+        TrimStrings::class,
         ConvertEmptyStringsToNull::class,
+        CorsMiddleware::class,
+
     ];
 
     /**
@@ -54,7 +59,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            ThrottleRequests::class.':api',
+            ThrottleRequests::class . ':api',
             SubstituteBindings::class,
         ],
     ];
@@ -63,17 +68,17 @@ class Kernel extends HttpKernel
      * @var string[]
      */
     protected $middlewareAliases = [
-        'auth'             => Authenticate::class,
-        'auth.basic'       => AuthenticateWithBasicAuth::class,
-        'auth.session'     => AuthenticateSession::class,
-        'cache.headers'    => SetCacheHeaders::class,
-        'can'              => Authorize::class,
-        'guest'            => RedirectIfAuthenticated::class,
+        'auth' => Authenticate::class,
+        'auth.basic' => AuthenticateWithBasicAuth::class,
+        'auth.session' => AuthenticateSession::class,
+        'cache.headers' => SetCacheHeaders::class,
+        'can' => Authorize::class,
+        'guest' => RedirectIfAuthenticated::class,
         'password.confirm' => RequirePassword::class,
-        'precognitive'     => HandlePrecognitiveRequests::class,
-        'signed'           => ValidateSignature::class,
-        'throttle'         => ThrottleRequests::class,
-        'verified'         => EnsureEmailIsVerified::class,
-        'access.vehicle'   => AccessVehicleMiddleware::class
+        'precognitive' => HandlePrecognitiveRequests::class,
+        'signed' => ValidateSignature::class,
+        'throttle' => ThrottleRequests::class,
+        'verified' => EnsureEmailIsVerified::class,
+        'access.vehicle' => AccessVehicleMiddleware::class,
     ];
 }
