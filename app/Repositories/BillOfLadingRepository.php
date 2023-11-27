@@ -22,7 +22,7 @@ class BillOfLadingRepository extends BaseRepository
             'weight'                 => 'required|string',
             'batch'                  => 'required|string',
             'description'            => 'nullable',
-            'car_id'                 => 'required|exists:cars,id',
+            'car_id'                 => 'required|exists:cars,id,deleted_at,NULL',
         ],
         'update' => []
     ];

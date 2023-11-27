@@ -18,7 +18,7 @@ class TusServiceProvider extends ServiceProvider
             $server = new TusServer('redis');
 
             $server
-                ->setApiPath('/tus') // tus server endpoint.
+                ->setApiPath('/api/tus') // tus server endpoint.
                 ->setUploadDir(storage_path('app/public/uploads')); // uploads dir.
 
             return $server;

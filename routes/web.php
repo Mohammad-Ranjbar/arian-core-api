@@ -13,3 +13,4 @@ Route::any('/', function () {
         'env'     => app()->environment()
     ]);
 });
+Route::view('test','test');

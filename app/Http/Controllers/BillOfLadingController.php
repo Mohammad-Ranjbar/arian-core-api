@@ -45,7 +45,9 @@ class BillOfLadingController extends CrudController
         $record->permits()->forceDelete();
 
         $record->car->gatePermits()->create([
-            'type' => 'enter', 'owner_id' => $record->id, 'owner_type' => $record->getMorphClass()
+            'type' => 'enter',
+            'owner_id' => $record->id,
+            'owner_type' => $record->getMorphClass()
         ]);
 
         $action = $record->wasRecentlyCreated ? 'new' : 'edit';
