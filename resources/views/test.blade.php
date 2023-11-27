@@ -25,6 +25,9 @@
                 filename: Math.random() + '.' +file.name.split('.').pop(),
                 filetype: file.type,
             },
+            onCreate: function (data) {
+                alert(444)
+            },
             onError: function (error) {
                 console.log('Failed because: ' + error)
             },

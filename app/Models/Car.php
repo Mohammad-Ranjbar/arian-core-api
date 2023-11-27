@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,5 +43,14 @@ class Car extends Model
     public function driver():BelongsTo
     {
         return $this->belongsTo(Driver::class);
+    }
+    /**
+     * @return Attribute
+     */
+    protected function title(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->attributes['car'] ,
+        );
     }
 }
