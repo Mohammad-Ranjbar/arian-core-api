@@ -11,17 +11,18 @@
 <input type="file" id="file">
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@latest/dist/tus.min.js"></script>
 <script>
+
     document.getElementById('file').addEventListener('change', function (e) {
         // Get the selected file from the input element
         var file = e.target.files[0]
-
+        console.log(file)
         // Create a new tus upload
         var upload = new tus.Upload(file, {
             endpoint: 'http://localhost:8000/api/tus/',
             retryDelays: [0, 3000, 5000, 10000, 20000],
             chunkSize: 1024 * 512,
             metadata: {
-                filename: Math.random()+file.name,
+                filename: Math.random() + '.' +file.name.split('.').pop(),
                 filetype: file.type,
             },
             onError: function (error) {
@@ -32,6 +33,7 @@
                 console.log(bytesUploaded, bytesTotal, percentage + '%')
             },
             onSuccess: function () {
+                console.log(upload)
                 console.log('Download %s from %s', upload.file.name, upload.url)
             },
         })

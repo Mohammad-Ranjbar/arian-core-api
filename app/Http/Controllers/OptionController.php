@@ -55,7 +55,7 @@ class OptionController extends Controller
             'work-group-centers' => WorkGroupCenterRepository::class,
             'stations' => StationRepository::class,
             'make-codes' => MakeCodeRepository::class,
-            'transit-drivers' => CarRepository::class,
+            'cars' => CarRepository::class,
             'transit-companies' => TransitCompanyRepository::class,
             'transit-sources' => TransitSourceRepository::class,
             'transit-destinations' => TransitDestinationRepository::class,
@@ -67,6 +67,7 @@ class OptionController extends Controller
             'stop-reasons' => StopReasonRepository::class,
             'block-reasons' => BlockReasonRepository::class,
             'drivers' => DriverRepository::class,
+
             default => false,
         };
     }
