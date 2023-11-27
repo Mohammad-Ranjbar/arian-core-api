@@ -22,6 +22,7 @@ class UpdatePermissionCommand extends Command
         $list = collect([
             'vehicles.faults.qc.index', 'vehicles.faults.evaluation.index', 'vehicles.faults.qc.submit',
             'vehicles.faults.evaluation.submit', 'vehicles.faults.qc.report', 'vehicles.faults.evaluation.report',
+            'bill-of-lading.change-status.notice',
             'bill-of-lading.change-status.discharge',
             'bill-of-lading.change-status.temporaryـreceipt',
             'production-tracking.salons',
