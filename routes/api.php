@@ -11,6 +11,7 @@ use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\InventoryController;
@@ -31,15 +32,14 @@ use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
 use App\Http\Controllers\TransitSourceController;
 use App\Http\Controllers\TusController;
-use App\Http\Controllers\UploadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
-Route::post('/upload', UploadController::class);
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);

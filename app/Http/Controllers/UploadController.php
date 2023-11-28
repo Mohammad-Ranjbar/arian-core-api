@@ -6,6 +6,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
+use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
+use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+
+use Illuminate\Http\UploadedFile;
+
+use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 
 class UploadController extends Controller
 {
@@ -14,14 +21,14 @@ class UploadController extends Controller
      * @param  Request  $request
      * @return JsonResponse
      */
-    public function __invoke(Request $request): JsonResponse
+    public function test(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file',
+            'file'         => 'required|file',
             'total_chunks' => 'required',
             'chunk_number' => 'required',
-            'ack' => 'required',
-            'ext'  => 'required',
+            'ack'          => 'required',
+            'ext'          => 'required',
         ]);
 
         $file = $request->file('file');
@@ -45,4 +52,6 @@ class UploadController extends Controller
         ]);
 
     }
+
+
 }

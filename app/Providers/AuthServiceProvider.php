@@ -12,6 +12,7 @@ use App\Models\CarModel;
 use App\Models\Container;
 use App\Models\Driver;
 use App\Models\Element;
+use App\Models\File;
 use App\Models\GatePermit;
 use App\Models\Incident;
 use App\Models\Inventory;
@@ -70,7 +71,9 @@ class AuthServiceProvider extends ServiceProvider
         GatePermit::class             => CrudPolicy::class,
         BillOfLading::class           => CrudPolicy::class,
         Driver::class                 => CrudPolicy::class,
-        Vehicle::class                => VehiclePolicy::class
+        File::class => CrudPolicy::class,
+
+        Vehicle::class                => VehiclePolicy::class,
     ];
 
 

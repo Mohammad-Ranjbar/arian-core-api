@@ -24,7 +24,7 @@ class UpdatePermissionCommand extends Command
             'vehicles.faults.evaluation.submit', 'vehicles.faults.qc.report', 'vehicles.faults.evaluation.report',
             'bill-of-lading.change-status.notice',
             'bill-of-lading.change-status.discharge',
-            'bill-of-lading.change-status.temporaryـreceipt',
+            'bill-of-lading.change-status.temporary_receipt',
             'production-tracking.salons',
             'production-tracking.stations',
             'production-tracking.production_lines',
