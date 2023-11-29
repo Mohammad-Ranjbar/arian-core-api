@@ -22,14 +22,20 @@ class ImportIncidentService extends BaseImporterService
         JobProcessEvent::dispatch($result);
 
         foreach ($rows as $row) {
-            $result['done']++;
+
 
             if (true) {
                 $result['success']++;
             } else {
                 $result['error']++;
             }
+
+            $result['done']++;
             JobProcessEvent::dispatch($result);
         }
+
+        return [
+            // result: File path or data
+        ];
     }
 }

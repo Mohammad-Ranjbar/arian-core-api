@@ -35,8 +35,8 @@ class ImportJob implements ShouldQueue
 
         $service = ImporterServiceFactory::getInstance($job->type);
         $file = File::query()->find($job->data['file']);
-        $service->import($job->id,$file);
+        $result = $service->import($job->id,$file);
 
-        $job->finish();
+        $job->finish($result);
     }
 }
