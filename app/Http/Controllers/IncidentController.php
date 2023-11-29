@@ -12,4 +12,6 @@ class IncidentController extends CrudController
         $this->applyAuthorizeResource();
         $this->setResource(IncidentResource::class);
     }
+
+
 }

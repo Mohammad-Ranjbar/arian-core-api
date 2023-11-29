@@ -15,6 +15,7 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\JobController;
 use App\Http\Controllers\LineActivityStartStopController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
@@ -38,7 +39,8 @@ use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
+
+
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
@@ -46,7 +48,9 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::any('/tus/{any?}', TusController::class)->where('any', '.*')->name('tus');
 Route::middleware('auth:sanctum')->group(function () {
-
+    Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
+    Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
+    Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/init', [AuthController::class, 'init']);
