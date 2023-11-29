@@ -13,7 +13,7 @@ class Car extends Model
 {
     use HasFactory, SoftDeletes;
 
-
+    protected $with = ['driver'];
     /**
      * @var string[]
      */

@@ -31,7 +31,7 @@ class FileController extends CrudController
      */
     public function store(Request $request)
     {
-        $this->authorize('upload.store');
+//        $this->authorize('upload.store');
         $receiver = new FileReceiver("file", $request, HandlerFactory::classFromRequest($request));
 
         if ($receiver->isUploaded() === false) {
@@ -45,7 +45,7 @@ class FileController extends CrudController
             $data = $this->saveFile($save->getFile());
 
             $file = $this->repository->store([
-                'user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'].'/'.$data['name']
+                'user_id' => 1, 'mime' => $data['mime_type'], 'path' => $data['path'].'/'.$data['name']
             ]);
             $data['file'] = new FileResource($file);
             $data['status'] = 'done';

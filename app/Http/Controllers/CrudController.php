@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\JobRequest;
 use App\Http\Resources\BaseResource;
 use App\Jobs\ImportJob;
+use App\Models\File;
 use App\Models\Job;
 use App\Services\Importer\ImporterServiceFactory;
 use App\Services\Importer\ImportIncidentService;
@@ -144,8 +145,11 @@ class CrudController extends Controller
             'file' => $validatedData['file']
         ];
         $job = Job::query()->create($validatedData);
-        ImporterServiceFactory::getInstance($job->getAttribute('type'));
-
+//        $t = ImporterServiceFactory::getInstance($job->getAttribute('type'));
+        $service = ImporterServiceFactory::getInstance($job->type);
+        $file = File::query()->find($job->data['file']);
+        $result = $service->import($job->id,$file);
+        dd($result);
         return response()->json([
             'message' => 'import job created',
             'data'    => [

@@ -4,11 +4,17 @@ namespace App\Services\Importer;
 
 use App\Events\JobProcessEvent;
 use App\Models\File;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class ImportIncidentService extends BaseImporterService
 {
     public function import($jobId, File $file)
     {
+        $rows = Excel::load(public_path($file->path))->get();
+        
+        dd($rows);
+
         $rows = [1, 2, 3];
 
         $result = [
@@ -22,9 +28,8 @@ class ImportIncidentService extends BaseImporterService
         JobProcessEvent::dispatch($result);
 
         foreach ($rows as $row) {
-
-
             if (true) {
+                //imported
                 $result['success']++;
             } else {
                 $result['error']++;
