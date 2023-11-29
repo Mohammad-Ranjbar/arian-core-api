@@ -34,4 +34,17 @@ class Job extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function start(): void
+    {
+        $this->update([
+            'status' => 'started'
+        ]);
+    }
+    public function finish(): void
+    {
+        $this->update([
+            'status' => 'finished'
+        ]);
+    }
 }
