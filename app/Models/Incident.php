@@ -8,8 +8,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Incident extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
+    const  HEADING = [
+        'title',
+        'title_en',
+        'code'
+    ];
     /**
      * @var string[]
      */
@@ -18,5 +23,10 @@ class Incident extends Model
         'title_en',
         'code',
     ];
+
+    public function getHeadings(): array
+    {
+        return self::HEADING;
+    }
 
 }

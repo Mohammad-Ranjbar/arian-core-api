@@ -2,44 +2,29 @@
 
 namespace App\Services\Importer;
 
-use App\Events\JobProcessEvent;
 use App\Imports\IncidentImport;
 use App\Models\File;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 
 class ImportIncidentService extends BaseImporterService
 {
-    public function import($jobId, File $file)
+    public function import($jobId, File $file): array
     {
-        $path = public_path($file->path);
-      $rows =Excel::toArray(new IncidentImport(),$path);
-        
-        dd($rows);
-        $result = [
+        $data = [
             'id'      => $jobId,
             'user_id' => $file->getAttribute('user_id'),
-            'total'   => count($rows),
+            'total'   => 0,
             'done'    => 0,
             'success' => 0,
-            'error'   => 0
+            'error'   => 0,
         ];
-        JobProcessEvent::dispatch($result);
 
-        foreach ($rows as $row) {
-            if (true) {
-                //imported
-                $result['success']++;
-            } else {
-                $result['error']++;
-            }
-
-            $result['done']++;
-            JobProcessEvent::dispatch($result);
-        }
+        Excel::import(new IncidentImport($data), public_path($file->getAttribute('path')));
 
         return [
-            // result: File path or data
+
         ];
     }
 }

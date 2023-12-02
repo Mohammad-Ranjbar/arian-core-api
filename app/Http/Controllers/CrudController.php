@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TemplateExport;
 use App\Http\Requests\JobRequest;
 use App\Http\Resources\BaseResource;
 use App\Jobs\ImportJob;
 use App\Models\File;
 use App\Models\Job;
 use App\Services\Importer\ImporterServiceFactory;
-use App\Services\Importer\ImportIncidentService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class CrudController extends Controller
 {
@@ -145,11 +147,8 @@ class CrudController extends Controller
             'file' => $validatedData['file']
         ];
         $job = Job::query()->create($validatedData);
-//        $t = ImporterServiceFactory::getInstance($job->getAttribute('type'));
-        $service = ImporterServiceFactory::getInstance($job->type);
-        $file = File::query()->find($job->data['file']);
-        $result = $service->import($job->id,$file);
-        dd($result);
+
+        ImportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'import job created',
             'data'    => [
@@ -158,5 +157,13 @@ class CrudController extends Controller
             ]
         ]);
     }
+
+    public function getTemplate()
+    {
+        $headers = $this->repository->getHeadings();
+        $export = new TemplateExport($headers);
+        return Excel::download($export, $this->repository->model->getTable().'-template.xlsx');
+    }
+
 
 }

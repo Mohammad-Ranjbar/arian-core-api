@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Pipeline;
 abstract class BaseRepository
 {
 
-    public       $model;
+    public $model;
     /**
      * @var array|string[]
      */
@@ -109,7 +109,7 @@ abstract class BaseRepository
      */
     public function make($data, string $parameter = 'reference'): mixed
     {
-        return $this->model->query()->firstOrCreate([$parameter=> $data[$parameter]],$data);
+        return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
     }
 
     /**
@@ -120,15 +120,6 @@ abstract class BaseRepository
     public function findBy($value, string $parameter = 'reference'): mixed
     {
         return $this->model->newQuery()->where($parameter, $value)->first();
-    }
-
-    /**
-     * @param $data
-     * @return mixed
-     */
-    public function store($data): mixed
-    {
-        return $this->model->query()->create($data);
     }
 
     /**
@@ -163,6 +154,15 @@ abstract class BaseRepository
     }
 
     /**
+     * @param $data
+     * @return mixed
+     */
+    public function store($data): mixed
+    {
+        return $this->model->query()->create($data);
+    }
+
+    /**
      * @param $id
      * @param $data
      * @return mixed
@@ -181,5 +181,10 @@ abstract class BaseRepository
     public function show($id): mixed
     {
         return $this->model->findOrFail($id);
+    }
+
+    public function getHeadings(): array
+    {
+        return $this->model->getHeadings() ?? [];
     }
 }

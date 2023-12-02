@@ -14,3 +14,5 @@ Route::any('/', function () {
     ]);
 });
 Route::view('test','test');
+
+Route::get('get-template-incident',[\App\Http\Controllers\IncidentController::class,'getTemplate']);
