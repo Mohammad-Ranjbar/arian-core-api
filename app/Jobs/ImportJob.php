@@ -27,7 +27,7 @@ class ImportJob implements ShouldQueue
         /** @var Job $job */
         $job = Job::query()->find($this->uuid);
 
-        if($job->status != 'pending') {
+        if ($job->status != 'pending') {
             return;
         }
 
@@ -35,8 +35,9 @@ class ImportJob implements ShouldQueue
 
         $service = ImporterServiceFactory::getInstance($job->type);
         $file = File::query()->find($job->data['file']);
-        $result = $service->import($job->id,$file);
+        /** @var File $file */
+        $service->import($job->getAttribute('uuid'), $file);
 
-        $job->finish($result);
+        $job->finish();
     }
 }

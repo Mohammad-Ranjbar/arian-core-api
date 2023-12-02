@@ -41,11 +41,10 @@ class Job extends Model
             'status' => 'started'
         ]);
     }
-    public function finish(array $result = []): void
+    public function finish(): void
     {
         $this->update([
-            'status' => 'finished',
-            'result' => $result
+            'status' => 'finished'
         ]);
     }
 }

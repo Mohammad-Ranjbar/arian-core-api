@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ImportIncidentService extends BaseImporterService
 {
-    public function import($jobId, File $file): array
+    public function import($jobId, File $file)
     {
         $data = [
             'id'      => $jobId,
@@ -23,8 +23,5 @@ class ImportIncidentService extends BaseImporterService
 
         Excel::import(new IncidentImport($data), public_path($file->getAttribute('path')));
 
-        return [
-
-        ];
     }
 }
