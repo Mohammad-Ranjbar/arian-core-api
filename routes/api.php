@@ -16,6 +16,7 @@ use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\JoinChannelController;
 use App\Http\Controllers\LineActivityStartStopController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
@@ -41,7 +42,7 @@ use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 
-Route::view('/','socket');
+Route::view('/', 'socket');
 Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -51,7 +52,9 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::any('/tus/{any?}', TusController::class)->where('any', '.*')->name('tus');
 Route::middleware('auth:sanctum')->group(function () {
 
-    Broadcast::routes();
+
+    Route::get('channels', JoinChannelController::class);
+
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
     Route::prefix('auth')->group(function () {
