@@ -51,6 +51,8 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::any('/tus/{any?}', TusController::class)->where('any', '.*')->name('tus');
 Route::middleware('auth:sanctum')->group(function () {
     Broadcast::routes();
+    Route::post('/station/{station}/user',[StationController::class,'addUser'])->name('station-add-user');
+    Route::delete('/station/{station}/user/{user}',[StationController::class.'removeUser'])->name('station-remove-user');
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
     Route::prefix('auth')->group(function () {

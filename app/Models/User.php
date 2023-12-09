@@ -60,4 +60,12 @@ class User extends Authenticatable
             'role_id',
         )->withPivotValue(['model_type' => 'App\Models\User']);
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function stations():BelongsToMany
+    {
+        return $this->belongsToMany(Station::class);
+    }
 }
