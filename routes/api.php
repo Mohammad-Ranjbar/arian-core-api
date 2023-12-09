@@ -52,7 +52,8 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::any('/tus/{any?}', TusController::class)->where('any', '.*')->name('tus');
 Route::middleware('auth:sanctum')->group(function () {
 
-    Broadcast::routes();
+    Route::get('channels',JoinChannelController::class);
+
     Route::post('/station/{station}/user',[StationController::class,'addUser'])->name('station-add-user');
     Route::delete('/station/{station}/user/{user}',[StationController::class,'removeUser'])->name('station-remove-user');
 
