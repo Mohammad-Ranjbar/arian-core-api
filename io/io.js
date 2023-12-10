@@ -7,6 +7,15 @@ const io = new Server();
 const pubClient = createClient();
 const subClient = pubClient.duplicate();
 
+const getToken = (socket) => {
+    if(socket.handshake && socket.handshake.auth && socket.handshake.auth.token){
+        return socket.handshake.auth.token
+    }
+    if(socket.handshake && socket.handshake.headers && socket.handshake.headers.token){
+        return socket.handshake.headers.token
+    }
+    return false
+}
 
 Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
     io.adapter(createAdapter(pubClient, subClient));
@@ -16,22 +25,23 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
         io.to(room).emit(json.event, json.data)
     })
     io.use((socket, next) => {
-        if(socket.handshake && socket.handshake.auth && socket.handshake.auth.token){
-            axios.get('http://localhost/api/channels', {
-                headers: {
-                    'Authorization': 'Bearer ' + socket.handshake.auth.token,
-                }
-            }).then((response) => {
-                for (let i in response.data) {
-                    socket.join(response.data[i])
-                }
-                next()
-            }).catch(() => {
-                next(new Error('Authentication failed'));
-            })
-        }else {
-            next(new Error('Authentication failed'));
+        const token = getToken(socket)
+        if(!token) {
+            next(new Error('Token required'));
         }
+        axios.get('http://localhost/api/channels', {
+            headers: {
+                'Authorization': 'Bearer ' + token,
+            }
+        }).then((response) => {
+            for (let i in response.data) {
+                socket.join(response.data[i])
+            }
+            next()
+        }).catch(() => {
+            next(new Error('Authentication failed'));
+        })
+
     }).on('connection', (socket) => {
         console.log('new user connected')
     })
