@@ -113,11 +113,7 @@ class VehicleFaultController extends Controller
      */
     public function listIncidentSource(): JsonResponse|AnonymousResourceCollection
     {
-        $data = $this->incidentSourceRepository->paginate(request()->input('paginate', 15));
-        if ($data->count() === 0) {
-            return $this->responseError('there is no incident source', 404);
-        }
-        return IncidentSourceResource::collection($data);
+        return IncidentSourceResource::collection($this->incidentSourceRepository->paginate(request()->input('paginate', 15)));
     }
 
 }
