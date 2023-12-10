@@ -16,18 +16,22 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
         io.to(room).emit(json.event, json.data)
     })
     io.use((socket, next) => {
-        axios.get('http://localhost/api/channels', {
-            headers: {
-                'Authorization': 'Bearer ' + socket.handshake.auth.token,
-            }
-        }).then((response) => {
-            for (let i in response.data) {
-                socket.join(response.data[i])
-            }
-            next()
-        }).catch(() => {
+        if(socket.handshake && socket.handshake.auth && socket.handshake.auth.token){
+            axios.get('http://localhost/api/channels', {
+                headers: {
+                    'Authorization': 'Bearer ' + socket.handshake.auth.token,
+                }
+            }).then((response) => {
+                for (let i in response.data) {
+                    socket.join(response.data[i])
+                }
+                next()
+            }).catch(() => {
+                next(new Error('Authentication failed'));
+            })
+        }else {
             next(new Error('Authentication failed'));
-        })
+        }
     }).on('connection', (socket) => {
         console.log('new user connected')
     })
