@@ -40,9 +40,12 @@ use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
-
-Route::view('/', 'socket');
-Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
+Route::any('/', function () {
+    return response()->json([
+        'version' => app()->version(),
+        'env'     => app()->environment()
+    ]);
+});
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
@@ -51,7 +54,7 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('channels',JoinChannelController::class);
-    Broadcast::routes();
+    Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
     Route::post('/station/{station}/user',[StationController::class,'addUser'])->name('station-add-user');
     Route::delete('/station/{station}/user/{user}',[StationController::class,'removeUser'])->name('station-remove-user');
