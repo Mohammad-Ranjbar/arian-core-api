@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AccessVehicleMiddleware
@@ -15,9 +17,9 @@ class AccessVehicleMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(auth()->user()->can('access', $request->route()->parameter('vehicle'))) {
-            return $next($request);
-        }
+        /** @var User $user  */
+        $user = Auth::user();
+        if($user->can('access', $request->route()->parameter('vehicle'))) return $next($request);
         abort('403', 'access denied');
     }
 }

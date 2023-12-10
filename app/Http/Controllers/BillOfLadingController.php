@@ -126,6 +126,6 @@ class BillOfLadingController extends CrudController
 
     public function notice(BillOfLading $billOfLading)
     {
-        return $this->smsService->send($billOfLading->car->driver->phone, 'driver-enter-notify');
+        return $this->smsService->send($billOfLading->getAttribute('car')->driver->phone, 'driver-enter-notify');
     }
 }

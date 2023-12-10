@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BarcodeResource;
 use App\Repositories\BarcodeRepository;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+
 
 class BarcodeController extends CrudController
 {

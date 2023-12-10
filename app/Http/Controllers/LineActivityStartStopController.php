@@ -6,7 +6,6 @@ use App\Http\Requests\StopLineRequest;
 use App\Http\Resources\ProductionLineActivityResource;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
-use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +21,7 @@ class LineActivityStartStopController extends Controller
         if ($productionLine->isStop()) {
             return $this->responseError('can not stop the line');
         }
+        /** @var ProductionLineActivity $activity  */
         $activity = $productionLine->activities()->create($validatedData);
         $activity->logs()->create([
             'action' => 'stop', 'user_id' => Auth::id(),
@@ -42,7 +42,7 @@ class LineActivityStartStopController extends Controller
         if ($productionLine->isStarted()) {
             return $this->responseError('can not start the line');
         }
-
+        /** @var ProductionLineActivity $activity  */
         $activity = $productionLine->getLatestActivity();
         $activity->logs()->create([
             'action' => 'start', 'user_id' => Auth::id(),

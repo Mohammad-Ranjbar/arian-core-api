@@ -15,36 +15,25 @@ use App\Filters\TitleFilter;
 use App\Filters\TypeFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Pipeline;
 
 abstract class BaseRepository
 {
 
-    public $model;
+    /**
+     * @var Model
+     */
+    public Model $model;
     /**
      * @var array|string[]
      */
-    public array $filters = [
-        NameFilter::class,
-        TitleFilter::class,
-        CreatedAtFromFilter::class,
-        CreatedAtToFilter::class,
-        IdFilter::class,
-        SalonIdFilter::class,
-        ProductionLineIdFilter::class,
-        WorkGroupCenterIdFilter::class,
-        VinFilter::class,
-        TypeFilter::class,
-        CarModelIdFilter::class,
-        ElementIdFilter::class,
-        IncidentIdFilter::class,
-    ];
+    public array $filters = [NameFilter::class, TitleFilter::class, CreatedAtFromFilter::class, CreatedAtToFilter::class, IdFilter::class, SalonIdFilter::class, ProductionLineIdFilter::class, WorkGroupCenterIdFilter::class, VinFilter::class, TypeFilter::class, CarModelIdFilter::class, ElementIdFilter::class, IncidentIdFilter::class,];
     /**
      * @var array|array[]
      */
-    protected array $rules = [
-        'create' => [], 'update' => [],
-    ];
+    protected array $rules = ['create' => [], 'update' => [],];
 
     /**
      * @return array
@@ -68,7 +57,7 @@ abstract class BaseRepository
      */
     public function destroy($id): bool
     {
-        return $this->model->find($id)->delete();
+        return $this->model->newQuery()->find($id)->delete();
     }
 
     /**
@@ -77,10 +66,7 @@ abstract class BaseRepository
     public function getOptions(): array
     {
         return $this->get()->map(function ($item) {
-            return [
-                'id'    => $item->id,
-                'title' => $item->title,
-            ];
+            return ['id' => $item->id, 'title' => $item->title,];
         })->all();
     }
 
@@ -97,29 +83,29 @@ abstract class BaseRepository
      */
     public function makeQuery(): mixed
     {
-        return Pipeline::send($this->model)
-            ->through($this->filters)
-            ->thenReturn();
+        return Pipeline::send($this->model)->through($this->filters)->thenReturn();
     }
+
 
     /**
      * @param $data
-     * @param  string  $parameter
-     * @return mixed
+     * @param string $parameter
+     * @return Model|Builder
      */
-    public function make($data, string $parameter = 'reference'): mixed
+    public function make($data, string $parameter = 'reference'): Model|Builder
     {
         return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
     }
 
+
     /**
      * @param $value
-     * @param  string  $parameter
-     * @return mixed
+     * @param string $parameter
+     * @return Model|Builder
      */
-    public function findBy($value, string $parameter = 'reference'): mixed
+    public function findBy($value, string $parameter = 'reference'): Model|Builder
     {
-        return $this->model->newQuery()->where($parameter, $value)->first();
+        return $this->model->newQuery()->where($parameter, $value)->firstOrFail();
     }
 
     /**
@@ -132,7 +118,7 @@ abstract class BaseRepository
     }
 
     /**
-     * @param  array  $input
+     * @param array $input
      * @return mixed
      */
     public function upsert(array $input): mixed
@@ -144,20 +130,22 @@ abstract class BaseRepository
         return $record->update($input);
     }
 
+
     /**
-     * @param  array  $where
-     * @return mixed
+     * @param array $where
+     * @return Model|Builder
      */
-    public function findWhere(array $where): mixed
+    public function findWhere(array $where): Model|Builder
     {
         return $this->model->newQuery()->where($where)->first();
     }
 
+
     /**
      * @param $data
-     * @return mixed
+     * @return Model|Builder
      */
-    public function store($data): mixed
+    public function store($data): Model|Builder
     {
         return $this->model->query()->create($data);
     }
@@ -180,9 +168,12 @@ abstract class BaseRepository
      */
     public function show($id): mixed
     {
-        return $this->model->findOrFail($id);
+        return $this->model->newQuery()->findOrFail($id);
     }
 
+    /**
+     * @return array
+     */
     public function getHeadings(): array
     {
         return $this->model->getHeadings() ?? [];

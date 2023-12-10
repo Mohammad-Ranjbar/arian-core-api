@@ -11,6 +11,8 @@ class Job extends Model
 {
     use HasFactory, HasUuids;
 
+    public mixed $data;
+
     /**
      * @var string[]
      */

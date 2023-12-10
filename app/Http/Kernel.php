@@ -4,7 +4,6 @@ namespace App\Http;
 
 use App\Http\Middleware\AccessVehicleMiddleware;
 use App\Http\Middleware\Authenticate;
-use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;

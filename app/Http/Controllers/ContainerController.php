@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ContainerResource;
 use App\Repositories\ContainerRepository;
 
+/**
+ * @property ContainerRepository $repository
+ */
 class ContainerController extends CrudController
 {
     /**

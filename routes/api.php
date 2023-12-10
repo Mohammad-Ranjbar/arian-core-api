@@ -33,7 +33,6 @@ use App\Http\Controllers\StopTypeController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\TransitDestinationController;
 use App\Http\Controllers\TransitSourceController;
-use App\Http\Controllers\TusController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
@@ -49,7 +48,6 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
-Route::any('/tus/{any?}', TusController::class)->where('any', '.*')->name('tus');
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('channels',JoinChannelController::class);

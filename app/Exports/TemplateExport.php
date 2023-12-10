@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 
 class TemplateExport implements FromCollection, WithTitle, WithHeadings
 {
-    protected $headers;
+    protected array $headers;
 
     public function __construct(array $headers)
     {

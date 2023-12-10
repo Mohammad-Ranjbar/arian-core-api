@@ -12,8 +12,17 @@ use Throwable;
 class Handler extends ExceptionHandler
 {
 
+    /**
+     * @var string[]
+     */
     protected $dontFlash = ['current_password', 'password', 'password_confirmation',];
 
+    /**
+     * @param $request
+     * @param Throwable $e
+     * @return \Illuminate\Http\Response|JsonResponse|RedirectResponse|Response
+     * @throws Throwable
+     */
     public function render($request, Throwable $e): \Illuminate\Http\Response|JsonResponse|RedirectResponse|Response
     {
         if ($e instanceof NotFoundHttpException) {
@@ -23,6 +32,9 @@ class Handler extends ExceptionHandler
         return parent::render($request, $e);
     }
 
+    /**
+     * @return void
+     */
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {

@@ -42,7 +42,7 @@ class VehicleFaultController extends Controller
             if (!$tracking) {
                 return $this->responseError('can not find vehicle location');
             }
-            $validatedData['production_tracking_id'] = $tracking->id;
+            $validatedData['production_tracking_id'] = $tracking->getAttribute('id');
             $this->incidentSourceRepository->upsert([
                 'incident_id'  => $validatedData['incident_id'], 'element_id' => $validatedData['element_id'],
                 'car_model_id' => $vehicle->carModel->id,

@@ -10,31 +10,31 @@ class VehicleIncidentObserver
 
 
     /**
-     * @param  VehicleIncident  $vehicleIncident
+     * @param VehicleIncident $vehicleIncident
      * @return void
      */
     public function created(VehicleIncident $vehicleIncident): void
     {
-        FaultIndexJob::dispatch($vehicleIncident->id);
+        FaultIndexJob::dispatch($vehicleIncident->getAttribute('id'));
     }
 
 
     /**
-     * @param  VehicleIncident  $vehicleIncident
+     * @param VehicleIncident $vehicleIncident
      * @return void
      */
     public function updated(VehicleIncident $vehicleIncident): void
     {
-        FaultIndexJob::dispatch($vehicleIncident->id);
+        FaultIndexJob::dispatch($vehicleIncident->getAttribute('id'));
     }
 
     /**
-     * @param  VehicleIncident  $vehicleIncident
+     * @param VehicleIncident $vehicleIncident
      * @return void
      */
     public function deleted(VehicleIncident $vehicleIncident): void
     {
-        FaultIndexJob::dispatch($vehicleIncident->id);
+        FaultIndexJob::dispatch($vehicleIncident->getAttribute('id'));
     }
 
 }

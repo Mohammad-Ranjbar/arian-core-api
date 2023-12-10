@@ -52,10 +52,12 @@ class Barcode extends Model
     {
         $record = ErpProductItem::query()->whereNotNull('tracking_code')
             ->where('tracking_code', '!=', '')
-            ->whereRaw("'{$this->code}' LIKE concat ('%',tracking_code,'%')")->first();
+            ->whereRaw("'$this->code' LIKE concat ('%',tracking_code,'%')")->first();
 
         if ($record){
-            $this->update(['erp_product_item_id' => $record->id]);
+            $this->update(['erp_product_item_id' => $record->getAttribute('id')]);
         }
     }
+
+
 }

@@ -6,15 +6,15 @@ use App\Exports\TemplateExport;
 use App\Http\Requests\JobRequest;
 use App\Http\Resources\BaseResource;
 use App\Jobs\ImportJob;
-use App\Models\File;
 use App\Models\Job;
-use App\Services\Importer\ImporterServiceFactory;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 
 class CrudController extends Controller
@@ -22,7 +22,7 @@ class CrudController extends Controller
     /**
      * @var string
      */
-    public string   $resource        = BaseResource::class;
+    public string $resource = BaseResource::class;
     protected array $appendStoreData = [];
     /**
      * @var bool
@@ -30,10 +30,13 @@ class CrudController extends Controller
     protected bool $appendUserId = false;
 
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse |AnonymousResourceCollection
     {
         $perPage = $request->get('per_page', 15);
-        return $this->collect($this->repository->paginate($perPage));
+        if (isset($this->repository)) {
+            return $this->collect($this->repository->paginate($perPage));
+        }
+        return $this->responseError('repository not found',400);
     }
 
     public function collect($q)
@@ -45,8 +48,10 @@ class CrudController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),
-            $this->customStoreRules()));
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         $validatedData = array_merge($validatedData, $this->appendStoreData);
         if ($this->appendUserId) {
             $validatedData['user_id'] = Auth::id();
@@ -60,9 +65,7 @@ class CrudController extends Controller
             return $data;
         } catch (Exception $exception) {
             DB::rollBack();
-            return response()->json([
-                'message' => $exception->getMessage()
-            ], 500);
+            return response()->json(['message' => $exception->getMessage()], 500);
         }
     }
 
@@ -81,23 +84,29 @@ class CrudController extends Controller
         return $record;
     }
 
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function show($id): mixed
+
+    public function show($id)
     {
-        return new $this->resource($this->repository->show($id));
+        if (isset($this->repository)) {
+            return new $this->resource($this->repository->show($id));
+        }
+        return $this->responseError('repository not found',400);
     }
 
     public function update(Request $request, $id)
     {
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
         $validatedData = $request->validate($this->repository->getUpdateRules());
         return $this->doUpdate($id, $validatedData);
     }
 
     public function doUpdate($id, $data)
     {
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
         try {
             DB::beginTransaction();
             $model = $this->repository->update($id, $data);
@@ -106,22 +115,24 @@ class CrudController extends Controller
             return new $this->resource($model);
         } catch (Exception $exception) {
             DB::rollBack();
-            return response()->json([
-                'message' => $exception->getMessage()
-            ], 500);
+            return response()->json(['message' => $exception->getMessage()], 500);
         }
     }
 
     public function destroy($id)
     {
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
         return $this->repository->destroy($id);
     }
 
-    /**
-     * @return void
-     */
-    public function applyAuthorizeResource(): void
+
+    public function applyAuthorizeResource()
     {
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
         $this->authorizeResource($this->repository->model->getMorphClass(), $this->repository->model->getMorphClass());
     }
 
@@ -135,34 +146,32 @@ class CrudController extends Controller
     }
 
     /**
-     * @param  JobRequest  $request
+     * @param JobRequest $request
      * @return JsonResponse
      */
     public function import(JobRequest $request): JsonResponse
     {
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
-        $validatedData['type'] = 'import-'.$this->repository->model->getTable();
-        $validatedData['data'] = [
-            'file' => $validatedData['file']
-        ];
+        $validatedData['type'] = 'import-' . $this->repository->model->getTable();
+        $validatedData['data'] = ['file' => $validatedData['file']];
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
-        return response()->json([
-            'message' => 'import job created',
-            'data'    => [
-                'uuid'         => $job->getAttribute('uuid'),
-                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
-            ]
-        ]);
+        return response()->json(['message' => 'import job created', 'data' => ['uuid' => $job->getAttribute('uuid'), 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))]]);
     }
 
-    public function getTemplate()
+    public function getTemplate(): BinaryFileResponse|JsonResponse
     {
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
         $headers = $this->repository->getHeadings();
         $export = new TemplateExport($headers);
-        return Excel::download($export, $this->repository->model->getTable().'-template.xlsx');
+        return Excel::download($export, $this->repository->model->getTable() . '-template.xlsx');
     }
 
 

@@ -33,7 +33,7 @@ class StationController extends CrudController
     public function removeUser(Station $station,User $user): JsonResponse
     {
         try {
-            $station->users()->detach($user->getAttributes('id'));
+            $station->users()->detach($user->getAttribute('id'));
 
             return response()->json(new StationResource($station));
         }catch (Exception $exception){

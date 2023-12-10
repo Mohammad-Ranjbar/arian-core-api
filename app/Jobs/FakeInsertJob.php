@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 
 use App\libs\EsClient;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
+use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,7 +21,11 @@ class FakeInsertJob implements ShouldQueue
 
     }
 
-    public function handle()
+    /**
+     * @throws ClientResponseException
+     * @throws ServerResponseException
+     */
+    public function handle(): void
     {
         $client = EsClient::getInstance();
         $client->bulk($this->data);

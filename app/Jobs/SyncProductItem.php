@@ -34,18 +34,18 @@ class SyncProductItem implements ShouldQueue
             ->firstOrCreate($this->data);
 
         if ($record->wasRecentlyCreated) {
-            $this->updateBarcodes($record->tracking_code, $record->id);
+            $this->updateBarcodes($record->getAttribute('tracking_code'), $record->getAttribute('id'));
         } else {
-            if ($record->tracking_code != $this->data['tracking_code']) {
-                Barcode::query()->where('erp_product_item_id', $record->id)
+            if ($record->getAttribute('tracking_code') != $this->data['tracking_code']) {
+                Barcode::query()->where('erp_product_item_id', $record->getAttribute('id'))
                     ->update(['erp_product_item_id' => null]);
-                $this->updateBarcodes($record->tracking_code, $record->id);
+                $this->updateBarcodes($record->getAttribute('tracking_code'), $record->getAttribute('id'));
             }
             $record->update($this->data);
         }
     }
 
-    private function updateBarcodes(string $trackingCode, int $id)
+    private function updateBarcodes(string $trackingCode, int $id): void
     {
         Barcode::query()
             ->where('code', 'LIKE', '%'.$trackingCode.'%')

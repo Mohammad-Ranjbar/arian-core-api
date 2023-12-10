@@ -7,12 +7,18 @@ use Illuminate\Foundation\Http\FormRequest;
 class UpdateGradeRequest extends FormRequest
 {
 
+    /**
+     * @return bool
+     */
     public function authorize(): bool
     {
         return $this->user()->can('vehicle.update-grade-status');
     }
 
 
+    /**
+     * @return string[]
+     */
     public function rules(): array
     {
         return [
