@@ -1,11 +1,11 @@
 
 import Echo from 'laravel-echo';
-import socketio from 'socket.io-client'
-window.io = require('socket.io-client');
+import io from 'socket.io-client'
+window.io = io
 
 window.Echo = new Echo({
     broadcaster: 'socket.io',
     host: '/socket.io',
-    client: socketio,
+    client: io,
 });
 
