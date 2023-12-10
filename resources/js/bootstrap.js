@@ -1,11 +1,8 @@
-import io from 'socket.io-client'
 
-const socket = io({
-    auth: {
-        token: localStorage.getItem('token')
-    }
+import Echo from 'laravel-echo';
+
+window.Echo = new Echo({
+    broadcaster: 'socket.io',
+    host: '/socket.io',
 });
 
-socket.on('connect', () => {
-    console.log('im connected to socket io')
-})
