@@ -1,0 +1,17 @@
+{
+  "name": "io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "io.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@socket.io/redis-adapter": "^8.2.1",
+    "redis": "^4.6.11",
+    "socket.io": "^4.7.2"
+  }
+}
