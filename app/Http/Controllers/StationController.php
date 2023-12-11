@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddUserToStationsRequest;
 use App\Http\Resources\StationResource;
+use App\Http\Resources\UserShortResource;
 use App\Models\Station;
 use App\Models\User;
 use App\Repositories\StationRepository;
@@ -40,6 +41,11 @@ class StationController extends CrudController
             return $this->responseError($exception->getMessage(),400);
         }
 
+    }
+
+    public function users(Station $station): JsonResponse
+    {
+        return response()->json(UserShortResource::collection($station->getAttribute('users')));
     }
 
 

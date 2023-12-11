@@ -53,6 +53,7 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('/station/{station}/users',[StationController::class,'users'])->name('station.users');
     Route::get('channels',JoinChannelController::class);
     Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
