@@ -13,7 +13,7 @@ class SubmitIncidentLocationController extends Controller
     {
         /* @var $user User */
         $user = Auth::user();
-        return response()->json($user->stations()->selectRaw('title,stations.id as location_id, "stations" as location_type')->get());
+        return response()->json($user->stations()->selectRaw('title,stations.id as location_id, "stations" as location_type , "x" as "group"')->get());
 
 
     }
