@@ -35,7 +35,7 @@ class StationController extends CrudController
      */
     public function assignUser(Station $station, AddUserToStationsRequest $request): JsonResponse
     {
-        $this->authorize('station-assign-user');
+        $this->authorize('station.assign.user');
         $validatedData = $request->validated();
         try {
             if ($station->getAttribute('users')->contains($validatedData['user_id'])) {
@@ -70,7 +70,7 @@ class StationController extends CrudController
      */
     public function removeUser(Station $station, User $user): JsonResponse
     {
-        $this->authorize('station-remove-user');
+        $this->authorize('station.remove.user');
         try {
             $station->users()->detach($user->getAttribute('id'));
 

@@ -50,13 +50,13 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/get-stop-locations', [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get-stop-locations');
+    Route::get('/get-stop-locations', [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
     Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
     Route::get('channels', JoinChannelController::class);
     Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
-    Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station-assign-user');
-    Route::delete('/station/{station}/user/{user}', [StationController::class, 'removeUser'])->name('station-remove-user');
+    Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station.assign.user');
+    Route::delete('/station/{station}/user/{user}', [StationController::class, 'removeUser'])->name('station.remove.user');
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
