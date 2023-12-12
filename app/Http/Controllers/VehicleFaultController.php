@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\IncidentSourceRequest;
+use App\Http\Requests\VehicleFaultReportRequest;
 use App\Http\Requests\VehicleFaultRequest;
 use App\Http\Resources\IncidentSourceResource;
 use App\Http\Resources\VehicleIncidentResource;
@@ -19,19 +20,17 @@ class VehicleFaultController extends Controller
 {
 
     /**
-     * @param  VehicleIncidentRepository  $repository
-     * @param  IncidentSourceRepository  $incidentSourceRepository
+     * @param VehicleIncidentRepository $repository
+     * @param IncidentSourceRepository $incidentSourceRepository
      */
-    public function __construct(
-        private readonly VehicleIncidentRepository $repository,
-        private readonly IncidentSourceRepository $incidentSourceRepository
-    ) {
+    public function __construct(private readonly VehicleIncidentRepository $repository, private readonly IncidentSourceRepository $incidentSourceRepository)
+    {
 
     }
 
     /**
-     * @param  VehicleFaultRequest  $request
-     * @param  Vehicle  $vehicle
+     * @param VehicleFaultRequest $request
+     * @param Vehicle $vehicle
      * @return VehicleIncidentResource|JsonResponse
      */
     public function submit(VehicleFaultRequest $request, Vehicle $vehicle): VehicleIncidentResource|JsonResponse
@@ -43,10 +42,7 @@ class VehicleFaultController extends Controller
                 return $this->responseError('can not find vehicle location');
             }
             $validatedData['production_tracking_id'] = $tracking->getAttribute('id');
-            $this->incidentSourceRepository->upsert([
-                'incident_id'  => $validatedData['incident_id'], 'element_id' => $validatedData['element_id'],
-                'car_model_id' => $vehicle->carModel->id,
-            ]);
+            $this->incidentSourceRepository->upsert(['incident_id' => $validatedData['incident_id'], 'element_id' => $validatedData['element_id'], 'car_model_id' => $vehicle->carModel->id,]);
             return new VehicleIncidentResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
@@ -55,20 +51,16 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param  Vehicle  $vehicle
+     * @param Vehicle $vehicle
      * @param $type
      * @return JsonResponse|AnonymousResourceCollection
      * @throws AuthorizationException
      */
-    public function index(
-        Vehicle $vehicle,
-        $type
-    ): JsonResponse|AnonymousResourceCollection {
+    public function index(Vehicle $vehicle, $type): JsonResponse|AnonymousResourceCollection
+    {
         $this->authorize("vehicles.faults.$type.index");
 
-        request()->merge([
-            'type' => request()->route()->parameter('type'), 'vin' => $vehicle->vin,
-        ]);
+        request()->merge(['type' => request()->route()->parameter('type'), 'vin' => $vehicle->vin,]);
 
         $perPage = request()->input('per_page', 15);
         return VehicleIncidentResource::collection($this->repository->paginate($perPage));
@@ -76,14 +68,12 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param  IncidentSourceRequest  $request
-     * @param  IncidentSource  $incidentSource
+     * @param IncidentSourceRequest $request
+     * @param IncidentSource $incidentSource
      * @return IncidentSourceResource|JsonResponse
      */
-    public function updateIncidentSource(
-        IncidentSourceRequest $request,
-        IncidentSource $incidentSource
-    ): IncidentSourceResource|JsonResponse {
+    public function updateIncidentSource(IncidentSourceRequest $request, IncidentSource $incidentSource): IncidentSourceResource|JsonResponse
+    {
         try {
             $validatedData = $request->validated();
             $validatedData['model_type'] = match ($validatedData['model_type']) {
@@ -99,7 +89,7 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param  IncidentSource  $incidentSource
+     * @param IncidentSource $incidentSource
      * @return IncidentSourceResource
      */
     public function showIncidentSource(IncidentSource $incidentSource): IncidentSourceResource
@@ -114,6 +104,44 @@ class VehicleFaultController extends Controller
     public function listIncidentSource(): JsonResponse|AnonymousResourceCollection
     {
         return IncidentSourceResource::collection($this->incidentSourceRepository->paginate(request()->input('paginate', 15)));
+    }
+
+    public function report(VehicleFaultReportRequest $request)
+    {
+
+        return response()->json(
+            [
+                'dpu-off' => 5.2,
+                'list' => [
+                    [
+                        'title' => 'the', 'count' => 5
+                    ],
+                    [
+                        'title' => 'the', 'count' => 4
+                    ],
+                    [
+                        'title' => 'the', 'count' => 2
+                    ]
+                ],
+                'chart' =>
+                    [
+                        'labels' =>
+                            ["2016", "2017", "2018", "2019", "2020"],
+                        'datasets' =>
+                            [
+                                [
+                                    'label' => "Sales",
+                                    'data' => [80000, 45677, 78888, 90000, 4300],
+                                    'backgroundColor' => "rgb(24, 229, 189)",
+                                ],
+                                [
+                                    'label' => "Revenue",
+                                    'data' => [3000, 60000, 70000, 5000, 80000],
+                                    'backgroundColor' => "rgb(24, 167, 229)",
+                                ],
+                            ],
+                    ]
+            ]);
     }
 
 }
