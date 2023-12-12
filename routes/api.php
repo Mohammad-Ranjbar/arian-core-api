@@ -56,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('channels', JoinChannelController::class);
     Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
-    Route::post('/station/{station}/user', [StationController::class, 'addUser'])->name('station-add-user');
+    Route::post('/station/{station}/users', [StationController::class, 'addUser'])->name('station-add-user');
     Route::delete('/station/{station}/user/{user}', [StationController::class, 'removeUser'])->name('station-remove-user');
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
