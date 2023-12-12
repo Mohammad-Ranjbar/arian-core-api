@@ -13,6 +13,9 @@ use Illuminate\Http\JsonResponse;
 
 class StationController extends CrudController
 {
+    /**
+     * @param StationRepository $repository
+     */
     public function __construct(public readonly StationRepository $repository)
     {
         $this->applyAuthorizeResource();
@@ -20,6 +23,11 @@ class StationController extends CrudController
     }
 
 
+    /**
+     * @param Station $station
+     * @param AddUserToStationsRequest $request
+     * @return JsonResponse
+     */
     public function assignUser(Station $station, AddUserToStationsRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
@@ -34,7 +42,12 @@ class StationController extends CrudController
         }
     }
 
-    public function removeUser(Station $station,User $user): JsonResponse
+    /**
+     * @param Station $station
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function removeUser(Station $station, User $user): JsonResponse
     {
         try {
             $station->users()->detach($user->getAttribute('id'));
@@ -46,6 +59,10 @@ class StationController extends CrudController
 
     }
 
+    /**
+     * @param Station $station
+     * @return JsonResponse
+     */
     public function users(Station $station): JsonResponse
     {
         return response()->json(UserShortResource::collection($station->getAttribute('users')));
