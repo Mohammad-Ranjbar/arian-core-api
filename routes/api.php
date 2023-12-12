@@ -38,7 +38,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\WorkGroupCenterController;
-use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 Route::any('/', function () {
@@ -56,7 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('channels', JoinChannelController::class);
     Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
-    Route::post('/station/{station}/users', [StationController::class, 'addUser'])->name('station-add-user');
+    Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station-add-user');
     Route::delete('/station/{station}/user/{user}', [StationController::class, 'removeUser'])->name('station-remove-user');
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');

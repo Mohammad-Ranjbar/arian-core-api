@@ -20,10 +20,13 @@ class StationController extends CrudController
     }
 
 
-    public function addUser(Station $station, AddUserToStationsRequest $request): JsonResponse
+    public function assignUser(Station $station, AddUserToStationsRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
         try {
+            if ($station->getAttribute('users')->contains($validatedData['user_id'])){
+                return $this->responseError('کاربر انتخابی در لیست کاربران ایستگاه کاری انتخاب شده موجود است',400);
+            }
             $station->users()->attach($validatedData);
             return response()->json(new StationResource($station));
         } catch (Exception $exception) {
