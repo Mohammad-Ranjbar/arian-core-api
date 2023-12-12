@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\IncidentSourceRequest;
+
 use App\Http\Requests\VehicleFaultReportRequest;
 use App\Http\Requests\VehicleFaultRequest;
 use App\Http\Resources\IncidentSourceResource;
@@ -106,7 +107,7 @@ class VehicleFaultController extends Controller
         return IncidentSourceResource::collection($this->incidentSourceRepository->paginate(request()->input('paginate', 15)));
     }
 
-    public function report(): JsonResponse
+    public function report(VehicleFaultReportRequest $request): JsonResponse
     {
 
         return response()->json(['dpu-off' => 5.2, 'list' => [['title' => 'the', 'count' => 5], ['title' => 'the', 'count' => 4], ['title' => 'the', 'count' => 2]], 'chart' => ['labels' => ["2016", "2017", "2018", "2019", "2020"], 'datasets' => [['label' => "Sales", 'data' => [80000, 45677, 78888, 90000, 4300], 'backgroundColor' => "rgb(24, 229, 189)",], ['label' => "Revenue", 'data' => [3000, 60000, 70000, 5000, 80000], 'backgroundColor' => "rgb(24, 167, 229)",],],]]);
