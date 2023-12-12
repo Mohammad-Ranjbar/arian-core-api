@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Repositories\StationRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StationController extends CrudController
 {
@@ -32,14 +33,21 @@ class StationController extends CrudController
     {
         $validatedData = $request->validated();
         try {
-            if ($station->getAttribute('users')->contains($validatedData['user_id'])){
-                return $this->responseError('کاربر انتخابی در لیست کاربران ایستگاه کاری انتخاب شده موجود است',400);
+            if ($station->getAttribute('users')->contains($validatedData['user_id'])) {
+                return $this->responseError('کاربر انتخابی در لیست کاربران ایستگاه کاری انتخاب شده موجود است', 400);
             }
             $station->users()->attach($validatedData);
             return response()->json(new StationResource($station));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 400);
         }
+    }
+
+    public function users(Station $station): AnonymousResourceCollection
+    {
+        $perPage = request()->get('per_page', 15);
+
+        return UserShortResource::collection($station->users()->paginate($perPage));
     }
 
     /**
@@ -53,19 +61,10 @@ class StationController extends CrudController
             $station->users()->detach($user->getAttribute('id'));
 
             return response()->json(new StationResource($station));
-        }catch (Exception $exception){
-            return $this->responseError($exception->getMessage(),400);
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 400);
         }
 
-    }
-
-    /**
-     * @param Station $station
-     * @return JsonResponse
-     */
-    public function users(Station $station): JsonResponse
-    {
-        return response()->json($station->users()->paginate('15'));
     }
 
 
