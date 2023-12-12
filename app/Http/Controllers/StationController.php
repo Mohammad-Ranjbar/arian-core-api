@@ -65,7 +65,7 @@ class StationController extends CrudController
      */
     public function users(Station $station): JsonResponse
     {
-        return response()->json(UserShortResource::collection($station->getAttribute('users')));
+        return response()->json($station->users()->paginate('15'));
     }
 
 
