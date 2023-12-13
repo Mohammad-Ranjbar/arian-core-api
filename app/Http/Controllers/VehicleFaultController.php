@@ -131,7 +131,7 @@ $countByDay = DB::select(/** @lang text */ "SELECT DATE(created_at) as date,
 //                          ");
 
 //        dd($countByDay);
-        return response()->json(['dpu-off' => 5.2, 'list' => [['title' => 'the', 'count' => 5], ['title' => 'the', 'count' => 4], ['title' => 'the', 'count' => 2]], 'chart' => ['labels' => ["2016", "2017", "2018", "2019", "2020"], 'datasets' => [['label' => "Sales", 'data' => [80000, 45677, 78888, 90000, 4300], 'backgroundColor' => "rgb(24, 229, 189)",], ['label' => "Revenue", 'data' => [3000, 60000, 70000, 5000, 80000], 'backgroundColor' => "rgb(24, 167, 229)",],],]]);
+        return response()->json(['dpu_off' => 5.2,'vehicles' => 5, 'list' => [['title' => 'the', 'count' => 5], ['title' => 'the', 'count' => 4], ['title' => 'the', 'count' => 2]], 'chart' => ['labels' => ["2016", "2017", "2018", "2019", "2020"], 'datasets' => [['label' => "Sales", 'data' => [80000, 45677, 78888, 90000, 4300], 'backgroundColor' => "rgb(24, 229, 189)",], ['label' => "Revenue", 'data' => [3000, 60000, 70000, 5000, 80000], 'backgroundColor' => "rgb(24, 167, 229)",],],]]);
     }
 
 }
