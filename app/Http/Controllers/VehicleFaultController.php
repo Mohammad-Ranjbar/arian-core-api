@@ -110,10 +110,8 @@ class VehicleFaultController extends Controller
     }
 
 
-    /**
-     * @return JsonResponse
-     * @throws AuthorizationException
-     */
+
+
     public function report(): JsonResponse
     {
         $this->authorize('vehicles.faults.' . request()->route()->parameter('type') . '.report');
