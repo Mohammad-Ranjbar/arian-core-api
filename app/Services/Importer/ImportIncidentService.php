@@ -4,13 +4,12 @@ namespace App\Services\Importer;
 
 use App\Imports\IncidentImport;
 use App\Models\File;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 
 class ImportIncidentService extends BaseImporterService
 {
-    public function import($jobId, File $file)
+    public function import($jobId, File $file): void
     {
         $data = [
             'id'      => $jobId,

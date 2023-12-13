@@ -19,14 +19,14 @@ class StationTrackingService extends BaseTrackingService
         $tracking = $this
             ->getLatestRecord(
                 ProductionLineTrackingService::MODEL_TYPE,
-                $station->workGroupCenter->production_line_id,
+                $station->getAttribute('workGroupCenter')->production_line_id,
                 $data['vin']
             );
-        if (!$tracking or $tracking->type === 'exit') {
+        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
             return false;
         }
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
-        if (!$tracking or $tracking->type === 'exit') {
+        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
             return $this->prepareData($data);
         }
         return false;
@@ -55,7 +55,7 @@ class StationTrackingService extends BaseTrackingService
             $data['vin']
         );
 
-        if (!$tracking or $tracking->type === 'exit') {
+        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
             return false;
         }
         return $this->prepareData($data);

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SubmitIncidentLocationController extends Controller
@@ -13,7 +12,7 @@ class SubmitIncidentLocationController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function getStopLocations(Request $request): JsonResponse
+    public function getStopLocations(): JsonResponse
     {
         $this->authorize('get.stop.locations');
         /* @var $user User */

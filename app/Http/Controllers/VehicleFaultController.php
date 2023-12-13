@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\IncidentSourceRequest;
 
-use App\Http\Requests\VehicleFaultReportRequest;
 use App\Http\Requests\VehicleFaultRequest;
 use App\Http\Resources\IncidentSourceResource;
 use App\Http\Resources\VehicleIncidentResource;
+use App\Models\Incident;
 use App\Models\IncidentSource;
 use App\Models\Vehicle;
 use App\Repositories\IncidentSourceRepository;
@@ -16,6 +16,8 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
+
 
 class VehicleFaultController extends Controller
 {
@@ -107,9 +109,30 @@ class VehicleFaultController extends Controller
         return IncidentSourceResource::collection($this->incidentSourceRepository->paginate(request()->input('paginate', 15)));
     }
 
-    public function report(VehicleFaultReportRequest $request): JsonResponse
-    {
 
+    /**
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function report(): JsonResponse
+    {
+        $this->authorize('vehicles.faults.' . request()->route()->parameter('type') . '.report');
+
+
+$countByDay = DB::select(/** @lang text */ "SELECT DATE(created_at) as date,
+                        count(distinct vin) as vehicles,
+                        count(distinct `method`) as `methods`,
+                        COUNT(*) as incidents,
+                        TRUNCATE(COUNT(*) / count(distinct vin), 2) as dpuoff
+                           FROM vehicle_incidents
+                           GROUP BY DATE(created_at)");
+
+
+//$countByVin = DB::select("SELECT count(distinct vin) as count
+//                          FROM vehicle_incidents
+//                          ");
+
+        dd($countByDay);
         return response()->json(['dpu-off' => 5.2, 'list' => [['title' => 'the', 'count' => 5], ['title' => 'the', 'count' => 4], ['title' => 'the', 'count' => 2]], 'chart' => ['labels' => ["2016", "2017", "2018", "2019", "2020"], 'datasets' => [['label' => "Sales", 'data' => [80000, 45677, 78888, 90000, 4300], 'backgroundColor' => "rgb(24, 229, 189)",], ['label' => "Revenue", 'data' => [3000, 60000, 70000, 5000, 80000], 'backgroundColor' => "rgb(24, 167, 229)",],],]]);
     }
 
