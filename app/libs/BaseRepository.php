@@ -9,6 +9,7 @@ use App\Filters\ElementIdFilter;
 use App\Filters\EmailFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
+use App\Filters\MakeCodesFilter;
 use App\Filters\NameFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\RolesFilter;
@@ -46,7 +47,8 @@ abstract class BaseRepository
         CarModelIdFilter::class,
         ElementIdFilter::class,
         IncidentIdFilter::class,
-        RolesFilter::class
+        RolesFilter::class,
+        MakeCodesFilter::class
     ];
     /**
      * @var array|array[]
