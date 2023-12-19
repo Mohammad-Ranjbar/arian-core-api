@@ -11,6 +11,7 @@ use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
 use App\Filters\NameFilter;
 use App\Filters\ProductionLineIdFilter;
+use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\TitleFilter;
 use App\Filters\TypeFilter;
@@ -45,6 +46,7 @@ abstract class BaseRepository
         CarModelIdFilter::class,
         ElementIdFilter::class,
         IncidentIdFilter::class,
+        RolesFilter::class
     ];
     /**
      * @var array|array[]
