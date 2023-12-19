@@ -7,7 +7,6 @@ use App\Http\Requests\IncidentSourceRequest;
 use App\Http\Requests\VehicleFaultRequest;
 use App\Http\Resources\IncidentSourceResource;
 use App\Http\Resources\VehicleIncidentResource;
-use App\Models\Incident;
 use App\Models\IncidentSource;
 use App\Models\Vehicle;
 use App\Repositories\IncidentSourceRepository;
@@ -17,6 +16,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 
 class VehicleFaultController extends Controller
@@ -110,28 +111,93 @@ class VehicleFaultController extends Controller
     }
 
 
-
-
+    /**
+     * @return JsonResponse
+     * @throws AuthorizationException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function report(): JsonResponse
     {
         $this->authorize('vehicles.faults.' . request()->route()->parameter('type') . '.report');
 
+        $fromDate = request()->get('from_date') ?? now()->subCentury()->toDateTimeString();
+        $toDate = request()->get('to_date') ?? now()->addCentury()->toDateTimeString();
 
-$countByDay = DB::select(/** @lang text */ "SELECT DATE(created_at) as date,
-                        count(distinct vin) as vehicles,
-                        count(distinct `method`) as `methods`,
-                        COUNT(*) as incidents,
-                        TRUNCATE(COUNT(*) / count(distinct vin), 2) as dpuoff
-                           FROM vehicle_incidents
-                           GROUP BY DATE(created_at)");
+        $where = ["created_at BETWEEN '$fromDate' AND '$toDate'"];
+
+        $strWhere = implode(" AND ", $where);
+
+        $result = collect(DB::select(/** @lang text */ "
+            SELECT
+                DATE(created_at) as date,
+                count(distinct vin) as vehicles,
+                COUNT(*) as incidents,
+                TRUNCATE(COUNT(*) / count(distinct vin), 2) as dpuoff
+            FROM
+               vehicle_incidents
+            WHERE
+                $strWhere
+            GROUP BY
+                DATE(created_at)
+       "));
 
 
-//$countByVin = DB::select("SELECT count(distinct vin) as count
-//                          FROM vehicle_incidents
-//                          ");
+        $labels = $result->pluck('date')->all();
 
-//        dd($countByDay);
-        return response()->json(['dpu_off' => 5.2,'vehicles' => 5, 'list' => [['title' => 'the', 'count' => 5], ['title' => 'the', 'count' => 4], ['title' => 'the', 'count' => 2]], 'chart' => ['labels' => ["2016", "2017", "2018", "2019", "2020"], 'datasets' => [['label' => "Sales", 'data' => [80000, 45677, 78888, 90000, 4300], 'backgroundColor' => "rgb(24, 229, 189)",], ['label' => "Revenue", 'data' => [3000, 60000, 70000, 5000, 80000], 'backgroundColor' => "rgb(24, 167, 229)",],],]]);
+        $datasets = [['label' => "Vehicles", 'data' => $result->pluck('vehicles')->all(),
+
+        ], ['label' => "Incidents", 'data' => $result->pluck('incidents')->all(),
+
+        ], ['label' => "DPU-OFF", 'data' => $result->pluck('dpuoff')->all(),
+
+        ]];
+
+        foreach (['method', 'intensity'] as $column) {
+            $temp = collect(DB::select(/** @lang text */ "
+            SELECT
+                DATE(created_at) as `date`,
+                COUNT(*) as count,
+                `$column`
+            FROM
+                vehicle_incidents
+            WHERE
+                $strWhere
+            GROUP BY
+                DATE(created_at), `$column`
+        "));
+
+            foreach ($temp->groupBy($column) as $value => $items) {
+                $x = $items->pluck('count', 'date');
+                $dataSet = [];
+                foreach ($labels as $date) {
+                    $dataSet[$date] = isset($x[$date]) ? $x[$date] : 0;
+                }
+
+                $datasets[] = ['label' => $value, 'data' => array_values($dataSet),];
+            }
+        }
+
+        $list = collect(DB::select(/** @lang text */ "
+            SELECT
+                incidents.title,
+                count(incident_id) as `count`
+            FROM
+               vehicle_incidents
+            left join
+                   incidents
+            on
+                vehicle_incidents.incident_id = incidents.id
+            WHERE
+                vehicle_incidents.$strWhere
+            GROUP BY
+                incident_id
+            ORDER BY
+                COUNT(incident_id) DESC
+       "));
+
+
+        return response()->json(['dpu_off' => $result->avg('dpuoff'), 'vehicles' => $result->sum('vehicles'), 'list' => $list->all(), 'chart' => ['labels' => $labels, 'datasets' => $datasets]]);
     }
 
 }
