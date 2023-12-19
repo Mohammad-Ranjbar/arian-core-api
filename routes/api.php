@@ -50,14 +50,16 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::middleware('auth:sanctum')->group(function () {
 
-
-    Route::get('/get-stop-locations', [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
+    Route::get('/get-template-incident', [IncidentController::class, 'getTemplate']);
+    Route::get('/get-stop-locations',
+        [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
     Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
     Route::get('channels', JoinChannelController::class);
     Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
     Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station.assign.user');
-    Route::delete('/station/{station}/users/{user}', [StationController::class, 'removeUser'])->name('station.remove.user');
+    Route::delete('/station/{station}/users/{user}',
+        [StationController::class, 'removeUser'])->name('station.remove.user');
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
@@ -70,7 +72,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => '/bill-of-lading/{bill_of_lading}'], function () {
         Route::put('/change-status/{status}', [BillOfLadingController::class, 'changeStatus']);
         Route::get('/notice', [BillOfLadingController::class, 'notice']);
-        Route::put('/set-priority', [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
+        Route::put('/set-priority',
+            [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
 
     Route::get('options/{resource}', OptionController::class);
@@ -78,33 +81,59 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
             Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items.index');
             Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items.store');
-            Route::put('/block-items/{id}/unblock', [BlockItemController::class, 'unblock'])->name('block-items.unblock');
+            Route::put('/block-items/{id}/unblock',
+                [BlockItemController::class, 'unblock'])->name('block-items.unblock');
             Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
             Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
             Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);
 
-            Route::put('/update-qc-status', [VehicleController::class, 'updateQcStatus'])->name('vehicle.update-qc-status');
-            Route::put('/update-grade-status', [VehicleController::class, 'updateGradeStatus'])->name('vehicle.update-grade-status');
+            Route::put('/update-qc-status',
+                [VehicleController::class, 'updateQcStatus'])->name('vehicle.update-qc-status');
+            Route::put('/update-grade-status',
+                [VehicleController::class, 'updateGradeStatus'])->name('vehicle.update-grade-status');
         });
         Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
     });
     Route::get('/faults/{type}/report', [VehicleFaultController::class, 'report']);
 
     Route::prefix('/incident-sources')->group(function () {
-        Route::get('/', [VehicleFaultController::class, 'listIncidentSource'])->middleware('can:incident-sources.index')->name('incident-sources.index');
-        Route::put('/{incidentSource}', [VehicleFaultController::class, 'updateIncidentSource'])->middleware('can:incident-sources.update')->name('incident-sources.update');
-        Route::get('/{incidentSource}', [VehicleFaultController::class, 'showIncidentSource'])->middleware('can:incident-sources.show')->name('incident-sources.show');
+        Route::get('/', [
+            VehicleFaultController::class, 'listIncidentSource'
+        ])->middleware('can:incident-sources.index')->name('incident-sources.index');
+        Route::put('/{incidentSource}', [
+            VehicleFaultController::class, 'updateIncidentSource'
+        ])->middleware('can:incident-sources.update')->name('incident-sources.update');
+        Route::get('/{incidentSource}', [
+            VehicleFaultController::class, 'showIncidentSource'
+        ])->middleware('can:incident-sources.show')->name('incident-sources.show');
     });
 
     Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update', 'show']);
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
     Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
-    Route::group(['prefix' => 'production-lines/{production_line}', 'controller' => LineActivityStartStopController::class, 'as' => 'production-lines.'], function () {
+    Route::group(['prefix'     => 'production-lines/{production_line}',
+                  'controller' => LineActivityStartStopController::class, 'as' => 'production-lines.'
+    ], function () {
         Route::get('status', 'status')->name('status');
         Route::post('stop', 'stop')->name('stop');
         Route::post('start', 'start')->name('start');
     });
 
-    Route::post('/production-line-activities/{production_line_activity}/approve', [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
-    Route::apiResources(['roles' => RoleController::class, 'make-codes' => MakeCodeController::class, 'car-models' => CarModelController::class, 'users' => UserController::class, 'salons' => SalonController::class, 'production-lines' => ProductionLineController::class, 'work-group-centers' => WorkGroupCenterController::class, 'stations' => StationController::class, 'incidents' => IncidentController::class, 'elements' => ElementController::class, 'block-reasons' => BlockReasonController::class, 'transit-sources' => TransitSourceController::class, 'transit-destinations' => TransitDestinationController::class, 'transit-companies' => TransitCompanyController::class, 'cars' => CarController::class, 'stop-facts' => StopFactController::class, 'stop-reasons' => StopReasonController::class, 'stop-types' => StopTypeController::class, 'barcodes' => BarcodeController::class, 'baskets' => BasketController::class, 'inventories' => InventoryController::class, 'containers' => ContainerController::class, 'gate-permits' => GatePermitController::class, 'drivers' => DriverController::class]);
+    Route::post('/production-line-activities/{production_line_activity}/approve',
+        [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
+    Route::apiResources([
+        'roles'                => RoleController::class, 'make-codes' => MakeCodeController::class,
+        'car-models'           => CarModelController::class, 'users' => UserController::class,
+        'salons'               => SalonController::class, 'production-lines' => ProductionLineController::class,
+        'work-group-centers'   => WorkGroupCenterController::class, 'stations' => StationController::class,
+        'incidents'            => IncidentController::class, 'elements' => ElementController::class,
+        'block-reasons'        => BlockReasonController::class, 'transit-sources' => TransitSourceController::class,
+        'transit-destinations' => TransitDestinationController::class,
+        'transit-companies'    => TransitCompanyController::class, 'cars' => CarController::class,
+        'stop-facts'           => StopFactController::class, 'stop-reasons' => StopReasonController::class,
+        'stop-types'           => StopTypeController::class, 'barcodes' => BarcodeController::class,
+        'baskets'              => BasketController::class, 'inventories' => InventoryController::class,
+        'containers'           => ContainerController::class, 'gate-permits' => GatePermitController::class,
+        'drivers'              => DriverController::class
+    ]);
 });
