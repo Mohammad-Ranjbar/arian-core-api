@@ -18,6 +18,7 @@ class RolesFilter
      */
     public function handle($request, Closure $next): mixed
     {
+        dd($request->all());
         if (!request()->has('roles')) {
             return $next($request);
         }
