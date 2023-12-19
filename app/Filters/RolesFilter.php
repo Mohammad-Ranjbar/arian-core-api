@@ -21,7 +21,6 @@ class RolesFilter
         if (!request()->has('roles')) {
             return $next($request);
         }
-        dd(request()->get('roles'));
         return $next($request)->whereHas('roles', function ($query) {
             $query->whereIn('id', request()->get('roles'));
         });
