@@ -22,7 +22,7 @@ class RolesFilter
             return $next($request);
         }
         return $next($request)->whereHas('roles', function ($query) {
-            $query->whereIn('id', request()->get('roles'));
+            $query->whereIn('id', (array)request()->get('roles'));
         });
     }
 
