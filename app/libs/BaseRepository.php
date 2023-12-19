@@ -6,6 +6,7 @@ use App\Filters\CarModelIdFilter;
 use App\Filters\CreatedAtFromFilter;
 use App\Filters\CreatedAtToFilter;
 use App\Filters\ElementIdFilter;
+use App\Filters\EmailFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
 use App\Filters\NameFilter;
@@ -29,7 +30,22 @@ abstract class BaseRepository
     /**
      * @var array|string[]
      */
-    public array $filters = [NameFilter::class, TitleFilter::class, CreatedAtFromFilter::class, CreatedAtToFilter::class, IdFilter::class, SalonIdFilter::class, ProductionLineIdFilter::class, WorkGroupCenterIdFilter::class, VinFilter::class, TypeFilter::class, CarModelIdFilter::class, ElementIdFilter::class, IncidentIdFilter::class,];
+    public array $filters = [
+        EmailFilter::class,
+        NameFilter::class,
+        TitleFilter::class,
+        CreatedAtFromFilter::class,
+        CreatedAtToFilter::class,
+        IdFilter::class,
+        SalonIdFilter::class,
+        ProductionLineIdFilter::class,
+        WorkGroupCenterIdFilter::class,
+        VinFilter::class,
+        TypeFilter::class,
+        CarModelIdFilter::class,
+        ElementIdFilter::class,
+        IncidentIdFilter::class,
+    ];
     /**
      * @var array|array[]
      */
@@ -89,7 +105,7 @@ abstract class BaseRepository
 
     /**
      * @param $data
-     * @param string $parameter
+     * @param  string  $parameter
      * @return Model|Builder
      */
     public function make($data, string $parameter = 'reference'): Model|Builder
@@ -100,7 +116,7 @@ abstract class BaseRepository
 
     /**
      * @param $value
-     * @param string $parameter
+     * @param  string  $parameter
      * @return Model|Builder
      */
     public function findBy($value, string $parameter = 'reference'): Model|Builder
@@ -118,7 +134,7 @@ abstract class BaseRepository
     }
 
     /**
-     * @param array $input
+     * @param  array  $input
      * @return mixed
      */
     public function upsert(array $input): mixed
@@ -132,7 +148,7 @@ abstract class BaseRepository
 
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return Model|Builder
      */
     public function findWhere(array $where): Model|Builder
