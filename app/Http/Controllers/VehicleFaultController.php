@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\IncidentSourceRequest;
-
 use App\Http\Requests\VehicleFaultRequest;
 use App\Http\Resources\IncidentSourceResource;
 use App\Http\Resources\VehicleIncidentResource;
@@ -24,17 +23,19 @@ class VehicleFaultController extends Controller
 {
 
     /**
-     * @param VehicleIncidentRepository $repository
-     * @param IncidentSourceRepository $incidentSourceRepository
+     * @param  VehicleIncidentRepository  $repository
+     * @param  IncidentSourceRepository  $incidentSourceRepository
      */
-    public function __construct(private readonly VehicleIncidentRepository $repository, private readonly IncidentSourceRepository $incidentSourceRepository)
-    {
+    public function __construct(
+        private readonly VehicleIncidentRepository $repository,
+        private readonly IncidentSourceRepository $incidentSourceRepository
+    ) {
 
     }
 
     /**
-     * @param VehicleFaultRequest $request
-     * @param Vehicle $vehicle
+     * @param  VehicleFaultRequest  $request
+     * @param  Vehicle  $vehicle
      * @return VehicleIncidentResource|JsonResponse
      */
     public function submit(VehicleFaultRequest $request, Vehicle $vehicle): VehicleIncidentResource|JsonResponse
@@ -46,7 +47,10 @@ class VehicleFaultController extends Controller
                 return $this->responseError('can not find vehicle location');
             }
             $validatedData['production_tracking_id'] = $tracking->getAttribute('id');
-            $this->incidentSourceRepository->upsert(['incident_id' => $validatedData['incident_id'], 'element_id' => $validatedData['element_id'], 'car_model_id' => $vehicle->carModel->id,]);
+            $this->incidentSourceRepository->upsert([
+                'incident_id'  => $validatedData['incident_id'], 'element_id' => $validatedData['element_id'],
+                'car_model_id' => $vehicle->carModel->id,
+            ]);
             return new VehicleIncidentResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
@@ -55,7 +59,7 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param Vehicle $vehicle
+     * @param  Vehicle  $vehicle
      * @param $type
      * @return JsonResponse|AnonymousResourceCollection
      * @throws AuthorizationException
@@ -72,12 +76,14 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param IncidentSourceRequest $request
-     * @param IncidentSource $incidentSource
+     * @param  IncidentSourceRequest  $request
+     * @param  IncidentSource  $incidentSource
      * @return IncidentSourceResource|JsonResponse
      */
-    public function updateIncidentSource(IncidentSourceRequest $request, IncidentSource $incidentSource): IncidentSourceResource|JsonResponse
-    {
+    public function updateIncidentSource(
+        IncidentSourceRequest $request,
+        IncidentSource $incidentSource
+    ): IncidentSourceResource|JsonResponse {
         try {
             $validatedData = $request->validated();
             $validatedData['model_type'] = match ($validatedData['model_type']) {
@@ -93,7 +99,7 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param IncidentSource $incidentSource
+     * @param  IncidentSource  $incidentSource
      * @return IncidentSourceResource
      */
     public function showIncidentSource(IncidentSource $incidentSource): IncidentSourceResource
@@ -107,7 +113,8 @@ class VehicleFaultController extends Controller
      */
     public function listIncidentSource(): JsonResponse|AnonymousResourceCollection
     {
-        return IncidentSourceResource::collection($this->incidentSourceRepository->paginate(request()->input('paginate', 15)));
+        return IncidentSourceResource::collection($this->incidentSourceRepository->paginate(request()->input('paginate',
+            15)));
     }
 
 
@@ -119,12 +126,19 @@ class VehicleFaultController extends Controller
      */
     public function report(): JsonResponse
     {
-        $this->authorize('vehicles.faults.' . request()->route()->parameter('type') . '.report');
+        $this->authorize('vehicles.faults.'.request()->route()->parameter('type').'.report');
 
-        $fromDate = request()->get('from_date') ?? now()->subCentury()->toDateTimeString();
-        $toDate = request()->get('to_date') ?? now()->addCentury()->toDateTimeString();
 
-        $where = ["created_at BETWEEN '$fromDate' AND '$toDate'"];
+        $fromDate = request()->get('from') ?? now()->subCentury()->toDateTimeString();
+        $toDate = request()->get('to') ?? now()->addCentury()->toDateTimeString();
+        $where [] = 1;
+        if (request()->get('date_type') === 'create') {
+            $where[] = "vehicle_incidents.created_at BETWEEN '$fromDate' AND '$toDate'";
+
+        } else {
+            $where[] = "vehicle_incidents.checked_at BETWEEN '$fromDate' AND '$toDate'";
+        }
+
 
         $strWhere = implode(" AND ", $where);
 
@@ -145,13 +159,20 @@ class VehicleFaultController extends Controller
 
         $labels = $result->pluck('date')->all();
 
-        $datasets = [['label' => "Vehicles", 'data' => $result->pluck('vehicles')->all(),
-
-        ], ['label' => "Incidents", 'data' => $result->pluck('incidents')->all(),
-
-        ], ['label' => "DPU-OFF", 'data' => $result->pluck('dpuoff')->all(),
-
-        ]];
+        $datasets = [
+            [
+                'label' => "Vehicles",
+                'data'  => $result->pluck('vehicles')->all(),
+            ],
+            [
+                'label' => "Incidents",
+                'data'  => $result->pluck('incidents')->all(),
+            ],
+            [
+                'label' => "DPU-OFF",
+                'data'  => $result->pluck('dpuoff')->all(),
+            ]
+        ];
 
         foreach (['method', 'intensity'] as $column) {
             $temp = collect(DB::select(/** @lang text */ "
@@ -189,15 +210,22 @@ class VehicleFaultController extends Controller
             on
                 vehicle_incidents.incident_id = incidents.id
             WHERE
-                vehicle_incidents.$strWhere
+                $strWhere
             GROUP BY
                 incident_id
             ORDER BY
                 COUNT(incident_id) DESC
        "));
 
-
-        return response()->json(['dpu_off' => $result->avg('dpuoff'), 'vehicles' => $result->sum('vehicles'), 'list' => $list->all(), 'chart' => ['labels' => $labels, 'datasets' => $datasets]]);
+        return response()->json([
+            'dpu_off'  => $result->avg('dpuoff'),
+            'vehicles' => $result->sum('vehicles'),
+            'list'     => $list->all(),
+            'chart'    => [
+                'labels'   => $labels,
+                'datasets' => $datasets
+            ]
+        ]);
     }
 
 }
