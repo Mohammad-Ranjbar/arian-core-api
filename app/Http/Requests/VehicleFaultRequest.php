@@ -13,7 +13,7 @@ class VehicleFaultRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('vehicles.faults.' . $this->route()->parameter('type') . '.submit');
+        return $this->user()->can('vehicles.faults.'.$this->route()->parameter('type').'.submit');
     }
 
     /**
@@ -21,7 +21,17 @@ class VehicleFaultRequest extends FormRequest
      */
     public function rules(): array
     {
-        return ['intensity' => 'required|string', 'method' => 'required|string', 'description' => 'nullable', 'user_id' => 'nullable', 'vin' => 'nullable', 'checked_at' => 'nullable|date|date_format:Y-m-d H:i:s', 'element_id' => 'required|exists:elements,id', 'incident_id' => 'required|exists:incidents,id',];
+        return [
+            'intensity'   => 'required|string',
+            'method'      => 'required|string',
+            'description' => 'nullable',
+            'user_id'     => 'nullable',
+            'vin'         => 'nullable',
+            'checked_at'  => 'nullable|date|date_format:Y-m-d H:i:s',
+            'element_id'  => 'required|exists:elements,id',
+            'incident_id' => 'required|exists:incidents,id',
+            'type'        => 'nullable'
+        ];
     }
 
     /**
@@ -29,6 +39,9 @@ class VehicleFaultRequest extends FormRequest
      */
     public function prepareForValidation(): void
     {
-        $this->merge(['type' => $this->route()->parameter('type'), 'vin' => $this->route()->parameter('vehicle')->vin, 'user_id' => Auth::id(),]);
+        $this->merge([
+            'type' => $this->route()->parameter('type'),
+            'vin'  => $this->route()->parameter('vehicle')->vin, 'user_id' => Auth::id(),
+        ]);
     }
 }
