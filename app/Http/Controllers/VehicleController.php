@@ -40,7 +40,6 @@ class VehicleController extends CrudController
     public function getByVin($vin): VehicleResource
     {
         $obj = $this->getVehicleByVin($vin);
-        dd($obj);
         $makeCode = $this->makeCodeRepository->make($obj['make_code']);
         $carModel = $this->carModelRepository->make($obj['car_model']);
         $data = [
