@@ -137,11 +137,12 @@ abstract class BaseRepository
         return $this->makeQuery()->paginate($perPage);
     }
 
+
     /**
      * @param  array  $input
-     * @return mixed
+     * @return bool|Builder|Model|int
      */
-    public function upsert(array $input): mixed
+    public function upsert(array $input): Model|Builder|bool|int
     {
         $record = $this->findWhere($input);
         if (!$record) {
@@ -153,9 +154,9 @@ abstract class BaseRepository
 
     /**
      * @param  array  $where
-     * @return Model|Builder
+     * @return Model|Builder|null
      */
-    public function findWhere(array $where): Model|Builder
+    public function findWhere(array $where): null|Model|Builder
     {
         return $this->model->newQuery()->where($where)->first();
     }

@@ -37,15 +37,18 @@ class VehicleController extends CrudController
      * @return VehicleResource
      * @throws AuthorizationException
      */
-    public function getByVin( $vin): VehicleResource
+    public function getByVin($vin): VehicleResource
     {
         $obj = $this->getVehicleByVin($vin);
+        dd($obj);
         $makeCode = $this->makeCodeRepository->make($obj['make_code']);
         $carModel = $this->carModelRepository->make($obj['car_model']);
         $data = [
-            'vin'          => $obj['vin'], 'production_order_number' => $obj['production_order_number'],
-            'engine_no'    => $obj['engine_no'], 'cabin_no' => $obj['cabin_no'], 'make_code_id' => $makeCode->id,
-            'car_model_id' => $carModel->id,
+            'vin'                     => $obj['vin'],
+            'production_order_number' => $obj['production_order_number'],
+            'engine_no'               => $obj['engine_no'], 'cabin_no' => $obj['cabin_no'],
+            'make_code_id'            => $makeCode->id,
+            'car_model_id'            => $carModel->id,
         ];
         $vehicle = $this->vehicleRepository->make($data, 'vin');
         $this->authorize('access', $vehicle);

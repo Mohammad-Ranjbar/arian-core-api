@@ -48,7 +48,8 @@ class VehicleFaultController extends Controller
             }
             $validatedData['production_tracking_id'] = $tracking->getAttribute('id');
             $this->incidentSourceRepository->upsert([
-                'incident_id'  => $validatedData['incident_id'], 'element_id' => $validatedData['element_id'],
+                'incident_id'  => $validatedData['incident_id'],
+                'element_id'   => $validatedData['element_id'],
                 'car_model_id' => $vehicle->carModel->id,
             ]);
             return new VehicleIncidentResource($this->repository->store($validatedData));

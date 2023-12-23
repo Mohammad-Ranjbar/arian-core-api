@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Log;
 
 class BarcodeIndexService
 {
-    /**
-     *
-     */
     const INDEX_NAME = 'barcodes';
 
     /**
@@ -57,8 +54,6 @@ class BarcodeIndexService
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
         }
-
-
     }
 
 }
