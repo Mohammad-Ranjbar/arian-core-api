@@ -46,8 +46,8 @@ class VehicleController extends CrudController
             'vin'                     => $obj['vin'],
             'production_order_number' => $obj['production_order_number'],
             'engine_no'               => $obj['engine_no'], 'cabin_no' => $obj['cabin_no'],
-            'make_code_id'            => $makeCode->id,
-            'car_model_id'            => $carModel->id,
+            'make_code_id'            => $makeCode->getAttribute('id'),
+            'car_model_id'            => $carModel->getAttribute('id'),
         ];
         $vehicle = $this->vehicleRepository->make($data, 'vin');
         $this->authorize('access', $vehicle);
