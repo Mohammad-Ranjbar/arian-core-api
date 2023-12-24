@@ -4,7 +4,12 @@ import {createClient} from "redis"
 import axios from "axios"
 
 const io = new Server();
-const pubClient = createClient();
+
+const pubClient = createClient({
+    socket: {
+        host: 'redis'
+    }
+});
 const subClient = pubClient.duplicate();
 
 const getToken = (socket) => {
@@ -29,7 +34,7 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
         if(!token) {
             next(new Error('Token required'));
         }
-        axios.get('http://localhost/api/channels', {
+        axios.get('http://web/api/channels', {
             headers: {
                 'Authorization': 'Bearer ' + token,
             }
@@ -45,7 +50,8 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
     }).on('connection', (socket) => {
         console.log('new user connected')
     })
-    io.listen(6060);
+    io.listen(3000);
+    console.log('io server run on port 3000')
 });
 
 
