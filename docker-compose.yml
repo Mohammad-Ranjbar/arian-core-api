@@ -11,7 +11,7 @@ services:
             - ./docker/nginx/site.conf:/etc/nginx/conf.d/default.conf
         depends_on:
             - php
-            - phpmyadmin
+            - io
     php:
         container_name: php
         image: custom-php
@@ -23,6 +23,15 @@ services:
             - rabbitmq
             - redis
             - elasticsearch
+    queue:
+        container_name: queue
+        image: custom-php
+        volumes:
+            - .:/laravel
+        working_dir: /laravel
+        depends_on:
+            - php
+        command: bash -c 'php artisan rabbitmq:consume'
     io:
         container_name: io
         build:
@@ -32,7 +41,6 @@ services:
             - "./io:/usr/src/app"
         depends_on:
             - redis
-            - web
         ports:
             - "3000:3000"
     db:
