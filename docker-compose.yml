@@ -25,7 +25,7 @@ services:
             - elasticsearch
     queue:
         container_name: queue
-        image: custom-php
+        image: meysam1987/php
         volumes:
             - .:/laravel
         working_dir: /laravel
