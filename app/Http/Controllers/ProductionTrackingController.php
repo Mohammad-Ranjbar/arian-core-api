@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TrackingRequest;
 use App\Http\Resources\VehicleResource;
+use App\Jobs\TrackingJob;
 use App\Models\Vehicle;
 use App\Services\TrackingService\TrackingServiceFactory;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +24,8 @@ class ProductionTrackingController extends Controller
         if (!$data) {
             return $this->responseError('cant not exit or enter to this location',400);
         }
-        $vehicle->tracking()->create($data);
+        $record = $vehicle->tracking()->create($data);
+        TrackingJob::dispatch($record->toArray());
         return new VehicleResource($vehicle);
     }
 }
