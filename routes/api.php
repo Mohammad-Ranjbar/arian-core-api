@@ -53,13 +53,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-template-incident', [IncidentController::class, 'getTemplate']);
     Route::get('/get-stop-locations',
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
-    Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
+
     Route::get('channels', JoinChannelController::class);
     Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 
+    Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
     Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station.assign.user');
     Route::delete('/station/{station}/users/{user}',
         [StationController::class, 'removeUser'])->name('station.remove.user');
+
+    Route::get('/production-line/{productionLine}/users', [ProductionLineController::class, 'users'])->name('production-line.users');
+    Route::post('/production-line/{productionLine}/users',[ProductionLineController::class,'assignUsers'])->name('production-line.assign.user');
+    Route::delete('/production-line/{productionLine}/users/{user}',
+        [ProductionLineController::class, 'removeUser'])->name('production-line.remove.user');
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');

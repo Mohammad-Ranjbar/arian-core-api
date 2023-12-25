@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,6 +20,15 @@ class ProductionLine extends Model
     protected $fillable = [
         'title', 'salon_id'
     ];
+
+
+    /**
+     * @return BelongsToMany
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class,'production_line_user')->withTimestamps();
+    }
 
     /**
      * @return BelongsTo
@@ -52,6 +62,9 @@ class ProductionLine extends Model
         return $this->hasMany(CarModel::class);
     }
 
+    /**
+     * @return bool
+     */
     public function isStarted(): bool
     {
         $record = $this->logs()
@@ -64,11 +77,17 @@ class ProductionLine extends Model
         return $record->action == 'start';
     }
 
+    /**
+     * @return HasManyThrough
+     */
     public function logs(): HasManyThrough
     {
         return $this->hasManyThrough(ProductionLineActivityLogs::class, ProductionLineActivity::class);
     }
 
+    /**
+     * @return bool
+     */
     public function isStop(): bool
     {
         $record = $this->logs()
@@ -81,11 +100,17 @@ class ProductionLine extends Model
         return $record->action == 'stop';
     }
 
+    /**
+     * @return Model|HasMany
+     */
     public function getLatestActivity(): Model|HasMany
     {
         return $this->activities()->latest()->firstOrFail();
     }
 
+    /**
+     * @return HasMany
+     */
     public function activities(): HasMany
     {
         return $this->hasMany(ProductionLineActivity::class);

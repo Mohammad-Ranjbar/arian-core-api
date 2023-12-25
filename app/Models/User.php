@@ -43,6 +43,15 @@ class User extends Authenticatable
     /**
      * @return BelongsToMany
      */
+    public function productionLines(): BelongsToMany
+    {
+        return $this->belongsToMany(ProductionLine::class);
+    }
+
+
+    /**
+     * @return BelongsToMany
+     */
     public function makeCodes(): BelongsToMany
     {
         return $this->belongsToMany(MakeCode::class);
@@ -64,7 +73,7 @@ class User extends Authenticatable
     /**
      * @return BelongsToMany
      */
-    public function stations():BelongsToMany
+    public function stations(): BelongsToMany
     {
         return $this->belongsToMany(Station::class);
     }

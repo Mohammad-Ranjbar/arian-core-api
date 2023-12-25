@@ -14,7 +14,7 @@ services:
             - io
     php:
         container_name: php
-        image: custom-php
+        image: meysam1987/php
         volumes:
             - .:/laravel
         working_dir: /laravel
