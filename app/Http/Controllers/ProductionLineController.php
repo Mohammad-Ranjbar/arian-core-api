@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddUsersToProductionLineRequest;
+use App\Http\Resources\ProductionLineActivityResource;
 use App\Http\Resources\ProductionLineResource;
 use App\Http\Resources\UserShortResource;
 use App\Models\ProductionLine;
@@ -83,6 +84,19 @@ class ProductionLineController extends CrudController
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 400);
         }
+    }
 
+    /**
+     * @param  ProductionLine  $productionLine
+     * @return AnonymousResourceCollection
+     * @throws AuthorizationException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function activities(ProductionLine $productionLine): AnonymousResourceCollection
+    {
+        $this->authorize('production-line.activities');
+        $perPage = request()->get('per_page', 15);
+        return ProductionLineActivityResource::collection($productionLine->activities()->paginate($perPage));
     }
 }
