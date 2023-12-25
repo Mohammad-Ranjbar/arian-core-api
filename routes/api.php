@@ -62,7 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/station/{station}/users/{user}',
         [StationController::class, 'removeUser'])->name('station.remove.user');
 
-    Route::get('/production-line/{productionLine}/activities', [ProductionLineController::class, 'activities'])->name('production-line.activities');
+    Route::get('/production-line/{productionLine}/tracking', [ProductionLineController::class, 'tracking'])->name('production-line.tracking');
     Route::get('/production-line/{productionLine}/users', [ProductionLineController::class, 'users'])->name('production-line.users');
     Route::post('/production-line/{productionLine}/users',[ProductionLineController::class,'assignUsers'])->name('production-line.assign.user');
     Route::delete('/production-line/{productionLine}/users/{user}',

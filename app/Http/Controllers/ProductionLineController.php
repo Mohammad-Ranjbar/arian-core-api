@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\TypeFilter;
 use App\Http\Requests\AddUsersToProductionLineRequest;
-use App\Http\Resources\ProductionLineActivityResource;
 use App\Http\Resources\ProductionLineResource;
+use App\Http\Resources\TrackingResource;
 use App\Http\Resources\UserShortResource;
 use App\Models\ProductionLine;
 use App\Models\User;
@@ -13,6 +14,7 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Pipeline;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -93,10 +95,15 @@ class ProductionLineController extends CrudController
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function activities(ProductionLine $productionLine): AnonymousResourceCollection
+    public function tracking(ProductionLine $productionLine): AnonymousResourceCollection
     {
-        $this->authorize('production-line.activities');
-        $perPage = request()->get('per_page', 15);
-        return ProductionLineActivityResource::collection($productionLine->activities()->paginate($perPage));
+        $this->authorize('production-line.tracking');
+
+        $data = Pipeline::send($productionLine->tracking()->orderByDesc('id'))
+            ->through(TypeFilter::class)
+            ->thenReturn()
+            ->paginate(request()->get('per_page', 15));
+
+        return TrackingResource::collection($data);
     }
 }
