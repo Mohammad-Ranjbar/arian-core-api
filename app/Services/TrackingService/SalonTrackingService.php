@@ -12,11 +12,11 @@ class SalonTrackingService extends BaseTrackingService
      */
     public function enter($data): array|false
     {
-        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
-        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
+//        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
+//        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
             return $this->prepareData($data);
-        }
-        return false;
+//        }
+//        return false;
     }
 
     /**

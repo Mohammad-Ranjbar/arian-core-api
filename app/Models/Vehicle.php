@@ -17,6 +17,8 @@ class Vehicle extends Model
 {
     use HasFactory, SoftDeletes;
 
+
+    public  $incrementing = false;
     /**
      * @var string
      */
