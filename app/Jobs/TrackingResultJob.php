@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\TrackingEvent;
+use App\Http\Resources\TrackingResource;
 use App\Models\Tracking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,6 +31,7 @@ class TrackingResultJob implements ShouldQueue
     public function handle(): void
     {
         Tracking::query()->find($this->data['id'])->update(['data' => $this->data['result']]);
-        TrackingEvent::dispatch($this->data);
+        $data = Tracking::query()->find($this->data['id']);
+        TrackingEvent::dispatch(new TrackingResource($data));
     }
 }

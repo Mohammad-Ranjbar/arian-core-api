@@ -106,4 +106,5 @@ class ProductionLineController extends CrudController
 
         return TrackingResource::collection($data);
     }
+
 }
