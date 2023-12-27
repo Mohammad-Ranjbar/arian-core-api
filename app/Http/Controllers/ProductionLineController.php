@@ -88,23 +88,5 @@ class ProductionLineController extends CrudController
         }
     }
 
-    /**
-     * @param  ProductionLine  $productionLine
-     * @return AnonymousResourceCollection
-     * @throws AuthorizationException
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function tracking(ProductionLine $productionLine): AnonymousResourceCollection
-    {
-        $this->authorize('production-line.tracking');
-
-        $data = Pipeline::send($productionLine->tracking()->orderByDesc('id'))
-            ->through(TypeFilter::class)
-            ->thenReturn()
-            ->paginate(request()->get('per_page', 15));
-
-        return TrackingResource::collection($data);
-    }
 
 }
