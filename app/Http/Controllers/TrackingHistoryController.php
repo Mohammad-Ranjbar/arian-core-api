@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ProductionLine;
+use App\Models\Salon;
+use App\Models\Station;
+use App\Models\Tracking;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
+
+class TrackingHistoryController extends Controller
+{
+
+    /**
+     * @param $modelType
+     * @param $modelId
+     * @param $type
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function __invoke($modelType, $modelId, $type): JsonResponse
+    {
+        $this->authorize('tracking-history');
+        $modelType = match ($modelType) {
+            'salons' => Salon::class,
+            'production_lines' => ProductionLine::class,
+            'stations' => Station::class,
+            default => '',
+        };
+
+        if ($modelType) {
+            $whereCondition = [
+                ['model_type', $modelType],
+                ['model_id', $modelId],
+                ['type', $type]
+            ];
+
+            $perPage = request()->input('per_page', 15);
+            $data = Tracking::query()->where($whereCondition)->latest()->paginate($perPage);
+            return response()->json($data);
+        } else {
+            return $this->responseError('ورودی باید از بین سالن - خط تولید یا ایستگاه های کاری باشد', 400);
+        }
+
+    }
+}
