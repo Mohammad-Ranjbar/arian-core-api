@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TrackingRequest;
-use App\Http\Requests\UpdateTrackingRequest;
 use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\TrackingJob;
@@ -33,15 +32,12 @@ class ProductionTrackingController extends Controller
     }
 
     /**
-     * @param  UpdateTrackingRequest  $request
      * @param  Tracking  $tracking
      * @return TrackingResource
      */
-    public function update(UpdateTrackingRequest $request, Tracking $tracking): TrackingResource
+    public function update(Tracking $tracking): TrackingResource
     {
-        $validatedData = $request->validated();
-        $validatedData['data'] = [];
-        $tracking->update($validatedData);
+        $tracking->update(['data' => null]);
 
         TrackingJob::dispatch($tracking->toArray())->onQueue('http');
 
