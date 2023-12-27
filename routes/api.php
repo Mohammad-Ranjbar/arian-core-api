@@ -101,6 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
     });
+    Route::patch('/update-production-tracking/{tracking}', [ProductionTrackingController::class, 'update'])->name('update-production-tracking');
     Route::get('/faults/{type}/report', [VehicleFaultController::class, 'report']);
 
     Route::prefix('/incident-sources')->group(function () {
