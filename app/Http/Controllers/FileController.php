@@ -34,22 +34,19 @@ class FileController extends CrudController
             throw new UploadMissingFileException();
         }
 
-
         $save = $receiver->receive();
-
 
         if ($save->isFinished()) {
 
-
             $data = $this->saveFile($save->getFile());
 
-
-            $file = $this->repository->store(['user_id' => 1, 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
+            $file = $this->repository->store(['user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
             $data['file'] = new FileResource($file);
             $data['status'] = 'done';
             $data['percent'] = 100;
 
             return response()->json($data);
+
         }
 
         $handler = $save->handler();
