@@ -44,7 +44,7 @@ use Illuminate\Support\Facades\Route;
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
-Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
+Route::post('/upload', [FileController::class, 'upload'])->name('upload.store');
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);

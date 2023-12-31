@@ -22,13 +22,9 @@ class FileController extends CrudController
     }
 
 
-    /**
-     * @throws UploadMissingFileException
-     * @throws UploadFailedException
-     */
-    public function store(Request $request)
+
+    public function upload(FileReceiver $receiver)
     {
-        $receiver = new FileReceiver("file", $request, HandlerFactory::classFromRequest($request));
 
         if ($receiver->isUploaded() === false) {
             throw new UploadMissingFileException();
@@ -40,7 +36,7 @@ class FileController extends CrudController
 
             $data = $this->saveFile($save->getFile());
 
-            $file = $this->repository->store(['user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
+            $file = $this->repository->store(['user_id' => 1, 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
             $data['file'] = new FileResource($file);
             $data['status'] = 'done';
             $data['percent'] = 100;
@@ -52,6 +48,30 @@ class FileController extends CrudController
         $handler = $save->handler();
 
         return response()->json(["percent" => $handler->getPercentageDone(), "status" => 'pending']);
+    }
+
+    /**
+     * @throws UploadMissingFileException
+     */
+    public function uploadFile(FileReceiver $receiver)
+    {
+        // check if the upload is success, throw exception or return response you need
+        if ($receiver->isUploaded() === false) {
+            throw new UploadMissingFileException();
+        }
+        // receive the file
+        $save = $receiver->receive();
+
+        // check if the upload has finished (in chunk mode it will send smaller files)
+        if ($save->isFinished()) {
+            // save the file and return any response you need
+            return $this->saveFile($save->getFile());
+        }
+
+        $handler = $save->handler();
+        return response()->json([
+            "done" => $handler->getPercentageDone()
+        ]);
     }
 
     /**

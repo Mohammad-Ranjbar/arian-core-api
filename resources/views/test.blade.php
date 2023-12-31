@@ -44,7 +44,7 @@
 <script type="text/javascript">
     let browseFile = $('#browseFile');
     let resumable = new Resumable({
-        target: 'http://172.16.0.49/api/upload',
+        target: '{{route('upload.store')}}',
         query: {_token: '{{ csrf_token() }}'},
         chunkSize: 2 * 1024 *500, // default is 1*1024*1024, this should be less than your maximum limit in php.ini
         headers: {
