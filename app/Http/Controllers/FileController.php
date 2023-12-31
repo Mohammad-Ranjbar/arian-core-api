@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\FileResource;
 use App\Repositories\FileRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
@@ -22,13 +24,10 @@ class FileController extends CrudController
     }
 
 
-    /**
-     * @throws UploadMissingFileException
-     * @throws UploadFailedException
-     */
+
     public function store(Request $request)
     {
-        $receiver = new FileReceiver("redis", $request, HandlerFactory::classFromRequest($request));
+        $receiver = new FileReceiver("file", $request, HandlerFactory::classFromRequest($request));
 
         if ($receiver->isUploaded() === false) {
             throw new UploadMissingFileException();
@@ -37,29 +36,36 @@ class FileController extends CrudController
         $save = $receiver->receive();
 
         if ($save->isFinished()) {
-            if (!session('file_upload_complete')) {
-                $data = $this->saveFile($save->getFile());
+            $data = $this->saveFile($save->getFile());
 
-                $file = $this->repository->store(['user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
-                $data['file'] = new FileResource($file);
-                $data['status'] = 'done';
-                $data['percent'] = 100;
+            // Store the file information in Redis
+            $fileInfo = [
+                'user_id' => Auth::id(),
+                'mime'    => $data['mime_type'],
+                'path'    => $data['path'].'/'.$data['name']
+            ];
+            $fileKey = 'file:'.uniqid(); // Generate a unique key for the file
+            Redis::hmset($fileKey, $fileInfo);
 
-                session(['file_upload_complete' => true]);
+            // Return success response
+            $data['file_key'] = $fileKey;
+            $data['status'] = 'done';
+            $data['percent'] = 100;
 
-                return response()->json($data);
-            } else {
-                return response()->json(["status" => 'done']);
-            }
+            return response()->json($data);
         } else {
             $handler = $save->handler();
+            $progressKey = 'upload_progress:'.$save->handler()->getKey();
+            Redis::set($progressKey, $handler->getPercentageDone());
+
+            // Return pending status
             return response()->json(["percent" => $handler->getPercentageDone(), "status" => 'pending']);
         }
-
     }
 
+
     /**
-     * @param UploadedFile $file
+     * @param  UploadedFile  $file
      * @return array
      */
     protected function saveFile(UploadedFile $file): array
@@ -71,21 +77,21 @@ class FileController extends CrudController
         $dateFolder = date("Y-W");
 
         $filePath = "uploads/$dateFolder";
-        $finalPath = storage_path("app/public/" . $filePath);
+        $finalPath = storage_path("app/public/".$filePath);
         $file->move($finalPath, $fileName);
 
-        return ['path' => 'storage/' . $filePath, 'name' => $fileName, 'mime_type' => $mime];
+        return ['path' => 'storage/'.$filePath, 'name' => $fileName, 'mime_type' => $mime];
     }
 
     /**
-     * @param UploadedFile $file
+     * @param  UploadedFile  $file
      * @return string
      */
     protected function createFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
 
-        return Str::uuid() . "_" . md5(time()) . "." . $extension;
+        return Str::uuid()."_".md5(time()).".".$extension;
     }
 
 }
