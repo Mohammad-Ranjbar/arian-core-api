@@ -44,7 +44,7 @@ use Illuminate\Support\Facades\Route;
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
-
+Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
@@ -57,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
 
     Route::get('channels', JoinChannelController::class);
-    Route::post('/upload', [FileController::class, 'store'])->name('upload.store');
+
 
     Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
     Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station.assign.user');
