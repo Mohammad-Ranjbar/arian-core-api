@@ -28,7 +28,7 @@ class FileController extends CrudController
      */
     public function store(Request $request)
     {
-        $receiver = new FileReceiver("file", $request, HandlerFactory::classFromRequest($request));
+        $receiver = new FileReceiver("redis", $request, HandlerFactory::classFromRequest($request));
 
         if ($receiver->isUploaded() === false) {
             throw new UploadMissingFileException();
