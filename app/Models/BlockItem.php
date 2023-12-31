@@ -11,6 +11,11 @@ class BlockItem extends Model
 {
     use HasFactory, SoftDeletes;
 
+    const  HEADING = [
+        'title',
+
+    ];
+
     /**
      * @var string[]
      */

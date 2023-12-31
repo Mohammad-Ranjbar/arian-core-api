@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\IncidentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -10,5 +11,6 @@ Route::any('/', function () {
     ]);
 });
 
+Route::view('/test','test');
 
-Route::get('get-template-incident',[\App\Http\Controllers\IncidentController::class,'getTemplate']);
+Route::get('get-template-incident', [IncidentController::class, 'getTemplate']);

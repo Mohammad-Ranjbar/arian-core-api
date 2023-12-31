@@ -37,21 +37,25 @@ class FileController extends CrudController
         $save = $receiver->receive();
 
         if ($save->isFinished()) {
+            if (!session('file_upload_complete')) {
+                $data = $this->saveFile($save->getFile());
 
-            $data = $this->saveFile($save->getFile());
+                $file = $this->repository->store(['user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
+                $data['file'] = new FileResource($file);
+                $data['status'] = 'done';
+                $data['percent'] = 100;
 
-            $file = $this->repository->store(['user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
-            $data['file'] = new FileResource($file);
-            $data['status'] = 'done';
-            $data['percent'] = 100;
+                session(['file_upload_complete' => true]);
 
-            return response()->json($data);
-
+                return response()->json($data);
+            } else {
+                return response()->json(["status" => 'done']);
+            }
+        } else {
+            $handler = $save->handler();
+            return response()->json(["percent" => $handler->getPercentageDone(), "status" => 'pending']);
         }
 
-        $handler = $save->handler();
-
-        return response()->json(["percent" => $handler->getPercentageDone(), "status" => 'pending']);
     }
 
     /**
