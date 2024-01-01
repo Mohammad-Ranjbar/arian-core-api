@@ -16,8 +16,6 @@ class SaleLocationRepository extends BaseRepository
             'title'        => 'required',
             'code'         => 'required',
             'make_code_id' => 'required|exists:make_codes,id',
-            'users'        => 'required|array',
-            'users.*'      => 'required|exists:users,id',
 
         ], 'update' => [
             'title'        => 'required',
