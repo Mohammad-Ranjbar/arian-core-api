@@ -35,4 +35,13 @@ class MakeCode extends Model
     {
         return $this->hasMany(Inventory::class);
     }
+
+
+    /**
+     * @return HasMany
+     */
+    public function saleLocations(): HasMany
+    {
+        return $this->hasMany(SaleLocation::class);
+    }
 }

@@ -77,4 +77,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Station::class);
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function saleLocations(): BelongsToMany
+    {
+        return $this->belongsToMany(SaleLocation::class);
+    }
 }
