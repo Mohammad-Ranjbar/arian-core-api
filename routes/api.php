@@ -67,12 +67,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/station/{station}/users/{user}',
         [StationController::class, 'removeUser'])->name('station.remove.user');
 
+
+    Route::get('/sale-locations/{saleLocation}/users', [SaleLocationController::class, 'users'])->name('saleLocations.users');
+    Route::post('/sale-locations/{saleLocation}/users', [SaleLocationController::class, 'assignUser'])->name('saleLocations.assign.user');
+    Route::delete('/sale-locations/{saleLocation}/users/{user}',
+        [SaleLocationController::class, 'removeUser'])->name('saleLocations.remove.user');
+
     Route::get('/production-line/{productionLine}/users',
         [ProductionLineController::class, 'users'])->name('production-line.users');
     Route::post('/production-line/{productionLine}/users',
         [ProductionLineController::class, 'assignUsers'])->name('production-line.assign.user');
     Route::delete('/production-line/{productionLine}/users/{user}',
         [ProductionLineController::class, 'removeUser'])->name('production-line.remove.user');
+
+
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
