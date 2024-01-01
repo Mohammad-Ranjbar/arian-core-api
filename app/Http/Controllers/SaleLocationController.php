@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddUsersToSaleLocation;
 use App\Http\Resources\SaleLocationResource;
+use App\Http\Resources\UserShortResource;
 use App\Models\SaleLocation;
 use App\Models\User;
 use App\Repositories\SaleLocationRepository;
@@ -60,11 +61,10 @@ class SaleLocationController extends CrudController
      */
     public function users(SaleLocation $saleLocation): AnonymousResourceCollection
     {
-
         $this->authorize('saleLocations.users');
         $perPage = request()->get('per_page', 15);
 
-        return SaleLocationResource::collection($saleLocation->users()->paginate($perPage));
+        return UserShortResource::collection($saleLocation->users()->paginate($perPage));
     }
 
 
