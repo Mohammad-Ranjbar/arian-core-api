@@ -24,6 +24,7 @@ use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
 use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SaleLocationController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\SmsServiceController;
 use App\Http\Controllers\StationController;
@@ -51,7 +52,9 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/tracking-history/{modelType}/{modelId}/{type}',TrackingHistoryController::class)->name('tracking-history');
+
+    Route::get('/tracking-history/{modelType}/{modelId}/{type}',
+        TrackingHistoryController::class)->name('tracking-history');
     Route::get('/get-template-incident', [IncidentController::class, 'getTemplate']);
     Route::get('/get-stop-locations',
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
@@ -158,6 +161,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'inventories'          => InventoryController::class,
         'containers'           => ContainerController::class,
         'gate-permits'         => GatePermitController::class,
-        'drivers'              => DriverController::class
+        'drivers'              => DriverController::class,
+        'sale-locations'       => SaleLocationController::class
     ]);
 });

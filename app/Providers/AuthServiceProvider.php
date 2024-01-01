@@ -20,6 +20,7 @@ use App\Models\MakeCode;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\Role;
+use App\Models\SaleLocation;
 use App\Models\Salon;
 use App\Models\SmsService;
 use App\Models\Station;
@@ -71,9 +72,10 @@ class AuthServiceProvider extends ServiceProvider
         GatePermit::class             => CrudPolicy::class,
         BillOfLading::class           => CrudPolicy::class,
         Driver::class                 => CrudPolicy::class,
-        File::class => CrudPolicy::class,
+        File::class                   => CrudPolicy::class,
+        SaleLocation::class           => CrudPolicy::class,
 
-        Vehicle::class                => VehiclePolicy::class,
+        Vehicle::class => VehiclePolicy::class,
     ];
 
 

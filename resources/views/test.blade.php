@@ -67,6 +67,7 @@
 
     resumable.on('fileSuccess', function (file, response) { // trigger when file upload complete
         response = JSON.parse(response)
+        console.log(response);
 
         if (response.mime_type.includes("image")) {
             $('#imagePreview').attr('src', response.path + '/' + response.name).show();
