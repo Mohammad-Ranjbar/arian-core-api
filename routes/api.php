@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccompanyingItemController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BasketController;
@@ -177,6 +178,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'gate-permits'         => GatePermitController::class,
         'drivers'              => DriverController::class,
         'sale-locations'       => SaleLocationController::class,
-        'dealers'              => DealerController::class
+        'dealers'              => DealerController::class,
+        'accompanying-items'   => AccompanyingItemController::class
     ]);
 });
