@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('code');
-            $table->foreignId('make_code_id')->index()->constrained();
+            $table->foreignId('make_code_id')->index()->constrained()->cascadeOnDelete();
             $table->unique(['title','code']);
             $table->timestamps();
         });

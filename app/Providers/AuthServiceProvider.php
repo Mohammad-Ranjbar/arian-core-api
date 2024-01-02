@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\AccompanyingItem;
 use App\Models\Barcode;
 use App\Models\Basket;
 use App\Models\BillOfLading;
@@ -76,6 +77,7 @@ class AuthServiceProvider extends ServiceProvider
         File::class                   => CrudPolicy::class,
         SaleLocation::class           => CrudPolicy::class,
         Dealer::class                 => CrudPolicy::class,
+        AccompanyingItem::class       => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class,
     ];
