@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddUsersToSaleLocation;
+use App\Http\Requests\AddUsersToSaleLocationRequest;
 use App\Http\Resources\SaleLocationResource;
 use App\Http\Resources\UserShortResource;
 use App\Models\SaleLocation;
@@ -30,15 +30,15 @@ class SaleLocationController extends CrudController
 
     /**
      * @param  SaleLocation  $saleLocation
-     * @param  AddUsersToSaleLocation  $request
+     * @param  AddUsersToSaleLocationRequest  $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
     public function assignUser(
         SaleLocation $saleLocation,
-        AddUsersToSaleLocation $request
+        AddUsersToSaleLocationRequest $request
     ): JsonResponse {
-        $this->authorize('saleLocations.assign.user');
+        $this->authorize('saleLocation.assign.user');
         $validatedData = $request->validated();
         try {
             if ($saleLocation->getAttribute('users')->contains($validatedData['user_id'])) {
@@ -61,7 +61,7 @@ class SaleLocationController extends CrudController
      */
     public function users(SaleLocation $saleLocation): AnonymousResourceCollection
     {
-        $this->authorize('saleLocations.users');
+        $this->authorize('saleLocation.users');
         $perPage = request()->get('per_page', 15);
 
         return UserShortResource::collection($saleLocation->users()->paginate($perPage));
@@ -76,7 +76,7 @@ class SaleLocationController extends CrudController
      */
     public function removeUser(SaleLocation $saleLocation, User $user): JsonResponse
     {
-        $this->authorize('saleLocations.remove.user');
+        $this->authorize('saleLocation.remove.user');
         try {
             $saleLocation->users()->detach($user->getAttribute('id'));
             return response()->json(new SaleLocationResource($saleLocation));

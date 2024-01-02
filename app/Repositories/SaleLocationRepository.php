@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\libs\BaseRepository;
 use App\Models\SaleLocation;
-use Illuminate\Validation\Rule;
 
 class SaleLocationRepository extends BaseRepository
 {

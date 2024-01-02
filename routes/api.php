@@ -9,6 +9,7 @@ use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
+use App\Http\Controllers\DealerController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
@@ -62,16 +63,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('channels', JoinChannelController::class);
 
 
+    Route::get('/dealer/{dealer}/users', [DealerController::class, 'users'])->name('dealer.users');
+    Route::post('/dealer/{dealer}/users', [DealerController::class, 'assignUser'])->name('dealer.assign.user');
+    Route::delete('/dealer/{dealer}/users/{user}', [DealerController::class, 'removeUser'])->name('dealer.remove.user');
+
     Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
     Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station.assign.user');
     Route::delete('/station/{station}/users/{user}',
         [StationController::class, 'removeUser'])->name('station.remove.user');
 
 
-    Route::get('/sale-locations/{saleLocation}/users', [SaleLocationController::class, 'users'])->name('saleLocations.users');
-    Route::post('/sale-locations/{saleLocation}/users', [SaleLocationController::class, 'assignUser'])->name('saleLocations.assign.user');
-    Route::delete('/sale-locations/{saleLocation}/users/{user}',
-        [SaleLocationController::class, 'removeUser'])->name('saleLocations.remove.user');
+    Route::get('/sale-locations/{saleLocation}/users',
+        [SaleLocationController::class, 'users'])->name('saleLocation.users');
+    Route::post('/sale-location/{saleLocation}/users',
+        [SaleLocationController::class, 'assignUser'])->name('saleLocation.assign.user');
+    Route::delete('/sale-location/{saleLocation}/users/{user}',
+        [SaleLocationController::class, 'removeUser'])->name('saleLocation.remove.user');
 
     Route::get('/production-line/{productionLine}/users',
         [ProductionLineController::class, 'users'])->name('production-line.users');
@@ -79,7 +86,6 @@ Route::middleware('auth:sanctum')->group(function () {
         [ProductionLineController::class, 'assignUsers'])->name('production-line.assign.user');
     Route::delete('/production-line/{productionLine}/users/{user}',
         [ProductionLineController::class, 'removeUser'])->name('production-line.remove.user');
-
 
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
@@ -170,6 +176,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'containers'           => ContainerController::class,
         'gate-permits'         => GatePermitController::class,
         'drivers'              => DriverController::class,
-        'sale-locations'       => SaleLocationController::class
+        'sale-locations'       => SaleLocationController::class,
+        'dealers'              => DealerController::class
     ]);
 });
