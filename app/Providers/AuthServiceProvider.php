@@ -10,6 +10,7 @@ use App\Models\BlockReason;
 use App\Models\Car;
 use App\Models\CarModel;
 use App\Models\Container;
+use App\Models\Dealer;
 use App\Models\Driver;
 use App\Models\Element;
 use App\Models\File;
@@ -74,6 +75,7 @@ class AuthServiceProvider extends ServiceProvider
         Driver::class                 => CrudPolicy::class,
         File::class                   => CrudPolicy::class,
         SaleLocation::class           => CrudPolicy::class,
+        Dealer::class                 => CrudPolicy::class,
 
         Vehicle::class => VehiclePolicy::class,
     ];
