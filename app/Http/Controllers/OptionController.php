@@ -9,6 +9,7 @@ use App\Repositories\ContainerRepository;
 use App\Repositories\DriverRepository;
 use App\Repositories\ElementRepository;
 use App\Repositories\IncidentRepository;
+use App\Repositories\LocationRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProductionLineRepository;
@@ -19,8 +20,6 @@ use App\Repositories\StopFactRepository;
 use App\Repositories\StopReasonRepository;
 use App\Repositories\StopTypeRepository;
 use App\Repositories\TransitCompanyRepository;
-use App\Repositories\TransitDestinationRepository;
-use App\Repositories\TransitSourceRepository;
 use App\Repositories\WorkGroupCenterRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
@@ -58,8 +57,7 @@ class OptionController extends Controller
             'make-codes' => MakeCodeRepository::class,
             'cars' => CarRepository::class,
             'transit-companies' => TransitCompanyRepository::class,
-            'transit-sources' => TransitSourceRepository::class,
-            'transit-destinations' => TransitDestinationRepository::class,
+            'locations' => LocationRepository::class,
             'incidents' => IncidentRepository::class,
             'elements' => ElementRepository::class,
             'containers' => ContainerRepository::class,
