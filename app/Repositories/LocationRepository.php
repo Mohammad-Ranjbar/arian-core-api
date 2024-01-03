@@ -12,12 +12,15 @@ class LocationRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'title' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:locations',
+            'title'      => 'required|string|max:255',
+            'code'       => 'required|string|max:255|unique:locations',
+            'attributes' => 'required|array'
 
         ], 'update' => [
-            'title' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:locations,code,',
+            'title'      => 'required|string|max:255',
+            'code'       => 'required|string|max:255|unique:locations,code,',
+            'attributes' => 'required|array'
+
         ]
     ];
 

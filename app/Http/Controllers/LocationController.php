@@ -14,4 +14,17 @@ class LocationController extends CrudController
         $this->setResource(LocationResource::class);
     }
 
+    public function afterSave($record, $data)
+    {
+        $record->attributes()->delete();
+
+        foreach ($data['attributes'] as $attribute => $value) {
+            $record->attributes()->create([
+                'attribute' => $attribute,
+                'value'     => $value,
+            ]);
+        }
+        return $record;
+    }
+
 }
