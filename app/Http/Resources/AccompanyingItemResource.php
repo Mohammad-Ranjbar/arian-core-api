@@ -15,9 +15,9 @@ class AccompanyingItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    => $this->resource->id,
-            'title' => $this->resource->title,
-            'makeCodes' =>  MakeCodeResource::collection($this->resource->makeCodes),
+            'id'        => $this->resource->id,
+            'title'     => $this->resource->title,
+            'carModels' => CarModelResource::collection($this->resource->carModels),
         ];
     }
 }
