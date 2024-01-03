@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('bill_of_ladings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->index()->constrained()->cascadeOnDelete();
-            $table->foreignId('transit_source_id')->index()->constrained()->cascadeOnDelete();
-            $table->foreignId('transit_destination_id')->index()->constrained()->cascadeOnDelete();
+            $table->foreignId('location_source_id')->index()->constrained('locations')->cascadeOnDelete();
+            $table->foreignId('location_destination_id')->index()->constrained('locations')->cascadeOnDelete();
             $table->foreignId('car_id')->index()->constrained()->cascadeOnDelete();
             $table->string('code')->unique();
             $table->string('request_no')->nullable();

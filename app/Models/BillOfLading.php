@@ -17,7 +17,7 @@ class BillOfLading extends Model
      * @var string[]
      */
     protected $fillable = [
-        'user_id', 'transit_source_id', 'transit_destination_id', 'code', 'request_no',
+        'user_id', 'location_source_id', 'location_destination_id', 'code', 'request_no',
         'status', 'priority', 'cottage',
         'weight', 'batch', 'description', 'car_id'
     ];
@@ -33,17 +33,17 @@ class BillOfLading extends Model
     /**
      * @return BelongsTo
      */
-    public function transitSource(): BelongsTo
+    public function locationSource(): BelongsTo
     {
-        return $this->belongsTo(TransitSource::class);
+        return $this->belongsTo(Location::class,'location_source_id');
     }
 
     /**
      * @return BelongsTo
      */
-    public function transitDestination(): BelongsTo
+    public function locationDestination(): BelongsTo
     {
-        return $this->belongsTo(TransitDestination::class);
+        return $this->belongsTo(Location::class,'location_destination_id');
     }
 
     /**
