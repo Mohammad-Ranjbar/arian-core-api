@@ -74,7 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
         [StationController::class, 'removeUser'])->name('station.remove.user');
 
 
-    Route::get('/sale-locations/{saleLocation}/users',
+    Route::get('/sale-location/{saleLocation}/users',
         [SaleLocationController::class, 'users'])->name('saleLocation.users');
     Route::post('/sale-location/{saleLocation}/users',
         [SaleLocationController::class, 'assignUser'])->name('saleLocation.assign.user');
