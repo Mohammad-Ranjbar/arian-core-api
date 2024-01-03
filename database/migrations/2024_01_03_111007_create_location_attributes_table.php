@@ -11,10 +11,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('transit_sources', function (Blueprint $table) {
+        Schema::create('location_attributes', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->softDeletes();
+            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
+            $table->string('attribute');
+            $table->json('value');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('transit_sources');
+        Schema::dropIfExists('location_attributes');
     }
 };

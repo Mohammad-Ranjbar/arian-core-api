@@ -10,7 +10,6 @@ use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
-use App\Http\Controllers\DealerController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
@@ -20,6 +19,8 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JoinChannelController;
 use App\Http\Controllers\LineActivityStartStopController;
+use App\Http\Controllers\LocationAttributeController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\ProductionLineActivityController;
@@ -36,8 +37,6 @@ use App\Http\Controllers\StopTypeController;
 use App\Http\Controllers\SubmitIncidentLocationController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
-use App\Http\Controllers\TransitDestinationController;
-use App\Http\Controllers\TransitSourceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
@@ -64,17 +63,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('channels', JoinChannelController::class);
 
 
-    Route::get('/dealer/{dealer}/users', [DealerController::class, 'users'])->name('dealer.users');
-    Route::post('/dealer/{dealer}/users', [DealerController::class, 'assignUser'])->name('dealer.assign.user');
-    Route::delete('/dealer/{dealer}/users/{user}', [DealerController::class, 'removeUser'])->name('dealer.remove.user');
-
     Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
     Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station.assign.user');
-    Route::delete('/station/{station}/users/{user}', [StationController::class, 'removeUser'])->name('station.remove.user');
+    Route::delete('/station/{station}/users/{user}',
+        [StationController::class, 'removeUser'])->name('station.remove.user');
 
-    Route::get('/accompanying-item/{accompanyingItem}/car-models', [AccompanyingItemController::class, 'carModels'])->name('accompanying-item.carModels');
-    Route::post('/accompanying-item/{accompanyingItem}/car-models', [AccompanyingItemController::class, 'assignCarModel'])->name('accompanying-item.assign.carModel');
-    Route::delete('/accompanying-item/{accompanyingItem}/car-models/{carModel}', [AccompanyingItemController::class, 'removeCarModel'])->name('accompanying-item.remove.carModel');
+    Route::get('/accompanying-item/{accompanyingItem}/car-models',
+        [AccompanyingItemController::class, 'carModels'])->name('accompanying-item.carModels');
+    Route::post('/accompanying-item/{accompanyingItem}/car-models',
+        [AccompanyingItemController::class, 'assignCarModel'])->name('accompanying-item.assign.carModel');
+    Route::delete('/accompanying-item/{accompanyingItem}/car-models/{carModel}',
+        [AccompanyingItemController::class, 'removeCarModel'])->name('accompanying-item.remove.carModel');
 
 
     Route::get('/sale-location/{saleLocation}/users',
@@ -156,32 +155,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/production-line-activities/{production_line_activity}/approve',
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
     Route::apiResources([
-        'roles'                => RoleController::class,
-        'make-codes'           => MakeCodeController::class,
-        'car-models'           => CarModelController::class,
-        'users'                => UserController::class,
-        'salons'               => SalonController::class,
-        'production-lines'     => ProductionLineController::class,
-        'work-group-centers'   => WorkGroupCenterController::class,
-        'stations'             => StationController::class,
-        'incidents'            => IncidentController::class,
-        'elements'             => ElementController::class,
-        'block-reasons'        => BlockReasonController::class,
-        'transit-sources'      => TransitSourceController::class,
-        'transit-destinations' => TransitDestinationController::class,
-        'transit-companies'    => TransitCompanyController::class,
-        'cars'                 => CarController::class,
-        'stop-facts'           => StopFactController::class,
-        'stop-reasons'         => StopReasonController::class,
-        'stop-types'           => StopTypeController::class,
-        'barcodes'             => BarcodeController::class,
-        'baskets'              => BasketController::class,
-        'inventories'          => InventoryController::class,
-        'containers'           => ContainerController::class,
-        'gate-permits'         => GatePermitController::class,
-        'drivers'              => DriverController::class,
-        'sale-locations'       => SaleLocationController::class,
-        'dealers'              => DealerController::class,
-        'accompanying-items'   => AccompanyingItemController::class
+        'roles'               => RoleController::class,
+        'make-codes'          => MakeCodeController::class,
+        'car-models'          => CarModelController::class,
+        'users'               => UserController::class,
+        'salons'              => SalonController::class,
+        'production-lines'    => ProductionLineController::class,
+        'work-group-centers'  => WorkGroupCenterController::class,
+        'stations'            => StationController::class,
+        'incidents'           => IncidentController::class,
+        'elements'            => ElementController::class,
+        'block-reasons'       => BlockReasonController::class,
+        'transit-companies'   => TransitCompanyController::class,
+        'cars'                => CarController::class,
+        'stop-facts'          => StopFactController::class,
+        'stop-reasons'        => StopReasonController::class,
+        'stop-types'          => StopTypeController::class,
+        'barcodes'            => BarcodeController::class,
+        'baskets'             => BasketController::class,
+        'inventories'         => InventoryController::class,
+        'containers'          => ContainerController::class,
+        'gate-permits'        => GatePermitController::class,
+        'drivers'             => DriverController::class,
+        'sale-locations'      => SaleLocationController::class,
+        'accompanying-items'  => AccompanyingItemController::class,
+        'locations'           => LocationController::class,
+        'location-attributes' => LocationAttributeController::class
     ]);
 });

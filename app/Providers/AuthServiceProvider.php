@@ -11,13 +11,14 @@ use App\Models\BlockReason;
 use App\Models\Car;
 use App\Models\CarModel;
 use App\Models\Container;
-use App\Models\Dealer;
 use App\Models\Driver;
 use App\Models\Element;
 use App\Models\File;
 use App\Models\GatePermit;
 use App\Models\Incident;
 use App\Models\Inventory;
+use App\Models\Location;
+use App\Models\LocationAttribute;
 use App\Models\MakeCode;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
@@ -30,8 +31,6 @@ use App\Models\StopFact;
 use App\Models\StopReason;
 use App\Models\StopType;
 use App\Models\TransitCompany;
-use App\Models\TransitDestination;
-use App\Models\TransitSource;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
@@ -58,8 +57,6 @@ class AuthServiceProvider extends ServiceProvider
         Element::class                => CrudPolicy::class,
         BlockReason::class            => CrudPolicy::class,
         BlockItem::class              => CrudPolicy::class,
-        TransitSource::class          => CrudPolicy::class,
-        TransitDestination::class     => CrudPolicy::class,
         TransitCompany::class         => CrudPolicy::class,
         Car::class                    => CrudPolicy::class,
         SmsService::class             => CrudPolicy::class,
@@ -76,10 +73,10 @@ class AuthServiceProvider extends ServiceProvider
         Driver::class                 => CrudPolicy::class,
         File::class                   => CrudPolicy::class,
         SaleLocation::class           => CrudPolicy::class,
-        Dealer::class                 => CrudPolicy::class,
         AccompanyingItem::class       => CrudPolicy::class,
-
-        Vehicle::class => VehiclePolicy::class,
+        Location::class               => CrudPolicy::class,
+        LocationAttribute::class      => CrudPolicy::class,
+        Vehicle::class                => VehiclePolicy::class,
     ];
 
 

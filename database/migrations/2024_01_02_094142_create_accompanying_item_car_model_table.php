@@ -12,7 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::dropIfExists('accompanying_item_make_code');
         Schema::create('accompanying_item_car_model', function (Blueprint $table) {
             $table->id();
             $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
