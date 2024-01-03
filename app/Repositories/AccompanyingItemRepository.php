@@ -13,12 +13,8 @@ class AccompanyingItemRepository extends BaseRepository
     protected array $rules = [
         'create'    => [
             'title'        => 'required|string|unique:accompanying_items',
-            'makeCodes'   => 'required|array',
-            'makeCodes.*' => 'required|exists:make_codes,id'
         ], 'update' => [
             'title'        => 'required|string|unique:accompanying_items',
-            'makeCodes'   => 'required|array',
-            'makeCodes.*' => 'required|exists:make_codes,id'
         ]
     ];
 

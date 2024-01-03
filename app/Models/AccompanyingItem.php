@@ -19,8 +19,8 @@ class AccompanyingItem extends Model
     /**
      * @return BelongsToMany
      */
-    public function makeCodes(): BelongsToMany
+    public function carModels(): BelongsToMany
     {
-        return $this->belongsToMany(MakeCode::class);
+        return $this->belongsToMany(CarModel::class);
     }
 }

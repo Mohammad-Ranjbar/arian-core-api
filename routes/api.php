@@ -70,8 +70,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/station/{station}/users', [StationController::class, 'users'])->name('station.users');
     Route::post('/station/{station}/users', [StationController::class, 'assignUser'])->name('station.assign.user');
-    Route::delete('/station/{station}/users/{user}',
-        [StationController::class, 'removeUser'])->name('station.remove.user');
+    Route::delete('/station/{station}/users/{user}', [StationController::class, 'removeUser'])->name('station.remove.user');
+
+    Route::get('/accompanying-item/{accompanyingItem}/car-models', [AccompanyingItemController::class, 'carModels'])->name('accompanying-item.carModels');
+    Route::post('/accompanying-item/{accompanyingItem}/car-models', [AccompanyingItemController::class, 'assignCarModel'])->name('accompanying-item.assign.carModel');
+    Route::delete('/accompanying-item/{accompanyingItem}/car-models/{carModel}', [AccompanyingItemController::class, 'removeCarModel'])->name('accompanying-item.remove.carModel');
 
 
     Route::get('/sale-location/{saleLocation}/users',
