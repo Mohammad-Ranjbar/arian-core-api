@@ -27,7 +27,9 @@ class ProductionTrackingController extends Controller
             return $this->responseError('cant not exit or enter to this location', 400);
         }
         $record = $vehicle->tracking()->create($data);
-        TrackingJob::dispatch($record->toArray())->onQueue('http');
+        if ($validatedData['model_type'] !== 'sale_locations'){
+            TrackingJob::dispatch($record->toArray())->onQueue('http');
+        }
         return new VehicleResource($vehicle);
     }
 

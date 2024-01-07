@@ -14,6 +14,7 @@ use App\Repositories\MakeCodeRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProductionLineRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\SaleLocationRepository;
 use App\Repositories\SalonRepository;
 use App\Repositories\StationRepository;
 use App\Repositories\StopFactRepository;
@@ -67,6 +68,7 @@ class OptionController extends Controller
             'block-reasons' => BlockReasonRepository::class,
             'car-models' => CarModelRepository::class,
             'drivers' => DriverRepository::class,
+            'sale-locations' => SaleLocationRepository::class,
 
             default => false,
         };
