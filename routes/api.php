@@ -19,7 +19,6 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JoinChannelController;
 use App\Http\Controllers\LineActivityStartStopController;
-use App\Http\Controllers\LocationAttributeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
@@ -180,6 +179,5 @@ Route::middleware('auth:sanctum')->group(function () {
         'sale-locations'      => SaleLocationController::class,
         'accompanying-items'  => AccompanyingItemController::class,
         'locations'           => LocationController::class,
-        'location-attributes' => LocationAttributeController::class
     ]);
 });

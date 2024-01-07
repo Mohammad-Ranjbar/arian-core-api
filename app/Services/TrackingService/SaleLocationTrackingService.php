@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Services\TrackingService;
+
+class SaleLocationTrackingService extends BaseTrackingService
+{
+
+    const MODEL_TYPE = 'App\Models\SaleLocation';
+
+    /**
+     * @param $data
+     * @return array|false
+     */
+    public function enter($data): array|false
+    {
+//        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
+        //TODO implement request rest to HTTP Service
+//        if (true) {
+            return $this->prepareData($data);
+//        }
+//        return false;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public function prepareData($data): array
+    {
+        $data['model_type'] = self::MODEL_TYPE;
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @return array|false
+     */
+    public function exit($data): array|false
+    {
+        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
+        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
+            return false;
+        }
+        return $this->prepareData($data);
+    }
+}

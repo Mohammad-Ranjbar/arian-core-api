@@ -9,6 +9,7 @@ use App\Filters\ElementIdFilter;
 use App\Filters\EmailFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
+use App\Filters\MakeCodeFilter;
 use App\Filters\MakeCodesFilter;
 use App\Filters\NameFilter;
 use App\Filters\ProductionLineIdFilter;
@@ -48,7 +49,9 @@ abstract class BaseRepository
         ElementIdFilter::class,
         IncidentIdFilter::class,
         RolesFilter::class,
-        MakeCodesFilter::class
+        MakeCodesFilter::class,
+        MakeCodeFilter::class
+
     ];
     /**
      * @var array|array[]

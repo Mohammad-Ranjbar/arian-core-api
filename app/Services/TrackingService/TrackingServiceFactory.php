@@ -2,14 +2,12 @@
 
 namespace App\Services\TrackingService;
 
+use ErrorException;
+
 class TrackingServiceFactory
 {
 
 
-    /**
-     * @param $model
-     * @return InventoryTrackingService|ProductionLineTrackingService|SalonTrackingService|StationTrackingService|void
-     */
     public static function getInstance($model)
     {
         if ($model === 'salons') {
@@ -24,6 +22,10 @@ class TrackingServiceFactory
         if ($model === 'inventory') {
             return new InventoryTrackingService();
         }
+        if ($model === 'sale_locations') {
+            return new SaleLocationTrackingService();
+        }
+
     }
 
 }
