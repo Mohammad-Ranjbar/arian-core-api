@@ -25,6 +25,9 @@ class TrackingServiceFactory
         if ($model === 'sale_locations') {
             return new SaleLocationTrackingService();
         }
+        if ($model === 'locations') {
+            return new LocationTrackingService();
+        }
 
     }
 
