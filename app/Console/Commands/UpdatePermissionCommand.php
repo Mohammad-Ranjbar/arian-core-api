@@ -30,7 +30,7 @@ class UpdatePermissionCommand extends Command
             'production-tracking.production_lines',
             'production-tracking.sale_locations',
             'production-tracking.inventories',
-            'production-tracking.locations '
+            'production-tracking.locations'
         ]);
         $routeCollection = Route::getRoutes();
         foreach ($routeCollection as $route) {
