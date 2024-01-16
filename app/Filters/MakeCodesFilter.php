@@ -21,6 +21,8 @@ class MakeCodesFilter
         if (!request()->has('make_codes')) {
             return $next($request);
         }
+
+        dd((array)request()->get('make_codes'));
         return $next($request)->whereHas('makeCodes', function ($query) {
             $query->whereIn('id', (array)request()->get('make_codes'));
         });
