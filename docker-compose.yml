@@ -82,3 +82,71 @@ services:
           - transport.host=127.0.0.1
         volumes:
           - ./data/elasticsearch:/usr/share/elasticsearch/data
+
+    postgres:
+        image: postgres
+        environment:
+            - POSTGRES_DB=sentry
+            - POSTGRES_USER=sentry
+            - POSTGRES_PASSWORD=sentry
+    sentry:
+        image: sentry
+        container_name: sentry
+        depends_on:
+            - redis
+            - postgres
+        links:
+            - redis
+            - postgres
+        ports:
+            - "7070:9000"
+        environment:
+            SENTRY_SECRET_KEY: 're*@%&^7#^q5h6xv_y=e%jn--_p*^xbcir&4+#^9a7+y1lc6ls'
+            SENTRY_POSTGRES_HOST: postgres
+            SENTRY_DB_USER: sentry
+            SENTRY_DB_PASSWORD: sentry
+            SENTRY_REDIS_HOST: redis
+            # SENTRY_SERVER_EMAIL: '<FROM-EMAIL>'
+            # SENTRY_EMAIL_HOST: <EMAIL-HOST>
+            # SENTRY_EMAIL_PORT: <EMAIL-PORT>
+            # SENTRY_EMAIL_USER: '<USER-NAME>'
+            # SENTRY_EMAIL_PASSWORD: '<USER-PASSWD>'
+            # SENTRY_EMAIL_USE_TLS: 'true'
+
+    sentry-cron:
+            image: sentry
+            depends_on:
+                - redis
+                - postgres
+            command: "sentry run cron"
+            environment:
+                SENTRY_SECRET_KEY: 're*@%&^7#^q5h6xv_y=e%jn--_p*^xbcir&4+#^9a7+y1lc6ls'
+                SENTRY_POSTGRES_HOST: postgres
+                SENTRY_DB_USER: sentry
+                SENTRY_DB_PASSWORD: sentry
+                SENTRY_REDIS_HOST: redis
+                # SENTRY_SERVER_EMAIL: '<FROM-EMAIL>'
+                # SENTRY_EMAIL_HOST: <EMAIL-HOST>
+                # SENTRY_EMAIL_PORT: <EMAIL-PORT>
+                # SENTRY_EMAIL_USER: '<USER-NAME>'
+                # SENTRY_EMAIL_PASSWORD: '<USER-PASSWD>'
+                # SENTRY_EMAIL_USE_TLS: 'true'
+
+    sentry-worker:
+            image: sentry
+            depends_on:
+                - redis
+                - postgres
+            command: "sentry run worker"
+            environment:
+                SENTRY_SECRET_KEY: 're*@%&^7#^q5h6xv_y=e%jn--_p*^xbcir&4+#^9a7+y1lc6ls'
+                SENTRY_POSTGRES_HOST: postgres
+                SENTRY_DB_USER: sentry
+                SENTRY_DB_PASSWORD: sentry
+                SENTRY_REDIS_HOST: redis
+                # SENTRY_SERVER_EMAIL: '<FROM-EMAIL>'
+                # SENTRY_EMAIL_HOST: <EMAIL-HOST>
+                # SENTRY_EMAIL_PORT: <EMAIL-PORT>
+                # SENTRY_EMAIL_USER: '<USER-NAME>'
+                # SENTRY_EMAIL_PASSWORD: '<USER-PASSWD>'
+                # SENTRY_EMAIL_USE_TLS: 'true'
