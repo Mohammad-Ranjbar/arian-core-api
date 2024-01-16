@@ -22,9 +22,8 @@ class MakeCodesFilter
             return $next($request);
         }
 
-        dd((array)request()->get('make_codes'));
         return $next($request)->whereHas('makeCodes', function ($query) {
-            $query->whereIn('id', (array)request()->get('make_codes'));
+            $query->whereIn('make_code_id', (array)request()->get('make_codes'));
         });
     }
 
