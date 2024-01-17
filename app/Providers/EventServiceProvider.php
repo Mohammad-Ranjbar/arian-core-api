@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Models\VehicleIncident;
+use App\Observers\UserObserver;
 use App\Observers\VehicleIncidentObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -27,6 +29,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         VehicleIncident::observe(VehicleIncidentObserver::class);
+        User::observe(UserObserver::class);
     }
 
     /**
