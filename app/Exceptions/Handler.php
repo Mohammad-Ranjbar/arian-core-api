@@ -19,7 +19,7 @@ class Handler extends ExceptionHandler
 
     /**
      * @param $request
-     * @param Throwable $e
+     * @param  Throwable  $e
      * @return \Illuminate\Http\Response|JsonResponse|RedirectResponse|Response
      * @throws Throwable
      */
@@ -38,7 +38,9 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+            if (app()->bound('sentry')) {
+                app('sentry')->captureException($e);
+            }
         });
     }
 }
