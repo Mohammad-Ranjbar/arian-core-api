@@ -34,7 +34,7 @@ services:
         working_dir: /laravel
         depends_on:
             - php
-        command: bash -c 'php artisan rabbitmq:consume'
+        command: bash -c 'php artisan queue:work'
         restart: always
     io:
         container_name: io
