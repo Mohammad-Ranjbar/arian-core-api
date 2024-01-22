@@ -23,12 +23,6 @@ trait HttpServiceTrait
         }
     }
 
-    public function sendSms($number, $content)
-    {
-        return $this->sendToErp('/send-sms/', compact('number', 'content'));
-
-    }
-
     public function checkBasket($code)
     {
         return (object)[

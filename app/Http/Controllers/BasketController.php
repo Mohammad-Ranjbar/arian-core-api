@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BasketResource;
 use App\Repositories\BasketRepository;
+use App\Services\Erp\ErpWsdlClient;
 use App\Services\HttpServiceTrait;
 use Carbon\Carbon;
 use Exception;
@@ -33,14 +34,10 @@ class BasketController extends CrudController
         try {
             $validatedData['user_id'] = Auth::id();
 
-            $response = $this->checkBasket($validatedData['code']);
+            $response = $this->checkBasketBarcode($validatedData['code']);
 
-            if (!$response) {
-                return $this->responseError('internal server error !');
-            }
-
-            if (!$response->status) {
-                return $this->responseError($response->message);
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message']);
             }
 
 
@@ -63,16 +60,23 @@ class BasketController extends CrudController
         if ($basket->status != 'new') {
             return $this->responseError('cant update this basket');
         }
-        $response = $this->sendBasketToErp($basket->code);
+        $response = $this->sendBasketBarcode($basket->code);
 
-        if (!$response) {
-            return $this->responseError('internal server error !', 500);
-        }
-        if (!$response->status) {
-            return $this->responseError($response->message);
+        if ($response['status'] !== 'ok') {
+            return $this->responseError($response['message']);
         }
         $basket->submit();
 
         return true;
+    }
+
+    public function checkBasketBarcode($barcode): array
+    {
+        return ErpWsdlClient::run(config('erp.basket'),'GetValidationItem_No',['barcodeInfoP', $barcode]);
+    }
+
+    public function sendBasketBarcode($barcode): array
+    {
+        return ErpWsdlClient::run(config('erp.basket'),'CreateItemReclassJournal',['barcodeInfoP', $barcode]);
     }
 }

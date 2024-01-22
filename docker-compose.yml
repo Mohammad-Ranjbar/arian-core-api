@@ -25,6 +25,7 @@ services:
             - redis
             - elasticsearch
         restart: always
+        command: bash -c 'php artisan schedule:run >> /dev/null 2>&1'
     queue:
         container_name: queue
         image: meysam1987/php
