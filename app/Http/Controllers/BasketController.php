@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\BasketResource;
 use App\Repositories\BasketRepository;
 use App\Services\Erp\ErpWsdlClient;
-use App\Services\HttpServiceTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class BasketController extends CrudController
 {
-    use HttpServiceTrait;
 
     /**
      * @param  BasketRepository  $repository

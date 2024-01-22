@@ -8,7 +8,6 @@ use App\Http\Requests\RecoverPasswordRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Services\HttpServiceTrait;
 use App\Services\SmsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -27,7 +26,6 @@ class AuthController extends Controller
 
     }
 
-    use HttpServiceTrait;
 
     /**
      * @param  AuthRequest  $request

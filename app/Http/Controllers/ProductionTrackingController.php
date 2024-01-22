@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TrackingRequest;
 use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
-use App\Jobs\TrackingJob;
+use App\Jobs\SendTrackingToErpJob;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Services\TrackingService\TrackingServiceFactory;
@@ -27,9 +27,12 @@ class ProductionTrackingController extends Controller
             return $this->responseError('cant not exit or enter to this location', 400);
         }
         $record = $vehicle->tracking()->create($data);
-        if ($validatedData['model_type'] !== 'sale_locations'){
-            TrackingJob::dispatch($record->toArray())->onQueue('http');
+
+        if(method_exists($modelTrackingService,'sendToErp')) {
+            $modelTrackingService->sendToErp($record);
         }
+
+
         return new VehicleResource($vehicle);
     }
 
@@ -41,7 +44,11 @@ class ProductionTrackingController extends Controller
     {
         $tracking->update(['data' => null]);
 
-        TrackingJob::dispatch($tracking->toArray())->onQueue('http');
+        $modelTrackingService = TrackingServiceFactory::getInstance($tracking->getAttribute('model')->getTable());
+        if(method_exists($modelTrackingService,'sendToErp')) {
+            $modelTrackingService->sendToErp($tracking);
+        }
+
 
         return new TrackingResource($tracking);
     }

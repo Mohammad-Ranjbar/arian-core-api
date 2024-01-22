@@ -10,16 +10,12 @@ use App\Repositories\CarModelRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpGetVehicle;
-use App\Services\HttpServiceTrait;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 
 class VehicleController extends CrudController
 {
-    use HttpServiceTrait;
-
-
     /**
      * @param  MakeCodeRepository  $makeCodeRepository
      * @param  CarModelRepository  $carModelRepository
