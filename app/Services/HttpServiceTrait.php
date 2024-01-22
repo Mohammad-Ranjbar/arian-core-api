@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 trait HttpServiceTrait
 {
-    public function getVehicleByVin($vin)
-    {
-        return $this->sendToErp('/vehicle/'.$vin);
-    }
 
     final  public function sendToErp($path, array $params = [], $method = 'get')
     {

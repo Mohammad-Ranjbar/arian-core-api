@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use App\Repositories\CarModelRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
+use App\Services\Erp\ErpGetVehicle;
 use App\Services\HttpServiceTrait;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -18,15 +19,18 @@ class VehicleController extends CrudController
 {
     use HttpServiceTrait;
 
+
     /**
      * @param  MakeCodeRepository  $makeCodeRepository
      * @param  CarModelRepository  $carModelRepository
      * @param  VehicleRepository  $vehicleRepository
+     * @param  ErpGetVehicle  $erpGetVehicle
      */
     public function __construct(
         private readonly MakeCodeRepository $makeCodeRepository,
         private readonly CarModelRepository $carModelRepository,
-        private readonly VehicleRepository $vehicleRepository
+        private readonly VehicleRepository $vehicleRepository,
+        private readonly ErpGetVehicle $erpGetVehicle
     ) {
 
     }
@@ -39,13 +43,13 @@ class VehicleController extends CrudController
      */
     public function getByVin($vin): VehicleResource
     {
-        $obj = $this->getVehicleByVin($vin);
-        $makeCode = $this->makeCodeRepository->make($obj['make_code']);
-        $carModel = $this->carModelRepository->make($obj['car_model']);
+        $vehicleData = $this->erpGetVehicle->get($vin);
+        $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
+        $carModel = $this->carModelRepository->make($vehicleData['car_model']);
         $data = [
-            'vin'                     => $obj['vin'],
-            'production_order_number' => $obj['production_order_number'],
-            'engine_no'               => $obj['engine_no'], 'cabin_no' => $obj['cabin_no'],
+            'vin'                     => $vehicleData['vin'],
+            'production_order_number' => $vehicleData['production_order_number'],
+            'engine_no'               => $vehicleData['engine_no'], 'cabin_no' => $vehicleData['cabin_no'],
             'make_code_id'            => $makeCode->getAttribute('id'),
             'car_model_id'            => $carModel->getAttribute('id'),
         ];
