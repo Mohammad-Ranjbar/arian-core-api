@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\URL;
 
 class UserCreateNotification extends Notification
 {
@@ -35,9 +36,12 @@ class UserCreateNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('Hello ' . $this->user->getAttribute('name') . ',')
-                    ->line('Welcome to our application. Your account has been successfully created!')
-                    ->line('Thank you for using our application!');
+                    ->subject('Welcome to arian core')
+                    ->greeting('با سلام')
+                    ->line( $this->user->getAttribute('name') . ' عزیز ,')
+                    ->line('ضمن عرض خوش آمد گویی جهت دسترسی به پنل به آدرس زیر مراجعه فرمایید:')
+                    ->action('Arian Core',URL::to('/'));
+
     }
 
 
