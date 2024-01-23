@@ -44,7 +44,7 @@ class AuthController extends Controller
                 return $this->responseError('user not found', 404);
             }
             if (!Hash::check($validatedData['password'], $user->password)) {
-                return $this->responseError('Unauthorized', 401);
+                return $this->responseError('Unauthorized', 403);
             }
             return $this->makeToken($user);
         } catch (Exception $exception) {
