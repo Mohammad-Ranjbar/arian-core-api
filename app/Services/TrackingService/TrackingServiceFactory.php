@@ -2,33 +2,25 @@
 
 namespace App\Services\TrackingService;
 
-use ErrorException;
+use Illuminate\Validation\ValidationException;
 
 class TrackingServiceFactory
 {
-
-
-    public static function getInstance($model)
+    /**
+     * @param $model
+     * @return InventoryTrackingService|LocationTrackingService|SaleLocationTrackingService|ProductionLineTrackingService|ValidationException|StationTrackingService|SalonTrackingService
+     */
+    public static function getInstance($model): InventoryTrackingService|LocationTrackingService|SaleLocationTrackingService|ProductionLineTrackingService|ValidationException|StationTrackingService|SalonTrackingService
     {
-        if ($model === 'salons') {
-            return new SalonTrackingService();
-        }
-        if ($model === 'production_lines') {
-            return new ProductionLineTrackingService();
-        }
-        if ($model === 'stations') {
-            return new StationTrackingService();
-        }
-        if ($model === 'inventory') {
-            return new InventoryTrackingService();
-        }
-        if ($model === 'sale_locations') {
-            return new SaleLocationTrackingService();
-        }
-        if ($model === 'locations') {
-            return new LocationTrackingService();
-        }
-
+        return match ($model) {
+            'salons'            => new SalonTrackingService(),
+            'production_lines'  => new ProductionLineTrackingService(),
+            'stations'          => new StationTrackingService(),
+            'inventory'         => new InventoryTrackingService(),
+            'sale_locations'    => new SaleLocationTrackingService(),
+            'locations'         => new LocationTrackingService(),
+            default             => ValidationException::withMessages(['error' => 'The input data is not valid']),
+        };
     }
 
 }

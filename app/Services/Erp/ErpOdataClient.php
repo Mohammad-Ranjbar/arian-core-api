@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class ErpOdataClient
 {
 
-    public function __construct(private Client $client)
+    public function __construct(private readonly Client $client)
     {
     }
 
@@ -29,10 +29,10 @@ class ErpOdataClient
     {
         try {
             $apiRequest = $this->client->request('GET', $url, [
-                'auth'    => config('erp.auth'),
+                'auth' => config('erp.auth'),
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Accept'       => 'application/json'
+                    'Accept' => 'application/json'
                 ]
             ]);
             return json_decode($apiRequest->getBody()->getContents());
