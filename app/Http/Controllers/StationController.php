@@ -41,10 +41,11 @@ class StationController extends CrudController
             if ($station->getAttribute('users')->contains($validatedData['user_id'])) {
                 return $this->responseError('کاربر انتخابی در لیست کاربران ایستگاه کاری انتخاب شده موجود است', 400);
             }
-            $station->users()->attach($validatedData);
+
+            $station->users()->attach($validatedData['user_id'], ['data'=> json_encode($validatedData['data'])]);
             return response()->json(new StationResource($station));
         } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(), 400);
+            return $this->responseError($exception->getMessage(),500);
         }
     }
 

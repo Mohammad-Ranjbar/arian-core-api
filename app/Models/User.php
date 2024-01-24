@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -23,6 +22,7 @@ class User extends Authenticatable
         'mobile',
         'avatar',
         'password',
+        'national_code'
     ];
 
     /**
@@ -76,7 +76,7 @@ class User extends Authenticatable
      */
     public function stations(): BelongsToMany
     {
-        return $this->belongsToMany(Station::class);
+        return $this->belongsToMany(Station::class)->withPivot('data');
     }
 
     /**
