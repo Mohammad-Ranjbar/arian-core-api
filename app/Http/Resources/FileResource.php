@@ -18,7 +18,7 @@ class FileResource extends JsonResource
             'id'      => $this->resource->uuid,
             'user_id' => $this->resource->user_id,
             'mime'    => $this->resource->mime,
-            'url'    => asset($this->resource->path),
+            'url'     => asset($this->resource->path),
             'user'    => new UserShortResource($this->resource->user),
         ];
     }

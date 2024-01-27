@@ -4,11 +4,15 @@ namespace App\libs;
 
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\Exception\AuthenticationException;
 
 class EsClient
 {
-    static $instance;
+    static Client $instance;
 
+    /**
+     * @throws AuthenticationException
+     */
     public static function getInstance(): Client
     {
         if (!self::$instance) {

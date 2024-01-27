@@ -9,6 +9,8 @@ use App\Repositories\BillOfLadingRepository;
 use App\Services\SmsService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Bus\PendingClosureDispatch;
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -45,8 +47,8 @@ class BillOfLadingController extends CrudController
         $record->permits()->forceDelete();
 
         $record->car->gatePermits()->create([
-            'type' => 'enter',
-            'owner_id' => $record->id,
+            'type'       => 'enter',
+            'owner_id'   => $record->id,
             'owner_type' => $record->getMorphClass()
         ]);
 
@@ -124,8 +126,8 @@ class BillOfLadingController extends CrudController
         return new BillOfLadingResource($billOfLading);
     }
 
-    public function notice(BillOfLading $billOfLading)
-    {
+    public function notice(BillOfLading $billOfLading
+    ): bool|PendingDispatch|PendingClosureDispatch {
         return $this->smsService->send($billOfLading->getAttribute('car')->driver->phone, 'driver-enter-notify');
     }
 }

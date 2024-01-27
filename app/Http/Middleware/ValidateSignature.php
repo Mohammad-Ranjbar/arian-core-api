@@ -10,7 +10,7 @@ class ValidateSignature extends Middleware
     /**
      * @var array
      */
-    protected $except = [
+    protected array $except = [
         // 'fbclid',
         // 'utm_campaign',
         // 'utm_content',

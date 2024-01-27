@@ -15,7 +15,7 @@ class ElementResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    =>(int)  $this->resource->id,
+            'id'       => (int) $this->resource->id,
             'title'    => $this->resource->title,
             'title_en' => $this->resource->title_en,
             'code'     => $this->resource->code,

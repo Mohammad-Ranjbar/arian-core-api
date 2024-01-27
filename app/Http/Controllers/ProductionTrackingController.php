@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TrackingRequest;
 use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
-use App\Jobs\SendTrackingToErpJob;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Services\TrackingService\TrackingServiceFactory;

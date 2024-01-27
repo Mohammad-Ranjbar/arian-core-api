@@ -21,12 +21,12 @@ class VehicleResource extends JsonResource
             'engine_no'               => $this->resource->engine_no,
             'cabin_no'                => $this->resource->cabin_no,
             'qc_status'               => $this->resource->qc_status,
-            'makeCode'               => [
+            'makeCode'                => [
                 'id'        => (int) $this->resource->makeCode->id,
                 'title'     => $this->resource->makeCode->title,
                 'reference' => $this->resource->makeCode->reference,
             ],
-            'carModel'               => [
+            'carModel'                => [
                 'id'        => (int) $this->resource->carModel->id,
                 'title'     => $this->resource->carModel->title,
                 'reference' => $this->resource->carModel->reference,

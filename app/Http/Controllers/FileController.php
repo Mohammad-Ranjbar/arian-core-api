@@ -4,13 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\FileResource;
 use App\Repositories\FileRepository;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
-use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 
 class FileController extends CrudController
@@ -22,8 +19,10 @@ class FileController extends CrudController
     }
 
 
-
-    public function upload(FileReceiver $receiver)
+    /**
+     * @throws UploadMissingFileException
+     */
+    public function upload(FileReceiver $receiver): JsonResponse
     {
 
         if ($receiver->isUploaded() === false) {
@@ -36,7 +35,9 @@ class FileController extends CrudController
 
             $data = $this->saveFile($save->getFile());
 
-            $file = $this->repository->store(['user_id' => 1, 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']]);
+            $file = $this->repository->store([
+                'user_id' => 1, 'mime' => $data['mime_type'], 'path' => $data['path'].'/'.$data['name']
+            ]);
             $data['file'] = new FileResource($file);
             $data['status'] = 'done';
             $data['percent'] = 100;
@@ -50,32 +51,9 @@ class FileController extends CrudController
         return response()->json(["percent" => $handler->getPercentageDone(), "status" => 'pending']);
     }
 
-    /**
-     * @throws UploadMissingFileException
-     */
-    public function uploadFile(FileReceiver $receiver)
-    {
-        // check if the upload is success, throw exception or return response you need
-        if ($receiver->isUploaded() === false) {
-            throw new UploadMissingFileException();
-        }
-        // receive the file
-        $save = $receiver->receive();
-
-        // check if the upload has finished (in chunk mode it will send smaller files)
-        if ($save->isFinished()) {
-            // save the file and return any response you need
-            return $this->saveFile($save->getFile());
-        }
-
-        $handler = $save->handler();
-        return response()->json([
-            "done" => $handler->getPercentageDone()
-        ]);
-    }
 
     /**
-     * @param UploadedFile $file
+     * @param  UploadedFile  $file
      * @return array
      */
     protected function saveFile(UploadedFile $file): array
@@ -87,21 +65,21 @@ class FileController extends CrudController
         $dateFolder = date("Y-W");
 
         $filePath = "uploads/$dateFolder";
-        $finalPath = storage_path("app/public/" . $filePath);
+        $finalPath = storage_path("app/public/".$filePath);
         $file->move($finalPath, $fileName);
 
-        return ['path' => 'storage/' . $filePath, 'name' => $fileName, 'mime_type' => $mime];
+        return ['path' => 'storage/'.$filePath, 'name' => $fileName, 'mime_type' => $mime];
     }
 
     /**
-     * @param UploadedFile $file
+     * @param  UploadedFile  $file
      * @return string
      */
     protected function createFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
 
-        return Str::uuid() . "_" . md5(time()) . "." . $extension;
+        return Str::uuid()."_".md5(time()).".".$extension;
     }
 
 }

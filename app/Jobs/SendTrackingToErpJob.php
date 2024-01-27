@@ -4,10 +4,8 @@ namespace App\Jobs;
 
 use App\Events\TrackingEvent;
 use App\Http\Resources\TrackingResource;
-use App\Models\ProductionLine;
 use App\Models\Tracking;
 use App\Services\Erp\ErpWsdlClient;
-use App\Services\TrackingService\TrackingServiceFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,7 +17,7 @@ class SendTrackingToErpJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function __construct(private $id,private $url, private $method,private $params)
+    public function __construct(private $id, private $url, private $method, private $params)
     {
         //
     }
@@ -30,7 +28,7 @@ class SendTrackingToErpJob implements ShouldQueue
         $this->update($record, ErpWsdlClient::run($this->url, $this->method, $this->params));
     }
 
-    private function update($record, $result)
+    private function update($record, $result): void
     {
         $record->update(['data' => $result]);
         $data = Tracking::query()->find($this->id);

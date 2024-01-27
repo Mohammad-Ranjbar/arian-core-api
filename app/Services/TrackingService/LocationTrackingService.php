@@ -2,9 +2,6 @@
 
 namespace App\Services\TrackingService;
 
-use App\Models\Location;
-use App\Models\Station;
-
 class LocationTrackingService extends BaseTrackingService
 {
     const MODEL_TYPE = 'App\Models\Location';

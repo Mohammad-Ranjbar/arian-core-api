@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\TypeFilter;
 use App\Http\Requests\AddUsersToProductionLineRequest;
 use App\Http\Resources\ProductionLineResource;
-use App\Http\Resources\TrackingResource;
 use App\Http\Resources\UserShortResource;
 use App\Models\ProductionLine;
 use App\Models\User;
@@ -14,7 +12,6 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Pipeline;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 

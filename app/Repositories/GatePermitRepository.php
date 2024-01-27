@@ -14,12 +14,11 @@ class GatePermitRepository extends BaseRepository
         'create'    => [
             'car_id' => 'required|exists:cars,id',
             'type'   => 'required',
-            'status'   => 'required',
+            'status' => 'required',
         ], 'update' => [
             'car_id' => 'required|exists:cars,id',
-            'status' => 'required',
             'type'   => 'required',
-            'status'   => 'required',
+            'status' => 'required',
         ]
     ];
 
