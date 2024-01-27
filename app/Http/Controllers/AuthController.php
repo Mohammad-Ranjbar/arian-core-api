@@ -41,10 +41,11 @@ class AuthController extends Controller
                 ->first();
 
             if (!isset($user)) {
-                return $this->responseError('user not found', 404);
+                return $this->responseError('کاربر با مشخصات وارد شده موجود نیست', 404);
             }
             if (!Hash::check($validatedData['password'], $user->password)) {
-                return $this->responseError('Unauthorized', 403);
+                //change status 401 to 403 , needed frontEnd :)))
+                return $this->responseError('اطلاعات وارد شده صحیح نیست', 403);
             }
             return $this->makeToken($user);
         } catch (Exception $exception) {
