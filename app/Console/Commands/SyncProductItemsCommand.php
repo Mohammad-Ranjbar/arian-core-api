@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Jobs\SyncProductItem;
 use App\Services\Erp\ErpOdataClient;
-use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 
 class SyncProductItemsCommand extends Command
@@ -34,7 +33,7 @@ class SyncProductItemsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $url = config('erp.items');
 
