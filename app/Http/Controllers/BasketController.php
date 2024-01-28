@@ -35,7 +35,7 @@ class BasketController extends CrudController
             $response = $this->checkBasketBarcode($validatedData['code']);
 
             if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message']);
+                return $this->responseError($response['message'],500);
             }
 
 
