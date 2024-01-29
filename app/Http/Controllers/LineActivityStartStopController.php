@@ -51,6 +51,7 @@ class LineActivityStartStopController extends Controller
     }
 
 
+
     /**
      * @param  ProductionLine  $productionLine
      * @return JsonResponse|ProductionLineActivityResource

@@ -27,4 +27,9 @@ class Element extends Model
         'title_en',
         'code',
     ];
+
+    public function getHeadings(): array
+    {
+        return self::HEADING;
+    }
 }

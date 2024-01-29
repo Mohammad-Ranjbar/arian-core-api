@@ -150,6 +150,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('status', 'status')->name('status');
         Route::post('stop', 'stop')->name('stop');
         Route::post('start', 'start')->name('start');
+        Route::post('approve', 'approve')->name('approve');
     });
 
     Route::post('/production-line-activities/{production_line_activity}/approve',
