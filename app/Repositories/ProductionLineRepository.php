@@ -12,12 +12,15 @@ class ProductionLineRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'title'    => 'required|string|unique:production_lines,title',
-            'salon_id' => 'required|exists:salons,id',
+            'title'         => 'required|string|unique:production_lines,title',
+            'salon_id'      => 'required|exists:salons,id',
+            'teams_webhook' => 'nullable'
         ],
         'update' => [
-            'title'    => 'required|string|unique:production_lines,title,',
-            'salon_id' => 'required|exists:salons,id',
+            'title'         => 'required|string|unique:production_lines,title,',
+            'salon_id'      => 'required|exists:salons,id',
+            'teams_webhook' => 'nullable'
+
         ]
     ];
 
