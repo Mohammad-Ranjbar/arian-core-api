@@ -9,6 +9,7 @@ class ImporterServiceFactory
     {
         return match ($model) {
             'import-incidents' => new ImportIncidentService(),
+            'import-element' => new ImportElementService(),
             'import-block-vehicles' => new ImportBlockVehicleService(),
             default => 'Invalid input',
         };

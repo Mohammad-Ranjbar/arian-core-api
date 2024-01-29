@@ -13,6 +13,15 @@ class Element extends Model
     /**
      * @var string[]
      */
+
+    const  HEADING = [
+        'title',
+        'title_en',
+        'code'
+    ];
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'title',
         'title_en',

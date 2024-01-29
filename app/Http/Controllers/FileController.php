@@ -6,6 +6,7 @@ use App\Http\Resources\FileResource;
 use App\Repositories\FileRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
@@ -36,7 +37,7 @@ class FileController extends CrudController
             $data = $this->saveFile($save->getFile());
 
             $file = $this->repository->store([
-                'user_id' => 1, 'mime' => $data['mime_type'], 'path' => $data['path'].'/'.$data['name']
+                'user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'].'/'.$data['name']
             ]);
             $data['file'] = new FileResource($file);
             $data['status'] = 'done';
