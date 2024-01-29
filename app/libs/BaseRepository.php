@@ -23,6 +23,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Pipeline;
 
+/**
+ *
+ */
 abstract class BaseRepository
 {
 
@@ -93,12 +96,15 @@ abstract class BaseRepository
         })->all();
     }
 
+
     /**
+     * @param string $orderBy
+     * @param string $sort
      * @return mixed
      */
-    public function get(): mixed
+    public function get(string $orderBy = 'id', string $sort = 'asc'): mixed
     {
-        return $this->makeQuery()->get();
+        return $this->makeQuery()->orderBy($orderBy, $sort)->get();
     }
 
     /**
