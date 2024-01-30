@@ -23,12 +23,12 @@ class ProductionLineActivityResource extends JsonResource
             'description'        => $this->resource->description,
             'note'               => $this->resource->note,
             'start_at'           => $this->resource->start_at,
-            'end_at'             => $this->resource->end_at,
+            'stop_at'            => $this->resource->stop_at,
             'productionLine'     => new ProductionLineResource($this->resource->productionLine),
             'station'            => new StationResource($this->resource->satation),
             'stopReason'         => new StopReasonResource($this->resource->stopReason),
             'stopType'           => new StopTypeResource($this->resource->stopType),
-
+            'status'               => $this->resource->logs()->latest()->first()->action
 
         ];
     }
