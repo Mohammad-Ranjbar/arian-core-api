@@ -17,7 +17,7 @@ class StationResource extends JsonResource
         return [
             'id'                   => $this->resource->id,
             'title'                => $this->resource->title,
-            'work_group_center_id' => $this->resource->work_group_center_id,
+            'work_group_center_id' => $this->resource->work_group_center_id ,
         ];
     }
 }

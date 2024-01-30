@@ -33,7 +33,7 @@ class StationRepository extends BaseRepository
         return $this->get('work_station_id')->map(function ($item) {
             return [
                 'id'    => $item->id,
-                'title' => $item->workGroupCenter->title.' - '.$item->title,
+                'title' => $item->workGroupCenter ? $item->workGroupCenter->title.' - '.$item->title : $item->title,
             ];
         })->all();
     }

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Http;
 
 class MicrosoftTeamsNotificationService
 {
-    public static function send($url, $summary, $sections = null, $themeColor = 'ff6600')
+    public static function send($url, $summary, $sections = null, $themeColor = 'ff6600'): void
     {
         $data = [
             "@type" => "MessageCard",
