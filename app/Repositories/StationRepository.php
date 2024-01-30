@@ -28,9 +28,13 @@ class StationRepository extends BaseRepository
     {
         $this->model = $model;
     }
+
+    /**
+     * @return array
+     */
     public function getOptions(): array
     {
-        return $this->get('work_station_id')->map(function ($item) {
+        return $this->get('work_group_center_id')->map(function ($item) {
             return [
                 'id'    => $item->id,
                 'title' => $item->workGroupCenter ? $item->workGroupCenter->title.' - '.$item->title : $item->title,
