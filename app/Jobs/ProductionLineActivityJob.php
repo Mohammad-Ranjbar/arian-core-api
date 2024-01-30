@@ -29,17 +29,62 @@ class ProductionLineActivityJob implements ShouldQueue
     public function handle(): void
     {
         $productionLineActivity = ProductionLineActivity::query()->findOrFail($this->id);
-        $summary = "توقف - #";
-        if ($productionLineActivity->getAttribute('start_at')) {
-            $summary = "راه اندازی - #";
+
+        $started = $productionLineActivity->getAttribute('logs')
+            ->where('action', 'start')
+            ->first();
+        $stopped = $productionLineActivity->getAttribute('logs')
+            ->where('action', 'stop')
+            ->first();
+
+
+        $stopAt = $productionLineActivity->getAttribute('stop_at') ?? $stopped->created_at;
+
+        $title = "توقف - خط: ";
+        $color = "FF0000";
+        $summary = jdate($stopAt)->format('Y-m-d H:i:s');
+        if ($started) {
+            $startAt = $productionLineActivity->getAttribute('start_at') ?? $started->created_at;
+            $title = "راه اندازی - خط: ";
+            $color = "00FF00";
+            $summary = jdate($startAt)->format('Y-m-d H:i:s');
         }
+        $summary .= ' '.$title;
+        $title .= $productionLineActivity->getAttribute('productionLine')->getAttribute('title');
 
-        $sections = [
-
-            [
-                'title'     => $productionLineActivity->getAttribute('productionLine')->getAttribute('title'),
-                'sub_title' => $summary.$productionLineActivity->getAttribute('id'),
-                'items'     => [
+        if ($started) {
+            $diff = $stopAt->diff($startAt);
+            $arrDiff = [];
+            if ($v = $diff->d) {
+                $arrDiff[] = $v.' روز';
+            }
+            if ($v = $diff->h) {
+                $arrDiff[] = $v.' ساعت';
+            }
+            if ($v = $diff->i) {
+                $arrDiff[] = $v.' دقیقه';
+            }
+            $sections[] = [
+                'activityTitle'    => jdate($startAt)->format('Y-m-d H:i:s'),
+                'activitySubtitle' => '#'.$productionLineActivity->getAttribute('id'),
+                'facts'            => [
+                    [
+                        'name'  => 'رفع توقف توسط',
+                        'value' => $started
+                            ->getAttribute('user')
+                            ->getAttribute('name')
+                    ],
+                    [
+                        'name'  => 'مدت توقف',
+                        'value' => implode(' و ', $arrDiff)
+                    ],
+                ]
+            ];
+        } else {
+            $sections[] = [
+                'activityTitle'    => jdate($stopAt)->format('Y-m-d H:i:s'),
+                'activitySubtitle' => '#'.$productionLineActivity->getAttribute('id'),
+                'facts'            => [
                     [
                         'name'  => 'علت',
                         'value' => $productionLineActivity->getAttribute('stopReason')->getAttribute('title')
@@ -49,23 +94,17 @@ class ProductionLineActivityJob implements ShouldQueue
                         'value' => $productionLineActivity->getAttribute('stopReason')->getAttribute('fact')->getAttribute('title')
                     ],
                     [
-                        'name'  => 'وضعیت توقف',
+                        'name'  => 'نوع توقف',
                         'value' => $productionLineActivity->getAttribute('stopType')->getAttribute('title')
                     ],
                     [
-                        'name'  => 'تاریخ و ساعت توقف',
-                        'value' => jdate($productionLineActivity->getAttribute('stop_at'))
-                    ],
-                    [
                         'name'  => 'ثبت توقف توسط',
-                        'value' => $productionLineActivity->getAttribute('logs')
-                            ->where('action', 'stop')
-                            ->first()
+                        'value' => $stopped
                             ->getAttribute('user')
                             ->getAttribute('name')
                     ],
                     [
-                        'name'  => 'تیم',
+                        'name'  => 'تیم کاری',
                         'value' => $productionLineActivity->getAttribute('station')->getAttribute('workGroupCenter')->getAttribute('title')
                     ],
                     [
@@ -77,12 +116,16 @@ class ProductionLineActivityJob implements ShouldQueue
                         'value' => $productionLineActivity->getAttribute('description')
                     ],
                 ],
-            ]
-        ];
+            ];
+        }
 
-        $summary .= $productionLineActivity->getAttribute('id');
-        MicrosoftTeamsNotificationService::send($productionLineActivity->getAttribute('productionLine')->getAttribute('teams_webhook'),
-            $summary, $sections);
 
+        MicrosoftTeamsNotificationService::MessageCard(
+            $productionLineActivity->getAttribute('productionLine')->getAttribute('teams_webhook'),
+            $title,
+            $summary,
+            $sections,
+            $color
+        );
     }
 }

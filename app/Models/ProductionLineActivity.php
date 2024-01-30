@@ -23,7 +23,12 @@ class ProductionLineActivity extends Model
         'description',
         'note',
         'start_at',
-        'end_at',
+        'stop_at',
+    ];
+
+    protected $casts = [
+        'start_at' => 'datetime',
+        'stop_at'  => 'datetime'
     ];
 
     /**
