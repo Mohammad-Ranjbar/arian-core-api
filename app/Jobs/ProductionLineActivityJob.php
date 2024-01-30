@@ -40,12 +40,12 @@ class ProductionLineActivityJob implements ShouldQueue
 
         $stopAt = $productionLineActivity->getAttribute('stop_at') ?? $stopped->created_at;
 
-        $title = "توقف - خط: ";
+        $title = "توقف : ";
         $color = "FF0000";
         $summary = jdate($stopAt)->format('Y-m-d H:i:s');
         if ($started) {
             $startAt = $productionLineActivity->getAttribute('start_at') ?? $started->created_at;
-            $title = "راه اندازی - خط: ";
+            $title = "راه اندازی : ";
             $color = "00FF00";
             $summary = jdate($startAt)->format('Y-m-d H:i:s');
         }
