@@ -8,6 +8,8 @@ return [
     'basket'          => env('WSDL_BASKET', 'http://172.16.0.35:7047/Pars/WS/Pars/Codeunit/Item_Reclass_Journal_API'),
     'post_production' => env('WSDL_POST_PRODUCTION',
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'block_unblock' => env('WSDL_BLOCK_UNBLOCK',
+        'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'auth'            => [
         env('LDAP_USERNAME', ''),
         env('LDAP_PASSWORD', ''),

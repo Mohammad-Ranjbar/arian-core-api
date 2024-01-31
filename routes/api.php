@@ -45,14 +45,17 @@ use Illuminate\Support\Facades\Route;
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
-Route::post('/upload', [FileController::class, 'upload'])->name('upload.store');
+
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+
+
 Route::middleware('auth:sanctum')->group(function () {
 
-
+    Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
+    Route::post('/upload', [FileController::class, 'upload'])->name('upload.store');
     Route::get('/tracking-history/{modelType}/{modelId}/{type}',
         TrackingHistoryController::class)->name('tracking-history');
     Route::get('/get-template-incident', [IncidentController::class, 'getTemplate']);
@@ -157,30 +160,30 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/production-line-activities/{production_line_activity}/approve',
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
     Route::apiResources([
-        'roles'               => RoleController::class,
-        'make-codes'          => MakeCodeController::class,
-        'car-models'          => CarModelController::class,
-        'users'               => UserController::class,
-        'salons'              => SalonController::class,
-        'production-lines'    => ProductionLineController::class,
-        'work-group-centers'  => WorkGroupCenterController::class,
-        'stations'            => StationController::class,
-        'incidents'           => IncidentController::class,
-        'elements'            => ElementController::class,
-        'block-reasons'       => BlockReasonController::class,
-        'transit-companies'   => TransitCompanyController::class,
-        'cars'                => CarController::class,
-        'stop-facts'          => StopFactController::class,
-        'stop-reasons'        => StopReasonController::class,
-        'stop-types'          => StopTypeController::class,
-        'barcodes'            => BarcodeController::class,
-        'baskets'             => BasketController::class,
-        'inventories'         => InventoryController::class,
-        'containers'          => ContainerController::class,
-        'gate-permits'        => GatePermitController::class,
-        'drivers'             => DriverController::class,
-        'sale-locations'      => SaleLocationController::class,
-        'accompanying-items'  => AccompanyingItemController::class,
-        'locations'           => LocationController::class,
+        'roles'              => RoleController::class,
+        'make-codes'         => MakeCodeController::class,
+        'car-models'         => CarModelController::class,
+        'users'              => UserController::class,
+        'salons'             => SalonController::class,
+        'production-lines'   => ProductionLineController::class,
+        'work-group-centers' => WorkGroupCenterController::class,
+        'stations'           => StationController::class,
+        'incidents'          => IncidentController::class,
+        'elements'           => ElementController::class,
+        'block-reasons'      => BlockReasonController::class,
+        'transit-companies'  => TransitCompanyController::class,
+        'cars'               => CarController::class,
+        'stop-facts'         => StopFactController::class,
+        'stop-reasons'       => StopReasonController::class,
+        'stop-types'         => StopTypeController::class,
+        'barcodes'           => BarcodeController::class,
+        'baskets'            => BasketController::class,
+        'inventories'        => InventoryController::class,
+        'containers'         => ContainerController::class,
+        'gate-permits'       => GatePermitController::class,
+        'drivers'            => DriverController::class,
+        'sale-locations'     => SaleLocationController::class,
+        'accompanying-items' => AccompanyingItemController::class,
+        'locations'          => LocationController::class,
     ]);
 });

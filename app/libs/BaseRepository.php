@@ -2,7 +2,11 @@
 
 namespace App\libs;
 
+use App\Filters\BlockByFilter;
+use App\Filters\BlockItemMakeCodeIdFilter;
+use App\Filters\BlockReasonIdFilter;
 use App\Filters\CarModelIdFilter;
+use App\Filters\CreatedAtFilter;
 use App\Filters\CreatedAtFromFilter;
 use App\Filters\CreatedAtToFilter;
 use App\Filters\ElementIdFilter;
@@ -17,15 +21,15 @@ use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\TitleFilter;
 use App\Filters\TypeFilter;
+use App\Filters\UnblockByFilter;
+use App\Filters\UnblockedAtFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Pipeline;
 
-/**
- *
- */
+
 abstract class BaseRepository
 {
 
@@ -37,6 +41,12 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        BlockItemMakeCodeIdFilter::class,
+        BlockByFilter::class,
+        BlockReasonIdFilter::class,
+        CreatedAtFilter::class,
+        UnblockByFilter::class,
+        UnblockedAtFilter::class,
         EmailFilter::class,
         NameFilter::class,
         TitleFilter::class,
@@ -53,7 +63,7 @@ abstract class BaseRepository
         IncidentIdFilter::class,
         RolesFilter::class,
         MakeCodesFilter::class,
-        MakeCodeFilter::class
+        MakeCodeFilter::class,
 
     ];
     /**
@@ -98,8 +108,8 @@ abstract class BaseRepository
 
 
     /**
-     * @param string $orderBy
-     * @param string $sort
+     * @param  string  $orderBy
+     * @param  string  $sort
      * @return mixed
      */
     public function get(string $orderBy = 'id', string $sort = 'asc'): mixed
