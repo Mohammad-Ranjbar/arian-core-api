@@ -151,9 +151,9 @@ abstract class BaseRepository
      * @param $perPage
      * @return mixed
      */
-    public function paginate($perPage): mixed
+    public function paginate($perPage,string $orderBy='id',string $orderType='asc'): mixed
     {
-        return $this->makeQuery()->paginate($perPage);
+        return $this->makeQuery()->orderBy($orderBy,$orderType)->paginate($perPage);
     }
 
 

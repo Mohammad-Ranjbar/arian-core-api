@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\BlockItemReportExport;
+use App\Http\Requests\JobRequest;
 use App\Http\Resources\BlockItemResource;
+use App\Jobs\ImportJob;
+use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\BlockItemRepository;
 use App\Services\Erp\ErpWsdlClient;
@@ -15,6 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class BlockItemController extends Controller
 {
@@ -88,11 +93,41 @@ class BlockItemController extends Controller
         }
     }
 
-    public function report()
+    public function report(): BinaryFileResponse
     {
         $data = $this->repository->get();
 
         return Excel::download(new BlockItemReportExport($data), 'blockItemExport-'.time().'.xlsx',
             \Maatwebsite\Excel\Excel::XLSX);
+    }
+
+    /**
+     * @param  JobRequest  $request
+     * @return JsonResponse
+     */
+    public function importUnblockItems(JobRequest $request): JsonResponse
+    {
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
+        }
+        $validatedData = $request->validated();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'import-un'.$this->repository->model->getTable();
+        $validatedData['data'] = ['file' => $validatedData['file']];
+        $job = Job::query()->create($validatedData);
+
+        ImportJob::dispatch($job->getAttribute('uuid'));
+        $data = [
+            'message' => 'import job created',
+            'data'    =>
+                [
+                    'uuid'         => $job->getAttribute('uuid'),
+                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+                ]
+        ];
+        return new JsonResponse(
+            data: $data,
+            status: Response::HTTP_OK
+        );
     }
 }

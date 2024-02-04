@@ -12,8 +12,14 @@ class BlockItem extends Model
     use HasFactory, SoftDeletes;
 
     const  HEADING = [
-        'title',
-
+        'id',
+        'blocked_by',
+        'unblocked_by',
+        'block_reason',
+        'unblock_at',
+        'description',
+        'vin',
+        'created_at',
     ];
 
     /**

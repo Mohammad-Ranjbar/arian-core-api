@@ -97,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
     Route::post('/elements-imports', [ElementController::class, 'import'])->name('elements.imports');
+    Route::post('/unblock-items-imports', [BlockItemController::class, 'importUnblockItems'])->name('unblock-items.imports');
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/init', [AuthController::class, 'init']);
