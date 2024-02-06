@@ -35,7 +35,7 @@ class StopReasonRepository extends BaseRepository
         return $this->get()->map(function ($item) {
             return [
                 'id'    => $item->id,
-                'title' => $item->fact->title ? $item->fact->title.' - '.$item->title : $item->title,
+                'title' => $item->fact ? $item->fact->title.' - '.$item->title : $item->title,
             ];
         })->all();
     }
