@@ -43,12 +43,11 @@ class UnblockItemImport implements ToCollection, WithStartRow
 
         $collection->each(function ($row) {
 
-            $blockItem = BlockItem::query()->where('vin', $row['vin'])->first();
+            $blockItem = BlockItem::query()->where('id', $row['id'])->first();
             if ($blockItem) {
-                $blockItem->update($row->toArray());
                 $blockItem->update([
-                    'unblock_at'  => $row['unblock_at'],
-                    'description' => $row['description'],
+                    'unblocked_at'  => now(),
+                    'unblocked_by' => $row['user_id'],
                 ]);
                 $this->data['success']++;
 

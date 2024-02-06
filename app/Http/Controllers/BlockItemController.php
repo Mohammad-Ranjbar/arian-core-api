@@ -130,4 +130,33 @@ class BlockItemController extends Controller
             status: Response::HTTP_OK
         );
     }
+
+    /**
+     * @param  JobRequest  $request
+     * @return JsonResponse
+     */
+    public function importBlockItems(JobRequest $request): JsonResponse
+    {
+
+        $validatedData = $request->validated();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'import-'.$this->repository->model->getTable();
+        $validatedData['data'] = ['file' => $validatedData['file']];
+        $job = Job::query()->create($validatedData);
+
+        ImportJob::dispatch($job->getAttribute('uuid'));
+        $data = [
+            'message' => 'import job created',
+            'data'    =>
+                [
+                    'uuid'         => $job->getAttribute('uuid'),
+                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+                ]
+        ];
+        return new JsonResponse(
+            data: $data,
+            status: Response::HTTP_OK
+        );
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductionLineStartRequest;
 use App\Http\Requests\StopLineRequest;
 use App\Http\Resources\ProductionLineActivityResource;
 use App\Jobs\ProductionLineActivityJob;
@@ -38,14 +39,18 @@ class LineActivityStartStopController extends Controller
      * @throws AuthorizationException
      */
     public function start(
-        ProductionLine $productionLine
+        ProductionLine $productionLine,
+        ProductionLineStartRequest $request
     ): JsonResponse|ProductionLineActivityResource {
         $this->authorize('production-lines.start');
         if ($productionLine->isStarted()) {
             return $this->responseError('can not start the line');
         }
+        $validatedData = $request->validated();
+
         /** @var ProductionLineActivity $activity  */
         $activity = $productionLine->getLatestActivity();
+        $activity->update($validatedData);
         $activity->logs()->create([
             'action' => 'start', 'user_id' => Auth::id(),
         ]);

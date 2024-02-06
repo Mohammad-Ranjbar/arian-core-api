@@ -8,11 +8,12 @@ class ImporterServiceFactory
     public static function getInstance($model): ImportIncidentService|string
     {
         return match ($model) {
-            'import-incidents' => new ImportIncidentService(),
-            'import-element' => new ImportElementService(),
+            'import-incidents'      => new ImportIncidentService(),
+            'import-element'        => new ImportElementService(),
             'import-block-vehicles' => new ImportBlockVehicleService(),
-            'import-unblock-items' => new ImportUnblockItemsService(),
-            default => 'Invalid input',
+            'import-unblock-items'  => new ImportUnblockItemsService(),
+            'import-block-items'    => new ImportBlockItemsService(),
+            default                 => 'Invalid input',
         };
     }
 }
