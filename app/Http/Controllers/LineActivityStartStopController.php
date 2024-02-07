@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductionLineStartRequest;
 use App\Http\Requests\StopLineRequest;
 use App\Http\Resources\ProductionLineActivityResource;
-use App\Jobs\ProductionLineActivityJob;
+use App\Jobs\ProductionLineActivityTeamsJob;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -33,7 +33,7 @@ class LineActivityStartStopController extends Controller
         $activity->logs()->create([
             'action' => 'stop', 'user_id' => Auth::id(),
         ]);
-//        ProductionLineActivityJob::dispatch($activity->getAttribute('id'));
+//        ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         return new ProductionLineActivityResource($activity);
     }
 

@@ -26,6 +26,9 @@ class ProductionLineActivity extends Model
         'stop_at',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'start_at' => 'datetime',
         'stop_at'  => 'datetime'
