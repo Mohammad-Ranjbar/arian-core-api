@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Auth;
 class LineActivityStartStopController extends Controller
 {
 
+    /**
+     * @param  StopLineRequest  $request
+     * @param  ProductionLine  $productionLine
+     * @return JsonResponse|ProductionLineActivityResource
+     */
     public function stop(
         StopLineRequest $request,
         ProductionLine $productionLine
@@ -28,13 +33,14 @@ class LineActivityStartStopController extends Controller
         $activity->logs()->create([
             'action' => 'stop', 'user_id' => Auth::id(),
         ]);
-        ProductionLineActivityJob::dispatch($activity->getAttribute('id'));
+//        ProductionLineActivityJob::dispatch($activity->getAttribute('id'));
         return new ProductionLineActivityResource($activity);
     }
 
 
     /**
      * @param  ProductionLine  $productionLine
+     * @param  ProductionLineStartRequest  $request
      * @return JsonResponse|ProductionLineActivityResource
      * @throws AuthorizationException
      */
