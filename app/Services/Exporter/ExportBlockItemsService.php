@@ -18,7 +18,7 @@ class ExportBlockItemsService extends BaseExporterService
         request()->merge((array) $this->job->getAttribute('data'));
         $rows = app()->make(BlockItemRepository::class)->get();
         $eventData = [
-            'id'      => $this->job->id,
+            'id'      => $this->job->uuid,
             'user_id' => $this->job->user_id,
             'total'   => $rows->count(),
             'done'    => 0,
