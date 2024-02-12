@@ -49,9 +49,11 @@ class VehicleController extends CrudController
             'make_code_id'            => $makeCode->getAttribute('id'),
             'car_model_id'            => $carModel->getAttribute('id'),
         ];
+
         $vehicle = $this->vehicleRepository->make($data, 'vin');
 
         $this->authorize('access', $vehicle);
+
         return new VehicleResource($vehicle);
     }
 
