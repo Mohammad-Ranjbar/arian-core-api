@@ -13,7 +13,6 @@ class JobProcessEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-
     /**
      * @param $data
      */

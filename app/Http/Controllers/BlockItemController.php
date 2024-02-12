@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\BlockItemReportExport;
 use App\Http\Requests\JobRequest;
 use App\Http\Resources\BlockItemResource;
+use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
 use App\Models\Job;
 use App\Models\Vehicle;
@@ -93,12 +94,23 @@ class BlockItemController extends Controller
         }
     }
 
-    public function report(): BinaryFileResponse
+    public function report(Request $request): JsonResponse
     {
-        $data = $this->repository->get();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'export-block-items';
+        $validatedData['data'] = $request->toArray();
+        $job = Job::query()->create($validatedData);
 
-        return Excel::download(new BlockItemReportExport($data), 'blockItemExport-'.time().'.xlsx',
-            \Maatwebsite\Excel\Excel::XLSX);
+        ExportJob::dispatch($job->getAttribute('uuid'));
+        return response()->json(
+            [
+                'message' => 'export job created',
+                'data'    => [
+                    'uuid'         => $job->getAttribute('uuid'),
+                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+                ]
+            ]
+        );
     }
 
     /**

@@ -5,9 +5,9 @@ namespace App\Services\Importer;
 
 class ImporterServiceFactory
 {
-    public static function getInstance($model): ImportIncidentService|string
+    public static function getInstance($type): ImportIncidentService|string
     {
-        return match ($model) {
+        return match ($type) {
             'import-incidents'      => new ImportIncidentService(),
             'import-element'        => new ImportElementService(),
             'import-block-vehicles' => new ImportBlockVehicleService(),

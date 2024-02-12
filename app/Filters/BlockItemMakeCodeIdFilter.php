@@ -17,7 +17,7 @@ class BlockItemMakeCodeIdFilter
             return $next($request);
         }
         return $next($request)->whereHas('vehicle', function ($q) {
-            $q->where('makeCode', request()->block_item_make_code_id);
+            $q->where('make_code_id', request()->get('block_item_make_code_id'));
         });
     }
 

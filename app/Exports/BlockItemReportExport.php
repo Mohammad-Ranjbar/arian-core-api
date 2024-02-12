@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Events\JobProcessEvent;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -13,7 +14,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents
 {
 
-    public function __construct(private readonly Collection $data)
+    public function __construct(private readonly Collection $data, private array $eventData)
     {
     }
 
@@ -38,7 +39,7 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
 
     public function map($row): array
     {
-        return [
+        $row = [
             $row->id,
             $row->blockedBy ? $row->blockedBy->name : '',
             $row->unblockedBy ? $row->unblockedBy->name : '',
@@ -48,5 +49,16 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
             $row->vin,
             jdate($row->created_at),
         ];
+
+        $this->eventData['done'] ++;
+        $this->eventData['success'] ++;
+        $this->sendEvent();
+
+        return $row;
+    }
+
+    public function sendEvent(): void
+    {
+        event(new JobProcessEvent($this->eventData));
     }
 }

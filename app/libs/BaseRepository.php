@@ -28,6 +28,8 @@ use App\Filters\WorkGroupCenterIdFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Pipeline;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 
 abstract class BaseRepository
@@ -66,6 +68,7 @@ abstract class BaseRepository
         MakeCodeFilter::class,
 
     ];
+
     /**
      * @var array|array[]
      */
@@ -96,34 +99,41 @@ abstract class BaseRepository
         return $this->model->newQuery()->find($id)->delete();
     }
 
-    /**
-     * @return array
-     */
     public function getOptions(): array
     {
-        return $this->get()->map(function ($item) {
+        return $this->get('id','asc',request()->get('limit'))->map(function ($item) {
             return ['id' => $item->id, 'title' => $item->title,];
         })->all();
     }
 
 
-    /**
-     * @param  string  $orderBy
-     * @param  string  $sort
-     * @return mixed
-     */
-    public function get(string $orderBy = 'id', string $sort = 'asc'): mixed
+    public function get(string $orderBy = 'id', string $sort = 'asc',$limit = 0): mixed
     {
-        return $this->makeQuery()->orderBy($orderBy, $sort)->get();
+        $q = $this->makeQuery()->orderBy($orderBy, $sort);
+        if($limit) {
+          $q =  $q->limit($limit);
+        }
+        return $q->get();
     }
+
 
     /**
      * @return mixed
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function makeQuery(): mixed
     {
-        return Pipeline::send($this->model)->through($this->filters)->thenReturn();
+        $data = $this->model;
+        if (request()->has('q')) {
+            $data = $data->newQuery()->whereLike($this->searchTerms, request()->get('q'));
+        }
+        return Pipeline::send($data)->through($this->filters)->thenReturn();
     }
+
+    public array $searchTerms = [
+        'title'
+    ];
 
 
     /**
@@ -151,9 +161,9 @@ abstract class BaseRepository
      * @param $perPage
      * @return mixed
      */
-    public function paginate($perPage,string $orderBy='id',string $orderType='asc'): mixed
+    public function paginate($perPage, string $orderBy = 'id', string $orderType = 'asc'): mixed
     {
-        return $this->makeQuery()->orderBy($orderBy,$orderType)->paginate($perPage);
+        return $this->makeQuery()->orderBy($orderBy, $orderType)->paginate($perPage);
     }
 
 

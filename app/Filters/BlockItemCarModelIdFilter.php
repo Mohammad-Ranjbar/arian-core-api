@@ -17,7 +17,7 @@ class BlockItemCarModelIdFilter
             return $next($request);
         }
         return $next($request)->whereHas('vehicle', function ($q) {
-            $q->where('carModel', request()->block_item_make_code_id);
+            $q->where('car_model_id', request()->get('block_item_car_model_id'));
         });
     }
 
