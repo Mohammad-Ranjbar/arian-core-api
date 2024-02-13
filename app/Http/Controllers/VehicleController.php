@@ -39,7 +39,7 @@ class VehicleController extends CrudController
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
         $data = [
-            'type'                    => $vehicleData['type'],
+//            'type'                    => $vehicleData['type'],
             'vin'                     => $vehicleData['vin'],
             'production_order_number' => $vehicleData['production_order_number'],
             'engine_no'               => $vehicleData['engine_no'], 'cabin_no' => $vehicleData['cabin_no'],
