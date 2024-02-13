@@ -11,8 +11,9 @@ use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpGetVehicle;
 use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class VehicleController extends CrudController
 {
@@ -32,17 +33,13 @@ class VehicleController extends CrudController
     }
 
 
-    /**
-     * @param $vin
-     * @return VehicleResource
-     * @throws AuthorizationException
-     */
-    public function getByVin($vin): VehicleResource
+    public function getByVin($vin): JsonResponse|VehicleResource
     {
         $vehicleData = $this->erpGetVehicle->get($vin);
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
         $data = [
+            'type'                    => $vehicleData['type'],
             'vin'                     => $vehicleData['vin'],
             'production_order_number' => $vehicleData['production_order_number'],
             'engine_no'               => $vehicleData['engine_no'], 'cabin_no' => $vehicleData['cabin_no'],
@@ -51,10 +48,17 @@ class VehicleController extends CrudController
         ];
 
         $vehicle = $this->vehicleRepository->make($data, 'vin');
+        $this->vehicleRepository->update($vehicle->vin, ['type' => $data['type']]);
+        $vehicle = $vehicle->fresh();
+        if (Gate::allows('access', $vehicle)) {
+            return new VehicleResource($vehicle);
+        } else {
+            return new JsonResponse(
+                data: ['message' => 'You are not authorized to access this vehicle'],
+                status: Response::HTTP_FORBIDDEN
+            );
+        }
 
-        $this->authorize('access', $vehicle);
-
-        return new VehicleResource($vehicle);
     }
 
     /**
