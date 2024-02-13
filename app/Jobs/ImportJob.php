@@ -27,9 +27,9 @@ class ImportJob implements ShouldQueue
         /** @var Job $job */
         $job = Job::query()->find($this->uuid);
 
-        if ($job->getAttribute('status') !== 'pending') {
-            return;
-        }
+//        if ($job->getAttribute('status') !== 'pending') {
+//            return;
+//        }
 
         $job->start();
 
