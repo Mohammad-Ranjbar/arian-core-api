@@ -11,7 +11,7 @@ class ImporterServiceFactory
             'import-incidents'      => new ImportIncidentService(),
             'import-element'        => new ImportElementService(),
             'import-block-vehicles' => new ImportBlockVehicleService(),
-            'import-unblock-items'  => new ImportUnblockItemsService(),
+            'import-unblock_items'  => new ImportUnblockItemsService(),
             'import-block_items'    => new ImportBlockItemsService(),
             default                 => 'Invalid input',
         };

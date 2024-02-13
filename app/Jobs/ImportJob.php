@@ -16,12 +16,18 @@ class ImportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function __construct(public string $uuid)
+    /**
+     * @param  string  $uuid
+     */
+    public function __construct(public readonly string $uuid)
     {
 
     }
 
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
         /** @var Job $job */

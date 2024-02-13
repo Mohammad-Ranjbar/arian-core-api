@@ -6,6 +6,7 @@ use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\BlockItem;
 use App\Models\Job;
+use App\Models\Vehicle;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -49,14 +50,16 @@ class BlockItemImport implements ToCollection, WithStartRow
 
         $collection->each(function ($row) {
 
-            $blockItem = BlockItem::query()->where('vin', $row['vin'])->first();
-            if ($blockItem) {
-                $blockItem->update([
+            $vehicle = Vehicle::query()->where('vin', $row['vin'])->first();
+            if ($vehicle) {
+                $blockItem = BlockItem::query()->create([
+                    'vin'             => $vehicle->getAttribute('vin'),
                     'blocked_at'      => now(),
                     'blocked_by'      => $row['user_id'],
                     'description'     => $this->description,
                     'block_reason_id' => $this->blockReasonId,
                 ]);
+
                 $this->data['success']++;
 
                 $row['result'] = 'imported';

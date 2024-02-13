@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\BlockItemReportExport;
 use App\Http\Requests\ImportBlockRequest;
 use App\Http\Requests\JobRequest;
 use App\Http\Resources\BlockItemResource;
@@ -19,8 +18,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class BlockItemController extends Controller
