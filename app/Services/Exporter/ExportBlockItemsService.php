@@ -2,6 +2,7 @@
 
 namespace App\Services\Exporter;
 
+use App\Events\JobProcessEvent;
 use App\Exports\BlockItemReportExport;
 use App\Repositories\BlockItemRepository;
 use Maatwebsite\Excel\Facades\Excel;
@@ -25,6 +26,7 @@ class ExportBlockItemsService extends BaseExporterService
             'success' => 0,
             'error'   => 0,
         ];
+        event(new JobProcessEvent($eventData));
 
         $fileName = 'blockItemExport-'.time().'.xlsx';
         $path = '/public/exports/'.$fileName;
