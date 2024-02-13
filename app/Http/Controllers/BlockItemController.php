@@ -157,7 +157,7 @@ class BlockItemController extends Controller
         $validatedData['data'] = $validatedData;
         $job = Job::query()->create($validatedData);
 
-        //ImportJob::dispatch($job->getAttribute('uuid'));
+        ImportJob::dispatch($job->getAttribute('uuid'));
         return new JsonResponse(
             data: [
                 'message' => 'import job created',
