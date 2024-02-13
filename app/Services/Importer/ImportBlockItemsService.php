@@ -5,6 +5,7 @@ namespace App\Services\Importer;
 use App\Imports\BlockItemImport;
 use App\Imports\UnblockItemImport;
 use App\Models\File;
+use App\Models\Job;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -20,8 +21,8 @@ class ImportBlockItemsService extends BaseImporterService
             'success' => 0,
             'error'   => 0,
         ];
-
-        Excel::import(new BlockItemImport($data), public_path($file->getAttribute('path')));
+        $job = Job::query()->find($jobId);
+        Excel::import(new BlockItemImport($data, $job->data['description'],  $job->data['block_reason_id']), public_path($file->getAttribute('path')));
 
     }
 }

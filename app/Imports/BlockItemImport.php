@@ -16,11 +16,17 @@ use Maatwebsite\Excel\Facades\Excel;
 class BlockItemImport implements ToCollection, WithStartRow
 {
 
+
     /**
      * @param  array  $data
+     * @param  string  $description
+     * @param  string  $blockReasonId
      */
-    public function __construct(public array $data)
-    {
+    public function __construct(
+        public array $data,
+        public readonly string $description,
+        public readonly string $blockReasonId
+    ) {
 
     }
 
@@ -48,8 +54,8 @@ class BlockItemImport implements ToCollection, WithStartRow
                 $blockItem->update([
                     'blocked_at'      => now(),
                     'blocked_by'      => $row['user_id'],
-                    'description'     => $row['description'],
-                    'block_reason_id' => $row['block_reason_id'],
+                    'description'     => $this->description,
+                    'block_reason_id' => $this->blockReasonId,
                 ]);
                 $this->data['success']++;
 
