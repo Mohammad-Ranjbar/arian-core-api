@@ -50,7 +50,7 @@ class BlockItemImport implements ToCollection, WithStartRow
                 $blockItem = BlockItem::query()->create([
                     'vin'             => $vehicle->getAttribute('vin'),
                     'blocked_at'      => now(),
-                    'blocked_by'      => $this->user_id,
+                    'blocked_by'      => $this->userId,
                     'description'     => $this->description,
                     'block_reason_id' => $this->blockReasonId,
                 ]);
