@@ -48,8 +48,8 @@ class VehicleController extends CrudController
         ];
 
         $vehicle = $this->vehicleRepository->make($data, 'vin');
-        $this->vehicleRepository->update($vehicle->vin, ['type' => $data['type']]);
-        $vehicle = $vehicle->fresh();
+//        $this->vehicleRepository->update($vehicle->vin, ['type' => $data['type']]);
+//        $vehicle = $vehicle->fresh();
         if (Gate::allows('access', $vehicle)) {
             return new VehicleResource($vehicle);
         } else {
