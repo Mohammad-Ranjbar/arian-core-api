@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\BlockItemReportExport;
+use App\Http\Requests\ImportBlockRequest;
 use App\Http\Requests\JobRequest;
 use App\Http\Resources\BlockItemResource;
 use App\Jobs\ExportJob;
@@ -144,29 +145,28 @@ class BlockItemController extends Controller
     }
 
     /**
-     * @param  JobRequest  $request
+     * @param  ImportBlockRequest  $request
      * @return JsonResponse
      */
-    public function importBlockItems(JobRequest $request): JsonResponse
+    public function importBlockItems(ImportBlockRequest $request): JsonResponse
     {
 
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
         $validatedData['type'] = 'import-'.$this->repository->model->getTable();
-        $validatedData['data'] = ['file' => $validatedData['file']];
+        $validatedData['data'] = $validatedData;
         $job = Job::query()->create($validatedData);
 
-        ImportJob::dispatch($job->getAttribute('uuid'));
-        $data = [
-            'message' => 'import job created',
-            'data'    =>
-                [
-                    'uuid'         => $job->getAttribute('uuid'),
-                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
-                ]
-        ];
+        //ImportJob::dispatch($job->getAttribute('uuid'));
         return new JsonResponse(
-            data: $data,
+            data: [
+                'message' => 'import job created',
+                'data'    =>
+                    [
+                        'uuid'         => $job->getAttribute('uuid'),
+                        'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+                    ]
+            ],
             status: Response::HTTP_OK
         );
     }
