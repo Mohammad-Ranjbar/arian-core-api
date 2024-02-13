@@ -49,7 +49,6 @@ class BlockItemImport implements ToCollection, WithStartRow
         $this->sendEvent();
 
         $collection->each(function ($row) {
-        dd($row);
             $vehicle = Vehicle::query()->where('vin', $row[0])->first();
             if ($vehicle) {
                 $blockItem = BlockItem::query()->create([
