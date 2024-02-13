@@ -18,15 +18,11 @@ class BlockItemImport implements ToCollection, WithStartRow
 {
 
 
-    /**
-     * @param  array  $data
-     * @param  string  $description
-     * @param  string  $blockReasonId
-     */
     public function __construct(
         public array $data,
         public readonly string $description,
-        public readonly string $blockReasonId
+        public readonly string $blockReasonId,
+        public readonly string $userId
     ) {
 
     }
@@ -54,7 +50,7 @@ class BlockItemImport implements ToCollection, WithStartRow
                 $blockItem = BlockItem::query()->create([
                     'vin'             => $vehicle->getAttribute('vin'),
                     'blocked_at'      => now(),
-                    'blocked_by'      => $row['user_id'],
+                    'blocked_by'      => $this->user_id,
                     'description'     => $this->description,
                     'block_reason_id' => $this->blockReasonId,
                 ]);
