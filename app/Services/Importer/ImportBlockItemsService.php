@@ -22,7 +22,8 @@ class ImportBlockItemsService extends BaseImporterService
             'error'   => 0,
         ];
         $job = Job::query()->find($jobId);
-        Excel::import(new BlockItemImport($data, $job->data['description'],  $job->data['block_reason_id']), public_path($file->getAttribute('path')));
+        $jabData = $job->getAttribute('data');
+        Excel::import(new BlockItemImport($data, $jabData['description'],  $jabData['block_reason_id']), public_path($file->getAttribute('path')));
 
     }
 }
