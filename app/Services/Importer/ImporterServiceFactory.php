@@ -5,7 +5,7 @@ namespace App\Services\Importer;
 
 class ImporterServiceFactory
 {
-    public static function getInstance($type): ImportIncidentService|string
+    public static function getInstance($type): ImportBlockVehicleService|ImportBlockItemsService|ImportIncidentService|string|ImportElementService|ImportUnblockItemsService
     {
         return match ($type) {
             'import-incidents'      => new ImportIncidentService(),
