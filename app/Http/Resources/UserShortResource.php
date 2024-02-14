@@ -14,11 +14,12 @@ class UserShortResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'       => (int) $this->resource->id,
-            'name'     => $this->resource->name,
-            'email'    => $this->resource->email,
-            'mobile'   => $this->resource->mobile,
-            'stations' => $this->resource->stations
+            'id'            => (int) $this->resource->id,
+            'name'          => $this->resource->name,
+            'email'         => $this->resource->email,
+            'mobile'        => $this->resource->mobile,
+            'national_code' => $this->resource->national_code,
+            'stations'      => $this->resource->stations
         ];
     }
 }
