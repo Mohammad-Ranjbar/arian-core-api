@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Validation\ValidationException;
 
 class VehicleController extends CrudController
 {
@@ -32,14 +33,17 @@ class VehicleController extends CrudController
 
     }
 
-
-    public function getByVin($vin): JsonResponse|VehicleResource
+    /**
+     * @param  string  $vin
+     * @return JsonResponse|VehicleResource
+     * @throws ValidationException
+     */
+    public function getByVin(string $vin): JsonResponse|VehicleResource
     {
         $vehicleData = $this->erpGetVehicle->get($vin);
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
         $data = [
-//            'type'                    => $vehicleData['type'],
             'vin'                     => $vehicleData['vin'],
             'production_order_number' => $vehicleData['production_order_number'],
             'engine_no'               => $vehicleData['engine_no'], 'cabin_no' => $vehicleData['cabin_no'],
@@ -48,8 +52,7 @@ class VehicleController extends CrudController
         ];
 
         $vehicle = $this->vehicleRepository->make($data, 'vin');
-//        $this->vehicleRepository->update($vehicle->vin, ['type' => $data['type']]);
-//        $vehicle = $vehicle->fresh();
+
         if (Gate::allows('access', $vehicle)) {
             return new VehicleResource($vehicle);
         } else {

@@ -15,12 +15,18 @@ class ExportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
+    /**
+     * @param  string  $uuid
+     */
     public function __construct(public string $uuid)
     {
 
     }
 
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
         /** @var Job $job */

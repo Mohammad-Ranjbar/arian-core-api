@@ -35,7 +35,7 @@ class BillOfLading extends Model
      */
     public function locationSource(): BelongsTo
     {
-        return $this->belongsTo(Location::class,'location_source_id');
+        return $this->belongsTo(Location::class, 'location_source_id');
     }
 
     /**
@@ -43,7 +43,7 @@ class BillOfLading extends Model
      */
     public function locationDestination(): BelongsTo
     {
-        return $this->belongsTo(Location::class,'location_destination_id');
+        return $this->belongsTo(Location::class, 'location_destination_id');
     }
 
     /**
@@ -70,9 +70,12 @@ class BillOfLading extends Model
         return $this->morphMany(ActionLog::class, 'model');
     }
 
-    public function permits():MorphMany
+    /**
+     * @return MorphMany
+     */
+    public function permits(): MorphMany
     {
-        return $this->morphMany(GatePermit::class,'owner');
+        return $this->morphMany(GatePermit::class, 'owner');
     }
 
 

@@ -2,8 +2,6 @@
 
 namespace App\Services\Exporter;
 
-use App\Models\Job;
-
 interface ExporterServiceInterface
 {
 

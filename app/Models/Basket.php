@@ -13,12 +13,18 @@ class Basket extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'code',
         'user_id',
         'status'
     ];
 
+    /**
+     * @return void
+     */
     public static function booted(): void
     {
         static::addGlobalScope('new', function (Builder $builder) {
@@ -26,11 +32,17 @@ class Basket extends Model
         });
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return void
+     */
     public function submit():void
     {
         $this->update(['status'=> 'submitted']);

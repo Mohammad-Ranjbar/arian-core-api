@@ -11,6 +11,9 @@ class BlockItem extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     *
+     */
     const  HEADING = [
         'id',
         'blocked_by',

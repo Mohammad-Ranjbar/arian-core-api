@@ -10,6 +10,9 @@ class BlockReason extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'title'
     ];

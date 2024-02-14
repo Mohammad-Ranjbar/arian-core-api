@@ -45,6 +45,11 @@ class SyncProductItem implements ShouldQueue
         }
     }
 
+    /**
+     * @param  string  $trackingCode
+     * @param  int  $id
+     * @return void
+     */
     private function updateBarcodes(string $trackingCode, int $id): void
     {
         Barcode::query()

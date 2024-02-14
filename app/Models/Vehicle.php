@@ -18,7 +18,10 @@ class Vehicle extends Model
     use HasFactory, SoftDeletes;
 
 
-    public  $incrementing = false;
+    /**
+     * @var bool
+     */
+    public $incrementing = false;
     /**
      * @var string
      */
@@ -76,13 +79,19 @@ class Vehicle extends Model
         return $this->hasMany(Tracking::class, 'vin');
     }
 
+    /**
+     * @return HasMany
+     */
     public function vehicleIncidents(): HasMany
     {
         return $this->hasMany(VehicleIncident::class);
     }
 
+    /**
+     * @return HasMany
+     */
     public function blockItems(): HasMany
     {
-        return $this->hasMany(BlockItem::class,'vin');
+        return $this->hasMany(BlockItem::class, 'vin');
     }
 }

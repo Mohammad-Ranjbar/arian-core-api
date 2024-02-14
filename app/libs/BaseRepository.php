@@ -99,6 +99,10 @@ abstract class BaseRepository
         return $this->model->newQuery()->find($id)->delete();
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function getOptions(): array
     {
         return $this->get('id','asc',request()->get('limit'))->map(function ($item) {
@@ -107,6 +111,10 @@ abstract class BaseRepository
     }
 
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function get(string $orderBy = 'id', string $sort = 'asc',$limit = 0): mixed
     {
         $q = $this->makeQuery()->orderBy($orderBy, $sort);
@@ -125,7 +133,7 @@ abstract class BaseRepository
     public function makeQuery(): mixed
     {
         $data = $this->model;
-        if (request()->has('q')) {
+        if (request()->has('q') && request()->get('q') !== null) {
             $data = $data->newQuery()->whereLike($this->searchTerms, request()->get('q'));
         }
         return Pipeline::send($data)->through($this->filters)->thenReturn();
@@ -157,10 +165,7 @@ abstract class BaseRepository
         return $this->model->newQuery()->where($parameter, $value)->firstOrFail();
     }
 
-    /**
-     * @param $perPage
-     * @return mixed
-     */
+
     public function paginate($perPage, string $orderBy = 'id', string $orderType = 'asc'): mixed
     {
         return $this->makeQuery()->orderBy($orderBy, $orderType)->paginate($perPage);

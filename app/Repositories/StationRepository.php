@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\libs\BaseRepository;
 use App\Models\Station;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class StationRepository extends BaseRepository
 {
@@ -29,8 +31,11 @@ class StationRepository extends BaseRepository
         $this->model = $model;
     }
 
+
     /**
      * @return array
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function getOptions(): array
     {

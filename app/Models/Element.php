@@ -28,6 +28,9 @@ class Element extends Model
         'code',
     ];
 
+    /**
+     * @return string[]
+     */
     public function getHeadings(): array
     {
         return self::HEADING;

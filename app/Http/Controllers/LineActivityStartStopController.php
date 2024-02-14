@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductionLineStartRequest;
 use App\Http\Requests\StopLineRequest;
 use App\Http\Resources\ProductionLineActivityResource;
-use App\Jobs\ProductionLineActivityTeamsJob;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use Illuminate\Auth\Access\AuthorizationException;

@@ -15,12 +15,18 @@ class FaultIndexJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @param $id
+     */
     public function __construct(private $id)
     {
         //
     }
 
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
         $vehicleIncident = VehicleIncident::query()->find($this->id);
