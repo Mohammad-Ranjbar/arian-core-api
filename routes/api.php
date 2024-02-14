@@ -161,11 +161,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/production-line-activities/{production_line_activity}/approve',
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
+    Route::apiResource('users', UserController::class)->except('destroy');
     Route::apiResources([
         'roles'              => RoleController::class,
         'make-codes'         => MakeCodeController::class,
         'car-models'         => CarModelController::class,
-        'users'              => UserController::class,
         'salons'             => SalonController::class,
         'production-lines'   => ProductionLineController::class,
         'work-group-centers' => WorkGroupCenterController::class,
