@@ -15,11 +15,12 @@ class SaleLocationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'       => $this->resource->id,
-            'title'    => $this->resource->title,
-            'code'     => $this->resource->code,
-            'makeCode' => new MakeCodeResource($this->resource->makeCode),
-            'users'    => UserShortResource::collection($this->resource->users)
+            'id'           => $this->resource->id,
+            'title'        => $this->resource->title,
+            'code'         => $this->resource->code,
+            'make_code_id' => $this->resource->make_code_id,
+            'makeCode'     => new MakeCodeResource($this->resource->makeCode),
+            'users'        => UserShortResource::collection($this->resource->users)
         ];
     }
 }
