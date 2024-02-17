@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BlockItemStoreRequest;
 use App\Http\Requests\ImportBlockRequest;
 use App\Http\Requests\JobRequest;
 use App\Http\Resources\BlockItemResource;
@@ -45,18 +46,11 @@ class BlockItemController extends Controller
     }
 
 
-    /**
-     * @param  Request  $request
-     * @param  Vehicle  $vehicle
-     * @return JsonResponse|BlockItemResource
-     */
-    public function store(Request $request, Vehicle $vehicle): JsonResponse|BlockItemResource
+    public function store(BlockItemStoreRequest $request, Vehicle $vehicle): JsonResponse|BlockItemResource
     {
+
         try {
-            $this->authorize('block-items.store');
-            $validatedData = $request->validate($this->repository->getCreateRules());
-            $validatedData['blocked_by'] = Auth::id();
-            $validatedData['vin'] = $vehicle->vin;
+            $validatedData = $request->validated();
 
             ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', ['barcodeInfoP', $vehicle->vin]);
             return new BlockItemResource($this->repository->store($validatedData));
@@ -75,7 +69,8 @@ class BlockItemController extends Controller
         try {
             $this->authorize('block-items.unblock');
             $data = [
-                'unblocked_by' => Auth::id(), 'unblocked_at' => Carbon::now(),
+                'unblocked_by' => Auth::id(),
+                'unblocked_at' => Carbon::now(),
             ];
             $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
             $item->update($data);
@@ -100,15 +95,12 @@ class BlockItemController extends Controller
         $job = Job::query()->create($validatedData);
 
         ExportJob::dispatch($job->getAttribute('uuid'));
-        return response()->json(
-            [
-                'message' => 'export job created',
-                'data'    => [
+        return response()->json([
+                'message' => 'export job created', 'data' => [
                     'uuid'         => $job->getAttribute('uuid'),
                     'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
                 ]
-            ]
-        );
+            ]);
     }
 
     /**
@@ -128,17 +120,12 @@ class BlockItemController extends Controller
 
         ImportJob::dispatch($job->getAttribute('uuid'));
         $data = [
-            'message' => 'import job created',
-            'data'    =>
-                [
-                    'uuid'         => $job->getAttribute('uuid'),
-                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
-                ]
+            'message' => 'import job created', 'data' => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
         ];
-        return new JsonResponse(
-            data: $data,
-            status: Response::HTTP_OK
-        );
+        return new JsonResponse(data: $data, status: Response::HTTP_OK);
     }
 
     /**
@@ -155,17 +142,12 @@ class BlockItemController extends Controller
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
-        return new JsonResponse(
-            data: [
-                'message' => 'import job created',
-                'data'    =>
-                    [
-                        'uuid'         => $job->getAttribute('uuid'),
-                        'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
-                    ]
-            ],
-            status: Response::HTTP_OK
-        );
+        return new JsonResponse(data: [
+                'message' => 'import job created', 'data' => [
+                    'uuid'         => $job->getAttribute('uuid'),
+                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+                ]
+            ], status: Response::HTTP_OK);
     }
 
 }

@@ -12,13 +12,16 @@ class BlockItemRepository extends BaseRepository
      */
 
     protected array $rules = [
-        'create' => [
+        'create'    => [
             'block_reason_id' => 'required|exists:block_reasons,id',
             'description'     => 'nullable',
-        ],
-        'update' => [
+            'blocked_by'      => 'nullable',
+            'vin'             => 'nullable',
+        ], 'update' => [
             'block_reason_id' => 'required|exists:block_reasons,id',
             'description'     => 'nullable',
+            'blocked_by'      => 'nullable',
+            'vin'             => 'nullable',
         ]
     ];
 
