@@ -16,7 +16,7 @@ class NationalCodeFilter
         if (!request()->has('national_code')) {
             return $next($request);
         }
-        return $next($request)->where('national_code', 'LIKE', '%'.request()->input('national_code').'%');
+        return $next($request)->where('national_code', request()->input('national_code'));
     }
 
 }
