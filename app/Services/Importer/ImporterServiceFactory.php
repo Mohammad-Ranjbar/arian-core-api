@@ -9,7 +9,7 @@ class ImporterServiceFactory
     {
         return match ($type) {
             'import-incidents'      => new ImportIncidentService(),
-            'import-element'        => new ImportElementService(),
+            'import-elements'        => new ImportElementService(),
             'import-block-vehicles' => new ImportBlockVehicleService(),
             'import-unblock_items'  => new ImportUnblockItemsService(),
             'import-block_items'    => new ImportBlockItemsService(),
