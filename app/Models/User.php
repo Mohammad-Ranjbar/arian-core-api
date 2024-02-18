@@ -12,7 +12,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles,SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
      * @var string[]
@@ -86,5 +86,13 @@ class User extends Authenticatable
     public function saleLocations(): BelongsToMany
     {
         return $this->belongsToMany(SaleLocation::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function locations()
+    {
+        return $this->belongsToMany(Location::class);
     }
 }

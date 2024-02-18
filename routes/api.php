@@ -86,6 +86,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/sale-location/{saleLocation}/users/{user}',
         [SaleLocationController::class, 'removeUser'])->name('saleLocation.remove.user');
 
+
+    Route::get('/location/{location}/users',
+        [LocationController::class, 'users'])->name('location.users');
+    Route::post('/location/{location}/users',
+        [LocationController::class, 'assignUser'])->name('location.assign.user');
+    Route::delete('/location/{location}/users/{user}',
+        [LocationController::class, 'removeUser'])->name('location.remove.user');
+
+
+
     Route::get('/production-line/{productionLine}/users',
         [ProductionLineController::class, 'users'])->name('production-line.users');
     Route::post('/production-line/{productionLine}/users',
