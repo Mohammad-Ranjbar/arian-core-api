@@ -15,6 +15,7 @@ use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
 use App\Filters\MakeCodeFilter;
 use App\Filters\MakeCodesFilter;
+use App\Filters\MobileFilter;
 use App\Filters\NameFilter;
 use App\Filters\NationalCodeFilter;
 use App\Filters\ProductionLineIdFilter;
@@ -68,6 +69,7 @@ abstract class BaseRepository
         MakeCodesFilter::class,
         MakeCodeFilter::class,
         NationalCodeFilter::class,
+        MobileFilter::class
 
     ];
 
