@@ -16,6 +16,7 @@ use App\Filters\IncidentIdFilter;
 use App\Filters\MakeCodeFilter;
 use App\Filters\MakeCodesFilter;
 use App\Filters\NameFilter;
+use App\Filters\NationalCodeFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
@@ -66,6 +67,7 @@ abstract class BaseRepository
         RolesFilter::class,
         MakeCodesFilter::class,
         MakeCodeFilter::class,
+        NationalCodeFilter::class,
 
     ];
 
