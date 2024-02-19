@@ -63,6 +63,14 @@ class BillOfLading extends Model
     }
 
     /**
+     * @return MorphToMany
+     */
+    public function vehicles(): MorphToMany
+    {
+        return $this->morphedByMany(Vehicle::class, 'model', 'bill_of_lading_item');
+    }
+
+    /**
      * @return MorphMany
      */
     public function actionLogs(): MorphMany

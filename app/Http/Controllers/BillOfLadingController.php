@@ -44,13 +44,7 @@ class BillOfLadingController extends CrudController
             $record->containers()->sync($data['items']);
             $record->containers()->update(['on_shipping' => true]);
         }
-        $record->permits()->forceDelete();
 
-        $record->car->gatePermits()->create([
-            'type'       => 'enter',
-            'owner_id'   => $record->id,
-            'owner_type' => $record->getMorphClass()
-        ]);
 
         $action = $record->wasRecentlyCreated ? 'new' : 'edit';
         $record->actionLogs()->create(['user_id' => Auth::id(), 'action' => $action]);
@@ -60,9 +54,19 @@ class BillOfLadingController extends CrudController
 
     public function customStoreRules(): array
     {
-        return [
-            'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
-        ];
+        if (request()->get('type') === 'containers') {
+            return [
+                'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
+            ];
+        }
+        if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies' ) {
+            return [
+                'items.*' => Rule::exists('vehicles', 'vin'),
+            ];
+        }
+
+        return [];
+
     }
 
     public function destroy($id)
@@ -72,9 +76,14 @@ class BillOfLadingController extends CrudController
             return $this->responseError('Can not delete this item', 400);
         }
 
-        $model->containers()->update(['on_shipping' => false]);
-        $model->containers()->detach();
-        $model->permits()->forceDelete();
+        if ($model->type === 'containers'){
+            $model->containers()->update(['on_shipping' => false]);
+            $model->containers()->detach();
+        }
+        if ($model->type === 'vehicles' || $model->type === 'bodies'){
+            $model->vehicles()->detach();
+        }
+
         $model->actionLogs()->delete();
         return $model->forceDelete();
     }
