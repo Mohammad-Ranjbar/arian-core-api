@@ -16,6 +16,7 @@ use App\Models\Element;
 use App\Models\File;
 use App\Models\GatePermit;
 use App\Models\Incident;
+use App\Models\Inspection;
 use App\Models\Inventory;
 use App\Models\Location;
 use App\Models\LocationAttribute;
@@ -76,6 +77,7 @@ class AuthServiceProvider extends ServiceProvider
         AccompanyingItem::class       => CrudPolicy::class,
         Location::class               => CrudPolicy::class,
         LocationAttribute::class      => CrudPolicy::class,
+        Inspection::class             => CrudPolicy::class,
         Vehicle::class                => VehiclePolicy::class,
     ];
 

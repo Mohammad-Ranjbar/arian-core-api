@@ -15,6 +15,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JoinChannelController;
@@ -95,7 +96,6 @@ Route::middleware('auth:sanctum')->group(function () {
         [LocationController::class, 'removeUser'])->name('location.remove.user');
 
 
-
     Route::get('/production-line/{productionLine}/users',
         [ProductionLineController::class, 'users'])->name('production-line.users');
     Route::post('/production-line/{productionLine}/users',
@@ -107,7 +107,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
     Route::post('/elements-imports', [ElementController::class, 'import'])->name('elements.imports');
-    Route::post('/unblock-items-imports', [BlockItemController::class, 'importUnblockItems'])->name('unblock-items.imports');
+    Route::post('/unblock-items-imports',
+        [BlockItemController::class, 'importUnblockItems'])->name('unblock-items.imports');
     Route::post('/block-items-imports', [BlockItemController::class, 'importBlockItems'])->name('block-items.imports');
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -198,5 +199,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'sale-locations'     => SaleLocationController::class,
         'accompanying-items' => AccompanyingItemController::class,
         'locations'          => LocationController::class,
+        'inspections'        => InspectionController::class
     ]);
 });
