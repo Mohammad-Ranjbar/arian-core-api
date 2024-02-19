@@ -126,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::apiResource('/inspections',InspectionController::class)->only(['store','index','show']);
             Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items.index');
             Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items.store');
             Route::put('/block-items/{id}/unblock',
@@ -199,6 +200,5 @@ Route::middleware('auth:sanctum')->group(function () {
         'sale-locations'     => SaleLocationController::class,
         'accompanying-items' => AccompanyingItemController::class,
         'locations'          => LocationController::class,
-        'inspections'        => InspectionController::class
     ]);
 });

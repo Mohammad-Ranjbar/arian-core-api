@@ -12,13 +12,9 @@ class InspectionRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'user_id' => 'required|exists:users,id',
-            'vin'     => 'required|exists:vehicles,vin',
             'data'    => 'required|json',
 
         ], 'update' => [
-            'user_id' => 'required|exists:users,id',
-            'vin'     => 'required|exists:vehicles,vin',
             'data'    => 'required|json',
         ]
     ];

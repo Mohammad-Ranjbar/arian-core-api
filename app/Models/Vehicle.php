@@ -94,4 +94,13 @@ class Vehicle extends Model
     {
         return $this->hasMany(BlockItem::class, 'vin');
     }
+
+
+    /**
+     * @return HasMany
+     */
+    public function inspections(): HasMany
+    {
+        return $this->hasMany(Inspection::class,'vin');
+    }
 }
