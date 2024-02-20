@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TemplateExport;
 use App\Http\Requests\BlockItemStoreRequest;
 use App\Http\Requests\ImportBlockRequest;
 use App\Http\Requests\JobRequest;
@@ -19,6 +20,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class BlockItemController extends Controller
@@ -96,11 +99,11 @@ class BlockItemController extends Controller
 
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
-                'message' => 'export job created', 'data' => [
-                    'uuid'         => $job->getAttribute('uuid'),
-                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
-                ]
-            ]);
+            'message' => 'export job created', 'data' => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
     }
 
     /**
@@ -143,11 +146,20 @@ class BlockItemController extends Controller
 
         ImportJob::dispatch($job->getAttribute('uuid'));
         return new JsonResponse(data: [
-                'message' => 'import job created', 'data' => [
-                    'uuid'         => $job->getAttribute('uuid'),
-                    'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
-                ]
-            ], status: Response::HTTP_OK);
+            'message' => 'import job created', 'data' => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ], status: Response::HTTP_OK);
     }
 
+    public function getTemplateUnblockItems(): BinaryFileResponse|JsonResponse
+    {
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
+        }
+        $headers = ['id'];
+        $export = new TemplateExport($headers);
+        return Excel::download($export, 'un'.$this->repository->model->getTable().'-template.xlsx');
+    }
 }

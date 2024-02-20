@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
         TrackingHistoryController::class)->name('tracking-history');
     Route::get('/get-template-incident', [IncidentController::class, 'getTemplate']);
     Route::get('/get-template-element', [ElementController::class, 'getTemplate']);
+    Route::get('/get-template-unblock-items', [BlockItemController::class, 'getTemplateUnblockItems']);
     Route::get('/get-stop-locations',
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
 
