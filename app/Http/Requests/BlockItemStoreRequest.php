@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Repositories\BlockItemRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class BlockItemStoreRequest extends FormRequest
 {
@@ -25,9 +25,17 @@ class BlockItemStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        $createValidateRules = app()->make(BlockItemRepository::class);
-
-        return $createValidateRules->getCreateRules();
+        return [
+            'block_reason_id' => 'required|exists:block_reasons,id',
+            'description'     => 'nullable',
+            'blocked_by'      => 'nullable',
+            'vin'             => [
+                'nullable',
+                Rule::unique('block_items')->where(function ($query) {
+                    return $query->where('block_reason_id', $this->get('block_reason_id'));
+                }),
+            ],
+        ];
     }
 
     /**
@@ -36,7 +44,7 @@ class BlockItemStoreRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
-            'vin'  => $this->route()->parameter('vehicle')->vin,
+            'vin'        => $this->route()->parameter('vehicle')->vin,
             'blocked_by' => Auth::id(),
         ]);
     }
