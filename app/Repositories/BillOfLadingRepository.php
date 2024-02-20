@@ -12,17 +12,17 @@ class BillOfLadingRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'type'                   => 'required|in:containers',
-            'items'                  => 'array|required',
-            'transit_source_id'      => 'required|exists:transit_sources,id',
-            'transit_destination_id' => 'required|exists:transit_destinations,id',
-            'code'                   => 'required|string|unique:bill_of_ladings,code',
-            'request_no'             => 'required|string',
-            'cottage'                => 'required|string',
-            'weight'                 => 'required|string',
-            'batch'                  => 'required|string',
-            'description'            => 'nullable',
-            'car_id'                 => 'required|exists:cars,id,deleted_at,NULL',
+            'type'                    => 'required|in:containers,vehicles,bodies',
+            'items'                   => 'array|required',
+            'location_source_id'      => 'required|exists:locations,id',
+            'location_destination_id' => 'required|exists:locations,id',
+            'code'                    => 'required|string|unique:bill_of_ladings,code',
+            'request_no'              => 'required|string',
+            'cottage'                 => 'required|string',
+            'weight'                  => 'required|string',
+            'batch'                   => 'required|string',
+            'description'             => 'nullable',
+            'car_id'                  => 'required|exists:cars,id,deleted_at,NULL',
         ],
         'update' => []
     ];
