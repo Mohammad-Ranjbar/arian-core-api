@@ -40,9 +40,9 @@ class UnblockItemImport implements ToCollection, WithStartRow
     {
         $this->data['total'] = $collection->count();
         $this->sendEvent();
-        dd($collection);
-        $collection->each(function ($row) {
 
+        $collection->each(function ($row) {
+dd($row);
             $blockItem = BlockItem::query()->where('id', $row['id'])->first();
             if ($blockItem) {
                 $blockItem->update([
