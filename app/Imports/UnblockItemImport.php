@@ -7,6 +7,7 @@ use App\Exports\ResultExport;
 use App\Models\BlockItem;
 use App\Models\Job;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
@@ -46,7 +47,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
             if ($blockItem) {
                 $blockItem->update([
                     'unblocked_at'  => now(),
-                    'unblocked_by' => $row['user_id'],
+                    'unblocked_by' => Auth::id(),
                 ]);
                 $this->data['success']++;
 
