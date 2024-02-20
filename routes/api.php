@@ -174,6 +174,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/production-line-activities/{production_line_activity}/approve',
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
 
+    Route::apiResource('gate-permits',GatePermitController::class)->only(['index','store','destroy']);
+
     Route::apiResources([
         'roles'              => RoleController::class,
         'make-codes'         => MakeCodeController::class,
@@ -195,7 +197,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'baskets'            => BasketController::class,
         'inventories'        => InventoryController::class,
         'containers'         => ContainerController::class,
-        'gate-permits'       => GatePermitController::class,
         'drivers'            => DriverController::class,
         'sale-locations'     => SaleLocationController::class,
         'accompanying-items' => AccompanyingItemController::class,
