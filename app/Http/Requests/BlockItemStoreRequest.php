@@ -39,6 +39,16 @@ class BlockItemStoreRequest extends FormRequest
     }
 
     /**
+     * @return string[]
+     */
+    public function messages(): array
+    {
+        return [
+            'vin.unique' => 'این خودرو با همین دلیل بلوک است'
+        ];
+    }
+
+    /**
      * @return void
      */
     public function prepareForValidation(): void
