@@ -3,17 +3,22 @@
 namespace App\Filters;
 
 use Closure;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class EmailFilter
 {
+
     /**
      * @param $request
      * @param  Closure  $next
      * @return mixed
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function handle($request, Closure $next):mixed
+    public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('email')) {
+        if (!request()->has('email') || request()->get('email')) {
             return $next($request);
         }
         return $next($request)->where('email', 'LIKE', '%'.request()->input('email').'%');

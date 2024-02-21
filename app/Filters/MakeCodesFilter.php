@@ -18,7 +18,7 @@ class MakeCodesFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('make_codes')) {
+        if (!request()->has('make_codes') || request()->get('make_codes')) {
             return $next($request);
         }
 

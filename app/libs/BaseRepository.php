@@ -25,6 +25,8 @@ use App\Filters\TitleFilter;
 use App\Filters\TypeFilter;
 use App\Filters\UnblockByFilter;
 use App\Filters\UnblockedAtFilter;
+use App\Filters\UnblockedAtFromFilter;
+use App\Filters\UnblockedAtToFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -69,10 +71,13 @@ abstract class BaseRepository
         MakeCodesFilter::class,
         MakeCodeFilter::class,
         NationalCodeFilter::class,
-        MobileFilter::class
-
+        MobileFilter::class,
+        UnblockedAtFromFilter::class,
+        UnblockedAtToFilter::class
     ];
-
+    public array $searchTerms = [
+        'title'
+    ];
     /**
      * @var array|array[]
      */
@@ -109,25 +114,23 @@ abstract class BaseRepository
      */
     public function getOptions(): array
     {
-        return $this->get('id','asc',request()->get('limit'))->map(function ($item) {
+        return $this->get('id', 'asc', request()->get('limit'))->map(function ($item) {
             return ['id' => $item->id, 'title' => $item->title,];
         })->all();
     }
-
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function get(string $orderBy = 'id', string $sort = 'asc',$limit = 0): mixed
+    public function get(string $orderBy = 'id', string $sort = 'asc', $limit = 0): mixed
     {
         $q = $this->makeQuery()->orderBy($orderBy, $sort);
-        if($limit) {
-          $q =  $q->limit($limit);
+        if ($limit) {
+            $q = $q->limit($limit);
         }
         return $q->get();
     }
-
 
     /**
      * @return mixed
@@ -142,11 +145,6 @@ abstract class BaseRepository
         }
         return Pipeline::send($data)->through($this->filters)->thenReturn();
     }
-
-    public array $searchTerms = [
-        'title'
-    ];
-
 
     /**
      * @param $data

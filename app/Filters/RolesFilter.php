@@ -18,7 +18,7 @@ class RolesFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('roles')) {
+        if (!request()->has('roles') || request()->get('roles')) {
             return $next($request);
         }
         return $next($request)->whereHas('roles', function ($query) {
