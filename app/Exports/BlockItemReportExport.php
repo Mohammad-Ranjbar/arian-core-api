@@ -14,10 +14,17 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents
 {
 
+    /**
+     * @param  Collection  $data
+     * @param  array  $eventData
+     */
     public function __construct(private readonly Collection $data, private array $eventData)
     {
     }
 
+    /**
+     * @return mixed
+     */
     public function registerEvents(): array
     {
         return [
@@ -27,16 +34,29 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
-        return ["id", "بلاک توسط", "آنبلاک توسط", "دلیل توقف", "زمان آنبلاک", "توضیحات", "VIN", "زمان ایجاد"];
+        return [
+            "id", "بلاک توسط", "آنبلاک توسط", "دلیل توقف", "زمان آنبلاک", "توضیحات", "VIN", "makeCode", "carModel",
+            "زمان ایجاد"
+        ];
     }
 
+    /**
+     * @return Collection
+     */
     public function collection(): Collection
     {
         return $this->data;
     }
 
+    /**
+     * @param $row
+     * @return array
+     */
     public function map($row): array
     {
         $row = [
@@ -44,19 +64,24 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
             $row->blockedBy ? $row->blockedBy->name : '',
             $row->unblockedBy ? $row->unblockedBy->name : '',
             $row->blockReason->title,
-            jdate($row->unblocked_at),
+            $row->unblocked_at ? jdate($row->unblocked_at) : '',
             $row->description,
             $row->vin,
+            $row->vin->makeCode->reference,
+            $row->vin->carModel->reference,
             jdate($row->created_at),
         ];
 
-        $this->eventData['done'] ++;
-        $this->eventData['success'] ++;
+        $this->eventData['done']++;
+        $this->eventData['success']++;
         $this->sendEvent();
 
         return $row;
     }
 
+    /**
+     * @return void
+     */
     public function sendEvent(): void
     {
         event(new JobProcessEvent($this->eventData));

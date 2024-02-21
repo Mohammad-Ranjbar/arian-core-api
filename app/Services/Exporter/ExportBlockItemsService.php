@@ -5,16 +5,25 @@ namespace App\Services\Exporter;
 use App\Events\JobProcessEvent;
 use App\Exports\BlockItemReportExport;
 use App\Repositories\BlockItemRepository;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportBlockItemsService extends BaseExporterService
 {
+    /**
+     * @param $job
+     */
     public function __construct(public $job)
     {
 
     }
 
-    public function export():string
+    /**
+     * @return string
+     * @throws BindingResolutionException
+     */
+    public function export(): string
     {
         request()->merge((array) $this->job->getAttribute('data'));
         $rows = app()->make(BlockItemRepository::class)->get();
@@ -28,7 +37,7 @@ class ExportBlockItemsService extends BaseExporterService
         ];
         event(new JobProcessEvent($eventData));
 
-        $fileName = 'blockItemExport-'.time().'.xlsx';
+        $fileName = 'blockItemExport-'.Str::uuid().'.xlsx';
         $path = '/public/exports/'.$fileName;
         Excel::store(new BlockItemReportExport($rows, $eventData), $path);
         return asset('/storage/exports/'.$fileName);
