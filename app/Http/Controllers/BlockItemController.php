@@ -45,7 +45,7 @@ class BlockItemController extends Controller
     ): JsonResponse|AnonymousResourceCollection {
         $this->authorize('block-items.index');
         $perPage = $request->get('per_page', 15);
-        return BlockItemResource::collection($vehicle->blockItems()->paginate($perPage));
+        return BlockItemResource::collection($vehicle->blockItems()->latest()->paginate($perPage));
     }
 
 
