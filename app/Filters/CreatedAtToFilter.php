@@ -9,6 +9,13 @@ use Psr\Container\NotFoundExceptionInterface;
 class CreatedAtToFilter
 {
 
+    /**
+     * @param $request
+     * @param  Closure  $next
+     * @return mixed
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function handle($request, Closure $next): mixed
     {
         if (!request()->has('created_at_to') || !request()->get('created_at_to')) {
