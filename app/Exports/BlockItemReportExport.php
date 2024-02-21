@@ -40,8 +40,7 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
     public function headings(): array
     {
         return [
-            "id", "بلاک توسط", "آنبلاک توسط", "دلیل توقف", "زمان آنبلاک", "توضیحات", "VIN", "makeCode", "carModel",
-            "زمان ایجاد"
+            "id", "بلاک توسط", "آنبلاک توسط", "دلیل توقف", "زمان آنبلاک", "توضیحات", "VIN", "makeCode", "carModel","زمان ایجاد"
         ];
     }
 
@@ -69,7 +68,6 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
             $row->vin,
             $row->vehicle->makeCode->reference,
             $row->vehicle->carModel->reference,
-            $row->carModel,
             jdate($row->created_at),
         ];
 
