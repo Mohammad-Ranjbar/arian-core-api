@@ -67,8 +67,8 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
             $row->unblocked_at ? jdate($row->unblocked_at) : '',
             $row->description,
             $row->vin,
-            $row->vin->makeCode->reference,
-            $row->vin->carModel->reference,
+            $row->makeCode,
+            $row->carModel,
             jdate($row->created_at),
         ];
 
