@@ -32,7 +32,7 @@ class BlockItemStoreRequest extends FormRequest
             'vin'             => [
                 'nullable',
                 Rule::unique('block_items')->where(function ($query) {
-                    return $query->where('block_reason_id', $this->get('block_reason_id'));
+                    return $query->where('block_reason_id', $this->get('block_reason_id'))->whereNull('unblock_at');
                 }),
             ],
         ];
