@@ -18,7 +18,7 @@ class EmailFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('email') || request()->get('email')) {
+        if (!request()->has('email') || !request()->get('email')) {
             return $next($request);
         }
         return $next($request)->where('email', 'LIKE', '%'.request()->input('email').'%');

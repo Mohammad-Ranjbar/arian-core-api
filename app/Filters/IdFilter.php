@@ -18,7 +18,7 @@ class IdFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('id') || request()->get('id')) {
+        if (!request()->has('id') || !request()->get('id')) {
             return $next($request);
         }
         return $next($request)->where('id', request()->input('id'));

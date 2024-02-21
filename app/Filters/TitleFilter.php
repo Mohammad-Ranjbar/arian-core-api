@@ -18,7 +18,7 @@ class TitleFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('title') || request()->get('title')) {
+        if (!request()->has('title') || !request()->get('title')) {
             return $next($request);
         }
         return $next($request)->where('title', 'LIKE', '%'.request()->input('title').'%');

@@ -17,7 +17,7 @@ class ProductionLineIdFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('production_line_id') || request()->get('production_line_id')) {
+        if (!request()->has('production_line_id') || !request()->get('production_line_id')) {
             return $next($request);
         }
         return $next($request)->where('production_line_id', request()->input('production_line_id'));

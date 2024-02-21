@@ -18,7 +18,7 @@ class IncidentIdFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('incident_id') || request()->get('incident_id')) {
+        if (!request()->has('incident_id') || !request()->get('incident_id')) {
             return $next($request);
         }
         return $next($request)->where('incident_id', request()->input('incident_id'));

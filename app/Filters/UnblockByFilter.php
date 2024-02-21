@@ -18,7 +18,7 @@ class UnblockByFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('unblock_by') || request()->get('unblock_by')) {
+        if (!request()->has('unblock_by') || !request()->get('unblock_by')) {
             return $next($request);
         }
         return $next($request)->where('unblock_by', request()->input('unblock_by'));

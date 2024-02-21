@@ -18,7 +18,7 @@ class VinFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('vin') || request()->get('vin')) {
+        if (!request()->has('vin') || !request()->get('vin')) {
             return $next($request);
         }
         return $next($request)->where('vin', request()->input('vin'));

@@ -18,7 +18,7 @@ class BlockByFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('block_by') || request()->get('block_by')) {
+        if (!request()->has('block_by') || !request()->get('block_by')) {
             return $next($request);
         }
         return $next($request)->where('block_by', request()->input('block_by'));

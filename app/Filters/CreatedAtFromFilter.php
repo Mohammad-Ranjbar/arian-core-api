@@ -18,7 +18,7 @@ class CreatedAtFromFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('created_at_from') || request()->get('created_at_from')) {
+        if (!request()->has('created_at_from') || !request()->get('created_at_from')) {
             return $next($request);
         }
         return $next($request)->where('created_at', '>=', request()->input('created_at_from'));

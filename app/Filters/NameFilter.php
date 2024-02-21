@@ -18,7 +18,7 @@ class NameFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('name') || request()->get('name')) {
+        if (!request()->has('name') || !request()->get('name')) {
             return $next($request);
         }
         return $next($request)->where('name', 'LIKE', '%'.request()->input('name').'%');

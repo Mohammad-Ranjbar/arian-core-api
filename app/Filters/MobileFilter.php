@@ -18,7 +18,7 @@ class MobileFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('mobile') || request()->get('mobile')) {
+        if (!request()->has('mobile') || !request()->get('mobile')) {
             return $next($request);
         }
         return $next($request)->where('mobile', request()->input('mobile'));

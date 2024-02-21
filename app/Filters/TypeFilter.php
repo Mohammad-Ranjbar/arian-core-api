@@ -18,7 +18,7 @@ class TypeFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('type') || request()->get('type')) {
+        if (!request()->has('type') || !request()->get('type')) {
             return $next($request);
         }
         return $next($request)->where('type', request()->input('type'));

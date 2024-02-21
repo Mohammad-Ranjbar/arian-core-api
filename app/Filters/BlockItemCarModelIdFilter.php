@@ -18,7 +18,7 @@ class BlockItemCarModelIdFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('block_item_car_model_id') || request()->get('block_item_car_model_id')) {
+        if (!request()->has('block_item_car_model_id') || !request()->get('block_item_car_model_id')) {
             return $next($request);
         }
         return $next($request)->whereHas('vehicle', function ($q) {

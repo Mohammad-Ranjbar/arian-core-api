@@ -18,7 +18,7 @@ class UnblockedAtFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('unblocked_at') || request()->get('unblocked_at')) {
+        if (!request()->has('unblocked_at') || !request()->get('unblocked_at')) {
             return $next($request);
         }
         return $next($request)->where('unblocked_at', request()->input('unblocked_at'));

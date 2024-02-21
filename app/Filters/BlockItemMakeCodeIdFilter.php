@@ -18,7 +18,7 @@ class BlockItemMakeCodeIdFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('block_item_make_code_id') || request()->get('block_item_make_code_id')) {
+        if (!request()->has('block_item_make_code_id') || !request()->get('block_item_make_code_id')) {
             return $next($request);
         }
         return $next($request)->whereHas('vehicle', function ($q) {
