@@ -29,8 +29,6 @@ class BlockItemResource extends JsonResource
             'unblocked_at' => $this->resource->unblocked_at,
             'description'  => $this->resource->description,
             'vin'          => $this->resource->vin,
-            'makeCode'     => $this->resource->vehicle->makeCode->reference,
-            'carModel'     => $this->resource->vehicle->carModel->reference,
             'created_at'   => $this->resource->created_at,
         ];
     }
