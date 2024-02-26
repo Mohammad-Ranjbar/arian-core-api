@@ -24,7 +24,6 @@ class BasketController extends CrudController
     }
 
 
-
     public function store(Request $request)
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
@@ -35,7 +34,7 @@ class BasketController extends CrudController
             $response = $this->checkBasketBarcode($validatedData['code']);
 
             if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'],500);
+                return $this->responseError($response['message'], 500);
             }
 
 
@@ -46,6 +45,10 @@ class BasketController extends CrudController
         }
     }
 
+    public function checkBasketBarcode($barcode): array
+    {
+        return ErpWsdlClient::run(config('erp.basket'), 'GetValidationItem_No', ['barcodeInfoP' => $barcode]);
+    }
 
     /**
      * @param  Request  $request
@@ -68,13 +71,8 @@ class BasketController extends CrudController
         return true;
     }
 
-    public function checkBasketBarcode($barcode): array
-    {
-        return ErpWsdlClient::run(config('erp.basket'),'GetValidationItem_No',['barcodeInfoP', $barcode]);
-    }
-
     public function sendBasketBarcode($barcode): array
     {
-        return ErpWsdlClient::run(config('erp.basket'),'CreateItemReclassJournal',['barcodeInfoP', $barcode]);
+        return ErpWsdlClient::run(config('erp.basket'), 'CreateItemReclassJournal', ['barcodeInfoP' => $barcode]);
     }
 }

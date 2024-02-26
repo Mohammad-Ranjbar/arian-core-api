@@ -55,7 +55,7 @@ class BlockItemController extends Controller
         try {
             $validatedData = $request->validated();
 
-            ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', ['barcodeInfoP', $vehicle->vin]);
+            ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', ['barcodeInfoP' => $vehicle->vin]);
             return new BlockItemResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
@@ -80,7 +80,7 @@ class BlockItemController extends Controller
 
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
             if (!$exists) {
-                ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', ['barcodeInfoP', $vehicle->vin]);
+                ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', ['barcodeInfoP' => $vehicle->vin]);
             }
 
             return new BlockItemResource($item);

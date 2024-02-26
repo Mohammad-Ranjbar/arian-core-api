@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddUsersToSaleLocationRequest;
+use App\Http\Requests\SetSaleLocationRequest;
 use App\Http\Resources\SaleLocationResource;
 use App\Http\Resources\UserShortResource;
+use App\Models\Location;
 use App\Models\SaleLocation;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\SaleLocationRepository;
+use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
@@ -88,19 +92,64 @@ class SaleLocationController extends CrudController
         }
     }
 
+    /**
+     * @param  Vehicle  $vehicle
+     * @return JsonResponse
+     */
     public function getAvailableSaleLocations(Vehicle $vehicle): JsonResponse
     {
         $saleLocations = SaleLocation::query()->whereHas('makeCode', function ($makeCode) use ($vehicle) {
             $makeCode->where('id', $vehicle->makeCode->id);
         })->whereHas('users', function ($q) {
             $q->where('users.id', Auth::id());
-        })->select(['id','title'])->get();
+        })->select(['id', 'title'])->get();
 
         return new JsonResponse(
             data: $saleLocations,
             status: Response::HTTP_OK
         );
+    }
 
+    /**
+     * @param  Vehicle  $vehicle
+     * @param  SetSaleLocationRequest  $request
+     * @return Model|JsonResponse
+     */
+    public function setSaleLocation(
+        Vehicle $vehicle,
+        SetSaleLocationRequest $request
+    ): Model|JsonResponse {
+        $validatedData = $request->validated();
+        try {
+            $location = Location::query()->findOrFail($validatedData['location_id']);
+            $response = $this->transfer($vehicle->getAttribute('vin'), $location->getAttribute('code'));
+
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 500);
+            }
+            return $vehicle->tracking()->create([
+                'user_id'    => Auth::id(),
+                'type'       => 'enter',
+                'model_type' => Location::class,
+                'model_id'   => $validatedData['location_id']
+            ]);
+
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 500);
+        }
+
+
+    }
+
+    /**
+     * @param  string  $vin
+     * @param  string  $locationCode
+     * @return array
+     */
+    private function transfer(string $vin, string $locationCode): array
+    {
+        return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts',
+            ['vINP' => $vin, 'toLocationP' => $locationCode]);
 
     }
 }
