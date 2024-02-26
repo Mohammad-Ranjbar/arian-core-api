@@ -92,12 +92,15 @@ class SaleLocationController extends CrudController
         }
     }
 
+
     /**
      * @param  Vehicle  $vehicle
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function getAvailableSaleLocations(Vehicle $vehicle): JsonResponse
     {
+        $this->authorize('get-available-sale-locations');
         $saleLocations = SaleLocation::query()->whereHas('makeCode', function ($makeCode) use ($vehicle) {
             $makeCode->where('id', $vehicle->makeCode->id);
         })->whereHas('users', function ($q) {
