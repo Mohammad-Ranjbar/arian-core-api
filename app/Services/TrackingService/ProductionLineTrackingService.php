@@ -24,14 +24,12 @@ class ProductionLineTrackingService extends BaseTrackingService
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $productionLine->getAttribute('id'),
             $data['vin']);
 
-        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
+        if ($tracking and $tracking->getAttribute('type') === 'enter') {
             return false;
         }
-//        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
-//        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
+
         return $this->prepareData($data);
-//        }
-//        return false;
+
     }
 
     /**
