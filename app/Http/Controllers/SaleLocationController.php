@@ -124,8 +124,16 @@ class SaleLocationController extends CrudController
     ): Model|JsonResponse {
         $validatedData = $request->validated();
         try {
-            $location = Location::query()->findOrFail($validatedData['location_id']);
-            $response = $this->transfer($vehicle->getAttribute('vin'), $location->getAttribute('code'));
+            $saleLocation = SaleLocation::query()->where('id', $validatedData['sale_location_id'])
+                ->whereHas('makeCode', function ($makeCode) use ($vehicle) {
+                    $makeCode->where('id', $vehicle->makeCode->id);
+                })->whereHas('users', function ($q) {
+                    $q->where('users.id', Auth::id());
+                })->first();
+            if (!$saleLocation) {
+                return $this->responseError('cant find sale location for this situation', 400);
+            }
+            $response = $this->transfer($vehicle->getAttribute('vin'), $saleLocation->getAttribute('code'));
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 500);
@@ -134,7 +142,7 @@ class SaleLocationController extends CrudController
                 'user_id'    => Auth::id(),
                 'type'       => 'enter',
                 'model_type' => Location::class,
-                'model_id'   => $validatedData['location_id']
+                'model_id'   => $validatedData['sale_location_id']
             ]);
 
         } catch (Exception $exception) {
@@ -144,15 +152,16 @@ class SaleLocationController extends CrudController
 
     }
 
+
     /**
      * @param  string  $vin
-     * @param  string  $locationCode
+     * @param  string  $saleLocationCode
      * @return array
      */
-    private function transfer(string $vin, string $locationCode): array
+    private function transfer(string $vin, string $saleLocationCode): array
     {
         return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts',
-            ['vINP' => $vin, 'toLocationP' => $locationCode]);
+            ['vINP' => $vin, 'toLocationP' => $saleLocationCode]);
 
     }
 }
