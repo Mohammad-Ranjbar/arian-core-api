@@ -127,6 +127,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::get('/get-available-sale-locations',[SaleLocationController::class,'getAvailableSaleLocations']);
             Route::apiResource('/inspections',InspectionController::class)->only(['store','index','show']);
             Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items.index');
             Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items.store');

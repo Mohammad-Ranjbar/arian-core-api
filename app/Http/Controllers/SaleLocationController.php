@@ -7,13 +7,16 @@ use App\Http\Resources\SaleLocationResource;
 use App\Http\Resources\UserShortResource;
 use App\Models\SaleLocation;
 use App\Models\User;
+use App\Models\Vehicle;
 use App\Repositories\SaleLocationRepository;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class SaleLocationController extends CrudController
 {
@@ -83,5 +86,21 @@ class SaleLocationController extends CrudController
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 400);
         }
+    }
+
+    public function getAvailableSaleLocations(Vehicle $vehicle): JsonResponse
+    {
+        $saleLocations = SaleLocation::query()->whereHas('makeCode', function ($makeCode) use ($vehicle) {
+            $makeCode->where('id', $vehicle->makeCode->id);
+        })->whereHas('users', function ($q) {
+            $q->where('users.id', Auth::id());
+        })->select(['id','title'])->get();
+
+        return new JsonResponse(
+            data: $saleLocations,
+            status: Response::HTTP_OK
+        );
+
+
     }
 }
