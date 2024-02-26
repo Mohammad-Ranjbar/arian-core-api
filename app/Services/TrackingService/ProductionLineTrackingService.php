@@ -21,12 +21,12 @@ class ProductionLineTrackingService extends BaseTrackingService
     {
 
         $productionLine = ProductionLine::query()->find($data['model_id']);
-        $tracking = $this->getLatestRecord(SalonTrackingService::MODEL_TYPE, $productionLine->getAttribute('salon_id'),
+        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $productionLine->getAttribute('id'),
             $data['vin']);
 
-//        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
-//            return false;
-//        }
+        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
+            return false;
+        }
 //        $tracking = $this->getLatestRecord(self::MODEL_TYPE, $data['model_id'], $data['vin']);
 //        if (!$tracking or $tracking->getAttribute('type') === 'exit') {
         return $this->prepareData($data);
