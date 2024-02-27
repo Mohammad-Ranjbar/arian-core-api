@@ -22,7 +22,7 @@ class UpdateGradeRequest extends FormRequest
     public function rules(): array
     {
         return [
-          'grade' => 'required|string'
+          'grade' => 'required|string|in:1,2'
         ];
     }
 }

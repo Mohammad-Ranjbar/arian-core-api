@@ -76,6 +76,11 @@ class VehicleController extends CrudController
     ): JsonResponse|VehicleResource {
         try {
             $validatedData = $request->validated();
+            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
+
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 400);
+            }
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {
@@ -94,11 +99,6 @@ class VehicleController extends CrudController
     ): JsonResponse|VehicleResource {
         try {
             $validatedData = $request->validated();
-            $response = $this->transfer($vehicle->getAttribute('vin'), $validatedData['qc_status']);
-
-            if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'], 400);
-            }
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {
@@ -106,10 +106,10 @@ class VehicleController extends CrudController
         }
     }
 
-    private function transfer(string $vin, string $qcStatus): array
+    private function updateStatus(string $vin, string $qcStatus): array
     {
-        return ErpWsdlClient::run(config('erp.update_qc_status'), 'TransferVehicleCommercialProducts',
-            ['vINP' => $vin, 'qc_status' => $qcStatus]);
+        return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts',
+            ['vINP' => $vin, 'qCStatusP' => $qcStatus]);
 
     }
 }
