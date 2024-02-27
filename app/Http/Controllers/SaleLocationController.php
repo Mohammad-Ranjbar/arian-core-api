@@ -123,7 +123,7 @@ class SaleLocationController extends CrudController
         SetSaleLocationRequest $request
     ): Model|JsonResponse {
         $validatedData = $request->validated();
-//        try {
+        try {
             $saleLocation = SaleLocation::query()->where('id', $validatedData['sale_location_id'])
                 ->whereHas('makeCode', function ($makeCode) use ($vehicle) {
                     $makeCode->where('id', $vehicle->makeCode->id);
@@ -145,11 +145,9 @@ class SaleLocationController extends CrudController
                 'model_id'   => $validatedData['sale_location_id']
             ]);
 
-//        } catch (Exception $exception) {
-//            return $this->responseError($exception->getMessage(), 500);
-//        }
-
-
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 400);
+        }
     }
 
 
