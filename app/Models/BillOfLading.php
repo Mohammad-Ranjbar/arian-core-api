@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -86,5 +87,43 @@ class BillOfLading extends Model
         return $this->morphMany(GatePermit::class, 'owner');
     }
 
+    /**
+     * @return Attribute
+     */
+    protected function action(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => match ($this->getAttribute('status')) {
+                'new' => [
+                    [
+                        'action'     => 'temporary_receipt',
+                        'permission' => 'bill-of-lading.change-status.temporary_receipt',
+                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/change-status/temporary_receipt'),
+                    ]
+                ],
+                'temporary_receipt' => [
+                    [
+                        'action'     => 'enter',
+                        'permission' => 'bill-of-lading.change-status.enter',
+                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/change-status/enter'),
+                    ],
+                    [
+                        'action'     => 'notice',
+                        'permission' => 'bill-of-lading.change-status.notice',
+                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/notice'),
+                    ]
+                ],
+                'enter' => [
+                    [
+                        'action'     => 'discharge',
+                        'permission' => 'bill-of-lading.change-status.discharge',
+                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/change-status/discharge'),
+
+                    ]
+                ],
+                default => []
+            },
+        );
+    }
 
 }

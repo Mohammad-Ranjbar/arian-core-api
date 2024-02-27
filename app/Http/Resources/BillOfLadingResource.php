@@ -15,24 +15,27 @@ class BillOfLadingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                     => $this->resource->id,
-            'transit_source_id'      => $this->resource->location_source_id,
-            'transit_destination_id' => $this->resource->location_destination_id,
-            'code'                   => $this->resource->code,
-            'request_no'             => $this->resource->request_no,
-            'priority'               => $this->resource->priority,
-            'status'                 => $this->resource->status,
-            'cottage'                => $this->resource->cottage,
-            'weight'                 => $this->resource->weight,
-            'batch'                  => $this->resource->batch,
-            'car_id'                 => $this->resource->car_id,
-            'description'            => $this->resource->description,
-            'created_at'             => $this->resource->created_at,
+            'id'                      => $this->resource->id,
+            'location_source_id'      => $this->resource->location_source_id,
+            'location_destination_id' => $this->resource->location_destination_id,
+            'code'                    => $this->resource->code,
+            'request_no'              => $this->resource->request_no,
+            'priority'                => $this->resource->priority,
+            'status'                  => $this->resource->status,
+            'cottage'                 => $this->resource->cottage,
+            'weight'                  => $this->resource->weight,
+            'batch'                   => $this->resource->batch,
+            'car_id'                  => $this->resource->car_id,
+            'description'             => $this->resource->description,
+            'created_at'              => $this->resource->created_at,
             'locationSource'          => new LocationResource($this->resource->locationSource),
             'locationDestination'     => new LocationResource($this->resource->locationDestination),
-            'car'                    => new CarShortResource($this->resource->car),
-            'containers'             => ContainerResource::collection($this->resource->containers),
-            'actionLogs'             => ActionLogResource::collection($this->resource->actionLogs),
+            'car'                     => new CarShortResource($this->resource->car),
+            'items'                   => $this->resource->type === 'containers' ?
+                $this->resource->containers()->get()->pluck('code')->all() :
+                $this->resource->vehicles()->get()->pluck('vin')->all(),
+            'actionLogs'              => ActionLogResource::collection($this->resource->actionLogs),
+            'actions'                 => $this->resource->action
         ];
     }
 }

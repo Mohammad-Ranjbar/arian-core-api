@@ -20,11 +20,17 @@ class UpdatePermissionCommand extends Command
     public function handle(): void
     {
         $list = collect([
-            'vehicles.faults.qc.index', 'vehicles.faults.evaluation.index', 'vehicles.faults.qc.submit',
-            'vehicles.faults.evaluation.submit', 'vehicles.faults.qc.report', 'vehicles.faults.evaluation.report',
-            'bill-of-lading.change-status.notice',
-            'bill-of-lading.change-status.discharge',
+            'vehicles.faults.qc.index',
+            'vehicles.faults.evaluation.index',
+            'vehicles.faults.qc.submit',
+            'vehicles.faults.evaluation.submit',
+            'vehicles.faults.qc.report',
+            'vehicles.faults.evaluation.report',
+
             'bill-of-lading.change-status.temporary_receipt',
+            'bill-of-lading.change-status.enter',
+            'bill-of-lading.change-status.discharge',
+
             'production-tracking.salons',
             'production-tracking.stations',
             'production-tracking.production_lines',
