@@ -21,7 +21,7 @@ class SetSaleLocationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sale_location_id' => 'required|exists:locations,id'
+            'sale_location_id' => 'required|exists:sale_locations,id'
         ];
     }
 }
