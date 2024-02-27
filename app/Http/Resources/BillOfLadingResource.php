@@ -16,8 +16,8 @@ class BillOfLadingResource extends JsonResource
     {
         return [
             'id'                     => $this->resource->id,
-            'transit_source_id'      => $this->resource->transit_source_id,
-            'transit_destination_id' => $this->resource->transit_destination_id,
+            'transit_source_id'      => $this->resource->location_source_id,
+            'transit_destination_id' => $this->resource->location_destination_id,
             'code'                   => $this->resource->code,
             'request_no'             => $this->resource->request_no,
             'priority'               => $this->resource->priority,
