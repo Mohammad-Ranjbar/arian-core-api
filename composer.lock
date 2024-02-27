@@ -3918,16 +3918,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.35",
+            "version": "3.0.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "4b1827beabce71953ca479485c0ae9c51287f2fe"
+                "reference": "c2fb5136162d4be18fdd4da9980696f3aee96d7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/4b1827beabce71953ca479485c0ae9c51287f2fe",
-                "reference": "4b1827beabce71953ca479485c0ae9c51287f2fe",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/c2fb5136162d4be18fdd4da9980696f3aee96d7b",
+                "reference": "c2fb5136162d4be18fdd4da9980696f3aee96d7b",
                 "shasum": ""
             },
             "require": {
@@ -4008,7 +4008,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.35"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.36"
             },
             "funding": [
                 {
@@ -4024,7 +4024,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-29T01:59:53+00:00"
+            "time": "2024-02-26T05:13:14+00:00"
         },
         {
             "name": "pion/laravel-chunk-upload",
@@ -5549,16 +5549,16 @@
         },
         {
             "name": "spiral/roadrunner-worker",
-            "version": "3.3.0",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roadrunner-php/worker.git",
-                "reference": "53f81c3e138a650c4605fcd60cae7c89ef24061f"
+                "reference": "8efc721a3ced27fd6ef6bca347a69010ff7930cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/roadrunner-php/worker/zipball/53f81c3e138a650c4605fcd60cae7c89ef24061f",
-                "reference": "53f81c3e138a650c4605fcd60cae7c89ef24061f",
+                "url": "https://api.github.com/repos/roadrunner-php/worker/zipball/8efc721a3ced27fd6ef6bca347a69010ff7930cb",
+                "reference": "8efc721a3ced27fd6ef6bca347a69010ff7930cb",
                 "shasum": ""
             },
             "require": {
@@ -5619,10 +5619,10 @@
             "homepage": "https://spiral.dev/",
             "support": {
                 "chat": "https://discord.gg/V6EK4he",
-                "docs": "https://roadrunner.dev/docs",
+                "docs": "https://docs.roadrunner.dev",
                 "forum": "https://forum.roadrunner.dev/",
                 "issues": "https://github.com/roadrunner-server/roadrunner/issues",
-                "source": "https://github.com/roadrunner-php/worker/tree/3.3.0"
+                "source": "https://github.com/roadrunner-php/worker/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -5630,7 +5630,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-05T19:53:37+00:00"
+            "time": "2024-02-26T11:59:06+00:00"
         },
         {
             "name": "spiral/tokenizer",

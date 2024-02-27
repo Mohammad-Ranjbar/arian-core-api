@@ -42,7 +42,7 @@ class StationController extends CrudController
                 return $this->responseError('کاربر انتخابی در لیست کاربران ایستگاه کاری انتخاب شده موجود است', 400);
             }
 
-            $station->users()->attach($validatedData['user_id'], ['data'=> json_encode($validatedData['data'])]);
+            $station->users()->attach($validatedData['user_id']);
             return response()->json(new StationResource($station));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(),500);
