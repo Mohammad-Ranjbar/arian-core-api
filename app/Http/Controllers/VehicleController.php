@@ -10,6 +10,7 @@ use App\Repositories\CarModelRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpGetVehicle;
+use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
@@ -93,10 +94,22 @@ class VehicleController extends CrudController
     ): JsonResponse|VehicleResource {
         try {
             $validatedData = $request->validated();
+            $response = $this->transfer($vehicle->getAttribute('vin'), $validatedData['qc_status']);
+
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 400);
+            }
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
+    }
+
+    private function transfer(string $vin, string $qcStatus): array
+    {
+        return ErpWsdlClient::run(config('erp.update_qc_status'), 'TransferVehicleCommercialProducts',
+            ['vINP' => $vin, 'qc_status' => $qcStatus]);
+
     }
 }

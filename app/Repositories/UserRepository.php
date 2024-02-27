@@ -8,6 +8,12 @@ use App\Models\User;
 class UserRepository extends BaseRepository
 {
     /**
+     * @var array|string[]
+     */
+    public array $searchTerms = [
+        'name', 'national_code', 'email', 'mobile'
+    ];
+    /**
      * @var array|array[]
      */
     protected array $rules = [
