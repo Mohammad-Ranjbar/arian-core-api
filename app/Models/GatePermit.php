@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GatePermit extends Model
 {
+
     use HasFactory, SoftDeletes;
 
     /**
