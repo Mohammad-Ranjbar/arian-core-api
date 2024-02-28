@@ -14,6 +14,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
+use App\Http\Controllers\GatePermitExitController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\InventoryController;
@@ -127,9 +128,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-            Route::get('/get-available-sale-locations',[SaleLocationController::class,'getAvailableSaleLocations'])->name('get-available-sale-locations');
-            Route::post('/set-sale-location',[SaleLocationController::class,'setSaleLocation'])->name('set-sale-location');
-            Route::apiResource('/inspections',InspectionController::class)->only(['store','index','show']);
+            Route::post('/gate-permit-exit',
+                GatePermitExitController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
+            Route::get('/get-available-sale-locations',
+                [SaleLocationController::class, 'getAvailableSaleLocations'])->name('get-available-sale-locations');
+            Route::post('/set-sale-location',
+                [SaleLocationController::class, 'setSaleLocation'])->name('set-sale-location');
+            Route::apiResource('/inspections', InspectionController::class)->only(['store', 'index', 'show']);
             Route::get('/block-items', [BlockItemController::class, 'index'])->name('block-items.index');
             Route::post('/block-items', [BlockItemController::class, 'store'])->name('block-items.store');
             Route::put('/block-items/{id}/unblock',
@@ -177,7 +182,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/production-line-activities/{production_line_activity}/approve',
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
 
-    Route::apiResource('gate-permits',GatePermitController::class)->only(['index','store','destroy']);
+    Route::apiResource('gate-permits', GatePermitController::class)->only(['index', 'store', 'destroy']);
+
 
     Route::apiResources([
         'roles'              => RoleController::class,

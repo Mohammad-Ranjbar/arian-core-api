@@ -12,7 +12,9 @@ return [
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'transfer_vehicle' => env('WSDL_TRANSFER_VEHICLE',
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'update_qc_status' => env('WSDL_TRANSFER_VEHICLE',
+    'update_qc_status' => env('WSDL_UPDATE_QC',
+        'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'gate' => env('WSDL_GATE',
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'auth'            => [
         env('LDAP_USERNAME', ''),
