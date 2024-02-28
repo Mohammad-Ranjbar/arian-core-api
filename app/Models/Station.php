@@ -17,6 +17,7 @@ class Station extends Model
      */
     protected $fillable = [
         'title',
+        'code',
         'work_group_center_id'
     ];
 

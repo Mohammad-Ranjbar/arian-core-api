@@ -15,10 +15,12 @@ class StationRepository extends BaseRepository
     protected array $rules = [
         'create' => [
             'title'                => 'required|string',
+            'code'                 => 'nullable|string',
             'work_group_center_id' => 'required|exists:work_group_centers,id',
         ],
         'update' => [
             'title'                => 'required|string',
+            'code'                 => 'nullable|string',
             'work_group_center_id' => 'required|exists:work_group_centers,id',
         ]
     ];
