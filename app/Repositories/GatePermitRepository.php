@@ -12,11 +12,14 @@ class GatePermitRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'type' => 'required|in:enter,exit',
-            'vin'  => 'required|string|exists:vehicles,vin',
+            'type'      => 'required|in:enter,exit',
+            'vin'       => 'required|string|exists:vehicles,vin',
+            'exit_type' => ['nullable', 'required_if:type,exit']
         ], 'update' => [
-            'type' => 'required|in:enter,exit',
-            'vin'  => 'required|string|exists:vehicles,vin',
+            'type'      => 'required|in:enter,exit',
+            'vin'       => 'required|string|exists:vehicles,vin',
+            'exit_type' => ['nullable', 'required_if:type,exit']
+
         ]
     ];
 
