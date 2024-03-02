@@ -25,8 +25,6 @@ class StationController extends CrudController
         $this->applyAuthorizeResource();
         $this->setResource(StationResource::class);
     }
-
-
     /**
      * @param Station $station
      * @param AddUserToStationsRequest $request

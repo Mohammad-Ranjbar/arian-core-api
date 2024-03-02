@@ -17,11 +17,15 @@ class StationRepository extends BaseRepository
             'title'                => 'required|string',
             'code'                 => 'nullable|string',
             'work_group_center_id' => 'required|exists:work_group_centers,id',
+            'on_enter'             => 'nullable|boolean',
+            'on_exit'              => 'nullable|boolean',
         ],
         'update' => [
             'title'                => 'required|string',
             'code'                 => 'nullable|string',
             'work_group_center_id' => 'required|exists:work_group_centers,id',
+            'on_enter'             => 'nullable|boolean',
+            'on_exit'              => 'nullable|boolean',
         ]
     ];
 
