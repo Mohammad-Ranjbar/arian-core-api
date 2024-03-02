@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Erp\SendErpTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Salon extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,SendErpTrait;
 
     /**
      * @var string[]
@@ -27,11 +28,4 @@ class Salon extends Model
         return $this->hasMany(ProductionLine::class);
     }
 
-    /**
-     * @return MorphOne
-     */
-    public function sendErp(): MorphOne
-    {
-        return $this->morphOne(SendErp::class, 'model');
-    }
 }

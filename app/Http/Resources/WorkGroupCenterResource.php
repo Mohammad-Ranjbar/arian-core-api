@@ -17,7 +17,9 @@ class WorkGroupCenterResource extends JsonResource
         return [
             'id'                 => $this->resource->id,
             'title'              => $this->resource->title,
-            'production_line_id' => $this->resource->production_line_id
+            'production_line_id' => $this->resource->production_line_id,
+            'on_enter'           => $this->resource->sendErp?->on_enter ?? null,
+            'on_exit'            => $this->resource->sendErp?->on_exit ?? null,
         ];
     }
 }

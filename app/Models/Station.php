@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Erp\SendErpTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Station extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,SendErpTrait;
 
     /**
      * @var string[]
@@ -38,8 +39,5 @@ class Station extends Model
         return $this->belongsToMany(User::class)->withPivot('data');
     }
 
-    public function sendErp(): MorphOne
-    {
-        return $this->morphOne(SendErp::class, 'model');
-    }
+
 }

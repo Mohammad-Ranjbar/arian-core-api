@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Erp\SendErpTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductionLine extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, SendErpTrait;
 
     /**
      * @var string[]
@@ -126,11 +127,4 @@ class ProductionLine extends Model
         return $this->morphMany(Tracking::class, 'model');
     }
 
-    /**
-     * @return MorphOne
-     */
-    public function sendErp(): MorphOne
-    {
-        return $this->morphOne(SendErp::class, 'model');
-    }
 }
