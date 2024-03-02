@@ -15,8 +15,10 @@ class SalonResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'id'       => $this->resource->id,
+            'title'    => $this->resource->title,
+            'on_enter' => $this->resource->sendErp?->on_enter ?? null,
+            'on_exit'  => $this->resource->sendErp?->on_exit ?? null,
         ];
     }
 }

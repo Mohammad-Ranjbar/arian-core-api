@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Salon;
 use App\Models\Station;
 use App\Models\User;
 use App\Models\VehicleIncident;
+use App\Observers\SalonObserver;
 use App\Observers\StationObserver;
 use App\Observers\UserObserver;
 use App\Observers\VehicleIncidentObserver;
@@ -33,6 +35,7 @@ class EventServiceProvider extends ServiceProvider
         VehicleIncident::observe(VehicleIncidentObserver::class);
         User::observe(UserObserver::class);
         Station::observe(StationObserver::class);
+        Salon::observe(SalonObserver::class);
     }
 
     /**

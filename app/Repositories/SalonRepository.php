@@ -12,9 +12,13 @@ class SalonRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'title' => 'required|string|unique:salons,title',
+            'title'    => 'required|string|unique:salons,title',
+            'on_enter' => 'nullable|boolean',
+            'on_exit'  => 'nullable|boolean',
         ], 'update' => [
-            'title' => 'required|string|unique:salons,title,',
+            'title'    => 'required|string|unique:salons,title,',
+            'on_enter' => 'nullable|boolean',
+            'on_exit'  => 'nullable|boolean',
         ]
     ];
 

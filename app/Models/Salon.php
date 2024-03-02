@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Salon extends Model
@@ -24,5 +25,13 @@ class Salon extends Model
     public function productionLine(): HasMany
     {
         return $this->hasMany(ProductionLine::class);
+    }
+
+    /**
+     * @return MorphOne
+     */
+    public function sendErp(): MorphOne
+    {
+        return $this->morphOne(SendErp::class, 'model');
     }
 }
