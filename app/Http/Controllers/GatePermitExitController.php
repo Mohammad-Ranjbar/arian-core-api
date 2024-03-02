@@ -29,7 +29,7 @@ class GatePermitExitController extends Controller
             $response = $this->exit($vehicle->getAttribute('vin'));
 
             if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'], 500);
+                return $this->responseError($response['message'], 400);
             }
 
             $vehicle->tracking()->create([
