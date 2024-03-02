@@ -2,6 +2,7 @@
 
 namespace App\Services\TrackingService;
 
+use App\Jobs\SendTrackingToErpJob;
 use App\Models\Station;
 
 class StationTrackingService extends BaseTrackingService
@@ -59,5 +60,25 @@ class StationTrackingService extends BaseTrackingService
             return false;
         }
         return $this->prepareData($data);
+    }
+    /**
+     * @param $record
+     * @return void
+     */
+    public function sendToErp($record): void
+    {
+        $params = [
+            'vINL'         => $record->vin,
+            'wCGroup'      => $record->model->code,
+            'withTracking' => 'false',
+            'withOutput'   => 'false',
+        ];
+
+        if ($record->type == 'exit') {
+            $params['withOutput'] = 'true';
+        }
+
+        dispatch(new SendTrackingToErpJob($record->id, config('erp.post_production'), 'PostProduction_OnlyBIN',
+            $params));
     }
 }

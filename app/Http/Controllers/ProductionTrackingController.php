@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TrackingRequest;
 use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
+use App\Models\SendErp;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Services\TrackingService\TrackingServiceFactory;
@@ -27,7 +28,7 @@ class ProductionTrackingController extends Controller
         }
         $record = $vehicle->tracking()->create($data);
 
-        if(method_exists($modelTrackingService,'sendToErp')) {
+        if (method_exists($modelTrackingService, 'sendToErp')) {
             $modelTrackingService->sendToErp($record);
         }
 
@@ -44,7 +45,13 @@ class ProductionTrackingController extends Controller
         $tracking->update(['data' => null]);
 
         $modelTrackingService = TrackingServiceFactory::getInstance($tracking->getAttribute('model')->getTable());
-        if(method_exists($modelTrackingService,'sendToErp')) {
+        $type = $tracking->getAttribute('type') === 'enter' ? 'on_enter' : 'on_exit';
+
+        if (method_exists($modelTrackingService, 'sendToErp') &&
+            SendErp::query()->where('model_type', $tracking->getAttribute('model_type'))
+                            ->where($type,true)
+                            ->where('model_id', $tracking->getAttribute('model_id'))
+                            ->exists() ) {
             $modelTrackingService->sendToErp($tracking);
         }
 
