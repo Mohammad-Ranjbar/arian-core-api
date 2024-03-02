@@ -46,7 +46,7 @@ class GatePermitExitController extends Controller
                 status: Response::HTTP_OK
             );
         } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(), 500);
+            return $this->responseError($exception->getMessage(), 400);
         }
 
     }
