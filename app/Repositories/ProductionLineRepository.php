@@ -14,12 +14,16 @@ class ProductionLineRepository extends BaseRepository
         'create' => [
             'title'         => 'required|string|unique:production_lines,title',
             'salon_id'      => 'required|exists:salons,id',
-            'teams_webhook' => 'nullable'
+            'teams_webhook' => 'nullable',
+            'on_enter'      => 'nullable|boolean',
+            'on_exit'       => 'nullable|boolean',
         ],
         'update' => [
             'title'         => 'required|string|unique:production_lines,title,',
             'salon_id'      => 'required|exists:salons,id',
-            'teams_webhook' => 'nullable'
+            'teams_webhook' => 'nullable',
+            'on_enter'      => 'nullable|boolean',
+            'on_exit'       => 'nullable|boolean',
 
         ]
     ];

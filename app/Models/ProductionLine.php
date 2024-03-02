@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductionLine extends Model
@@ -123,5 +124,13 @@ class ProductionLine extends Model
     public function tracking(): MorphMany
     {
         return $this->morphMany(Tracking::class, 'model');
+    }
+
+    /**
+     * @return MorphOne
+     */
+    public function sendErp(): MorphOne
+    {
+        return $this->morphOne(SendErp::class, 'model');
     }
 }
