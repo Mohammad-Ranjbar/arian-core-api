@@ -109,7 +109,7 @@ class BillOfLading extends Model
                     ],
                     [
                         'action'     => 'notice',
-                        'permission' => 'bill-of-lading.change-status.notice',
+                        'permission' => 'bill-of-lading.notice',
                         'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/notice'),
                     ]
                 ],
