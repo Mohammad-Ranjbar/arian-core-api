@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class CarModel extends Model
 {
@@ -19,11 +19,12 @@ class CarModel extends Model
         'production_line_id'
     ];
 
+
     /**
-     * @return BelongsTo
+     * @return BelongsToMany
      */
-    public function productionLine(): BelongsTo
+    public function productionLines(): BelongsToMany
     {
-        return $this->belongsTo(ProductionLine::class);
+        return $this->belongsToMany(ProductionLine::class);
     }
 }

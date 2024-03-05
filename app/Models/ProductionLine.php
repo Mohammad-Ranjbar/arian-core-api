@@ -56,12 +56,13 @@ class ProductionLine extends Model
         return $this->hasManyThrough(Station::class, WorkGroupCenter::class);
     }
 
+
     /**
-     * @return HasMany
+     * @return BelongsToMany
      */
-    public function carModels(): HasMany
+    public function carModels(): BelongsToMany
     {
-        return $this->hasMany(CarModel::class);
+        return $this->belongsToMany(CarModel::class);
     }
 
     /**
@@ -125,5 +126,6 @@ class ProductionLine extends Model
     {
         return $this->morphMany(Tracking::class, 'model');
     }
+
 
 }
