@@ -2,10 +2,13 @@
 
 namespace App\libs;
 
+use App\Filters\BillOfLadingDriverMobileFilter;
+use App\Filters\BillOfLadingDriverNationalCodeFilter;
 use App\Filters\BlockByFilter;
 use App\Filters\BlockItemMakeCodeIdFilter;
 use App\Filters\BlockReasonIdFilter;
 use App\Filters\CarModelIdFilter;
+use App\Filters\CodeFilter;
 use App\Filters\CreatedAtFilter;
 use App\Filters\CreatedAtFromFilter;
 use App\Filters\CreatedAtToFilter;
@@ -46,7 +49,7 @@ abstract class BaseRepository
     /**
      * @var array|string[]
      */
-    public array $filters = [
+    public array $filters     = [
         BlockItemMakeCodeIdFilter::class,
         BlockByFilter::class,
         BlockReasonIdFilter::class,
@@ -73,7 +76,10 @@ abstract class BaseRepository
         NationalCodeFilter::class,
         MobileFilter::class,
         UnblockedAtFromFilter::class,
-        UnblockedAtToFilter::class
+        UnblockedAtToFilter::class,
+        BillOfLadingDriverMobileFilter::class,
+        BillOfLadingDriverNationalCodeFilter::class,
+        CodeFilter::class
     ];
     public array $searchTerms = [
         'title'
