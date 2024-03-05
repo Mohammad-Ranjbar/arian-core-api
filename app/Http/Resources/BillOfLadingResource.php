@@ -31,6 +31,7 @@ class BillOfLadingResource extends JsonResource
             'locationSource'          => new LocationResource($this->resource->locationSource),
             'locationDestination'     => new LocationResource($this->resource->locationDestination),
             'car'                     => new CarShortResource($this->resource->car),
+            'type'                    => $this->resource->type,
             'items'                   => $this->resource->type === 'containers' ?
                 $this->resource->containers()->get()->pluck('code')->all() :
                 $this->resource->vehicles()->get()->pluck('vin')->all(),

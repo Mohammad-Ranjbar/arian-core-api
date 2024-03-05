@@ -14,8 +14,8 @@ return new class extends Migration {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->string('vin')->primary();
             $table->string('production_order_number')->unique();
-            $table->string('engine_no');
-            $table->string('cabin_no');
+            $table->string('engine_no')->nullable();
+            $table->string('cabin_no')->nullable();
             $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
             $table->foreignId('make_code_id')->constrained()->cascadeOnDelete();
 

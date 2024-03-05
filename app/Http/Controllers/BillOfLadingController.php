@@ -40,11 +40,13 @@ class BillOfLadingController extends CrudController
      */
     public function afterSave($record, $data)
     {
-        if ($data['type'] == 'containers') {
+        if ($data['type'] === 'containers') {
             $record->containers()->sync($data['items']);
             $record->containers()->update(['on_shipping' => true]);
         }
-
+        if ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
+            $record->vehicles()->sync($data['items']);
+        }
 
         $action = $record->wasRecentlyCreated ? 'new' : 'edit';
         $record->actionLogs()->create(['user_id' => Auth::id(), 'action' => $action]);
@@ -59,7 +61,7 @@ class BillOfLadingController extends CrudController
                 'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
             ];
         }
-        if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies' ) {
+        if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
                 'items.*' => Rule::exists('vehicles', 'vin'),
             ];
@@ -76,11 +78,11 @@ class BillOfLadingController extends CrudController
             return $this->responseError('Can not delete this item', 400);
         }
 
-        if ($model->type === 'containers'){
+        if ($model->type === 'containers') {
             $model->containers()->update(['on_shipping' => false]);
             $model->containers()->detach();
         }
-        if ($model->type === 'vehicles' || $model->type === 'bodies'){
+        if ($model->type === 'vehicles' || $model->type === 'bodies') {
             $model->vehicles()->detach();
         }
 

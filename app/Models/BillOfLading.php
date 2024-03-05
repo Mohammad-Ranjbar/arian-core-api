@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -53,22 +54,6 @@ class BillOfLading extends Model
     public function car(): BelongsTo
     {
         return $this->belongsTo(Car::class);
-    }
-
-    /**
-     * @return MorphToMany
-     */
-    public function containers(): MorphToMany
-    {
-        return $this->morphedByMany(Container::class, 'model', 'bill_of_lading_item');
-    }
-
-    /**
-     * @return MorphToMany
-     */
-    public function vehicles(): MorphToMany
-    {
-        return $this->morphedByMany(Vehicle::class, 'model', 'bill_of_lading_item');
     }
 
     /**
@@ -123,6 +108,44 @@ class BillOfLading extends Model
                 ],
                 default => []
             },
+        );
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function type(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if ($this->containers()->count()) {
+                    return 'containers';
+                }
+                if ($this->vehicles()->whereNull('vehicles.engine_no')->count()) {
+                    return 'bodies';
+                }
+                if ($this->vehicles()->whereNotNull('vehicles.engine_no')->count()) {
+                    return 'vehicles';
+                }
+            }
+        );
+    }
+
+    public function containers(): MorphToMany
+    {
+        return $this->morphedByMany(
+            Container::class,
+            'model',
+            'bill_of_lading_item'
+        );
+    }
+
+    public function vehicles(): MorphToMany
+    {
+        return $this->morphedByMany(
+            Vehicle::class,
+            'model',
+            'bill_of_lading_item'
         );
     }
 
