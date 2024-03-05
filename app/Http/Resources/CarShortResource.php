@@ -16,8 +16,8 @@ class CarShortResource extends JsonResource
     {
         return [
             'id'                 => $this->resource->id,
-            'name'               => $this->resource->name,
-            'national_code'      => $this->resource->national_code,
+            'name'               => $this->resource->driver->name,
+            'national_code'      => $this->resource->driver->national_code,
         ];
     }
 }
