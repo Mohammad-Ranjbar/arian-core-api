@@ -24,7 +24,7 @@ class BillOfLadingDriverMobileFilter
 
         return $next($request)->whereHas('car', function ($query) {
             $query->whereHas('driver', function ($q) {
-                $q->where('mobile', request()->get('driver_mobile'));
+                $q->where('phone', request()->get('driver_mobile'));
             });
         });
     }
