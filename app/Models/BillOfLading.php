@@ -98,19 +98,19 @@ class BillOfLading extends Model
                     [
                         'action'     => 'temporary_receipt',
                         'permission' => 'bill-of-lading.change-status.temporary_receipt',
-                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/change-status/temporary_receipt'),
+                        'url'        => '/bill-of-lading/'.$this->getAttribute('id').'/change-status/temporary_receipt',
                     ]
                 ],
                 'temporary_receipt' => [
                     [
                         'action'     => 'enter',
                         'permission' => 'bill-of-lading.change-status.enter',
-                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/change-status/enter'),
+                        'url'        => '/bill-of-lading/'.$this->getAttribute('id').'/change-status/enter',
                     ],
                     [
                         'action'     => 'notice',
                         'permission' => 'bill-of-lading.notice',
-                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/notice'),
+                        'url'        => '/bill-of-lading/'.$this->getAttribute('id').'/notice',
                     ]
                 ],
                 'enter' => [
