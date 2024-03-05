@@ -15,9 +15,10 @@ class CarShortResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                 => $this->resource->id,
-            'name'               => $this->resource->driver->name,
-            'national_code'      => $this->resource->driver->national_code,
+            'id'            => $this->resource->id,
+            'name'          => $this->resource->driver->name,
+            'national_code' => $this->resource->driver->national_code,
+            'phone'         => $this->resource->driver->phone,
         ];
     }
 }
