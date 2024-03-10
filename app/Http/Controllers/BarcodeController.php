@@ -18,4 +18,10 @@ class BarcodeController extends CrudController
         $this->setResource(BarcodeResource::class);
     }
 
+    public function afterSave($record, $data)
+    {
+        $record->updateErpProductItemId();
+        return $record;
+    }
+
 }

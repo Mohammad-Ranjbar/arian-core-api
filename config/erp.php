@@ -3,6 +3,8 @@ return [
     'vehicles'        => env('ERP_URL_VEHICLES',
         "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/Vehicle_Card_API"),
     'items'           => env('ARIAN_URL_ITEMS', "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/ItemQuery"),
+    'component'       => env('ARIAN_URL_COMPONENT', "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/ComponentTracking"),
+
     'make_codes'      => env('ARIAN_URL_MAKE_CODES',
         "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/Make_List_API"),
     'basket'          => env('WSDL_BASKET', 'http://172.16.0.35:7047/Pars/WS/Pars/Codeunit/Item_Reclass_Journal_API'),

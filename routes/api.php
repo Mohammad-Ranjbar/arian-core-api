@@ -35,6 +35,7 @@ use App\Http\Controllers\StationController;
 use App\Http\Controllers\StopFactController;
 use App\Http\Controllers\StopReasonController;
 use App\Http\Controllers\StopTypeController;
+use App\Http\Controllers\SubmitEngineBarcodeController;
 use App\Http\Controllers\SubmitIncidentLocationController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
@@ -128,6 +129,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+
+            Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');
+
             Route::post('/gate-permit-exit',
                 GatePermitExitController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
             Route::get('/get-available-sale-locations',

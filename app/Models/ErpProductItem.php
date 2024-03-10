@@ -10,6 +10,7 @@ class ErpProductItem extends Model
 {
     use HasFactory;
 
+    const ENGINE='Engine';
     /**
      * @var string[]
      */
