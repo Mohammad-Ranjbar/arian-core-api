@@ -62,8 +62,8 @@ class SyncProductItemsCommand extends Command
             }
 
             $url = null;
-            if (isset($content->{'odata.nextLink'})) {
-                $url = $content->{'odata.nextLink'};
+            if (isset($content->{'@odata.nextLink'})) {
+                $url = $content->{'@odata.nextLink'};
             }
 
         }
