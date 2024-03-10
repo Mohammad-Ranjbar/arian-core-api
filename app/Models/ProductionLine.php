@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\Erp\SendErpTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -88,6 +89,7 @@ class ProductionLine extends Model
         return $this->hasManyThrough(ProductionLineActivityLogs::class, ProductionLineActivity::class);
     }
 
+
     /**
      * @return bool
      */
@@ -127,5 +129,30 @@ class ProductionLine extends Model
         return $this->morphMany(Tracking::class, 'model');
     }
 
+    /**
+     * @return bool
+     */
+    public function isEnterUpperLocation(): bool
+    {
+        return Tracking::query()
+            ->where('model_type', Salon::class)
+            ->where('model_id', $this->getAttribute('salon')->id)
+            ->where('type', 'enter')
+            ->exists();
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function upperLocation(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => [
+                'is_upper_location' => true,
+                'upper_id'          => $this->getAttribute('salon')->id,
+                'upper_class'       => Salon::class
+            ],
+        );
+    }
 
 }

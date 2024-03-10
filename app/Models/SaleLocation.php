@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,4 +33,17 @@ class SaleLocation extends Model
         return $this->belongsTo(MakeCode::class);
     }
 
+    /**
+     * @return Attribute
+     */
+    protected function upperLocation(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => [
+                'is_upper_location' => false,
+                'upper_id'          => 0,
+                'upper_class'       => null
+            ],
+        );
+    }
 }

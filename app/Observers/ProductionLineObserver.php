@@ -3,6 +3,9 @@
 namespace App\Observers;
 
 use App\Models\ProductionLine;
+use App\Models\Salon;
+use App\Models\Tracking;
+use Illuminate\Support\Facades\Auth;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -10,14 +13,14 @@ class ProductionLineObserver
 {
 
     /**
-     * @param  ProductionLine  $ProductionLine
+     * @param  ProductionLine  $productionLine
      * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function created(ProductionLine $ProductionLine): void
+    public function created(ProductionLine $productionLine): void
     {
-        $ProductionLine->sendErp()->create([
+        $productionLine->sendErp()->create([
             'on_enter' => request()->get('on_enter'),
             'on_exit'  => request()->get('on_exit'),
         ]);
@@ -25,15 +28,15 @@ class ProductionLineObserver
 
 
     /**
-     * @param  ProductionLine  $ProductionLine
+     * @param  ProductionLine  $productionLine
      * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function updated(ProductionLine $ProductionLine): void
+    public function updated(ProductionLine $productionLine): void
     {
-        $ProductionLine->sendErp()->delete();
-        $ProductionLine->sendErp()->create([
+        $productionLine->sendErp()->delete();
+        $productionLine->sendErp()->create([
             'on_enter' => request()->get('on_enter'),
             'on_exit'  => request()->get('on_exit'),
         ]);
@@ -41,11 +44,11 @@ class ProductionLineObserver
 
 
     /**
-     * @param  ProductionLine  $ProductionLine
+     * @param  ProductionLine  $productionLine
      * @return void
      */
-    public function deleted(ProductionLine $ProductionLine): void
+    public function deleted(ProductionLine $productionLine): void
     {
-        $ProductionLine->sendErp()->delete();
+        $productionLine->sendErp()->delete();
     }
 }
