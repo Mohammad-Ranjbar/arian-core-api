@@ -16,7 +16,6 @@ class CarModel extends Model
     protected $fillable = [
         'title',
         'reference',
-        'production_line_id'
     ];
 
 
