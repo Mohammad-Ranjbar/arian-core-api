@@ -19,6 +19,7 @@ class CarModelResource extends JsonResource
             'title'              => $this->resource->title,
             'reference'          => $this->resource->reference,
             'production_line_id' => (int) $this->resource->production_line_id,
+            'productionLines'    => $this->resource->productionLines->pluck('id')->all()
         ];
     }
 }
