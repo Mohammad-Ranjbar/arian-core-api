@@ -34,6 +34,7 @@ use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -138,14 +139,18 @@ abstract class BaseRepository
         return $q->get();
     }
 
-    /**
-     * @return mixed
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
+
     public function makeQuery(): mixed
     {
         $data = $this->model;
+
+        if ($data->isRelation('user')){
+            $data =  $data->newQuery()->where('user_id',Auth::id());
+        }elseif($data->isRelation('users') && $data->getTable() !== 'permissions'){
+            $data = $data->newQuery()->whereHas('users',function ($q){
+                $q->where('user_id',Auth::id());
+            });
+        }
         if (request()->has('q') && request()->get('q') !== null) {
             $data = $data->newQuery()->whereLike($this->searchTerms, request()->get('q'));
         }
