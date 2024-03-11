@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TemplateExport;
 use App\Http\Requests\SetPriorityRequest;
 use App\Http\Resources\BillOfLadingResource;
 use App\Models\BillOfLading;
@@ -15,6 +16,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class BillOfLadingController extends CrudController
 {
@@ -140,5 +143,47 @@ class BillOfLadingController extends CrudController
     public function notice(BillOfLading $billOfLading
     ): bool|PendingDispatch|PendingClosureDispatch {
         return $this->smsService->send($billOfLading->getAttribute('car')->driver->phone, 'driver-enter-notify');
+    }
+
+    public function getTemplateBillOfLadingForVehicle(): BinaryFileResponse
+    {
+        $headers = [
+            'vin',
+            'شرکت حمل',
+            'عنوان خودرو',
+            'شماره پلاک',
+            'نام راننده',
+            'شماره همراه راننده',
+            'کدملی راننده',
+            'کد',
+            'شماره درخواست',
+            'شماره کوتاژ',
+            'وزن',
+            'بچ',
+            'توضیحات',
+        ];
+        $export = new TemplateExport($headers);
+        return Excel::download($export, $this->repository->model->getTable().'-template-for-vehicle'.time().'.xlsx');
+    }
+
+    public function getTemplateBillOfLadingForContainer(): BinaryFileResponse
+    {
+        $headers = [
+            'شماره کانتینر',
+            'شرکت حمل',
+            'عنوان خودرو',
+            'شماره پلاک',
+            'نام راننده',
+            'شماره همراه راننده',
+            'کدملی راننده',
+            'کد',
+            'شماره درخواست',
+            'شماره کوتاژ',
+            'وزن',
+            'بچ',
+            'توضیحات',
+        ];
+        $export = new TemplateExport($headers);
+        return Excel::download($export, $this->repository->model->getTable().'-template-for-container'.time().'.xlsx');
     }
 }

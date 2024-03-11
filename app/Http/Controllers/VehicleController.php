@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TemplateExport;
 use App\Http\Requests\UpdateGradeRequest;
 use App\Http\Requests\UpdateQcStatusRequest;
 use App\Http\Resources\VehicleResource;
@@ -14,8 +15,9 @@ use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\Response;
 
 class VehicleController extends CrudController
 {
@@ -112,4 +114,6 @@ class VehicleController extends CrudController
             ['vINP' => $vin, 'qCStatusP' => $qcStatus]);
 
     }
+
+
 }

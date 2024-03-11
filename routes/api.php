@@ -64,6 +64,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-template-incident', [IncidentController::class, 'getTemplate']);
     Route::get('/get-template-element', [ElementController::class, 'getTemplate']);
     Route::get('/get-template-unblock-items', [BlockItemController::class, 'getTemplateUnblockItems']);
+
+    Route::get('/get-template-bill-of-lading-for-vehicle',
+        [BillOfLadingController::class, 'getTemplateBillOfLadingForVehicle']);
+
+    Route::get('/get-template-bill-of-lading-for-container',
+        [BillOfLadingController::class, 'getTemplateBillOfLadingForContainer']);
+
+    Route::post('/import-bill-of-lading',[BillOfLadingController::class,'import'])->name('import.bill-of-lading');
+
     Route::get('/get-stop-locations',
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
 
