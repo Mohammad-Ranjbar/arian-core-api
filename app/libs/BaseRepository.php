@@ -144,13 +144,13 @@ abstract class BaseRepository
     {
         $data = $this->model;
 
-        if ($data->isRelation('user')){
-            $data =  $data->newQuery()->where('user_id',Auth::id());
-        }elseif($data->isRelation('users') && $data->getTable() !== 'permissions'){
-            $data = $data->newQuery()->whereHas('users',function ($q){
-                $q->where('user_id',Auth::id());
-            });
-        }
+//        if ($data->isRelation('user')){
+//            $data =  $data->newQuery()->where('user_id',Auth::id());
+//        }elseif($data->isRelation('users') && $data->getTable() !== 'permissions'){
+//            $data = $data->newQuery()->whereHas('users',function ($q){
+//                $q->where('user_id',Auth::id());
+//            });
+//        }
         if (request()->has('q') && request()->get('q') !== null) {
             $data = $data->newQuery()->whereLike($this->searchTerms, request()->get('q'));
         }

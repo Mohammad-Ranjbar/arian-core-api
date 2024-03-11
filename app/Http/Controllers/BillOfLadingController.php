@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TemplateExport;
+use App\Http\Requests\JobRequest;
 use App\Http\Requests\SetPriorityRequest;
 use App\Http\Resources\BillOfLadingResource;
+use App\Jobs\ImportJob;
 use App\Models\BillOfLading;
+use App\Models\Job;
 use App\Repositories\BillOfLadingRepository;
 use App\Services\SmsService;
 use Exception;
@@ -185,5 +188,22 @@ class BillOfLadingController extends CrudController
         ];
         $export = new TemplateExport($headers);
         return Excel::download($export, $this->repository->model->getTable().'-template-for-container'.time().'.xlsx');
+    }
+
+    /**
+     * @param JobRequest $request
+     * @return JsonResponse
+     */
+    public function import(JobRequest $request): JsonResponse
+    {
+
+        $validatedData = $request->validated();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'import-' . $this->repository->model->getTable();
+        $validatedData['data'] = ['file' => $validatedData['file']];
+        $job = Job::query()->create($validatedData);
+
+        ImportJob::dispatch($job->getAttribute('uuid'));
+        return response()->json(['message' => 'import job created', 'data' => ['uuid' => $job->getAttribute('uuid'), 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))]]);
     }
 }
