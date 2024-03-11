@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BillOfLading extends Model
 {
     use HasFactory, SoftDeletes;
-
+    
     /**
      * @var string[]
      */
