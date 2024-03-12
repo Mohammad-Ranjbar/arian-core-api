@@ -51,13 +51,13 @@ class BillOfLadingImport implements ToCollection, WithStartRow
 
         $collection->each(function ($row) {
 
-            if (!BillOfLading::query()->where('code', $row[7])->exists()) {
+            if (!BillOfLading::query()->where('code', $row[8])->exists()) {
 
-                if (!$driver = Driver::query()->where('national_code', $row[6])->first()) {
+                if (!$driver = Driver::query()->where('national_code', $row[7])->first()) {
                     $driver = Driver::query()->create([
-                        'national_code' => $row[6],
-                        'phone'         => $row[5],
-                        'name'          => $row[4],
+                        'national_code' => $row[7],
+                        'phone'         => $row[6],
+                        'name'          => $row[5],
                     ]);
                 }
                 if (!$transitCompany = TransitCompany::query()->where('title', $row[1])->first()) {
@@ -65,9 +65,19 @@ class BillOfLadingImport implements ToCollection, WithStartRow
                         'title' => $row[1],
                     ]);
                 }
-                if (!$car = Car::query()->where('plate', $row[3])->first()) {
+                $nums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+                $chr = str_replace($nums, null, $row[3]);
+                $one = substr($row[3], 0, 2);
+                $second = substr($row[3], 2, 3);
+                $plate = [
+                    "char"    => $chr,
+                    "number1" => $one,
+                    "number2" => $second,
+                    "number3" => $row[4]
+                ];
+                if (!$car = Car::query()->where('plate', $plate)->first()) {
                     $car = Car::query()->create([
-                        'plate'              => $row[3],
+                        'plate'              => $plate,
                         'car'                => $row[2],
                         'transit_company_id' => $transitCompany->getAttribute('id'),
                         'driver_id'          => $driver->getAttribute('id'),
@@ -75,19 +85,17 @@ class BillOfLadingImport implements ToCollection, WithStartRow
                 }
                 BillOfLading::query()->create([
                     'user_id'                 => Auth::id(),
-                    'location_source_id'      => request()->get('location_source_id'),
-                    'location_destination_id' => request()->get('location_destination_id'),
+                    'location_source_id'      => $this->data['location_source_id'],
+                    'location_destination_id' => $this->data['location_destination_id'],
                     'car_id'                  => $car->getAttribute('id'),
-                    'code'                    => $row[7],
-                    'request_no'              => $row[8],
+                    'code'                    => $row[8],
+                    'request_no'              => $row[9],
                     'status'                  => 'new',
                     'priority'                => 0,
-                    'cottage'                 => $row[9],
-                    'weight'                  => $row[10],
-                    'batch'                   => $row[11],
-                    'description'             => $row[12],
-
-
+                    'cottage'                 => $row[10],
+                    'weight'                  => $row[11],
+                    'batch'                   => $row[12],
+                    'description'             => $row[13],
                 ]);
                 $this->data['success']++;
 
@@ -106,6 +114,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow
                 'شرکت حمل',
                 'عنوان خودرو',
                 'شماره پلاک',
+                'منطقه پلاک',
                 'نام راننده',
                 'شماره همراه راننده',
                 'کدملی راننده',
@@ -122,6 +131,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow
                 'شرکت حمل',
                 'عنوان خودرو',
                 'شماره پلاک',
+                'منطقه پلاک',
                 'نام راننده',
                 'شماره همراه راننده',
                 'کدملی راننده',
