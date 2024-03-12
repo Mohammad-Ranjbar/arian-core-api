@@ -7,7 +7,6 @@ use App\Exports\ResultExport;
 use App\Models\BillOfLading;
 use App\Models\Car;
 use App\Models\Driver;
-use App\Models\Incident;
 use App\Models\Job;
 use App\Models\TransitCompany;
 use Illuminate\Support\Collection;
@@ -16,11 +15,16 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Facades\Excel;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 
 class BillOfLadingImport implements ToCollection, WithStartRow
 {
 
+    /**
+     * @param $data
+     */
     public function __construct(public $data)
     {
 
@@ -34,6 +38,12 @@ class BillOfLadingImport implements ToCollection, WithStartRow
         return 2;
     }
 
+    /**
+     * @param  Collection  $collection
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function collection(Collection $collection): void
     {
         $this->data['total'] = $collection->count();
@@ -41,23 +51,23 @@ class BillOfLadingImport implements ToCollection, WithStartRow
 
         $collection->each(function ($row) {
 
-            if (!BillOfLading::query()->where('request_no ', $row[8])->exists()) {
+            if (!BillOfLading::query()->where('code ', $row[7])->exists()) {
 
-                if ($driver = Driver::query()->where('national_code', $row[6])->first()) {
+                if (!$driver = Driver::query()->where('national_code', $row[6])->first()) {
                     $driver = Driver::query()->create([
                         'national_code' => $row[6],
                         'phone'         => $row[5],
                         'name'          => $row[4],
                     ]);
                 }
-                if ($transitCompany = TransitCompany::query()->where('title', $row[1])->first()) {
+                if (!$transitCompany = TransitCompany::query()->where('title', $row[1])->first()) {
                     $transitCompany = TransitCompany::query()->create([
                         'title' => $row[1],
                     ]);
                 }
-                if ($car = Car::query()->where('plate', $row[3])->first()) {
+                if (!$car = Car::query()->where('plate', $row[3])->first()) {
                     $car = Car::query()->create([
-                        'plate'              => json_encode($row[3]),
+                        'plate'              => $row[3],
                         'car'                => $row[2],
                         'transit_company_id' => $transitCompany->getAttribute('id'),
                         'driver_id'          => $driver->getAttribute('id'),
@@ -90,7 +100,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies'){
+        if ($this->data['type'] === 'vehicles' || $this->data['type'] === 'bodies') {
             $headers = [
                 'vin',
                 'شرکت حمل',
@@ -99,16 +109,14 @@ class BillOfLadingImport implements ToCollection, WithStartRow
                 'نام راننده',
                 'شماره همراه راننده',
                 'کدملی راننده',
-                'کد',
+                'شماره بارنامه',
                 'شماره درخواست',
                 'شماره کوتاژ',
                 'وزن',
                 'بچ',
                 'توضیحات',
             ];
-            Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/'.$uuid.'.xlsx');
-
-        }else{
+        } else {
             $headers = [
                 'شماره کانتینر',
                 'شرکت حمل',
@@ -117,15 +125,15 @@ class BillOfLadingImport implements ToCollection, WithStartRow
                 'نام راننده',
                 'شماره همراه راننده',
                 'کدملی راننده',
-                'کد',
+                'شماره بارنامه',
                 'شماره درخواست',
                 'شماره کوتاژ',
                 'وزن',
                 'بچ',
                 'توضیحات',
             ];
-            Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/'.$uuid.'.xlsx');
         }
+        Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/'.$uuid.'.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
                 'file'    => asset('storage/results/'.$uuid.'.xlsx'),
@@ -137,6 +145,9 @@ class BillOfLadingImport implements ToCollection, WithStartRow
 
     }
 
+    /**
+     * @return void
+     */
     public function sendEvent(): void
     {
         event(new JobProcessEvent($this->data));

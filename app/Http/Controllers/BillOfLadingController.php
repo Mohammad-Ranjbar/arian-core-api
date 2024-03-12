@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TemplateExport;
+use App\Http\Requests\ImportBillOfLadingRequest;
 use App\Http\Requests\JobRequest;
 use App\Http\Requests\SetPriorityRequest;
 use App\Http\Resources\BillOfLadingResource;
@@ -158,7 +159,7 @@ class BillOfLadingController extends CrudController
             'نام راننده',
             'شماره همراه راننده',
             'کدملی راننده',
-            'کد',
+            'شماره بارنامه',
             'شماره درخواست',
             'شماره کوتاژ',
             'وزن',
@@ -179,7 +180,7 @@ class BillOfLadingController extends CrudController
             'نام راننده',
             'شماره همراه راننده',
             'کدملی راننده',
-            'کد',
+            'شماره بارنامه',
             'شماره درخواست',
             'شماره کوتاژ',
             'وزن',
@@ -190,11 +191,7 @@ class BillOfLadingController extends CrudController
         return Excel::download($export, $this->repository->model->getTable().'-template-for-container'.time().'.xlsx');
     }
 
-    /**
-     * @param  JobRequest  $request
-     * @return JsonResponse
-     */
-    public function import(JobRequest $request): JsonResponse
+    public function importBillOfLading(ImportBillOfLadingRequest $request): JsonResponse
     {
 
         $validatedData = $request->validated();
@@ -203,14 +200,17 @@ class BillOfLadingController extends CrudController
         $validatedData['data'] = [
             'file'                    => $validatedData['file'],
             'location_source_id'      => $validatedData['location_source_id'],
-            'location_destination_id' => $validatedData['location_destination_id']
+            'location_destination_id' => $validatedData['location_destination_id'],
+            'type'                    => $validatedData['type'],
         ];
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
-        return response()->json(['message' => 'import job created', 'data' => [
-            'uuid' => $job->getAttribute('uuid'), 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
-        ]
+        return response()->json([
+            'message' => 'import job created', 'data' => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
         ]);
     }
 }

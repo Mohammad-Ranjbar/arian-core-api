@@ -71,7 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-template-bill-of-lading-for-container',
         [BillOfLadingController::class, 'getTemplateBillOfLadingForContainer']);
 
-    Route::post('/import-bill-of-lading',[BillOfLadingController::class,'import'])->name('import.bill-of-lading');
+    Route::post('/import-bill-of-lading',[BillOfLadingController::class,'importBillOfLading'])->name('import.bill-of-lading');
 
     Route::get('/get-stop-locations',
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
