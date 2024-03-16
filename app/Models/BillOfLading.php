@@ -14,7 +14,41 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BillOfLading extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
+
+    const HEAD_CONTAINER = [
+        'container_number',
+        'shipping_company',
+        'vehicle_title',
+        'number_plates',
+        'plate_area',
+        'driver_name',
+        'driver_mobile',
+        'driver_national_code',
+        'freight_number',
+        'request_number',
+        'cottage_number',
+        'weight',
+        'batch',
+        'description',
+    ];
+    const HEAD_VEHICLE   = [
+        'VIN',
+        'shipping_company',
+        'vehicle_title',
+        'number_plates',
+        'plate_area',
+        'driver_name',
+        'driver_mobile',
+        'driver_national_code',
+        'freight_number',
+        'request_number',
+        'cottage_number',
+        'weight',
+        'batch',
+        'description',
+    ];
+
     /**
      * @var string[]
      */

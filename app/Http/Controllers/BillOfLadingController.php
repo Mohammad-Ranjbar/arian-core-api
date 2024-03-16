@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Exports\TemplateExport;
 use App\Http\Requests\ImportBillOfLadingRequest;
-use App\Http\Requests\JobRequest;
 use App\Http\Requests\SetPriorityRequest;
 use App\Http\Resources\BillOfLadingResource;
 use App\Jobs\ImportJob;
