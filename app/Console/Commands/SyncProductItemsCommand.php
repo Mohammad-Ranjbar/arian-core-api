@@ -23,7 +23,6 @@ class SyncProductItemsCommand extends Command
     protected $description = 'Command description';
 
 
-
     public function __construct(private readonly ErpOdataClient $erpOdataClient)
     {
         parent::__construct();
@@ -52,7 +51,7 @@ class SyncProductItemsCommand extends Command
                         'tracking_code' => $row->Vendor_Tracking_Code,
                         'title'         => $row->Description,
                         'description'   => $row->Description_2,
-                        'type'          => $row->Item_Type,
+                        'type'          => $row->Engin ? 'engine' : $row->Item_Type,
                     ];
                     dispatch(new SyncProductItem($data));
                     $bar->advance();
