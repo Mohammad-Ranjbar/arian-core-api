@@ -2,7 +2,6 @@
 
 namespace App\libs;
 
-use App\Filters\AccessUserFilter;
 use App\Filters\BillOfLadingDriverMobileFilter;
 use App\Filters\BillOfLadingDriverNationalCodeFilter;
 use App\Filters\BlockByFilter;
@@ -52,7 +51,6 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters     = [
-        AccessUserFilter::class,
         BlockItemMakeCodeIdFilter::class,
         BlockByFilter::class,
         BlockReasonIdFilter::class,
@@ -149,6 +147,13 @@ abstract class BaseRepository
         if (request()->has('q') && request()->get('q') !== null) {
             $data = $data->newQuery()->whereLike($this->searchTerms, request()->get('q'));
         }
+
+        if (request()->has('access_user') === true and $data->isRelation('users') and $data->getTable() != 'permissions') {
+            $data = $data->newQuery()->whereHas('users', function ($query) {
+                $query->where('user_id', Auth::id());
+            });
+        }
+
         return Pipeline::send($data)->through($this->filters)->thenReturn();
     }
 

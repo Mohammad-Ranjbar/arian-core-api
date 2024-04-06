@@ -2,9 +2,9 @@
 
 namespace App\Http;
 
-use App\Filters\AccessUserFilter;
 use App\Http\Middleware\AccessVehicleMiddleware;
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\CheckAccessUserMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -78,6 +78,6 @@ class Kernel extends HttpKernel
         'throttle'         => ThrottleRequests::class,
         'verified'         => EnsureEmailIsVerified::class,
         'access.vehicle'   => AccessVehicleMiddleware::class,
-        'CheckAccessUser'  => AccessUserFilter::class
+        'CheckAccessUser'  => CheckAccessUserMiddleware::class
     ];
 }

@@ -135,7 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
 
-    Route::get('options/{resource}', OptionController::class);
+    Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
 
