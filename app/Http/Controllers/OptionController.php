@@ -27,7 +27,7 @@ use Illuminate\Http\JsonResponse;
 
 class OptionController extends Controller
 {
-
+    protected $middleware = ['CheckAccessUser'];
     /**
      * @param $resource
      * @return JsonResponse|array
