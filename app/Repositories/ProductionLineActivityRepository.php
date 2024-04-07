@@ -18,7 +18,7 @@ class ProductionLineActivityRepository extends BaseRepository
             'description'    => 'nullable',
             'note'           => 'nullable',
             'start_at'       => 'nullable',
-            'stop_at'         => 'nullable',
+            'stop_at'        => 'nullable',
         ], 'update' => [
             'station_id'     => 'required|exists:stations,id',
             'stop_reason_id' => 'required|exists:stop_reasons,id',
@@ -26,7 +26,8 @@ class ProductionLineActivityRepository extends BaseRepository
             'description'    => 'nullable',
             'note'           => 'nullable',
             'start_at'       => 'nullable',
-            'stop_at'         => 'nullable',
+            'stop_at'        => 'nullable',
+            'effective_time' => 'nullable|date_format:H:i'
         ]
     ];
 
