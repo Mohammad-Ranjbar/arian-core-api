@@ -22,7 +22,6 @@ services:
         depends_on:
             - db
             - redis
-            - elasticsearch
         restart: always
         command: bash -c 'php artisan schedule:run >> /dev/null 2>&1'
     queue:
@@ -68,15 +67,4 @@ services:
     redis:
         image: redis
         container_name: redis
-        restart: always
-    elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
-        container_name: elasticsearch
-        environment:
-          - discovery.type=single-node
-          - xpack.security.enabled=false
-          - http.host=0.0.0.0
-          - transport.host=127.0.0.1
-        volumes:
-          - ./data/elasticsearch:/usr/share/elasticsearch/data
         restart: always
