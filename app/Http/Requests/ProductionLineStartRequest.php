@@ -23,6 +23,7 @@ class ProductionLineStartRequest extends FormRequest
     {
         return [
             'start_at' => 'nullable|date_format:"Y-m-d H:i:s"',
+            'notify'   => 'required|boolean'
         ];
     }
 }

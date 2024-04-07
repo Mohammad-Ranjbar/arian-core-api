@@ -28,6 +28,7 @@ class StopLineRequest extends FormRequest
             'note'           => 'nullable',
             'start_at'       => 'nullable|date_format:"Y-m-d H:i:s"',
             'stop_at'        => 'nullable|date_format:"Y-m-d H:i:s"',
+            'notify'         => 'required|boolean'
         ];
     }
 }
