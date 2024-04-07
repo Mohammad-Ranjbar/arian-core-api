@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Resources\InspectionResource;
 use App\Models\Inspection;
 use App\Models\Vehicle;
-use App\Repositories\InspectionRepository;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
 class InspectionController extends Controller
 {
+    /**
+     * @param  Request  $request
+     * @param  Vehicle  $vehicle
+     * @return AnonymousResourceCollection
+     * @throws AuthorizationException
+     */
     public function index(Request $request, Vehicle $vehicle): AnonymousResourceCollection
     {
         $this->authorize('inspections.index');
@@ -20,6 +25,12 @@ class InspectionController extends Controller
         return InspectionResource::collection($vehicle->inspections()->paginate($perPage));
     }
 
+    /**
+     * @param  Vehicle  $vehicle
+     * @param  Request  $request
+     * @return InspectionResource
+     * @throws AuthorizationException
+     */
     public function store(Vehicle $vehicle, Request $request): InspectionResource
     {
         $this->authorize('inspections.store');
@@ -35,7 +46,14 @@ class InspectionController extends Controller
         return new InspectionResource($inspection);
     }
 
-    public function show(Vehicle $vehicle, Inspection $inspection)
+
+    /**
+     * @param  Vehicle  $vehicle
+     * @param  Inspection  $inspection
+     * @return InspectionResource
+     * @throws AuthorizationException
+     */
+    public function show(Vehicle $vehicle, Inspection $inspection): InspectionResource
     {
         $this->authorize('inspections.show');
         return new InspectionResource($inspection);

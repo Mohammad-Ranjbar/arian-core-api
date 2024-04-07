@@ -6,6 +6,10 @@ use App\Http\Resources\BarcodeResource;
 use App\Models\Barcode;
 use App\Services\IndexElasticSearch\BarcodeIndexService;
 use Carbon\Carbon;
+use Elastic\Elasticsearch\Exception\AuthenticationException;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
+use Elastic\Elasticsearch\Exception\MissingParameterException;
+use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 
@@ -20,6 +24,10 @@ class IndexBarcodeCommand extends Command
 
     /**
      * @return void
+     * @throws AuthenticationException
+     * @throws ClientResponseException
+     * @throws MissingParameterException
+     * @throws ServerResponseException
      */
     public function handle(): void
     {
