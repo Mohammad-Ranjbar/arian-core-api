@@ -38,6 +38,21 @@ class UpdatePermissionCommand extends Command
             'production-tracking.inventories',
             'production-tracking.locations',
 
+
+            'production-tracking.salons.enter',
+            'production-tracking.stations.enter',
+            'production-tracking.production_lines.enter',
+            'production-tracking.sale_locations.enter',
+            'production-tracking.inventories.enter',
+            'production-tracking.locations.enter',
+
+            'production-tracking.salons.exit',
+            'production-tracking.stations.exit',
+            'production-tracking.production_lines.exit',
+            'production-tracking.sale_locations.exit',
+            'production-tracking.inventories.exit',
+            'production-tracking.locations.exit',
+
             'vehicle.print',
             'vehicle.print.qr',
             'vehicle.print.barcode',
