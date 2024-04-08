@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductionLineStartRequest;
 use App\Http\Requests\StopLineRequest;
 use App\Http\Resources\ProductionLineActivityResource;
+use App\Jobs\ProductionLineActivitySmsJob;
 use App\Jobs\ProductionLineActivityTeamsJob;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
@@ -34,6 +35,7 @@ class LineActivityStartStopController extends Controller
             'action' => 'stop', 'user_id' => Auth::id(),
         ]);
         if ($validatedData['notify']){
+            ProductionLineActivitySmsJob::dispatch($productionLine->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
         return new ProductionLineActivityResource($activity);
@@ -63,6 +65,7 @@ class LineActivityStartStopController extends Controller
             'action' => 'start', 'user_id' => Auth::id(),
         ]);
         if ($validatedData['notify']){
+            ProductionLineActivitySmsJob::dispatch($productionLine->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
         return new ProductionLineActivityResource($activity);
