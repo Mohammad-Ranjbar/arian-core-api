@@ -165,6 +165,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/update-production-tracking/{tracking}',
         [ProductionTrackingController::class, 'update'])->name('update-production-tracking');
     Route::get('/faults/{type}/report', [VehicleFaultController::class, 'report']);
+    Route::get('/faults/{type}/report-excel', [VehicleFaultController::class, 'reportExcel']);
 
     Route::prefix('/incident-sources')->group(function () {
         Route::get('/', [

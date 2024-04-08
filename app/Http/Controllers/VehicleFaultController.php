@@ -6,14 +6,18 @@ use App\Http\Requests\IncidentSourceRequest;
 use App\Http\Requests\VehicleFaultRequest;
 use App\Http\Resources\IncidentSourceResource;
 use App\Http\Resources\VehicleIncidentResource;
+use App\Jobs\ExportJob;
 use App\Models\IncidentSource;
+use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\IncidentSourceRepository;
 use App\Repositories\VehicleIncidentRepository;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -229,4 +233,27 @@ class VehicleFaultController extends Controller
         ]);
     }
 
-}
+    /**
+     * @param  Request  $request
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function reportExcel(Request $request): JsonResponse
+    {
+        $this->authorize('vehicles.faults.'.request()->route()->parameter('type').'.report_excel');
+
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'export-faults';
+        $validatedData['data'] = $request->toArray();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+        return response()->json([
+            'message' => 'export job created', 'data' => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
+
+    }
