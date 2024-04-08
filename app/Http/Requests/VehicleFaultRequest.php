@@ -22,15 +22,19 @@ class VehicleFaultRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'intensity'   => 'required|string',
-            'method'      => 'required|string',
-            'description' => 'nullable',
-            'user_id'     => 'nullable',
-            'vin'         => 'nullable',
-            'checked_at'  => 'nullable|date|date_format:Y-m-d H:i:s',
-            'element_id'  => 'required|exists:elements,id',
-            'incident_id' => 'required|exists:incidents,id',
-            'type'        => 'nullable'
+            'intensity'                     => 'required|string',
+            'method'                        => 'required|string',
+            'description'                   => 'nullable',
+            'user_id'                       => 'nullable',
+            'vin'                           => 'nullable',
+            'checked_at'                    => 'nullable|date|date_format:Y-m-d H:i:s',
+            'element_id'                    => 'required|exists:elements,id',
+            'incident_id'                   => 'required|exists:incidents,id',
+            'type'                          => 'nullable',
+            'location'                      => 'required',
+            'location.custom_location_type' => 'required',
+            'location.custom_location_id'   => 'required',
+            ''
         ];
     }
 

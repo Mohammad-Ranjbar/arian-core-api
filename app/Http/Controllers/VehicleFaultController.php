@@ -51,6 +51,8 @@ class VehicleFaultController extends Controller
                 return $this->responseError('can not find vehicle location');
             }
             $validatedData['production_tracking_id'] = $tracking->getAttribute('id');
+            $validatedData['custom_location_id'] = $validatedData['location']['custom_location_id'];
+            $validatedData['custom_location_type'] = $validatedData['location']['custom_location_type'];
             $this->incidentSourceRepository->upsert([
                 'incident_id'  => $validatedData['incident_id'],
                 'element_id'   => $validatedData['element_id'],
@@ -256,4 +258,4 @@ class VehicleFaultController extends Controller
         ]);
     }
 
-    }
+}

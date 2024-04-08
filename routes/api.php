@@ -10,6 +10,7 @@ use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
+use App\Http\Controllers\CustomLocationController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
@@ -56,6 +57,7 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
     Route::post('/upload', [FileController::class, 'upload'])->name('upload.store');
     Route::get('/tracking-history/{modelType}/{modelId}/{type}',
@@ -70,7 +72,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-template-bill-of-lading-for-container',
         [BillOfLadingController::class, 'getTemplateBillOfLadingForContainer']);
 
-    Route::post('/import-bill-of-lading',[BillOfLadingController::class,'importBillOfLading'])->name('import.bill-of-lading');
+    Route::post('/import-bill-of-lading',
+        [BillOfLadingController::class, 'importBillOfLading'])->name('import.bill-of-lading');
 
     Route::get('/get-stop-locations',
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');
