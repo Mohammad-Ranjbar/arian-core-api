@@ -44,6 +44,8 @@ class Vehicle extends Model
         'make_code_id',
         'qc_status',
         'grade',
+        'grade_description',
+        'qc_description',
     ];
 
     /**

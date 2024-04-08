@@ -54,7 +54,6 @@ Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 
-
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');

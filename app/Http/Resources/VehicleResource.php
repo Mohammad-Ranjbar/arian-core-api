@@ -20,6 +20,8 @@ class VehicleResource extends JsonResource
             'production_order_number' => $this->resource->production_order_number,
             'engine_no'               => $this->resource->engine_no,
             'cabin_no'                => $this->resource->cabin_no,
+            'grade_description'       => $this->resource->grade_description,
+            'qc_description'          => $this->resource->qc_description,
             'qc_status'               => $this->resource->qc_status,
             'makeCode'                => [
                 'id'        => (int) $this->resource->makeCode->id,
