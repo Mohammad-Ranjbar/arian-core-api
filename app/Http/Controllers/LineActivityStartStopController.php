@@ -33,7 +33,7 @@ class LineActivityStartStopController extends Controller
         $activity->logs()->create([
             'action' => 'stop', 'user_id' => Auth::id(),
         ]);
-        if ($validatedData('notify')){
+        if ($validatedData['notify']){
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
         return new ProductionLineActivityResource($activity);
@@ -62,7 +62,7 @@ class LineActivityStartStopController extends Controller
         $activity->logs()->create([
             'action' => 'start', 'user_id' => Auth::id(),
         ]);
-        if ($validatedData('notify')){
+        if ($validatedData['notify']){
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
         return new ProductionLineActivityResource($activity);
