@@ -148,11 +148,11 @@ abstract class BaseRepository
             $data = $data->newQuery()->whereLike($this->searchTerms, request()->get('q'));
         }
 
-        if (request()->has('access_user') === true and $data->isRelation('users') and $data->getTable() != 'permissions') {
-            $data = $data->newQuery()->whereHas('users', function ($query) {
-                $query->where('user_id', Auth::id());
-            });
-        }
+//        if (request()->has('access_user') === true and $data->isRelation('users') and $data->getTable() != 'permissions') {
+//            $data = $data->newQuery()->whereHas('users', function ($query) {
+//                $query->where('user_id', Auth::id());
+//            });
+//        }
 
         return Pipeline::send($data)->through($this->filters)->thenReturn();
     }
