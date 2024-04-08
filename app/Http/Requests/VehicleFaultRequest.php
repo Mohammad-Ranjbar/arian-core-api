@@ -34,7 +34,7 @@ class VehicleFaultRequest extends FormRequest
             'location'                      => 'required',
             'location.custom_location_type' => 'required',
             'location.custom_location_id'   => 'required',
-            ''
+
         ];
     }
 
