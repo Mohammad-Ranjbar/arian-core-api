@@ -24,12 +24,14 @@ use App\Filters\NationalCodeFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
+use App\Filters\SearchQByFilter;
 use App\Filters\TitleFilter;
 use App\Filters\TypeFilter;
 use App\Filters\UnblockByFilter;
 use App\Filters\UnblockedAtFilter;
 use App\Filters\UnblockedAtFromFilter;
 use App\Filters\UnblockedAtToFilter;
+use App\Filters\UserAccessToResourceFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,7 +52,9 @@ abstract class BaseRepository
     /**
      * @var array|string[]
      */
-    public array $filters     = [
+    public array $filters = [
+        UserAccessToResourceFilter::class,
+        SearchQByFilter::class,
         BlockItemMakeCodeIdFilter::class,
         BlockByFilter::class,
         BlockReasonIdFilter::class,
@@ -145,21 +149,20 @@ abstract class BaseRepository
         $data = $this->model;
 
         if (request()->has('q') && request()->get('q') !== null) {
-            $data = $data->newQuery()->whereLike($this->searchTerms, request()->get('q'));
+            request()->merge(['searchTerms' => $this->searchTerms]);
+
         }
 
-//        if (request()->has('access_user') === true and $data->isRelation('users') and $data->getTable() != 'permissions') {
-//            $data = $data->newQuery()->whereHas('users', function ($query) {
-//                $query->where('user_id', Auth::id());
-//            });
-//        }
+        if (request()->has('access_user') === true and $data->isRelation('users') and $data->getTable() != 'permissions') {
+            request()->merge(['filterAccessUser' => Auth::id()]);
+        }
 
         return Pipeline::send($data)->through($this->filters)->thenReturn();
     }
 
     /**
      * @param $data
-     * @param  string  $parameter
+     * @param string $parameter
      * @return Model|Builder
      */
     public function make($data, string $parameter = 'reference'): Model|Builder
@@ -170,7 +173,7 @@ abstract class BaseRepository
 
     /**
      * @param $value
-     * @param  string  $parameter
+     * @param string $parameter
      * @return Model|Builder
      */
     public function findBy($value, string $parameter = 'reference'): Model|Builder
@@ -186,7 +189,7 @@ abstract class BaseRepository
 
 
     /**
-     * @param  array  $input
+     * @param array $input
      * @return bool|Builder|Model|int
      */
     public function upsert(array $input): Model|Builder|bool|int
@@ -200,7 +203,7 @@ abstract class BaseRepository
 
 
     /**
-     * @param  array  $where
+     * @param array $where
      * @return Model|Builder|null
      */
     public function findWhere(array $where): null|Model|Builder
