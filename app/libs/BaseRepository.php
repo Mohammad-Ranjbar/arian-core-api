@@ -14,6 +14,7 @@ use App\Filters\CreatedAtFromFilter;
 use App\Filters\CreatedAtToFilter;
 use App\Filters\ElementIdFilter;
 use App\Filters\EmailFilter;
+use App\Filters\EngineBarcodeFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
 use App\Filters\MakeCodeFilter;
@@ -53,6 +54,7 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        EngineBarcodeFilter::class,
         UserAccessToResourceFilter::class,
         SearchQByFilter::class,
         BlockItemMakeCodeIdFilter::class,
