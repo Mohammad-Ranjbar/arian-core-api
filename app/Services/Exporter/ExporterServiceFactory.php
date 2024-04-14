@@ -13,6 +13,7 @@ class ExporterServiceFactory
     {
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
+            'export-incidents' => new ExportIncidentsService($job),
             default => 'Invalid input',
         };
     }
