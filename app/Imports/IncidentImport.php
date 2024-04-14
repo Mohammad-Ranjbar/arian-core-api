@@ -7,6 +7,7 @@ use App\Exports\ResultExport;
 use App\Models\Incident;
 use App\Models\Job;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -47,7 +48,7 @@ class IncidentImport implements ToCollection, WithStartRow, WithMapping
         $collection->each(function ($row) {
 
             if (!Incident::query()->where('code', $row['code'])->exists()) {
-
+                Log::info($row->toArray());
                 Incident::query()->create($row->toArray());
                 $this->data['success']++;
 
