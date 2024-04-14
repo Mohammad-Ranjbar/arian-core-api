@@ -60,6 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
     Route::get('/report-incidents', [IncidentController::class, 'report'])->name('report-incidents');
+    Route::get('/report-production-line-activities', [ProductionLineActivityController::class, 'report'])->name('report-production-line-activities');
     Route::get('/report-barcodes', [BarcodeController::class, 'report'])->name('report-barcodes');
     Route::post('/upload', [FileController::class, 'upload'])->name('upload.store');
     Route::get('/tracking-history/{modelType}/{modelId}/{type}',
