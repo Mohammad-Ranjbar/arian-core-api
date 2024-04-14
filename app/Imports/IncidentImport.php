@@ -44,12 +44,11 @@ class IncidentImport implements ToCollection, WithStartRow, WithMapping
     {
         $this->data['total'] = $collection->count();
         $this->sendEvent();
-        Log::info($collection);
-        dd();
+
         $collection->each(function ($row) {
 
             if (!Incident::query()->where('code', $row['code'])->exists()) {
-                Log::info($row->toArray());
+
                 Incident::query()->create($row->toArray());
                 $this->data['success']++;
 
