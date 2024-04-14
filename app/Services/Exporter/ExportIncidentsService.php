@@ -3,9 +3,7 @@
 namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
-use App\Exports\BlockItemReportExport;
 use App\Exports\IncidentReportExport;
-use App\Repositories\BlockItemRepository;
 use App\Repositories\IncidentRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
