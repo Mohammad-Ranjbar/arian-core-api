@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\IncidentResource;
+use App\Jobs\ExportJob;
+use App\Models\Job;
 use App\Repositories\IncidentRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class IncidentController extends CrudController
 {
@@ -13,5 +18,19 @@ class IncidentController extends CrudController
         $this->setResource(IncidentResource::class);
     }
 
+    public function report(Request $request): JsonResponse
+    {
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'export-incidents';
+        $validatedData['data'] = $request->toArray();
+        $job = Job::query()->create($validatedData);
 
+        ExportJob::dispatch($job->getAttribute('uuid'));
+        return response()->json([
+            'message' => 'export job created', 'data' => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
 }
