@@ -55,7 +55,7 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
-Route::get('/dl', DownloadController::class);
+Route::get('/dl', DownloadController::class)->name('dl');
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
