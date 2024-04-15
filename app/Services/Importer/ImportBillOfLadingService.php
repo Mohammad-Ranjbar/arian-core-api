@@ -3,7 +3,6 @@
 namespace App\Services\Importer;
 
 use App\Imports\BillOfLadingImport;
-use App\Imports\IncidentImport;
 use App\Models\File;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -21,7 +20,7 @@ class ImportBillOfLadingService extends BaseImporterService
             'error'   => 0,
         ];
 
-        Excel::import(new BillOfLadingImport($data), public_path($file->getAttribute('path')));
+        Excel::import(new BillOfLadingImport($data), storage_path("app/public/".$file->getAttribute('path')));
 
     }
 }

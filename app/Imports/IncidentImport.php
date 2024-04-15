@@ -7,7 +7,6 @@ use App\Exports\ResultExport;
 use App\Models\Incident;
 use App\Models\Job;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;

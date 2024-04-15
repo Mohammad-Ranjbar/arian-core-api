@@ -63,7 +63,7 @@ class BlockVehicleImport implements ToCollection, WithStartRow, WithMapping
         Excel::store(new ResultExport($collection->prepend(BlockItem::HEADING)),'public/results/'.$uuid.'.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
-                'file'    => asset('storage/results/'.$uuid.'.xlsx'),
+                'file'    => route('dl',['path' => 'results/'.$uuid.'.xlsx']),
                 'total'   => $this->data['total'],
                 'success' => $this->data['success'],
                 'error'   => $this->data['error'],

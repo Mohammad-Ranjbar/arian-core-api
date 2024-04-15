@@ -20,7 +20,7 @@ class ImportElementService extends BaseImporterService
             'error'   => 0,
         ];
 
-        Excel::import(new ElementImport($data), public_path($file->getAttribute('path')));
+        Excel::import(new ElementImport($data), storage_path("app/public/".$file->getAttribute('path')));
 
     }
 }
