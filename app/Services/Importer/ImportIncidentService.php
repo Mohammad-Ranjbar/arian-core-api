@@ -20,7 +20,7 @@ class ImportIncidentService extends BaseImporterService
             'error'   => 0,
         ];
 
-        Excel::import(new IncidentImport($data), base_path($file->getAttribute('path')));
+        Excel::import(new IncidentImport($data), storage_path("app/public/".$file->getAttribute('path')));
 
     }
 }
