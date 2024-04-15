@@ -37,7 +37,7 @@ class FileController extends CrudController
             $data = $this->saveFile($save->getFile());
 
             $file = $this->repository->store([
-                'user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'].'/'.$data['name']
+                'user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']
             ]);
             $data['file'] = new FileResource($file);
             $data['status'] = 'done';
@@ -54,7 +54,7 @@ class FileController extends CrudController
 
 
     /**
-     * @param  UploadedFile  $file
+     * @param UploadedFile $file
      * @return array
      */
     protected function saveFile(UploadedFile $file): array
@@ -66,21 +66,21 @@ class FileController extends CrudController
         $dateFolder = date("Y-W");
 
         $filePath = "uploads/$dateFolder";
-        $finalPath = storage_path("app/public/".$filePath);
+        $finalPath = storage_path("app/public/" . $filePath);
         $file->move($finalPath, $fileName);
 
-        return ['path' => 'storage/'.$filePath, 'name' => $fileName, 'mime_type' => $mime];
+        return ['path' => $filePath, 'name' => $fileName, 'mime_type' => $mime];
     }
 
     /**
-     * @param  UploadedFile  $file
+     * @param UploadedFile $file
      * @return string
      */
     protected function createFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
 
-        return Str::uuid()."_".md5(time()).".".$extension;
+        return Str::uuid() . "_" . md5(time()) . "." . $extension;
     }
 
 }
