@@ -60,6 +60,8 @@ class ProductionLineActivitySmsJob implements ShouldQueue
             $content[] = $productionLineActivity->getAttribute('productionLine')->title;
             $content[] = 'مدت زمان توقف';
             $content[] = implode(' و ', $arrDiff);
+            $content[] = 'زمان موثر';
+            $content[] = $productionLineActivity->getAttribute('effective_time');
         } else {
             $content[] = 'توقف خط';
             $content[] = $productionLineActivity->getAttribute('productionLine')->title;
@@ -71,6 +73,6 @@ class ProductionLineActivitySmsJob implements ShouldQueue
         }
 
 
-        SmsService::sendSms($phones,implode("\n",$content));
+        SmsService::sendSms($phones, implode("\n", $content));
     }
 }
