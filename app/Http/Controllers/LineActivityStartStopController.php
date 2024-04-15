@@ -17,24 +17,26 @@ class LineActivityStartStopController extends Controller
 {
 
     /**
-     * @param  StopLineRequest  $request
-     * @param  ProductionLine  $productionLine
+     * @param StopLineRequest $request
+     * @param ProductionLine $productionLine
      * @return JsonResponse|ProductionLineActivityResource
      */
     public function stop(
         StopLineRequest $request,
-        ProductionLine $productionLine
-    ): JsonResponse|ProductionLineActivityResource {
+        ProductionLine  $productionLine
+    ): JsonResponse|ProductionLineActivityResource
+    {
         $validatedData = $request->validated();
         if ($productionLine->isStop()) {
             return $this->responseError('can not stop the line');
         }
-        /** @var ProductionLineActivity $activity  */
+        /** @var ProductionLineActivity $activity */
         $activity = $productionLine->activities()->create($validatedData);
         $activity->logs()->create([
             'action' => 'stop', 'user_id' => Auth::id(),
         ]);
-        if ($validatedData['notify']){
+        if ($validatedData['notify']) {
+            $productionLine->update(['notify_on_stop' => true]);
             ProductionLineActivitySmsJob::dispatch($productionLine->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
@@ -43,28 +45,30 @@ class LineActivityStartStopController extends Controller
 
 
     /**
-     * @param  ProductionLine  $productionLine
-     * @param  ProductionLineStartRequest  $request
+     * @param ProductionLine $productionLine
+     * @param ProductionLineStartRequest $request
      * @return JsonResponse|ProductionLineActivityResource
      * @throws AuthorizationException
      */
     public function start(
-        ProductionLine $productionLine,
+        ProductionLine             $productionLine,
         ProductionLineStartRequest $request
-    ): JsonResponse|ProductionLineActivityResource {
+    ): JsonResponse|ProductionLineActivityResource
+    {
         $this->authorize('production-lines.start');
         if ($productionLine->isStarted()) {
             return $this->responseError('can not start the line');
         }
         $validatedData = $request->validated();
 
-        /** @var ProductionLineActivity $activity  */
+        /** @var ProductionLineActivity $activity */
         $activity = $productionLine->getLatestActivity();
         $activity->update($validatedData);
         $activity->logs()->create([
             'action' => 'start', 'user_id' => Auth::id(),
         ]);
-        if ($validatedData['notify']){
+        if ($validatedData['notify']) {
+            $productionLine->update(['notify_on_start' => true]);
             ProductionLineActivitySmsJob::dispatch($productionLine->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
@@ -72,20 +76,20 @@ class LineActivityStartStopController extends Controller
     }
 
 
-
     /**
-     * @param  ProductionLine  $productionLine
+     * @param ProductionLine $productionLine
      * @return JsonResponse|ProductionLineActivityResource
      * @throws AuthorizationException
      */
     public function status(
         ProductionLine $productionLine
-    ): JsonResponse|ProductionLineActivityResource {
+    ): JsonResponse|ProductionLineActivityResource
+    {
         $this->authorize('production-lines.status');
         $stop = $productionLine->isStop();
         return response()->json([
             'status' => $stop ? 'stop' : 'start',
-            'data'   => $stop ? new ProductionLineActivityResource($productionLine->getLatestActivity()) : null
+            'data' => $stop ? new ProductionLineActivityResource($productionLine->getLatestActivity()) : null
         ]);
     }
 
@@ -94,14 +98,14 @@ class LineActivityStartStopController extends Controller
      */
     public function approve(ProductionLineActivity $productionLineActivity): bool|JsonResponse
     {
-            $this->authorize('production-line-activities.approve');
-            if ($productionLineActivity->isApproved()) {
-                return $this->responseError('can not approve the activity');
-            }
-            $productionLineActivity->logs()->create([
-                'action' => 'approved', 'user_id' => Auth::id(),
-            ]);
-            return true;
+        $this->authorize('production-line-activities.approve');
+        if ($productionLineActivity->isApproved()) {
+            return $this->responseError('can not approve the activity');
+        }
+        $productionLineActivity->logs()->create([
+            'action' => 'approved', 'user_id' => Auth::id(),
+        ]);
+        return true;
     }
 
 

@@ -11,28 +11,32 @@ class ProductionLineActivityRepository extends BaseRepository
      * @var array|array[]
      */
     protected array $rules = [
-        'create'    => [
-            'station_id'     => 'required|exists:stations,id',
+        'create' => [
+            'station_id' => 'required|exists:stations,id',
             'stop_reason_id' => 'required|exists:stop_reasons,id',
-            'stop_type_id'   => 'required|exists:stop_types,id',
-            'description'    => 'nullable',
-            'note'           => 'nullable',
-            'start_at'       => 'nullable',
-            'stop_at'        => 'nullable',
+            'stop_type_id' => 'required|exists:stop_types,id',
+            'description' => 'nullable',
+            'note' => 'nullable',
+            'start_at' => 'nullable',
+            'stop_at' => 'nullable',
+            'notify_on_start' => 'nullable',
+            'notify_on_stop' => 'nullable',
         ], 'update' => [
-            'station_id'     => 'required|exists:stations,id',
+            'station_id' => 'required|exists:stations,id',
             'stop_reason_id' => 'required|exists:stop_reasons,id',
-            'stop_type_id'   => 'required|exists:stop_types,id',
-            'description'    => 'nullable',
-            'note'           => 'nullable',
-            'start_at'       => 'nullable',
-            'stop_at'        => 'nullable',
-            'effective_time' => 'nullable|date_format:H:i'
+            'stop_type_id' => 'required|exists:stop_types,id',
+            'description' => 'nullable',
+            'note' => 'nullable',
+            'start_at' => 'nullable',
+            'stop_at' => 'nullable',
+            'effective_time' => 'nullable|date_format:H:i',
+            'notify_on_start' => 'nullable',
+            'notify_on_stop' => 'nullable',
         ]
     ];
 
     /**
-     * @param  ProductionLineActivity  $model
+     * @param ProductionLineActivity $model
      */
     public function __construct(ProductionLineActivity $model)
     {

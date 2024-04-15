@@ -24,7 +24,9 @@ class ProductionLineActivity extends Model
         'note',
         'start_at',
         'stop_at',
-        'effective_time'
+        'effective_time',
+        'notify_on_start',
+        'notify_on_stop',
     ];
 
     /**
