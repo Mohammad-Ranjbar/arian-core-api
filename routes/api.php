@@ -11,6 +11,7 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomLocationController;
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
@@ -54,7 +55,7 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
-
+Route::get('/dl', DownloadController::class);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
@@ -189,7 +190,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
     Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
     Route::group([
-        'prefix'     => 'production-lines/{production_line}',
+        'prefix' => 'production-lines/{production_line}',
         'controller' => LineActivityStartStopController::class, 'as' => 'production-lines.'
     ], function () {
         Route::get('status', 'status')->name('status');
@@ -205,29 +206,29 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::apiResources([
-        'roles'              => RoleController::class,
-        'make-codes'         => MakeCodeController::class,
-        'car-models'         => CarModelController::class,
-        'users'              => UserController::class,
-        'salons'             => SalonController::class,
-        'production-lines'   => ProductionLineController::class,
+        'roles' => RoleController::class,
+        'make-codes' => MakeCodeController::class,
+        'car-models' => CarModelController::class,
+        'users' => UserController::class,
+        'salons' => SalonController::class,
+        'production-lines' => ProductionLineController::class,
         'work-group-centers' => WorkGroupCenterController::class,
-        'stations'           => StationController::class,
-        'incidents'          => IncidentController::class,
-        'elements'           => ElementController::class,
-        'block-reasons'      => BlockReasonController::class,
-        'transit-companies'  => TransitCompanyController::class,
-        'cars'               => CarController::class,
-        'stop-facts'         => StopFactController::class,
-        'stop-reasons'       => StopReasonController::class,
-        'stop-types'         => StopTypeController::class,
-        'barcodes'           => BarcodeController::class,
-        'baskets'            => BasketController::class,
-        'inventories'        => InventoryController::class,
-        'containers'         => ContainerController::class,
-        'drivers'            => DriverController::class,
-        'sale-locations'     => SaleLocationController::class,
+        'stations' => StationController::class,
+        'incidents' => IncidentController::class,
+        'elements' => ElementController::class,
+        'block-reasons' => BlockReasonController::class,
+        'transit-companies' => TransitCompanyController::class,
+        'cars' => CarController::class,
+        'stop-facts' => StopFactController::class,
+        'stop-reasons' => StopReasonController::class,
+        'stop-types' => StopTypeController::class,
+        'barcodes' => BarcodeController::class,
+        'baskets' => BasketController::class,
+        'inventories' => InventoryController::class,
+        'containers' => ContainerController::class,
+        'drivers' => DriverController::class,
+        'sale-locations' => SaleLocationController::class,
         'accompanying-items' => AccompanyingItemController::class,
-        'locations'          => LocationController::class,
+        'locations' => LocationController::class,
     ]);
 });
