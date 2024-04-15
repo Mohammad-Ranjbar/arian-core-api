@@ -10,6 +10,11 @@ class DownloadController extends Controller
 
     public function __invoke(Request $request)
     {
-        return Storage::download($request->get('path'));
+        $path = storage_path('app/public/' . $request->get('path'));
+        if (file_exists($path)) {
+            return Storage::download($request->get('path'));
+        }
+
+        abort(404);
     }
 }
