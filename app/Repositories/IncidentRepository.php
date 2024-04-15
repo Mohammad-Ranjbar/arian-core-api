@@ -33,5 +33,7 @@ class IncidentRepository extends BaseRepository
             $this->rules['update']['code'] .= request()->route()->parameter('incident');
         }
     }
-
+    public array $searchTerms = [
+        'title','title_en','code'
+    ];
 }
