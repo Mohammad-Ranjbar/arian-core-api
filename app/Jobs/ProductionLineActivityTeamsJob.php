@@ -78,6 +78,11 @@ class ProductionLineActivityTeamsJob implements ShouldQueue
                         'name'  => 'مدت توقف',
                         'value' => implode(' و ', $arrDiff)
                     ],
+
+                    [
+                        'name'  => 'زمان موثر',
+                        'value' => $productionLineActivity->getAttribute('effective_time')
+                    ],
                 ]
             ];
         } else {
