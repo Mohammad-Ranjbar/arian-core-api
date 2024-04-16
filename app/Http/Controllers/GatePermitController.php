@@ -6,6 +6,7 @@ use App\Http\Resources\GatePermitResource;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
+use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,5 +46,12 @@ class GatePermitController extends CrudController
             DB::rollBack();
             return $this->responseError($exception->getMessage(), 500);
         }
+    }
+
+    private function exit(string $vin): array
+    {
+        return ErpWsdlClient::run(config('erp.gate'), 'CreateVehicleExitStatus',
+            ['barcodeInfoP' => $vin]);
+
     }
 }
