@@ -37,7 +37,7 @@ class GatePermitController extends CrudController
             $validatedData['model_id'] = $validatedData['vin'];
             $validatedData['owner_id'] = Auth::id();
             $validatedData['owner_type'] = User::class;
-            unset($validatedData['vin']);
+
 
             $response = $this->createExitRequest($validatedData['vin'],$validatedData['type']);
 
@@ -45,7 +45,7 @@ class GatePermitController extends CrudController
                 return $this->responseError($response['message'], 400);
             }
 
-
+            unset($validatedData['vin']);
 
             $saveItem = $this->repository->store($validatedData);
             $data = new $this->resource($saveItem);
