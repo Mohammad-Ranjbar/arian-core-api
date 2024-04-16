@@ -161,6 +161,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [VehicleController::class, 'getByVin'])->withoutMiddleware('access.vehicle');
             Route::get('/faults/{type}', [VehicleFaultController::class, 'index']);
             Route::post('/faults/{type}', [VehicleFaultController::class, 'submit']);
+            Route::post('/faults/{id}', [VehicleFaultController::class, 'submit'])->name('destroy.vehicle.fault');
 
             Route::put('/update-qc-status',
                 [VehicleController::class, 'updateQcStatus'])->name('vehicle.update-qc-status');
