@@ -38,6 +38,15 @@ class GatePermitController extends CrudController
             $validatedData['owner_id'] = Auth::id();
             $validatedData['owner_type'] = User::class;
             unset($validatedData['vin']);
+
+            $response = $this->createExitRequest($validatedData['vin'],$validatedData['type']);
+
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 400);
+            }
+
+
+
             $saveItem = $this->repository->store($validatedData);
             $data = new $this->resource($saveItem);
             DB::commit();
@@ -48,10 +57,24 @@ class GatePermitController extends CrudController
         }
     }
 
-    private function exit(string $vin): array
+    private function createExitRequest(string $vin,string $type): array
     {
-        return ErpWsdlClient::run(config('erp.gate'), 'CreateVehicleExitStatus',
-            ['barcodeInfoP' => $vin]);
+        return ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
+            ['vINP' => $vin,'typeOfExitP' => $type]);
+
+    }
+
+    private function approveReturn(string $vin,string $type): array
+    {
+        return ErpWsdlClient::run(config('erp.approve'), 'ApproveReturn',
+            ['vINP' => $vin]);
+
+    }
+
+    private function returnRequest(string $vin): array
+    {
+        return ErpWsdlClient::run(config('erp.return_request'), 'ReturnRequest',
+            ['vINP' => $vin]);
 
     }
 }

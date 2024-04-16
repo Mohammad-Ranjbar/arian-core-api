@@ -18,6 +18,12 @@ return [
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'gate' => env('WSDL_GATE',
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'exit_request' => env('WSDL_GATE',
+        'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'approve' => env('WSDL_GATE',
+        'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'return_request' => env('WSDL_GATE',
+        'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'auth'            => [
         env('LDAP_USERNAME', ''),
         env('LDAP_PASSWORD', ''),
