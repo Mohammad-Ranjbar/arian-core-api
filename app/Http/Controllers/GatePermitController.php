@@ -38,7 +38,7 @@ class GatePermitController extends CrudController
             $validatedData['owner_id'] = Auth::id();
             $validatedData['owner_type'] = User::class;
 
-            if ($validatedData['exit_type'] == 'exit'){
+            if ($validatedData['type'] == 'exit'){
                 if ($validatedData['exit_type'] == 1){
                     $typeExitErp = 'CONSIGNMENT EXIT';
                 }elseif ($validatedData['exit_type'] == 2){
