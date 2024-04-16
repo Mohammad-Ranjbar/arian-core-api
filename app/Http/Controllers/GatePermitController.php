@@ -39,7 +39,7 @@ class GatePermitController extends CrudController
             $validatedData['owner_type'] = User::class;
 
 
-            $response = $this->createExitRequest($validatedData['vin'],$validatedData['type']);
+            $response = $this->createExitRequest($validatedData['vin'],$validatedData['exit_type']);
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
