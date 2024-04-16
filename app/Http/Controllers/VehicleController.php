@@ -6,6 +6,7 @@ use App\Exports\TemplateExport;
 use App\Http\Requests\UpdateGradeRequest;
 use App\Http\Requests\UpdateQcStatusRequest;
 use App\Http\Resources\VehicleResource;
+use App\Models\ActionLog;
 use App\Models\Vehicle;
 use App\Repositories\CarModelRepository;
 use App\Repositories\MakeCodeRepository;
@@ -14,6 +15,7 @@ use App\Services\Erp\ErpGetVehicle;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
@@ -83,6 +85,12 @@ class VehicleController extends CrudController
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
+            ActionLog::query()->create([
+                'model_type' => Vehicle::class,
+                'model_id' => $vehicle->getAttribute('id'),
+                'action' => 'update_qc_status',
+                'user_id' => Auth::id(),
+            ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {

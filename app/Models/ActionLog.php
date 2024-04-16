@@ -14,7 +14,7 @@ class ActionLog extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['user_id', 'action'];
+    protected $fillable = ['user_id', 'action','model_type','model_id'];
 
     /**
      * @return BelongsTo
