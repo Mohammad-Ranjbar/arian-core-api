@@ -27,19 +27,27 @@ class VehicleFaultController extends Controller
 {
 
     /**
-     * @param  VehicleIncidentRepository  $repository
-     * @param  IncidentSourceRepository  $incidentSourceRepository
+     * @param VehicleIncidentRepository $repository
+     * @param IncidentSourceRepository $incidentSourceRepository
      */
     public function __construct(
         private readonly VehicleIncidentRepository $repository,
-        private readonly IncidentSourceRepository $incidentSourceRepository
-    ) {
+        private readonly IncidentSourceRepository  $incidentSourceRepository
+    )
+    {
 
     }
 
+    public function destroy(Vehicle $vehicle, $id): JsonResponse
+    {
+        $this->repository->destroy($id);
+
+        return response()->json(['message' => 'ایراد مورد نظر با موفقیت حذف گردید']);
+    }
+
     /**
-     * @param  VehicleFaultRequest  $request
-     * @param  Vehicle  $vehicle
+     * @param VehicleFaultRequest $request
+     * @param Vehicle $vehicle
      * @return VehicleIncidentResource|JsonResponse
      */
     public function submit(VehicleFaultRequest $request, Vehicle $vehicle): VehicleIncidentResource|JsonResponse
@@ -54,8 +62,8 @@ class VehicleFaultController extends Controller
             $validatedData['custom_location_id'] = $validatedData['location']['custom_location_id'];
             $validatedData['custom_location_type'] = $validatedData['location']['custom_location_type'];
             $this->incidentSourceRepository->upsert([
-                'incident_id'  => $validatedData['incident_id'],
-                'element_id'   => $validatedData['element_id'],
+                'incident_id' => $validatedData['incident_id'],
+                'element_id' => $validatedData['element_id'],
                 'car_model_id' => $vehicle->carModel->id,
             ]);
             return new VehicleIncidentResource($this->repository->store($validatedData));
@@ -66,7 +74,7 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param  Vehicle  $vehicle
+     * @param Vehicle $vehicle
      * @param $type
      * @return JsonResponse|AnonymousResourceCollection
      * @throws AuthorizationException
@@ -83,14 +91,15 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param  IncidentSourceRequest  $request
-     * @param  IncidentSource  $incidentSource
+     * @param IncidentSourceRequest $request
+     * @param IncidentSource $incidentSource
      * @return IncidentSourceResource|JsonResponse
      */
     public function updateIncidentSource(
         IncidentSourceRequest $request,
-        IncidentSource $incidentSource
-    ): IncidentSourceResource|JsonResponse {
+        IncidentSource        $incidentSource
+    ): IncidentSourceResource|JsonResponse
+    {
         try {
             $validatedData = $request->validated();
             $validatedData['model_type'] = match ($validatedData['model_type']) {
@@ -106,7 +115,7 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param  IncidentSource  $incidentSource
+     * @param IncidentSource $incidentSource
      * @return IncidentSourceResource
      */
     public function showIncidentSource(IncidentSource $incidentSource): IncidentSourceResource
@@ -133,7 +142,7 @@ class VehicleFaultController extends Controller
      */
     public function report(): JsonResponse
     {
-        $this->authorize('vehicles.faults.'.request()->route()->parameter('type').'.report');
+        $this->authorize('vehicles.faults.' . request()->route()->parameter('type') . '.report');
 
 
         $fromDate = request()->get('from') ?? now()->subCentury()->toDateTimeString();
@@ -169,15 +178,15 @@ class VehicleFaultController extends Controller
         $datasets = [
             [
                 'label' => "Vehicles",
-                'data'  => $result->pluck('vehicles')->all(),
+                'data' => $result->pluck('vehicles')->all(),
             ],
             [
                 'label' => "Incidents",
-                'data'  => $result->pluck('incidents')->all(),
+                'data' => $result->pluck('incidents')->all(),
             ],
             [
                 'label' => "DPU-OFF",
-                'data'  => $result->pluck('dpuoff')->all(),
+                'data' => $result->pluck('dpuoff')->all(),
             ]
         ];
 
@@ -225,24 +234,24 @@ class VehicleFaultController extends Controller
        "));
 
         return response()->json([
-            'dpu_off'  => $result->avg('dpuoff'),
+            'dpu_off' => $result->avg('dpuoff'),
             'vehicles' => $result->sum('vehicles'),
-            'list'     => $list->all(),
-            'chart'    => [
-                'labels'   => $labels,
+            'list' => $list->all(),
+            'chart' => [
+                'labels' => $labels,
                 'datasets' => $datasets
             ]
         ]);
     }
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
     public function reportExcel(Request $request): JsonResponse
     {
-        $this->authorize('vehicles.faults.'.request()->route()->parameter('type').'.report_excel');
+        $this->authorize('vehicles.faults.' . request()->route()->parameter('type') . '.report_excel');
 
         $validatedData['user_id'] = Auth::id();
         $validatedData['type'] = 'export-faults';
@@ -252,7 +261,7 @@ class VehicleFaultController extends Controller
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'export job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
