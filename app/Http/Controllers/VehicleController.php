@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateGradeRequest;
 use App\Http\Requests\UpdateQcStatusRequest;
 use App\Http\Resources\VehicleResource;
+use App\Jobs\ExportJob;
 use App\Models\ActionLog;
+use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\CarModelRepository;
 use App\Repositories\MakeCodeRepository;
@@ -14,6 +16,7 @@ use App\Services\Erp\ErpGetVehicle;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -124,5 +127,20 @@ class VehicleController extends CrudController
         }
     }
 
+    public function reportVehicleQc(Request $request): JsonResponse
+    {
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'export-vehicle-qc';
+        $validatedData['data'] = $request->toArray();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+        return response()->json([
+            'message' => 'export job created', 'data' => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
 
 }
