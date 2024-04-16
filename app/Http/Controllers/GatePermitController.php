@@ -38,25 +38,25 @@ class GatePermitController extends CrudController
             $validatedData['owner_id'] = Auth::id();
             $validatedData['owner_type'] = User::class;
 
-//            if ($validatedData['type'] == 'exit'){
-//                if ($validatedData['exit_type'] == 1){
-//                    $typeExitErp = 'CONSIGNMENT EXIT';
-//                }elseif ($validatedData['exit_type'] == 2){
-//                    $typeExitErp = 'PERMANENT EXIT';
-//                }
-//
-//                $response = $this->createExitRequest($validatedData['vin'],$typeExitErp);
-//
-//                if ($response['status'] !== 'ok') {
-//                    return $this->responseError($response['message'], 400);
-//                }
-//            }elseif ($validatedData['type'] == 'enter'){
-//                $response = $this->returnRequest($validatedData['vin']);
-//
-//                if ($response['status'] !== 'ok') {
-//                    return $this->responseError($response['message'], 400);
-//                }
-//            }
+            if ($validatedData['type'] == 'exit'){
+                if ($validatedData['exit_type'] == 1){
+                    $typeExitErp = 'CONSIGNMENT EXIT';
+                }elseif ($validatedData['exit_type'] == 2){
+                    $typeExitErp = 'PERMANENT EXIT';
+                }
+
+                $response = $this->createExitRequest($validatedData['vin'],$typeExitErp);
+
+                if ($response['status'] !== 'ok') {
+                    return $this->responseError($response['message'], 400);
+                }
+            }elseif ($validatedData['type'] == 'enter'){
+                $response = $this->returnRequest($validatedData['vin']);
+
+                if ($response['status'] !== 'ok') {
+                    return $this->responseError($response['message'], 400);
+                }
+            }
 
 
             unset($validatedData['vin']);
@@ -78,12 +78,7 @@ class GatePermitController extends CrudController
 
     }
 
-    private function approveReturn(string $vin): array
-    {
-        return ErpWsdlClient::run(config('erp.approve'), 'ApproveReturn',
-            ['vINP' => $vin]);
 
-    }
 
     private function returnRequest(string $vin): array
     {
