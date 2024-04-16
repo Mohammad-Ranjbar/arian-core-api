@@ -50,6 +50,12 @@ class GatePermitController extends CrudController
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
+            }elseif ($validatedData['type'] == 'enter'){
+                $response = $this->returnRequest($validatedData['vin']);
+
+                if ($response['status'] !== 'ok') {
+                    return $this->responseError($response['message'], 400);
+                }
             }
 
 
