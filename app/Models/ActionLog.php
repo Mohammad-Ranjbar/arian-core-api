@@ -11,6 +11,8 @@ class ActionLog extends Model
 {
     use HasFactory;
 
+    const UPDATED_QC_STATUS = 'update_qc_status';
+
     /**
      * @var string[]
      */

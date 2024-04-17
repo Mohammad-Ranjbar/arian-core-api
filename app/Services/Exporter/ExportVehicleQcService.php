@@ -3,7 +3,6 @@
 namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
-use App\Exports\BlockItemReportExport;
 use App\Exports\VehicleQcReportExport;
 use App\Models\ActionLog;
 use App\Models\Vehicle;
@@ -29,16 +28,16 @@ class ExportVehicleQcService extends BaseExporterService
     {
         $data = (array)$this->job->getAttribute('data');
         request()->merge($data);
-        if (!isset($data['created_at_from'])){
+        if (!isset($data['created_at_from'])) {
             $data['created_at_from'] = now()->subCentury();
         }
-        if (!isset($data['created_at_to'])){
+        if (!isset($data['created_at_to'])) {
             $data['created_at_to'] = now()->addCentury();
         }
-        $rows = ActionLog::query()->where('model_type', Vehicle::class)
+        $rows = ActionLog::query()->where('action', ActionLog::UPDATED_QC_STATUS)->where('model_type', Vehicle::class)
             ->where('created_at', '>=', $data['created_at_from'])
             ->where('created_at', '<=', $data['created_at_to'])
-            ->whereHasMorph('model',[Vehicle::class], function ($query) use ($data) {
+            ->whereHasMorph('model', [Vehicle::class], function ($query) use ($data) {
                 $query->where('make_code_id', $data['make_code_id'])
                     ->where('car_model_id', $data['car_model_id']);
             })->get();

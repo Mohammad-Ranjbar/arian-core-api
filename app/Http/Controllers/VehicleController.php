@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateGradeRequest;
 use App\Http\Requests\UpdateQcStatusRequest;
+use App\Http\Requests\VehicleQcRequest;
+use App\Http\Resources\VehicleQcResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
 use App\Models\ActionLog;
@@ -137,10 +139,33 @@ class VehicleController extends CrudController
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'export job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
     }
+
+    public function vehicleQc(VehicleQcRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        if (!isset($validatedData['created_at_from'])) {
+            $validatedData['created_at_from'] = now()->subCentury();
+        }
+        if (!isset($validatedData['created_at_to'])) {
+            $validatedData['created_at_to'] = now()->addCentury();
+        }
+        $data = ActionLog::query()->where('action',ActionLog::UPDATED_QC_STATUS)->where('model_type', Vehicle::class)
+            ->where('created_at', '>=', $validatedData['created_at_from'])
+            ->where('created_at', '<=', $validatedData['created_at_to'])
+            ->whereHasMorph('model', [Vehicle::class], function ($query) use ($validatedData) {
+                $query->where('make_code_id', $validatedData['make_code_id'])
+                    ->where('car_model_id', $validatedData['car_model_id']);
+            })->get();
+
+        return new JsonResponse(
+            data: ['data' => VehicleQcResource::collection($data)], status: 200
+        );
+    }
+
 
 }
