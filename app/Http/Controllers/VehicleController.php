@@ -148,22 +148,23 @@ class VehicleController extends CrudController
     public function vehicleQc(VehicleQcRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
-        if (!isset($validatedData['created_at_from'])) {
-            $validatedData['created_at_from'] = now()->subCentury();
-        }
-        if (!isset($validatedData['created_at_to'])) {
-            $validatedData['created_at_to'] = now()->addCentury();
-        }
-        $data = ActionLog::query()->where('action',ActionLog::UPDATED_QC_STATUS)->where('model_type', Vehicle::class)
+//        if (!isset($validatedData['created_at_from'])) {
+//            $validatedData['created_at_from'] = now()->subCentury();
+//        }
+//        if (!isset($validatedData['created_at_to'])) {
+//            $validatedData['created_at_to'] = now()->addCentury();
+//        }
+        $data = ActionLog::query()->where('action',ActionLog::UPDATED_QC_STATUS)
+            ->where('model_type', Vehicle::class)
             ->where('created_at', '>=', $validatedData['created_at_from'])
             ->where('created_at', '<=', $validatedData['created_at_to'])
             ->whereHasMorph('model', [Vehicle::class], function ($query) use ($validatedData) {
-                $query->where('make_code_id', $validatedData['make_code_id'])
-                    ->where('car_model_id', $validatedData['car_model_id']);
-            })->get();
+//                $query->where('make_code_id', $validatedData['make_code_id'])
+//                    ->where('car_model_id', $validatedData['car_model_id']);
+            })->paginate();
 
         return new JsonResponse(
-            data: ['data' => VehicleQcResource::collection($data)], status: 200
+            data: [VehicleQcResource::collection($data)], status: 200
         );
     }
 
