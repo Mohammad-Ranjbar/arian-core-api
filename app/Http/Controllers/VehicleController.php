@@ -145,7 +145,7 @@ class VehicleController extends CrudController
         ]);
     }
 
-    public function vehicleQc(VehicleQcRequest $request): JsonResponse
+    public function vehicleQc(VehicleQcRequest $request)
     {
         $validatedData = $request->validated();
 //        if (!isset($validatedData['created_at_from'])) {
@@ -163,9 +163,7 @@ class VehicleController extends CrudController
 //                    ->where('car_model_id', $validatedData['car_model_id']);
             })->paginate();
 
-        return new JsonResponse(
-            data: [VehicleQcResource::collection($data)], status: 200
-        );
+        return VehicleQcResource::collection($data);
     }
 
 
