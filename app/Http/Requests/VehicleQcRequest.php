@@ -24,8 +24,8 @@ class VehicleQcRequest extends FormRequest
         return [
             'created_at_from' => 'nullable|date',
             'created_at_to' => 'nullable|date',
-            'make_code_id' => 'required|exists:make_codes,id',
-            'car_model_id' => 'required|exists:car_models,id',
+            'make_code_id' => 'nullable|exists:make_codes,id',
+            'car_model_id' => 'nullable|exists:car_models,id',
         ];
     }
 }
