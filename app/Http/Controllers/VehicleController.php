@@ -85,11 +85,11 @@ class VehicleController extends CrudController
     {
         try {
             $validatedData = $request->validated();
-            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
+//            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
 
-            if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'], 400);
-            }
+//            if ($response['status'] !== 'ok') {
+//                return $this->responseError($response['message'], 400);
+//            }
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
                 'model_id' => $vehicle->getAttribute('vin'),
