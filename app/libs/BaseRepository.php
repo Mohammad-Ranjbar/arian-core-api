@@ -17,8 +17,10 @@ use App\Filters\EmailFilter;
 use App\Filters\EngineBarcodeFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
+use App\Filters\IntensityFilter;
 use App\Filters\MakeCodeFilter;
 use App\Filters\MakeCodesFilter;
+use App\Filters\MethodFilter;
 use App\Filters\MobileFilter;
 use App\Filters\NameFilter;
 use App\Filters\NationalCodeFilter;
@@ -54,6 +56,8 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        IntensityFilter::class,
+        MethodFilter::class,
         EngineBarcodeFilter::class,
         UserAccessToResourceFilter::class,
         SearchQByFilter::class,
