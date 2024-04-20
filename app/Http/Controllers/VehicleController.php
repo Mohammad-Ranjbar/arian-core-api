@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateGradeRequest;
 use App\Http\Requests\UpdateQcStatusRequest;
-use App\Http\Requests\VehicleQcRequest;
 use App\Http\Resources\VehicleQcResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
 use App\Models\ActionLog;
 use App\Models\Job;
 use App\Models\Vehicle;
+use App\Repositories\ActionLogRepository;
 use App\Repositories\CarModelRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
@@ -19,6 +19,7 @@ use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -26,17 +27,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VehicleController extends CrudController
 {
-    /**
-     * @param MakeCodeRepository $makeCodeRepository
-     * @param CarModelRepository $carModelRepository
-     * @param VehicleRepository $vehicleRepository
-     * @param ErpGetVehicle $erpGetVehicle
-     */
+
     public function __construct(
-        private readonly MakeCodeRepository $makeCodeRepository,
-        private readonly CarModelRepository $carModelRepository,
-        private readonly VehicleRepository  $vehicleRepository,
-        private readonly ErpGetVehicle      $erpGetVehicle
+        private readonly MakeCodeRepository  $makeCodeRepository,
+        private readonly CarModelRepository  $carModelRepository,
+        private readonly VehicleRepository   $vehicleRepository,
+        private readonly ErpGetVehicle       $erpGetVehicle,
+        private readonly ActionLogRepository $actionLogRepository
     )
     {
 
@@ -145,23 +142,10 @@ class VehicleController extends CrudController
         ]);
     }
 
-    public function vehicleQc(VehicleQcRequest $request)
+    public function vehicleQc(): AnonymousResourceCollection
     {
-        $validatedData = $request->validated();
-//        if (!isset($validatedData['created_at_from'])) {
-//            $validatedData['created_at_from'] = now()->subCentury();
-//        }
-//        if (!isset($validatedData['created_at_to'])) {
-//            $validatedData['created_at_to'] = now()->addCentury();
-//        }
-        $data = ActionLog::query()->where('action', ActionLog::UPDATED_QC_STATUS)
-            ->where('model_type', Vehicle::class)
-//            ->where('created_at', '>=', $validatedData['created_at_from'])
-//            ->where('created_at', '<=', $validatedData['created_at_to'])
-            ->whereHasMorph('model', [Vehicle::class], function ($query) use ($validatedData) {
-//                $query->where('make_code_id', $validatedData['make_code_id'])
-//                    ->where('car_model_id', $validatedData['car_model_id']);
-            })->paginate();
+        $data = $this->actionLogRepository
+            ->where('action', ActionLog::UPDATED_QC_STATUS)->paginate(request()->per_page);
 
         return VehicleQcResource::collection($data);
     }

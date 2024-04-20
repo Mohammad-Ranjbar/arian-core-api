@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +17,7 @@ class ActionLog extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['user_id', 'action','model_type','model_id'];
+    protected $fillable = ['user_id', 'action', 'model_type', 'model_id'];
 
     /**
      * @return BelongsTo
@@ -33,4 +34,6 @@ class ActionLog extends Model
     {
         return $this->morphTo();
     }
+
+
 }

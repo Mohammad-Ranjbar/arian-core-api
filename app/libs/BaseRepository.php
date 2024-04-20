@@ -25,6 +25,8 @@ use App\Filters\MobileFilter;
 use App\Filters\NameFilter;
 use App\Filters\NationalCodeFilter;
 use App\Filters\ProductionLineIdFilter;
+use App\Filters\QcCarModelFilter;
+use App\Filters\QcMakeCodeFilter;
 use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\SearchQByFilter;
@@ -56,6 +58,8 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        QcMakeCodeFilter::class,
+        QcCarModelFilter::class,
         IntensityFilter::class,
         MethodFilter::class,
         EngineBarcodeFilter::class,
@@ -187,12 +191,15 @@ abstract class BaseRepository
         return $this->model->newQuery()->where($parameter, $value)->firstOrFail();
     }
 
+    public function where($key, $value)
+    {
+        return $this->makeQuery()->where($key, $value);
+    }
 
     public function paginate($perPage, string $orderBy = 'id', string $orderType = 'asc'): mixed
     {
         return $this->makeQuery()->orderBy($orderBy, $orderType)->paginate($perPage);
     }
-
 
     /**
      * @param array $input
@@ -207,7 +214,6 @@ abstract class BaseRepository
         return $record->update($input);
     }
 
-
     /**
      * @param array $where
      * @return Model|Builder|null
@@ -216,7 +222,6 @@ abstract class BaseRepository
     {
         return $this->model->newQuery()->where($where)->first();
     }
-
 
     /**
      * @param $data
