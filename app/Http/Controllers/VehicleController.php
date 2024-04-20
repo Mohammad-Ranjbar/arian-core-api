@@ -142,12 +142,17 @@ class VehicleController extends CrudController
         ]);
     }
 
-    public function vehicleQc(): AnonymousResourceCollection
+    public function vehicleQc(): JsonResponse|AnonymousResourceCollection
     {
-        $data = $this->actionLogRepository
-            ->where('action', ActionLog::UPDATED_QC_STATUS)->paginate(request()->per_page);
+        try {
+            $data = $this->actionLogRepository
+                ->where('action', ActionLog::UPDATED_QC_STATUS)->paginate(request()->per_page);
 
-        return VehicleQcResource::collection($data);
+            return VehicleQcResource::collection($data);
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 400);
+        }
+
     }
 
 
