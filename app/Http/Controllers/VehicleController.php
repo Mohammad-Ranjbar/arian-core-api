@@ -85,11 +85,11 @@ class VehicleController extends CrudController
     {
         try {
             $validatedData = $request->validated();
-//            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
+            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
 
-//            if ($response['status'] !== 'ok') {
-//                return $this->responseError($response['message'], 400);
-//            }
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 400);
+            }
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
                 'model_id' => $vehicle->getAttribute('vin'),
@@ -154,7 +154,7 @@ class VehicleController extends CrudController
 //        if (!isset($validatedData['created_at_to'])) {
 //            $validatedData['created_at_to'] = now()->addCentury();
 //        }
-        $data = ActionLog::query()->where('action',ActionLog::UPDATED_QC_STATUS)
+        $data = ActionLog::query()->where('action', ActionLog::UPDATED_QC_STATUS)
             ->where('model_type', Vehicle::class)
 //            ->where('created_at', '>=', $validatedData['created_at_from'])
 //            ->where('created_at', '<=', $validatedData['created_at_to'])
