@@ -157,44 +157,14 @@ class BillOfLadingController extends CrudController
 
     public function getTemplateBillOfLadingForVehicle(): BinaryFileResponse
     {
-        $headers = [
-            'vin',
-            'شرکت حمل',
-            'عنوان خودرو',
-            'شماره پلاک',
-            'منطقه پلاک',
-            'نام راننده',
-            'شماره همراه راننده',
-            'کدملی راننده',
-            'شماره بارنامه',
-            'شماره درخواست',
-            'شماره کوتاژ',
-            'وزن',
-            'بچ',
-            'توضیحات',
-        ];
+        $headers = BillOfLading::HEAD_VEHICLE;
         $export = new TemplateExport($headers);
         return Excel::download($export, $this->repository->model->getTable().'-template-for-vehicle'.time().'.xlsx');
     }
 
     public function getTemplateBillOfLadingForContainer(): BinaryFileResponse
     {
-        $headers = [
-            'شماره کانتینر',
-            'شرکت حمل',
-            'عنوان خودرو',
-            'شماره پلاک',
-            'منطقه پلاک',
-            'نام راننده',
-            'شماره همراه راننده',
-            'کدملی راننده',
-            'شماره بارنامه',
-            'شماره درخواست',
-            'شماره کوتاژ',
-            'وزن',
-            'بچ',
-            'توضیحات',
-        ];
+        $headers = BillOfLading::HEAD_CONTAINER;
         $export = new TemplateExport($headers);
         return Excel::download($export, $this->repository->model->getTable().'-template-for-container'.time().'.xlsx');
     }

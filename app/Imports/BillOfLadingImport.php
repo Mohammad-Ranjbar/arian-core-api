@@ -37,15 +37,18 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
     {
         $columns = [];
 
-        if ($this->data['type'] === 'containers') {
+        $job = Job::query()->find($this->data['id']);
+        $data = $job->getAttribute('data');
+        if ($data['type'] === 'containers') {
             foreach (BillOfLading::HEAD_CONTAINER as $key => $value) {
                 $columns[$value] = $row[$key];
             }
-        } elseif ($this->data['type'] === 'vehicles' || $this->data['type'] === 'bodies') {
+        } elseif ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
             foreach (BillOfLading::HEAD_VEHICLE as $key => $value) {
                 $columns[$value] = $row[$key];
             }
         }
+        dd($columns);
         return $columns;
     }
 
@@ -59,7 +62,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
 
     /**
-     * @param  Collection  $collection
+     * @param Collection $collection
      * @return void
      */
     public function collection(Collection $collection): void
@@ -74,8 +77,8 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                 if (!$driver = Driver::query()->where('national_code', $row['driver_national_code'])->first()) {
                     $driver = Driver::query()->create([
                         'national_code' => $row['driver_national_code'],
-                        'phone'         => $row['driver_mobile'],
-                        'name'          => $row['driver_name'],
+                        'phone' => $row['driver_mobile'],
+                        'name' => $row['driver_name'],
                     ]);
                 }
                 if (!$transitCompany = TransitCompany::query()->where('title', $row['shipping_company'])->first()) {
@@ -89,32 +92,32 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                 $one = substr($row['number_plates'], 0, 2);
                 $second = substr($row['number_plates'], 2, 3);
                 $plate = [
-                    "char"    => $chr,
+                    "char" => $chr,
                     "number1" => to_english_numbers($one),
                     "number2" => to_english_numbers($second),
                     "number3" => to_english_numbers($row['plate_area'])
                 ];
                 if (!$car = Car::query()->where('plate', $plate)->first()) {
                     $car = Car::query()->create([
-                        'plate'              => $plate,
-                        'car'                => $row['vehicle_title'],
+                        'plate' => $plate,
+                        'car' => $row['vehicle_title'],
                         'transit_company_id' => $transitCompany->getAttribute('id'),
-                        'driver_id'          => $driver->getAttribute('id'),
+                        'driver_id' => $driver->getAttribute('id'),
                     ]);
                 }
                 BillOfLading::query()->create([
-                    'user_id'                 => Auth::id(),
-                    'location_source_id'      => $this->data['location_source_id'],
+                    'user_id' => Auth::id(),
+                    'location_source_id' => $this->data['location_source_id'],
                     'location_destination_id' => $this->data['location_destination_id'],
-                    'car_id'                  => $car->getAttribute('id'),
-                    'code'                    => $row['freight_number'],
-                    'request_no'              => $row['request_number'],
-                    'status'                  => 'new',
-                    'priority'                => 0,
-                    'cottage'                 => $row['cottage'],
-                    'weight'                  => $row['weight'],
-                    'batch'                   => $row['batch'],
-                    'description'             => $row['description'],
+                    'car_id' => $car->getAttribute('id'),
+                    'code' => $row['freight_number'],
+                    'request_no' => $row['request_number'],
+                    'status' => 'new',
+                    'priority' => 0,
+                    'cottage' => $row['cottage'],
+                    'weight' => $row['weight'],
+                    'batch' => $row['batch'],
+                    'description' => $row['description'],
                 ]);
                 $this->data['success']++;
 
@@ -132,13 +135,13 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         } else {
             $headers = BillOfLading::HEAD_CONTAINER;
         }
-        Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/'.$uuid.'.xlsx');
+        Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/' . $uuid . '.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
-                'file'    => route('dl',['path' => 'results/'.$uuid.'.xlsx']),
-                'total'   => $this->data['total'],
+                'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
+                'total' => $this->data['total'],
                 'success' => $this->data['success'],
-                'error'   => $this->data['error'],
+                'error' => $this->data['error'],
             ]
         ]);
 
