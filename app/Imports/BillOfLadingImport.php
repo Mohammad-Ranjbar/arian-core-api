@@ -21,10 +21,8 @@ use Maatwebsite\Excel\Facades\Excel;
 class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 {
 
-    /**
-     * @param $data
-     */
-    public function __construct(public $data)
+
+    public function __construct(public $data, private $locationSourceID = null, private $locationDestinationID = null,private $userId = null,private string $type = '')
     {
 
     }
@@ -38,7 +36,12 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         $columns = [];
 
         $job = Job::query()->find($this->data['id']);
+        $this->userId = $job->getAttribute('user_id');
         $data = $job->getAttribute('data');
+
+        $this->type = $data['type'];
+        $this->locationSourceID = $data['location_source_id'];
+        $this->locationDestinationID = $data['location_destination_id'];
         if ($data['type'] === 'containers') {
             foreach (BillOfLading::HEAD_CONTAINER as $key => $value) {
                 $columns[$value] = $row[$key];
@@ -48,7 +51,6 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                 $columns[$value] = $row[$key];
             }
         }
-        dd($columns);
         return $columns;
     }
 
@@ -93,31 +95,33 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                 $second = substr($row['number_plates'], 2, 3);
                 $plate = [
                     "char" => $chr,
-                    "number1" => to_english_numbers($one),
-                    "number2" => to_english_numbers($second),
-                    "number3" => to_english_numbers($row['plate_area'])
+                    "number1" => $one,
+                    "number2" => $second,
+                    "number3" => $row['plate_area']
                 ];
+
                 if (!$car = Car::query()->where('plate', $plate)->first()) {
                     $car = Car::query()->create([
-                        'plate' => $plate,
+                        'plate' => json_encode($plate),
                         'car' => $row['vehicle_title'],
                         'transit_company_id' => $transitCompany->getAttribute('id'),
                         'driver_id' => $driver->getAttribute('id'),
                     ]);
                 }
                 BillOfLading::query()->create([
-                    'user_id' => Auth::id(),
-                    'location_source_id' => $this->data['location_source_id'],
-                    'location_destination_id' => $this->data['location_destination_id'],
+                    'user_id' => $this->userId,
+                    'location_source_id' => $this->locationSourceID,
+                    'location_destination_id' => $this->locationDestinationID,
                     'car_id' => $car->getAttribute('id'),
                     'code' => $row['freight_number'],
                     'request_no' => $row['request_number'],
                     'status' => 'new',
                     'priority' => 0,
-                    'cottage' => $row['cottage'],
+                    'cottage' => $row['cottage_number'],
                     'weight' => $row['weight'],
                     'batch' => $row['batch'],
                     'description' => $row['description'],
+                    'type' => $this->type
                 ]);
                 $this->data['success']++;
 
@@ -130,7 +134,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        if ($this->data['type'] === 'vehicles' || $this->data['type'] === 'bodies') {
+        if ($this->type === 'vehicles' || $this->type === 'bodies') {
             $headers = BillOfLading::HEAD_VEHICLE;
         } else {
             $headers = BillOfLading::HEAD_CONTAINER;

@@ -29,14 +29,15 @@ class BillOfLadingController extends CrudController
     /**
      * @var bool
      */
-    protected bool  $appendUserId    = true;
+    protected bool $appendUserId = true;
     protected array $appendStoreData = ['status' => 'new'];
 
 
     public function __construct(
         public readonly BillOfLadingRepository $repository,
-        private readonly SmsService $smsService
-    ) {
+        private readonly SmsService            $smsService
+    )
+    {
 
         $this->applyAuthorizeResource();
         $this->setResource(BillOfLadingResource::class);
@@ -108,9 +109,10 @@ class BillOfLadingController extends CrudController
      */
     public function changeStatus(
         BillOfLading $billOfLading,
-        string $status
-    ): BillOfLadingResource|JsonResponse {
-        $this->authorize('bill-of-lading.change-status.'.$status);
+        string       $status
+    ): BillOfLadingResource|JsonResponse
+    {
+        $this->authorize('bill-of-lading.change-status.' . $status);
 
         if (!$this->checkCanChangeStatus($billOfLading, $status)) {
             return $this->responseError('The selected status is available in registered statuses');
@@ -151,7 +153,8 @@ class BillOfLadingController extends CrudController
     }
 
     public function notice(BillOfLading $billOfLading
-    ): bool|PendingDispatch|PendingClosureDispatch {
+    ): bool|PendingDispatch|PendingClosureDispatch
+    {
         return $this->smsService->send($billOfLading->getAttribute('car')->driver->phone, 'driver-enter-notify');
     }
 
@@ -159,14 +162,14 @@ class BillOfLadingController extends CrudController
     {
         $headers = BillOfLading::HEAD_VEHICLE;
         $export = new TemplateExport($headers);
-        return Excel::download($export, $this->repository->model->getTable().'-template-for-vehicle'.time().'.xlsx');
+        return Excel::download($export, $this->repository->model->getTable() . '-template-for-vehicle' . time() . '.xlsx');
     }
 
     public function getTemplateBillOfLadingForContainer(): BinaryFileResponse
     {
         $headers = BillOfLading::HEAD_CONTAINER;
         $export = new TemplateExport($headers);
-        return Excel::download($export, $this->repository->model->getTable().'-template-for-container'.time().'.xlsx');
+        return Excel::download($export, $this->repository->model->getTable() . '-template-for-container' . time() . '.xlsx');
     }
 
     public function importBillOfLading(ImportBillOfLadingRequest $request): JsonResponse
@@ -174,19 +177,20 @@ class BillOfLadingController extends CrudController
 
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
-        $validatedData['type'] = 'import-'.$this->repository->model->getTable();
+        $validatedData['type_bill_of_lading'] = $validatedData['type'];
+        $validatedData['type'] = 'import-' . $this->repository->model->getTable();
         $validatedData['data'] = [
-            'file'                    => $validatedData['file'],
-            'location_source_id'      => $validatedData['location_source_id'],
+            'file' => $validatedData['file'],
+            'location_source_id' => $validatedData['location_source_id'],
             'location_destination_id' => $validatedData['location_destination_id'],
-            'type'                    => $validatedData['type'],
+            'type' => $validatedData['type_bill_of_lading'],
         ];
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'import job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
