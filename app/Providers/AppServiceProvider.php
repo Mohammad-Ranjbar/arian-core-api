@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Rules\ContainerItemExistsRule;
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,9 +29,6 @@ class AppServiceProvider extends ServiceProvider
                 foreach($attributes as $attribute) {
                     $q->orWhere($attribute, 'LIKE', "%{$searchTerm}%");
                 }
-            });
-            Validator::extend('container_item_exists', function ($attribute, $value, $parameters, $validator) {
-                return app(ContainerItemExistsRule::class)->passes($attribute, $value,$parameters,$validator);
             });
             return $this;
         });
