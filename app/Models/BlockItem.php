@@ -35,6 +35,7 @@ class BlockItem extends Model
         'unblocked_at',
         'description',
         'vin',
+        'created_at',
     ];
 
     /**
