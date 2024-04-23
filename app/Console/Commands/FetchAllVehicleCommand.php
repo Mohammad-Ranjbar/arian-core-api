@@ -3,52 +3,45 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\VehicleController;
-use App\Jobs\SyncProductItem;
-use App\Services\Erp\ErpOdataClient;
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class FetchAllVehicleCommand extends Command
 {
     /**
-     * The name and signature of the console command.
-     *
      * @var string
      */
     protected $signature = 'app:fetch-all-vehicle-command';
 
-    public function __construct(private readonly ErpOdataClient $erpOdataClient,private readonly VehicleController $controller)
+    /**
+     * @param VehicleController $controller
+     */
+    public function __construct(private readonly VehicleController $controller)
     {
         parent::__construct();
     }
+
     /**
-     * Execute the console command.
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $url = config('erp.vehicles');
+        $response = Http::get('http://172.16.0.52/api/vehicles')->collect();
 
-        while ($url) {
+        $bar = $this->output->createProgressBar(count($response));
+        $bar->start();
 
-            $this->info($url);
+        foreach ($response as $vin) {
+            try {
+                $this->controller->getData($vin);
 
-            $content = $this->erpOdataClient->get($url);
-
-            if (isset($content->value)) {
-                $bar = $this->output->createProgressBar(count($content->value));
-                $bar->start();
-                foreach ($content->value as $row) {
-                    $this->controller->getData($row->VIN);
-                    $bar->advance();
-                }
-                $bar->finish();
-                $this->output->writeln('');
-            }
-
-            $url = null;
-            if (isset($content->{'@odata.nextLink'})) {
-                $url = $content->{'@odata.nextLink'};
+                $bar->advance();
+            } catch (Exception $exception) {
+                logger($exception->getMessage());
             }
 
         }
+        $bar->finish();
     }
 }
