@@ -14,7 +14,7 @@ class BlockReason extends Model
      * @var string[]
      */
     protected $fillable = [
-        'title'
+        'id', 'title'
     ];
 
 }
