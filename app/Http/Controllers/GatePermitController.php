@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GatePermitResource;
+use App\Models\Location;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -69,6 +71,26 @@ class GatePermitController extends CrudController
             DB::rollBack();
             return $this->responseError($exception->getMessage(), 500);
         }
+    }
+    public function oldGate(Vehicle $vehicle)
+    {
+
+        $response = ErpWsdlClient::run(config('erp.old_gate'), 'CreateVehicleExitStatus',
+            ['vINP' => $vehicle->getAttribute('vin')]);
+
+        if ($response['status'] == 'ok') {
+            $vehicle->tracking()->create([
+                'model_type' => Location::class,
+                'model_id' => 1,
+                'type' => 'exit',
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json(['message'=>'تردد مورد نظر ثبت گردید']);
+        }
+
+        return response()->json(['message'=>'ثبت تردد امکان پذیر نیست']);
+
     }
 
     private function createExitRequest(string $vin,string $type): array

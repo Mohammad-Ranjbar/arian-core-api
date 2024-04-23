@@ -205,6 +205,7 @@ Route::middleware('auth:sanctum')->group(function () {
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
 
     Route::apiResource('gate-permits', GatePermitController::class)->only(['index', 'store', 'destroy']);
+    Route::post('/old-gate/{vehicle}',[GatePermitController::class,'oldGate'])->name('old-gate');
 
 
     Route::apiResources([
