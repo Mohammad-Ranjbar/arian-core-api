@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use App\Models\Station;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -22,9 +23,9 @@ class CustomLocationController extends Controller
             data: [
                 'data' => [
                     [
-                        'custom_location_type' => Station::class,
+                        'custom_location_type' => Location::class,
                         'custom_location_id'   => 1,
-                        'title'                => 'custom location 1'
+                        'title'                => 'سایت تولیدی خمین'
                     ]
                 ]
             ],
