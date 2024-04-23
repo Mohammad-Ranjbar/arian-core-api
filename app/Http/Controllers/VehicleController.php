@@ -17,6 +17,8 @@ use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpGetVehicle;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,35 +31,23 @@ class VehicleController extends CrudController
 {
 
     public function __construct(
-        private readonly MakeCodeRepository  $makeCodeRepository,
-        private readonly CarModelRepository  $carModelRepository,
-        private readonly VehicleRepository   $vehicleRepository,
-        private readonly ErpGetVehicle       $erpGetVehicle,
+        private readonly MakeCodeRepository $makeCodeRepository,
+        private readonly CarModelRepository $carModelRepository,
+        private readonly VehicleRepository $vehicleRepository,
+        private readonly ErpGetVehicle $erpGetVehicle,
         private readonly ActionLogRepository $actionLogRepository
-    )
-    {
+    ) {
 
     }
 
     /**
-     * @param string $vin
+     * @param  string  $vin
      * @return JsonResponse|VehicleResource
      * @throws ValidationException
      */
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
-        $vehicleData = $this->erpGetVehicle->get($vin);
-        $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
-        $carModel = $this->carModelRepository->make($vehicleData['car_model']);
-        $data = [
-            'vin' => $vehicleData['vin'],
-            'production_order_number' => $vehicleData['production_order_number'],
-            'engine_no' => $vehicleData['engine_no'], 'cabin_no' => $vehicleData['cabin_no'],
-            'make_code_id' => $makeCode->getAttribute('id'),
-            'car_model_id' => $carModel->getAttribute('id'),
-        ];
-
-        $vehicle = $this->vehicleRepository->make($data, 'vin');
+        $vehicle = $this->getData($vin);
 
         if (Gate::allows('access', $vehicle)) {
             return new VehicleResource($vehicle);
@@ -70,16 +60,31 @@ class VehicleController extends CrudController
 
     }
 
+    public function getData(string $vin): Model|Builder
+    {
+        $vehicleData = $this->erpGetVehicle->get($vin);
+        $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
+        $carModel = $this->carModelRepository->make($vehicleData['car_model']);
+        $data = [
+            'vin'                     => $vehicleData['vin'],
+            'production_order_number' => $vehicleData['production_order_number'],
+            'engine_no'               => $vehicleData['engine_no'], 'cabin_no' => $vehicleData['cabin_no'],
+            'make_code_id'            => $makeCode->getAttribute('id'),
+            'car_model_id'            => $carModel->getAttribute('id'),
+        ];
+
+        return $this->vehicleRepository->make($data, 'vin');
+    }
+
     /**
-     * @param UpdateQcStatusRequest $request
-     * @param Vehicle $vehicle
+     * @param  UpdateQcStatusRequest  $request
+     * @param  Vehicle  $vehicle
      * @return JsonResponse|VehicleResource
      */
     public function updateQcStatus(
         UpdateQcStatusRequest $request,
-        Vehicle               $vehicle
-    ): JsonResponse|VehicleResource
-    {
+        Vehicle $vehicle
+    ): JsonResponse|VehicleResource {
         try {
             $validatedData = $request->validated();
             $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
@@ -89,9 +94,9 @@ class VehicleController extends CrudController
             }
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
-                'model_id' => $vehicle->getAttribute('vin'),
-                'action' => 'update_qc_status',
-                'user_id' => Auth::id(),
+                'model_id'   => $vehicle->getAttribute('vin'),
+                'action'     => 'update_qc_status',
+                'user_id'    => Auth::id(),
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
@@ -108,15 +113,14 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param UpdateGradeRequest $request
-     * @param Vehicle $vehicle
+     * @param  UpdateGradeRequest  $request
+     * @param  Vehicle  $vehicle
      * @return JsonResponse|VehicleResource
      */
     public function updateGradeStatus(
         UpdateGradeRequest $request,
-        Vehicle            $vehicle
-    ): JsonResponse|VehicleResource
-    {
+        Vehicle $vehicle
+    ): JsonResponse|VehicleResource {
         try {
             $validatedData = $request->validated();
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
@@ -136,7 +140,7 @@ class VehicleController extends CrudController
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'export job created', 'data' => [
-                'uuid' => $job->getAttribute('uuid'),
+                'uuid'         => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
