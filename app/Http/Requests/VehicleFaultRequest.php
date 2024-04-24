@@ -22,8 +22,8 @@ class VehicleFaultRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'intensity'                     => 'required|string',
-            'method'                        => 'required|string',
+            'intensity'                     => 'required_if:type,evaluation',
+            'method'                        => 'required_if:type,evaluation',
             'description'                   => 'nullable',
             'user_id'                       => 'nullable',
             'vin'                           => 'nullable',
