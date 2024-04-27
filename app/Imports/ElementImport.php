@@ -45,7 +45,6 @@ class ElementImport implements ToCollection, WithStartRow, WithMapping
         $this->sendEvent();
 
         $collection->each(function ($row) {
-            dd($row);
             if (!Element::query()->where('code', $row['code'])->exists()) {
                 Element::query()->create($row->toArray());
                 $this->data['success']++;
