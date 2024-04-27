@@ -30,6 +30,13 @@ use Symfony\Component\HttpFoundation\Response;
 class VehicleController extends CrudController
 {
 
+    /**
+     * @param MakeCodeRepository $makeCodeRepository
+     * @param CarModelRepository $carModelRepository
+     * @param VehicleRepository $vehicleRepository
+     * @param ErpGetVehicle $erpGetVehicle
+     * @param ActionLogRepository $actionLogRepository
+     */
     public function __construct(
         private readonly MakeCodeRepository $makeCodeRepository,
         private readonly CarModelRepository $carModelRepository,
@@ -40,8 +47,9 @@ class VehicleController extends CrudController
 
     }
 
+
     /**
-     * @param  string  $vin
+     * @param string $vin
      * @return JsonResponse|VehicleResource
      * @throws ValidationException
      */
@@ -60,6 +68,11 @@ class VehicleController extends CrudController
 
     }
 
+    /**
+     * @param string $vin
+     * @return Model|Builder
+     * @throws ValidationException
+     */
     public function getData(string $vin): Model|Builder
     {
         $vehicleData = $this->erpGetVehicle->get($vin);
@@ -105,6 +118,11 @@ class VehicleController extends CrudController
         }
     }
 
+    /**
+     * @param string $vin
+     * @param string $qcStatus
+     * @return array
+     */
     private function updateStatus(string $vin, string $qcStatus): array
     {
         return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts',
@@ -130,6 +148,10 @@ class VehicleController extends CrudController
         }
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function reportVehicleQc(Request $request): JsonResponse
     {
         $validatedData['user_id'] = Auth::id();
@@ -146,6 +168,9 @@ class VehicleController extends CrudController
         ]);
     }
 
+    /**
+     * @return JsonResponse|AnonymousResourceCollection
+     */
     public function vehicleQc(): JsonResponse|AnonymousResourceCollection
     {
         try {

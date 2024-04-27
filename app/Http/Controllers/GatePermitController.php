@@ -9,7 +9,7 @@ use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
-use http\Env\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 class GatePermitController extends CrudController
 {
     /**
-     * @param  GatePermitRepository  $repository
+     * @param GatePermitRepository $repository
      */
     public function __construct(public readonly GatePermitRepository $repository)
     {
@@ -27,7 +27,7 @@ class GatePermitController extends CrudController
 
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @return mixed
      */
     public function store(Request $request): mixed
@@ -40,19 +40,19 @@ class GatePermitController extends CrudController
             $validatedData['owner_id'] = Auth::id();
             $validatedData['owner_type'] = User::class;
 
-            if ($validatedData['type'] == 'exit'){
-                if ($validatedData['exit_type'] == 1){
+            if ($validatedData['type'] == 'exit') {
+                if ($validatedData['exit_type'] == 1) {
                     $typeExitErp = 'CONSIGNMENT EXIT';
-                }elseif ($validatedData['exit_type'] == 2){
+                } elseif ($validatedData['exit_type'] == 2) {
                     $typeExitErp = 'PERMANENT EXIT';
                 }
 
-                $response = $this->createExitRequest($validatedData['vin'],$typeExitErp);
+                $response = $this->createExitRequest($validatedData['vin'], $typeExitErp);
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
-            }elseif ($validatedData['type'] == 'enter'){
+            } elseif ($validatedData['type'] == 'enter') {
                 $response = $this->returnRequest($validatedData['vin']);
 
                 if ($response['status'] !== 'ok') {
@@ -72,7 +72,22 @@ class GatePermitController extends CrudController
             return $this->responseError($exception->getMessage(), 500);
         }
     }
-    public function oldGate(Vehicle $vehicle)
+
+    private function createExitRequest(string $vin, string $type): array
+    {
+        return ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
+            ['vINP' => $vin, 'typeOfExitP' => $type]);
+
+    }
+
+    private function returnRequest(string $vin): array
+    {
+        return ErpWsdlClient::run(config('erp.return_request'), 'ReturnRequest',
+            ['vINP' => $vin]);
+
+    }
+
+    public function oldGate(Vehicle $vehicle): JsonResponse
     {
 
         $response = ErpWsdlClient::run(config('erp.old_gate'), 'CreateVehicleExitStatus',
@@ -86,26 +101,10 @@ class GatePermitController extends CrudController
                 'user_id' => Auth::id()
             ]);
 
-            return response()->json(['message'=>'تردد مورد نظر ثبت گردید']);
+            return response()->json(['message' => 'تردد مورد نظر ثبت گردید']);
         }
 
-        return response()->json(['message'=>'ثبت تردد امکان پذیر نیست']);
-
-    }
-
-    private function createExitRequest(string $vin,string $type): array
-    {
-        return ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
-            ['vINP' => $vin,'typeOfExitP' => $type]);
-
-    }
-
-
-
-    private function returnRequest(string $vin): array
-    {
-        return ErpWsdlClient::run(config('erp.return_request'), 'ReturnRequest',
-            ['vINP' => $vin]);
+        return response()->json(['message' => 'ثبت تردد امکان پذیر نیست']);
 
     }
 }
