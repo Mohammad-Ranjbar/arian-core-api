@@ -24,32 +24,37 @@ class FetchAllBarcodeCommand extends Command
 
         while ($url) {
             $res = Http::get($url)->json();
-            $bar = $this->output->createProgressBar(count($res));
+            if(empty($res)){
+                logger($url);
+            }else {
+                $bar = $this->output->createProgressBar(count($res));
 
-            $bar->start();
-            foreach ($res['data'] as $record) {
+                $bar->start();
+                foreach ($res['data'] as $record) {
 
-                try {
+                    try {
 
 
-                    if (Vehicle::query()->where('vin', $record['vin'])->exists()) {
-                       Barcode::query()->create([
-                           'vin' => $record['vin'],
-                           'user_id' => 1,
-                           'code' => $record['barcode'],
-                       ]);
+                        if (Vehicle::query()->where('vin', $record['vin'])->exists()) {
+                            Barcode::query()->create([
+                                'vin' => $record['vin'],
+                                'user_id' => 1,
+                                'code' => $record['barcode'],
+                            ]);
+                        }
+
+                    } catch (Exception $exception) {
+                        logger($exception->getMessage());
                     }
 
-                } catch (Exception $exception) {
-                    logger($exception->getMessage());
+
+                    $bar->advance();
                 }
+                $url = $res['links']['next'];
 
-
-                $bar->advance();
+                $bar->finish();
             }
-            $url = $res['links']['next'];
 
-            $bar->finish();
 
         }
         Artisan::call('app:sync-product-items-command');
