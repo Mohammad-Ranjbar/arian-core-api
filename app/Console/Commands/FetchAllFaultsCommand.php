@@ -32,21 +32,23 @@ class FetchAllFaultsCommand extends Command
                 if (Vehicle::query()->where('vin', $record['vin'])->exists()) {
                     $element = Element::query()->firstOrCreate(['code' => $record['element_code']], ['title' => $record['element']]);
                     $incident = Incident::query()->firstOrCreate(['code' => $record['incident_code']], ['title' => $record['incident']]);
+                    if (!VehicleIncident::query()->where('element_id', $element->id)->where('incident_id', $incident->id)->where('vin', $record['vin'])->exists()) {
+                        VehicleIncident::query()->create([
+                            'user_id' => 1,
+                            'type' => $record['type'],
+                            'vin' => $record['vin'],
+                            'element_id' => $element->getAttribute('id'),
+                            'incident_id' => $incident->getAttribute('id'),
+                            'description' => $record['tip'],
+                            'intensity' => $record['intensity'],
+                            'method' => $record['method'],
+                            'created_at' => $record['created_at'],
+                            'checked_at' => $record['checked_at'],
+                            'custom_location_type' => Location::class,
+                            'custom_location_id' => 1
+                        ]);
+                    }
 
-                    VehicleIncident::query()->create([
-                        'user_id' => 1,
-                        'type' => $record['type'],
-                        'vin' => $record['vin'],
-                        'element_id' => $element->getAttribute('id'),
-                        'incident_id' => $incident->getAttribute('id'),
-                        'description' => $record['tip'],
-                        'intensity' => $record['intensity'],
-                        'method' => $record['method'],
-                        'created_at' => $record['created_at'],
-                        'checked_at' => $record['checked_at'],
-                        'custom_location_type' => Location::class,
-                        'custom_location_id' => 1
-                    ]);
                 }
 
                 $bar->advance();
