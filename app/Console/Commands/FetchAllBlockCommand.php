@@ -17,7 +17,7 @@ class FetchAllBlockCommand extends Command
      */
     protected $signature = 'app:fetch-all-block-command';
 
-    public function handle()
+    public function handle(): void
     {
         $url = 'http://172.16.0.52/api/blocks';
 

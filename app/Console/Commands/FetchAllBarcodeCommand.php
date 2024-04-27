@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Barcode;
-use App\Models\BlockItem;
 use App\Models\Vehicle;
 use Exception;
 use Illuminate\Console\Command;
@@ -19,7 +18,7 @@ class FetchAllBarcodeCommand extends Command
      */
     protected $signature = 'app:fetch-all-barcode-command';
 
-    public function handle()
+    public function handle(): void
     {
         $url = 'http://172.16.0.52/api/barcode-list';
 

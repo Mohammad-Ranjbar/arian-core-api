@@ -2,14 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\BlockItem;
 use App\Models\BlockReason;
-use App\Models\Element;
-use App\Models\Incident;
-use App\Models\Location;
-use App\Models\Vehicle;
-use App\Models\VehicleIncident;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
