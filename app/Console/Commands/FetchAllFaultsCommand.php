@@ -24,38 +24,44 @@ class FetchAllFaultsCommand extends Command
         $url = 'http://172.16.0.52/api/faults';
 
         while ($url) {
-            $res = Http::get($url)->json();
-            $bar = $this->output->createProgressBar(count($res));
+            try {
+                $res = Http::get($url)->json();
+                $bar = $this->output->createProgressBar(count($res));
 
-            $bar->start();
-            foreach ($res['data'] as $record) {
-                if (Vehicle::query()->where('vin', $record['vin'])->exists()) {
-                    $element = Element::query()->firstOrCreate(['code' => $record['element_code']], ['title' => $record['element']]);
-                    $incident = Incident::query()->firstOrCreate(['code' => $record['incident_code']], ['title' => $record['incident']]);
-                    if (!VehicleIncident::query()->where('element_id', $element->id)->where('incident_id', $incident->id)->where('vin', $record['vin'])->exists()) {
-                        VehicleIncident::query()->create([
-                            'user_id' => 1,
-                            'type' => $record['type'],
-                            'vin' => $record['vin'],
-                            'element_id' => $element->getAttribute('id'),
-                            'incident_id' => $incident->getAttribute('id'),
-                            'description' => $record['tip'],
-                            'intensity' => $record['intensity'],
-                            'method' => $record['method'],
-                            'created_at' => $record['created_at'],
-                            'checked_at' => $record['checked_at'],
-                            'custom_location_type' => Location::class,
-                            'custom_location_id' => 1
-                        ]);
+                $bar->start();
+                foreach ($res['data'] as $record) {
+                    if (Vehicle::query()->where('vin', $record['vin'])->exists()) {
+                        $element = Element::query()->firstOrCreate(['code' => $record['element_code']], ['title' => $record['element']]);
+                        $incident = Incident::query()->firstOrCreate(['code' => $record['incident_code']], ['title' => $record['incident']]);
+                        if (!VehicleIncident::query()->where('element_id', $element->id)->where('incident_id', $incident->id)->where('vin', $record['vin'])->exists()) {
+                            VehicleIncident::query()->create([
+                                'user_id' => 1,
+                                'type' => $record['type'],
+                                'vin' => $record['vin'],
+                                'element_id' => $element->getAttribute('id'),
+                                'incident_id' => $incident->getAttribute('id'),
+                                'description' => $record['tip'],
+                                'intensity' => $record['intensity'],
+                                'method' => $record['method'],
+                                'created_at' => $record['created_at'],
+                                'checked_at' => $record['checked_at'],
+                                'custom_location_type' => Location::class,
+                                'custom_location_id' => 1
+                            ]);
+                        }
+
                     }
 
+                    $bar->advance();
                 }
+                $url = $res['links']['next'];
 
-                $bar->advance();
+                $bar->finish();
+            }catch (\Exception $exception){
+                logger($url);
+                logger($exception->getMessage());
             }
-            $url = $res['links']['next'];
 
-            $bar->finish();
         }
     }
 }
