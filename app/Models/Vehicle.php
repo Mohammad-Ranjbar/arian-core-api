@@ -71,7 +71,7 @@ class Vehicle extends Model
      */
     public function hasAccess($userId): bool
     {
-        return $this->makeCode->users()->where('users.id', $userId)->exists();
+        return $this->makeCode->users()?->where('users.id', $userId)->exists()??false;
     }
 
     /**
