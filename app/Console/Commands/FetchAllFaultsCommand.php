@@ -29,7 +29,7 @@ class FetchAllFaultsCommand extends Command
 
     public function fetchData()
     {
-        $url = 'http://172.16.0.52/api/faults';
+        $url = 'http://172.16.0.52/api/faults?page=715';
 
         $page = 1;
         while ($url) {

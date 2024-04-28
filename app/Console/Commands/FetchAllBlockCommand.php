@@ -19,7 +19,7 @@ class FetchAllBlockCommand extends Command
 
     public function handle(): void
     {
-        $url = 'http://172.16.0.52/api/blocks';
+        $url = 'http://172.16.0.52/api/blocks?page=5';
 
         while ($url) {
             $res = Http::get($url)->json();
@@ -38,6 +38,15 @@ class FetchAllBlockCommand extends Command
                     }
 
                     if (Vehicle::query()->where('vin', $record['vin'])->exists()) {
+                        if (
+                            BlockItem::query()
+                                ->where('block_reason_id', $record['block_reason_id'])
+                                ->where('vin', $record['vin']
+                                )
+                                ->exists()) {
+                            continue;
+
+                        }
                         BlockItem::query()->create([
                             'blocked_by' => 1,
                             'unblocked_by' => 1,

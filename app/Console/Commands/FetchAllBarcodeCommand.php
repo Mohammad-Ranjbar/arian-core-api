@@ -20,13 +20,13 @@ class FetchAllBarcodeCommand extends Command
 
     public function handle(): void
     {
-        $url = 'http://172.16.0.52/api/barcode-list';
+        $url = 'http://172.16.0.52/api/barcode-list?page=5200';
 
         while ($url) {
             $res = Http::get($url)->json();
-            if(empty($res)){
+            if (empty($res)) {
                 logger($url);
-            }else {
+            } else {
                 $bar = $this->output->createProgressBar(count($res));
 
                 $bar->start();
@@ -36,6 +36,10 @@ class FetchAllBarcodeCommand extends Command
 
 
                         if (Vehicle::query()->where('vin', $record['vin'])->exists()) {
+
+                            if (Barcode::query()->where('vin', $record['vin'])->where('code', $record['barcode'])->exists()) {
+                                continue;
+                            }
                             Barcode::query()->create([
                                 'vin' => $record['vin'],
                                 'user_id' => 1,
