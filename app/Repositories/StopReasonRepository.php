@@ -12,10 +12,10 @@ class StopReasonRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'title'        => 'required|string|unique:stop_reasons,title',
+            'title'        => 'required|string',
             'stop_fact_id' => 'required|exists:stop_facts,id',
         ], 'update' => [
-            'title'        => 'required|string|unique:stop_reasons,title,',
+            'title'        => 'required|string',
             'stop_fact_id' => 'required|exists:stop_facts,id',
         ]
     ];
@@ -26,9 +26,6 @@ class StopReasonRepository extends BaseRepository
     public function __construct(StopReason $model)
     {
         $this->model = $model;
-        if (request()->route()) {
-            $this->rules['update']['title'] .= request()->route()->parameter('stop_reason');
-        }
     }
     public function getOptions(): array
     {
