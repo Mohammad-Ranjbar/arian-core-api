@@ -27,6 +27,9 @@ class FetchAllBlockReasonCommand extends Command
 
             $bar->start();
             foreach ($res['data'] as $record) {
+                if (BlockReason::query()->where('id', $record['id'])->exists()) {
+                    continue;
+                }
                 BlockReason::query()->create($record);
 
                 $bar->advance();
