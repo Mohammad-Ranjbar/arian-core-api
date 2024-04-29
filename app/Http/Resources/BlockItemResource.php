@@ -23,8 +23,8 @@ class BlockItemResource extends JsonResource
             'unblocked_by_email' => $this->resource->unblockedBy?->email ?? '',
             'unblocked_by_name' => $this->resource->unblockedBy?->name ?? '',
 
-            'block_reason_title' => $this->resource->blockReason->title,
-            'block_reason_id' => $this->resource->blockReason->id,
+            'block_reason_title' => $this->resource->blockReason?->title ?? '',
+            'block_reason_id' => $this->resource->blockReason?->id , '',
 
             'unblocked_at' => $this->resource->unblocked_at,
             'description' => $this->resource->description,

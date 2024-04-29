@@ -27,7 +27,7 @@ class VehicleFaultRequest extends FormRequest
             'description'                   => 'nullable',
             'user_id'                       => 'nullable',
             'vin'                           => 'nullable',
-            'checked_at'                    => 'nullable|date|date_format:Y-m-d H:i:s|before:today',
+            'checked_at'                    => 'nullable|date|date_format:Y-m-d H:i:s|before:'.now()->addDay(),
             'element_id'                    => 'required|exists:elements,id',
             'incident_id'                   => 'required|exists:incidents,id',
             'type'                          => 'nullable',
