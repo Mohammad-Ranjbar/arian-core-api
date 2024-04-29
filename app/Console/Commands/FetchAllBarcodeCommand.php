@@ -18,6 +18,9 @@ class FetchAllBarcodeCommand extends Command
      */
     protected $signature = 'app:fetch-all-barcode-command';
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
         $url = 'http://172.16.0.52/api/barcode-list?page=5200';

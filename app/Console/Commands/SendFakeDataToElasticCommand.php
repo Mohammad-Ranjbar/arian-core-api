@@ -8,12 +8,21 @@ use Illuminate\Console\Command;
 class SendFakeDataToElasticCommand extends Command
 {
 
+    /**
+     * @var string
+     */
     protected $signature = 'insert:fake';
 
 
+    /**
+     * @var string
+     */
     protected $description = 'insert fake data to elasticsearch';
 
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
         $tags = range(1,10);
