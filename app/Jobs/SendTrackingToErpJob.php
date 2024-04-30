@@ -44,8 +44,10 @@ class SendTrackingToErpJob implements ShouldQueue
      */
     private function update($record, $result): void
     {
+        logger($result);
         $record->update(['data' => $result]);
         $data = Tracking::query()->find($this->id);
+        logger($data);
         TrackingEvent::dispatch(new TrackingResource($data));
     }
 }
