@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendTrackingToErpJob implements ShouldQueue
 {
@@ -44,10 +45,10 @@ class SendTrackingToErpJob implements ShouldQueue
      */
     private function update($record, $result): void
     {
-        logger($result);
+        Log::info($result);
         $record->update(['data' => $result]);
         $data = Tracking::query()->find($this->id);
-        logger($data);
+        Log::info($data);
         TrackingEvent::dispatch(new TrackingResource($data));
     }
 }
