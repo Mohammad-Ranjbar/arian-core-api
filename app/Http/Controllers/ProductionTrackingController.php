@@ -38,6 +38,7 @@ class ProductionTrackingController extends Controller
         }
         $record = $vehicle->tracking()->create($data);
 
+        dd(method_exists($modelTrackingService, 'sendToErp'));
         if (method_exists($modelTrackingService, 'sendToErp')) {
             if (
                 ($record->getAttribute('type') === 'enter' && $record->getAttribute('model')->sendErp?->on_enter)
