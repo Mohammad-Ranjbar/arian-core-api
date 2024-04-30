@@ -43,6 +43,7 @@ class ProductionTrackingController extends Controller
                 ($record->getAttribute('type') === 'enter' && $record->getAttribute('model')->sendErp?->on_enter)
                 || ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit)
             ) {
+                dd('here');
                 $modelTrackingService->sendToErp($record);
             }
         }
