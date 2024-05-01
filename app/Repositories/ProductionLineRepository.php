@@ -12,24 +12,25 @@ class ProductionLineRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'title'         => 'required|string|unique:production_lines,title',
-            'salon_id'      => 'required|exists:salons,id',
+            'title' => 'required|string|unique:production_lines,title',
+            'salon_id' => 'required|exists:salons,id',
             'teams_webhook' => 'nullable',
-            'on_enter'      => 'nullable|boolean',
-            'on_exit'       => 'nullable|boolean',
+            'on_enter' => 'nullable|boolean',
+            'on_exit' => 'nullable|boolean',
+            'location_code' => 'nullable|string',
         ],
         'update' => [
-            'title'         => 'required|string|unique:production_lines,title,',
-            'salon_id'      => 'required|exists:salons,id',
+            'title' => 'required|string|unique:production_lines,title,',
+            'salon_id' => 'required|exists:salons,id',
             'teams_webhook' => 'nullable',
-            'on_enter'      => 'nullable|boolean',
-            'on_exit'       => 'nullable|boolean',
-
+            'on_enter' => 'nullable|boolean',
+            'on_exit' => 'nullable|boolean',
+            'location_code' => 'nullable|string',
         ]
     ];
 
     /**
-     * @param  ProductionLine  $model
+     * @param ProductionLine $model
      */
     public function __construct(ProductionLine $model)
     {
