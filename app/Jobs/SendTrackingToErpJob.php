@@ -7,13 +7,14 @@ use App\Http\Resources\TrackingResource;
 use App\Models\Tracking;
 use App\Services\Erp\ErpWsdlClient;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class SendTrackingToErpJob implements ShouldQueue
+class SendTrackingToErpJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
