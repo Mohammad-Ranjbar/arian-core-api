@@ -22,7 +22,7 @@ class ResendProductionTrackingToErpCommand extends Command
         $bar = $this->output->createProgressBar($records->count());
         $bar->start();
         $records->each(function ($record) use($bar){
-            ResendProductionTrackingToErpJob::dispatch($record);
+            dispatch(new ResendProductionTrackingToErpJob($record));
             $bar->advance();
         });
         $bar->finish();
