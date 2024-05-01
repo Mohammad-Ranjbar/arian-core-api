@@ -19,18 +19,42 @@ class DisplayBoardController extends Controller
 
         return response()->json([
             [
-                'title' => 'خط تولید جک',
-                'planned' => 100,
-                'expectation' => 20,
-                'percentage' => -20,
-                'deviation' => 3
+                'type'     => 'production-board',
+                'duration' => 8000,
+                'data'     => [
+                    'title'       => 'خط تولید جک',
+                    'planned'     => 100,
+                    'expectation' => 20,
+                    'percentage'  => -20,
+                    'deviation'   => 3
+                ]
             ],
             [
-                'title' => 'خط تولید شک',
-                'planned' => 20,
-                'expectation' => 20,
-                'percentage' => -20,
-                'deviation' => 3
+                'type'     => 'production-board',
+                'duration' => 8000,
+                'data'     => [
+                    'title'       => 'خط تولید شک',
+                    'planned'     => 20,
+                    'expectation' => 20,
+                    'percentage'  => -20,
+                    'deviation'   => 3
+                ]
+            ],
+            [
+                'type'     => 'image-board',
+                'duration' => 5000,
+                'data'     => [
+                    'url' => 'http://172.16.0.87/_next/image?url=%2FArianPars.png&w=96&q=75'
+                ]
+            ],
+            [
+                'type'     => 'text-board',
+                'duration' => 9000,
+                'data'     => [
+                    'text' => 'متن دلخواه
+                    خط دوم متن
+                    به نظرم وسط تابلو باشه'
+                ]
             ],
         ]);
     }
