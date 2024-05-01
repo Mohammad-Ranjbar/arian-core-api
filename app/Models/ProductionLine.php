@@ -21,7 +21,7 @@ class ProductionLine extends Model
      * @var string[]
      */
     protected $fillable = [
-        'title', 'salon_id', 'teams_webhook'
+        'title', 'salon_id', 'teams_webhook','location_code'
     ];
 
 
@@ -153,6 +153,14 @@ class ProductionLine extends Model
                 'upper_class'       => Salon::class
             ],
         );
+    }
+
+    public function trackingCount($type,$start,$end)
+    {
+        return $this->tracking()
+            ->where('type',$type)
+            ->whereBetween('created_at',[$start,$end])
+            ->count();
     }
 
 }

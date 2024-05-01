@@ -6,7 +6,6 @@ use App\Models\Salon;
 use App\Services\Erp\ErpDisplayBoard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Laravel\Octane\Exceptions\DdException;
 
 class DisplayBoardController extends Controller
 {
@@ -20,19 +19,34 @@ class DisplayBoardController extends Controller
     {
         $data = ErpDisplayBoard::getData();
 
+        $lines = $salon->productionLines()->get();
+        $locations = $lines->pluck('location_code')->all();
 
-        return response()->json([
-            [
+        $list = collect($data['data'])->whereIn('Location', $locations);
+        $result = $list->map(function ($item) use ($lines) {
+            $line = $lines->where('location_code', $item->Location)->first();
+            $lineStatus = $line->isStarted();
+            return [
                 'type' => 'production-board',
                 'duration' => 8000,
                 'data' => [
-                    'title' => 'خط تولید جک',
-                    'planned' => 100,
+                    'title' => $line->title,
+                    'planned' => $item->Qty_Planned,
                     'expectation' => 20,
                     'percentage' => -20,
-                    'deviation' => 3
+                    'deviation' => 3,
+                    'line_status' => $lineStatus,
+                    'description' => $lineStatus ? '' : $line->getLatestActivity()->stopReason->title,
+                    'in' => $line->trackingCount('enter', date('Y-m-d ') . $item->Starting_Time, date('Y-m-d ') . $item->Ending_Time),
+                    'out' => $item->Day_Output
                 ]
-            ],
+            ];
+        });
+
+        dd($result);
+
+        return response()->json([
+
             [
                 'type' => 'production-board',
                 'duration' => 8000,
@@ -41,7 +55,11 @@ class DisplayBoardController extends Controller
                     'planned' => 20,
                     'expectation' => 20,
                     'percentage' => -20,
-                    'deviation' => 3
+                    'deviation' => 3,
+                    'line_status' => false,
+                    'description' => 'کسری قطعه بدنه',
+                    'in' => 41,
+                    'out' => 88,
                 ]
             ],
             [

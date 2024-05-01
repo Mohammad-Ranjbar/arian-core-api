@@ -23,7 +23,7 @@ class Salon extends Model
     /**
      * @return HasMany
      */
-    public function productionLine(): HasMany
+    public function productionLines(): HasMany
     {
         return $this->hasMany(ProductionLine::class);
     }
