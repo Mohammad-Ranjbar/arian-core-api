@@ -17,8 +17,8 @@ class FaultReportExcelRequest extends FormRequest
     {
         return [
             'date_type' => 'required|in:create,check',
-            'from' => 'required|date|date_format:Y-m-d',
-            'to' => 'required|date|date_format:Y-m-d',
+            'from' => 'required|date',
+            'to' => 'required|date',
             'make_code' => 'required|array',
             'make_code.*' => 'required|exists:make_codes,id',
             'car_model' => 'required|array',
