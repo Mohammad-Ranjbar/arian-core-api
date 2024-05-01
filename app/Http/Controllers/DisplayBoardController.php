@@ -26,7 +26,9 @@ class DisplayBoardController extends Controller
                     'planned'     => 100,
                     'expectation' => 20,
                     'percentage'  => -20,
-                    'deviation'   => 3
+                    'deviation'   => 3,
+                    'line_status' => true,
+                    'description' => ''
                 ]
             ],
             [
@@ -37,7 +39,9 @@ class DisplayBoardController extends Controller
                     'planned'     => 20,
                     'expectation' => 20,
                     'percentage'  => -20,
-                    'deviation'   => 3
+                    'deviation'   => 3,
+                    'line_status' => false,
+                    'description' => 'کسری قطعه بدنه'
                 ]
             ],
             [
