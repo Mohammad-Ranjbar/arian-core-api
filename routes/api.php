@@ -11,6 +11,7 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomLocationController;
+use App\Http\Controllers\DisplayBoardController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
@@ -50,7 +51,7 @@ use Illuminate\Support\Facades\Route;
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
-
+Route::get('/display-board/{salon}', DisplayBoardController::class);
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
@@ -63,7 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-vehicle-qc', [VehicleController::class, 'reportVehicleQc'])->name('report-vehicle-qc');
     Route::get('/vehicle-qc', [VehicleController::class, 'vehicleQc'])->name('vehicle-qc');
     Route::get('/report-incidents', [IncidentController::class, 'report'])->name('report-incidents');
-    Route::get('/report-production-line-activities', [ProductionLineActivityController::class, 'report'])->name('report-production-line-activities');
+    Route::get('/report-production-line-activities',
+        [ProductionLineActivityController::class, 'report'])->name('report-production-line-activities');
     Route::get('/report-barcodes', [BarcodeController::class, 'report'])->name('report-barcodes');
     Route::post('/upload', [FileController::class, 'upload'])->name('upload.store');
     Route::get('/tracking-history/{modelType}/{modelId}/{type}',
@@ -192,7 +194,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
     Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
     Route::group([
-        'prefix' => 'production-lines/{production_line}',
+        'prefix'     => 'production-lines/{production_line}',
         'controller' => LineActivityStartStopController::class, 'as' => 'production-lines.'
     ], function () {
         Route::get('status', 'status')->name('status');
@@ -205,33 +207,33 @@ Route::middleware('auth:sanctum')->group(function () {
         [LineActivityStartStopController::class, 'approve'])->name('production-line-activities.approve');
 
     Route::apiResource('gate-permits', GatePermitController::class)->only(['index', 'store', 'destroy']);
-    Route::post('/old-gate/{vehicle}',[GatePermitController::class,'oldGate'])->name('old-gate');
+    Route::post('/old-gate/{vehicle}', [GatePermitController::class, 'oldGate'])->name('old-gate');
 
 
     Route::apiResources([
-        'roles' => RoleController::class,
-        'make-codes' => MakeCodeController::class,
-        'car-models' => CarModelController::class,
-        'users' => UserController::class,
-        'salons' => SalonController::class,
-        'production-lines' => ProductionLineController::class,
+        'roles'              => RoleController::class,
+        'make-codes'         => MakeCodeController::class,
+        'car-models'         => CarModelController::class,
+        'users'              => UserController::class,
+        'salons'             => SalonController::class,
+        'production-lines'   => ProductionLineController::class,
         'work-group-centers' => WorkGroupCenterController::class,
-        'stations' => StationController::class,
-        'incidents' => IncidentController::class,
-        'elements' => ElementController::class,
-        'block-reasons' => BlockReasonController::class,
-        'transit-companies' => TransitCompanyController::class,
-        'cars' => CarController::class,
-        'stop-facts' => StopFactController::class,
-        'stop-reasons' => StopReasonController::class,
-        'stop-types' => StopTypeController::class,
-        'barcodes' => BarcodeController::class,
-        'baskets' => BasketController::class,
-        'inventories' => InventoryController::class,
-        'containers' => ContainerController::class,
-        'drivers' => DriverController::class,
-        'sale-locations' => SaleLocationController::class,
+        'stations'           => StationController::class,
+        'incidents'          => IncidentController::class,
+        'elements'           => ElementController::class,
+        'block-reasons'      => BlockReasonController::class,
+        'transit-companies'  => TransitCompanyController::class,
+        'cars'               => CarController::class,
+        'stop-facts'         => StopFactController::class,
+        'stop-reasons'       => StopReasonController::class,
+        'stop-types'         => StopTypeController::class,
+        'barcodes'           => BarcodeController::class,
+        'baskets'            => BasketController::class,
+        'inventories'        => InventoryController::class,
+        'containers'         => ContainerController::class,
+        'drivers'            => DriverController::class,
+        'sale-locations'     => SaleLocationController::class,
         'accompanying-items' => AccompanyingItemController::class,
-        'locations' => LocationController::class,
+        'locations'          => LocationController::class,
     ]);
 });
