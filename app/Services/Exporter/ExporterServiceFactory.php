@@ -11,6 +11,8 @@ class ExporterServiceFactory
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
             'export-vehicle-qc' => new ExportVehicleQcService($job),
+            'export-faults-qc' => new ExportFaultQcService($job),
+            'export-faults-evaluation' => new ExportFaultEvaluationService($job),
             'export-incidents' => new ExportIncidentsService($job),
             'export-production-line-activities' => new ExportProductionLineActivityService($job),
             default => 'Invalid input',
