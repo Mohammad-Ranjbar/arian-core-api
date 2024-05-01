@@ -8,13 +8,14 @@ use GuzzleHttp\Psr7\Request;
 
 class ErpWsdlClient
 {
+
     /**
      * @param $url
      * @param $method
-     * @param $params
+     * @param  array  $params
      * @return array
      */
-    public static function run($url, $method, $params): array
+    public static function run($url, $method, array $params = []): array
     {
         $api = array_reverse(explode('/', parse_url($url)['path']))[0];
 
