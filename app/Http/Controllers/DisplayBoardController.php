@@ -28,7 +28,9 @@ class DisplayBoardController extends Controller
                     'percentage'  => -20,
                     'deviation'   => 3,
                     'line_status' => true,
-                    'description' => ''
+                    'description' => '',
+                    'in'          => 21,
+                    'out'         => 77,
                 ]
             ],
             [
@@ -41,7 +43,9 @@ class DisplayBoardController extends Controller
                     'percentage'  => -20,
                     'deviation'   => 3,
                     'line_status' => false,
-                    'description' => 'کسری قطعه بدنه'
+                    'description' => 'کسری قطعه بدنه',
+                    'in'          => 41,
+                    'out'         => 88,
                 ]
             ],
             [
