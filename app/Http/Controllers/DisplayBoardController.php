@@ -43,10 +43,25 @@ class DisplayBoardController extends Controller
             ];
         });
 
-        dd($result);
+
 
         return response()->json([
 
+            [
+                'type' => 'production-board',
+                'duration' => 8000,
+                'data' => [
+                    'title' => 'خط تولید شک',
+                    'planned' => 20,
+                    'expectation' => 20,
+                    'percentage' => -20,
+                    'deviation' => 3,
+                    'line_status' => true,
+                    'description' => '',
+                    'in' => 41,
+                    'out' => 88,
+                ]
+            ],
             [
                 'type' => 'production-board',
                 'duration' => 8000,
