@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Facades\Excel;
+use Mockery\Exception;
 
 
 class BlockVehicleImport implements ToCollection, WithStartRow, WithMapping
@@ -47,15 +48,22 @@ class BlockVehicleImport implements ToCollection, WithStartRow, WithMapping
 
         $collection->each(function ($row) {
 
-            if (!BlockItem::query()->where('code', $row['code'])->exists()) {
-                BlockItem::query()->create($row->toArray());
-                $this->data['success']++;
+            try {
+                if (!BlockItem::query()->where('code', $row['code'])->exists()) {
+                    BlockItem::query()->create($row->toArray());
+                    $this->data['success']++;
 
-                $row['result'] = 'imported';
-            } else {
+                    $row['result'] = 'imported';
+                } else {
+                    $this->data['error']++;
+                    $row['result'] = 'not imported';
+                }
+            }catch (Exception $exception){
                 $this->data['error']++;
-                $row['result'] = 'not imported';
+                $row['result'] = $exception->getMessage();
+                logger($exception->getMessage());
             }
+
             $this->data['done']++;
             $this->sendEvent();
         });
