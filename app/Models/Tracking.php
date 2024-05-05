@@ -25,7 +25,8 @@ class Tracking extends Model
         'user_id',
         'type',
         'vin',
-        'data'
+        'data',
+        'created_at'
     ];
 
     /**
