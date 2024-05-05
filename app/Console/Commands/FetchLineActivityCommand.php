@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Location;
 use App\Models\ProductionLine;
 use App\Models\Tracking;
 use Exception;
@@ -17,7 +18,6 @@ class FetchLineActivityCommand extends Command
     protected $signature = 'app:fetch-line-activity-command';
 
 
-
     public function handle(): void
     {
 
@@ -29,13 +29,19 @@ class FetchLineActivityCommand extends Command
 
             foreach ($res as $record) {
                 try {
-                    $productionLineId = $this->mapperToProductionLine(trim($record['car_model'], '"'));
-
+                    $locationId = $this->mapperToProductionLine(trim($record['car_model'], '"'));
+                    $location = ProductionLine::class;
                     if (!Tracking::query()->where('vin', $record['vin'])->where('type', 'exit')->exists()) {
+                        if ($record['type'] == 'gate') {
+                            $location = Location::class;
+                            $locationId = 1;
+                        }
                         $type = match ($record['type']) {
                             'in' => 'enter',
-                            'out' => 'exit',
+                            'out', 'gate' => 'exit',
                         };
+
+
                         $status = match ($record['status']) {
                             'done' => '{
                                         "data": "",
@@ -48,11 +54,10 @@ class FetchLineActivityCommand extends Command
                             'vin' => $record['vin'],
                             'type' => $type,
                             'status' => $status,
-                            'model_type' => ProductionLine::class,
-                            'model_id' => $productionLineId,
+                            'model_type' => $location,
+                            'model_id' => $locationId,
                             'user_id' => 1,
                             'created_at' => $record['created_at'],
-
                         ]);
                     }
                 } catch (Exception $exception) {
