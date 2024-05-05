@@ -78,7 +78,6 @@ class FetchLineActivityCommand extends Command
      */
     public function mapperToProductionLine($data): bool|int
     {
-        dd($data);
         $jackItems = [
             "TN721-N60",
             "TN721-N85",
