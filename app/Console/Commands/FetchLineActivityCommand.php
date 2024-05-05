@@ -31,6 +31,7 @@ class FetchLineActivityCommand extends Command
                 try {
                     $locationId = $this->mapperToProductionLine(trim($record['car_model'], '"'));
                     $location = ProductionLine::class;
+                    dd($locationId);
                     if (!Tracking::query()->where('vin', $record['vin'])->where('type', 'exit')->exists()) {
                         if ($record['type'] == 'gate') {
                             $location = Location::class;
