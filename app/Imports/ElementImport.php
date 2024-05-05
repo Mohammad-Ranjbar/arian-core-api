@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Facades\Excel;
+use Exception;
 
 
 class ElementImport implements ToCollection, WithStartRow, WithMapping
@@ -45,26 +46,33 @@ class ElementImport implements ToCollection, WithStartRow, WithMapping
         $this->sendEvent();
 
         $collection->each(function ($row) {
-            if (!Element::query()->where('code', $row['code'])->exists()) {
-                Element::query()->create($row->toArray());
-                $this->data['success']++;
+            try {
+                if (!Element::query()->where('code', $row['code'])->exists()) {
+                    Element::query()->create($row->toArray());
+                    $this->data['success']++;
 
-                $row['result'] = 'imported';
-            } else {
+                    $row['result'] = 'imported';
+                } else {
+                    $this->data['error']++;
+                    $row['result'] = 'not imported';
+                }
+            } catch (Exception $exception) {
                 $this->data['error']++;
-                $row['result'] = 'not imported';
+                $row['result'] = $exception->getMessage();
+                logger($exception->getMessage());
             }
+
             $this->data['done']++;
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        Excel::store(new ResultExport($collection->prepend(Element::HEADING)),'public/results/'.$uuid.'.xlsx');
+        Excel::store(new ResultExport($collection->prepend(Element::HEADING)), 'public/results/' . $uuid . '.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
-                'file'    => route('dl',['path' => 'results/'.$uuid.'.xlsx']),
-                'total'   => $this->data['total'],
+                'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
+                'total' => $this->data['total'],
                 'success' => $this->data['success'],
-                'error'   => $this->data['error'],
+                'error' => $this->data['error'],
             ]
         ]);
 
