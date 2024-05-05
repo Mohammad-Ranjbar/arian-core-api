@@ -120,13 +120,14 @@ class FetchLineActivityCommand extends Command
             "XG836FL-1402",
             "XSHEX013MD",
         ];
-        dd(in_array($data, $lamaryItems));
-        return match ($data) {
+        $locationId = match ($data) {
             in_array($data, $jackItems) => 3,
             in_array($data, $lamaryItems) => 2,
             in_array($data, $shakmanItems) => 4,
             in_array($data, $xgmaItems) => 5,
             default => false,
         };
+
+        dd($locationId);
     }
 }
