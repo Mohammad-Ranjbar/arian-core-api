@@ -6,6 +6,7 @@ use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\BlockItem;
 use App\Models\Job;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
 {
 
     /**
-     * @param  array  $data
+     * @param array $data
      */
     public function __construct(public array $data)
     {
@@ -34,7 +35,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
     }
 
     /**
-     * @param  Collection  $collection
+     * @param Collection $collection
      * @return void
      */
     public function collection(Collection $collection): void
@@ -43,30 +44,38 @@ class UnblockItemImport implements ToCollection, WithStartRow
         $this->sendEvent();
 
         $collection->each(function ($row) {
-            $blockItem = BlockItem::query()->where('id', $row[0])->first();
-            if ($blockItem) {
-                $blockItem->update([
-                    'unblocked_at'  => now(),
-                    'unblocked_by' => Auth::id(),
-                ]);
-                $this->data['success']++;
 
-                $row['result'] = 'imported';
-            } else {
+            try {
+                $blockItem = BlockItem::query()->where('id', $row[0])->first();
+                if ($blockItem) {
+                    $blockItem->update([
+                        'unblocked_at' => now(),
+                        'unblocked_by' => Auth::id(),
+                    ]);
+                    $this->data['success']++;
+
+                    $row['result'] = 'imported';
+                } else {
+                    $this->data['error']++;
+                    $row['result'] = 'not imported';
+                }
+            } catch (Exception $exception) {
                 $this->data['error']++;
-                $row['result'] = 'not imported';
+                $row['result'] = $exception->getMessage();
+                logger($exception->getMessage());
             }
+
             $this->data['done']++;
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        Excel::store(new ResultExport($collection->prepend(BlockItem::HEADING)), 'public/results/'.$uuid.'.xlsx');
+        Excel::store(new ResultExport($collection->prepend(BlockItem::HEADING)), 'public/results/' . $uuid . '.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
-                'file'    => route('dl',['path' => 'results/'.$uuid.'.xlsx']),
-                'total'   => $this->data['total'],
+                'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
+                'total' => $this->data['total'],
                 'success' => $this->data['success'],
-                'error'   => $this->data['error'],
+                'error' => $this->data['error'],
             ]
         ]);
 

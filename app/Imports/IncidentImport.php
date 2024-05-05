@@ -6,6 +6,7 @@ use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\Incident;
 use App\Models\Job;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -45,28 +46,34 @@ class IncidentImport implements ToCollection, WithStartRow, WithMapping
         $this->sendEvent();
 
         $collection->each(function ($row) {
+            try {
+                if (!Incident::query()->where('code', $row['code'])->exists()) {
 
-            if (!Incident::query()->where('code', $row['code'])->exists()) {
+                    Incident::query()->create($row->toArray());
+                    $this->data['success']++;
 
-                Incident::query()->create($row->toArray());
-                $this->data['success']++;
-
-                $row['result'] = 'imported';
-            } else {
+                    $row['result'] = 'imported';
+                } else {
+                    $this->data['error']++;
+                    $row['result'] = 'not imported';
+                }
+            } catch (Exception $exception) {
                 $this->data['error']++;
-                $row['result'] = 'not imported';
+                $row['result'] = $exception->getMessage();
+                logger($exception->getMessage());
             }
+
             $this->data['done']++;
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        Excel::store(new ResultExport($collection->prepend(Incident::HEADING)),'public/results/'.$uuid.'.xlsx');
+        Excel::store(new ResultExport($collection->prepend(Incident::HEADING)), 'public/results/' . $uuid . '.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
-                'file'    => route('dl',['path' => 'results/'.$uuid.'.xlsx']),
-                'total'   => $this->data['total'],
+                'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
+                'total' => $this->data['total'],
                 'success' => $this->data['success'],
-                'error'   => $this->data['error'],
+                'error' => $this->data['error'],
             ]
         ]);
 
