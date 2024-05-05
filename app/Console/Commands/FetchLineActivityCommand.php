@@ -32,7 +32,6 @@ class FetchLineActivityCommand extends Command
 
                     $locationId = $this->mapperToProductionLine(trim($record['car_model'], '"'));
                     $location = ProductionLine::class;
-                    dd($locationId);
                     if (!Tracking::query()->where('vin', $record['vin'])->where('type', 'exit')->exists()) {
                         if ($record['type'] == 'gate') {
                             $location = Location::class;
@@ -73,7 +72,7 @@ class FetchLineActivityCommand extends Command
 
 
 
-    public function mapperToProductionLine($data)
+    public function mapperToProductionLine($data): int
     {
         $jackItems = [
             "TN721-N60",
@@ -127,9 +126,6 @@ class FetchLineActivityCommand extends Command
         }elseif (in_array($data, $lamaryItems)) {
             $locationId = 2;
         }
-
-
-        dd($locationId);
 
         return $locationId;
     }
