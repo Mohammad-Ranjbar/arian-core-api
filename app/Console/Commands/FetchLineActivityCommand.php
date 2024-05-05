@@ -29,7 +29,7 @@ class FetchLineActivityCommand extends Command
 
             foreach ($res as $record) {
                 try {
-                    dd($record);
+
                     $locationId = $this->mapperToProductionLine(trim($record['car_model'], '"'));
                     $location = ProductionLine::class;
                     dd($locationId);
@@ -78,6 +78,7 @@ class FetchLineActivityCommand extends Command
      */
     public function mapperToProductionLine($data): bool|int
     {
+        dd($data);
         $jackItems = [
             "TN721-N60",
             "TN721-N85",
