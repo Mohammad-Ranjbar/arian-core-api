@@ -121,7 +121,7 @@ class FetchLineActivityCommand extends Command
             "XG836FL-1402",
             "XSHEX013MD",
         ];
-
+        dd(in_array($data, $lamaryItems));
         return match ($data) {
             in_array($data, $jackItems) => 3,
             in_array($data, $lamaryItems) => 2,
