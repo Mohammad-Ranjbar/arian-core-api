@@ -42,7 +42,6 @@ class FetchLineActivityCommand extends Command
                             'out', 'gate' => 'exit',
                         };
 
-
                         $status = match ($record['status']) {
                             'done' => '{
                                         "data": "",
@@ -54,7 +53,7 @@ class FetchLineActivityCommand extends Command
                         Tracking::query()->create([
                             'vin' => $record['vin'],
                             'type' => $type,
-                            'status' => $status,
+                            'data' => $status,
                             'model_type' => $location,
                             'model_id' => $locationId,
                             'user_id' => 1,
