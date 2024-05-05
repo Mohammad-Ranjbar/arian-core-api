@@ -42,18 +42,16 @@ class FetchLineActivityCommand extends Command
                             'out', 'gate' => 'exit',
                         };
 
-                        $status = match ($record['status']) {
-                            'done' => '{
-                                        "data": "",
-                                        "status": "ok",
-                                        "message": "Consumption of VIN ' . $record['vin'] . ' in WC  is posted."
-                                    }',
-                            default => '',
-                        };
+                        $data = [
+                            "data" => "",
+                            "status" => "ok",
+                            "message" => 'Consumption of VIN ' . $record['vin'] . ' in WC  is posted.'
+                        ];
+
                         Tracking::query()->create([
                             'vin' => $record['vin'],
                             'type' => $type,
-                            'data' => $status,
+                            'data' => json_encode($data),
                             'model_type' => $location,
                             'model_id' => $locationId,
                             'user_id' => 1,
@@ -68,7 +66,6 @@ class FetchLineActivityCommand extends Command
             $page++;
         } while (!empty($res));
     }
-
 
 
     public function mapperToProductionLine($data): int
@@ -117,12 +114,12 @@ class FetchLineActivityCommand extends Command
         ];
 
         if (in_array($data, $jackItems)) {
-             $locationId =3;
-        }elseif (in_array($data, $shakmanItems)) {
+            $locationId = 3;
+        } elseif (in_array($data, $shakmanItems)) {
             $locationId = 4;
-        }elseif (in_array($data, $xgmaItems)) {
+        } elseif (in_array($data, $xgmaItems)) {
             $locationId = 5;
-        }elseif (in_array($data, $lamaryItems)) {
+        } elseif (in_array($data, $lamaryItems)) {
             $locationId = 2;
         }
 
