@@ -72,11 +72,8 @@ class FetchLineActivityCommand extends Command
     }
 
 
-    /**
-     * @param $data
-     * @return bool|int
-     */
-    public function mapperToProductionLine($data): bool|int
+
+    public function mapperToProductionLine($data)
     {
         $jackItems = [
             "TN721-N60",
@@ -120,14 +117,20 @@ class FetchLineActivityCommand extends Command
             "XG836FL-1402",
             "XSHEX013MD",
         ];
-        $locationId = match ($data) {
-            in_array($data, $jackItems) => 3,
-            in_array($data, $lamaryItems) => 2,
-            in_array($data, $shakmanItems) => 4,
-            in_array($data, $xgmaItems) => 5,
-            default => false,
-        };
+
+        if (in_array($data, $jackItems)) {
+             $locationId =3;
+        }elseif (in_array($data, $shakmanItems)) {
+            $locationId = 4;
+        }elseif (in_array($data, $xgmaItems)) {
+            $locationId = 5;
+        }elseif (in_array($data, $lamaryItems)) {
+            $locationId = 2;
+        }
+
 
         dd($locationId);
+
+        return $locationId;
     }
 }
