@@ -22,14 +22,15 @@ class FetchLineActivityCommand extends Command
     {
 
         $page = 1;
+        $bar = $this->output->createProgressBar();
         do {
             $this->info('page - '.$page);
             $url = 'http://172.16.0.52/api/in-out-histories?page='.$page;
             $res = Http::get($url)->json();
-
+            $bar->clear();
+            $bar->start(count($res));
             foreach ($res as $record) {
                 try {
-
                     $locationId = $this->mapperToProductionLine(trim($record['car_model'], '"'));
                     $location = ProductionLine::class;
                     if (!Tracking::query()->where('vin', $record['vin'])->where('type', 'exit')->exists()) {
@@ -61,8 +62,9 @@ class FetchLineActivityCommand extends Command
                 } catch (Exception $exception) {
                     logger($exception->getMessage());
                 }
-
+                $bar->advance();
             }
+            $bar->finish();
             $page++;
         } while (!empty($res));
     }
