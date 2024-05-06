@@ -78,7 +78,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         $collection->each(function ($row) {
             try {
                 $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
-                if (isset($row['container_number']) && !empty($row['container_number'])) {
+                if (!empty($row['container_number'])) {
                     $container = Container::query()->where('code', $row['container_number'])->firstOrCreate([
                         'code' => $row['container_number'],
                     ]);
@@ -141,8 +141,10 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                         ]);
                     }
                     if (!empty($row['container_number'])) {
-                        $billOfLading->containers()->create([
-                            'model_id' => $row['container_number'],
+                        DB::table('bill_of_lading_item')->insert([
+                            'model_id' => $container->getAttribute('id'),
+                            'model_type' => Container::class,
+                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
                         ]);
                     }
 
