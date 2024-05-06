@@ -23,8 +23,8 @@ class FetchLineActivityCommand extends Command
 
         $page = 1;
         do {
-            $this->info('page- ' . $page);
-            $url = 'http://172.16.0.52/api/in-out-histories?page=' . $page;
+            $this->info('page - '.$page);
+            $url = 'http://172.16.0.52/api/in-out-histories?page='.$page;
             $res = Http::get($url)->json();
 
             foreach ($res as $record) {
@@ -43,18 +43,18 @@ class FetchLineActivityCommand extends Command
                         };
 
                         $data = [
-                            "data" => "",
-                            "status" => "ok",
-                            "message" => 'Consumption of VIN ' . $record['vin'] . ' in WC  is posted.'
+                            "data"    => "",
+                            "status"  => "ok",
+                            "message" => 'Consumption of VIN '.$record['vin'].' in WC  is posted.'
                         ];
 
                         Tracking::query()->create([
-                            'vin' => $record['vin'],
-                            'type' => $type,
-                            'data' => json_encode($data),
+                            'vin'        => $record['vin'],
+                            'type'       => $type,
+                            'data'       => json_encode($data),
                             'model_type' => $location,
-                            'model_id' => $locationId,
-                            'user_id' => 1,
+                            'model_id'   => $locationId,
+                            'user_id'    => 1,
                             'created_at' => $record['created_at'],
                         ]);
                     }
@@ -112,6 +112,8 @@ class FetchLineActivityCommand extends Command
             "XG836FL-1402",
             "XSHEX013MD",
         ];
+
+        $locationId = 0;
 
         if (in_array($data, $jackItems)) {
             $locationId = 3;
