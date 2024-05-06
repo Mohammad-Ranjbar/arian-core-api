@@ -46,7 +46,7 @@ class FetchLineActivityCommand extends Command
                         $data = [
                             "data"    => "",
                             "status"  => "ok",
-                            "message" => 'Consumption of VIN '.$record['vin'].' in WC  is posted.'
+                            "message" => 'migrate from old version'
                         ];
 
                         Tracking::query()->create([
