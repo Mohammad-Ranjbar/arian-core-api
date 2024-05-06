@@ -74,7 +74,8 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
         $collection->each(function ($row) {
             try {
-                if (!BillOfLading::query()->where('code', $row['freight_number'])->exists()) {
+                $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->exists();
+                if (!$billOfLading) {
 
                     if (!$driver = Driver::query()->where('national_code', $row['driver_national_code'])->first()) {
                         $driver = Driver::query()->create([
@@ -108,7 +109,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                             'driver_id' => $driver->getAttribute('id'),
                         ]);
                     }
-                    BillOfLading::query()->create([
+                    $billOfLading = BillOfLading::query()->create([
                         'user_id' => $this->userId,
                         'location_source_id' => $this->locationSourceID,
                         'location_destination_id' => $this->locationDestinationID,
@@ -123,12 +124,35 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                         'description' => $row['description'],
                         'type' => $this->type
                     ]);
+
+                    if (!empty($row['VIN'])) {
+                        $billOfLading->vehicles()->create([
+                            'model_id' => $row['VIN'],
+                        ]);
+                    }
+                    if (!empty($row['container_number'])) {
+                        $billOfLading->containers()->create([
+                            'model_id' => $row['container_number'],
+                        ]);
+                    }
+
                     $this->data['success']++;
 
                     $row['result'] = 'imported';
                 } else {
-                    $this->data['error']++;
-                    $row['result'] = 'not imported';
+                    if (!empty($row['VIN'])) {
+                        $billOfLading->vehicles()->create([
+                            'model_id' => $row['VIN'],
+                        ]);
+                    }
+                    if (!empty($row['container_number'])) {
+                        $billOfLading->containers()->create([
+                            'model_id' => $row['container_number'],
+                        ]);
+                    }
+
+//                    $this->data['error']++;
+//                    $row['result'] = 'not imported';
                 }
             } catch (Exception $exception) {
                 $this->data['error']++;
