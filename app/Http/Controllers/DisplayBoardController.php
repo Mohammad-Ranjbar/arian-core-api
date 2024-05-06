@@ -90,7 +90,5 @@ class DisplayBoardController extends Controller
 
         return response()->json($result->values());
 
-
-
     }
 }
