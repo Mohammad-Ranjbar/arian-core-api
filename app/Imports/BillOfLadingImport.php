@@ -74,7 +74,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
         $collection->each(function ($row) {
             try {
-                $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->exists();
+                $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
                 if (!$billOfLading) {
 
                     if (!$driver = Driver::query()->where('national_code', $row['driver_national_code'])->first()) {
