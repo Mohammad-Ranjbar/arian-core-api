@@ -6,11 +6,14 @@ use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\BillOfLading;
 use App\Models\Car;
+use App\Models\Container;
 use App\Models\Driver;
 use App\Models\Job;
 use App\Models\TransitCompany;
+use App\Models\Vehicle;
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -75,6 +78,11 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         $collection->each(function ($row) {
             try {
                 $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
+                if (isset($row['container_number']) && !empty($row['container_number'])) {
+                    $container = Container::query()->where('code', $row['container_number'])->firstOrCreate([
+                        'code' => $row['container_number'],
+                    ]);
+                }
                 if (!$billOfLading) {
 
                     if (!$driver = Driver::query()->where('national_code', $row['driver_national_code'])->first()) {
@@ -126,8 +134,10 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                     ]);
 
                     if (!empty($row['VIN'])) {
-                        $billOfLading->vehicles()->create([
+                        DB::table('bill_of_lading_item')->insert([
                             'model_id' => $row['VIN'],
+                            'model_type' => Vehicle::class,
+                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
                         ]);
                     }
                     if (!empty($row['container_number'])) {
@@ -141,18 +151,20 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                     $row['result'] = 'imported';
                 } else {
                     if (!empty($row['VIN'])) {
-                        $billOfLading->vehicles()->create([
+                        DB::table('bill_of_lading_item')->insert([
                             'model_id' => $row['VIN'],
+                            'model_type' => Vehicle::class,
+                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
                         ]);
+
                     }
                     if (!empty($row['container_number'])) {
-                        $billOfLading->containers()->create([
-                            'model_id' => $row['container_number'],
+                        DB::table('bill_of_lading_item')->insert([
+                            'model_id' => $container->getAttribute('id'),
+                            'model_type' => Container::class,
+                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
                         ]);
                     }
-
-//                    $this->data['error']++;
-//                    $row['result'] = 'not imported';
                 }
             } catch (Exception $exception) {
                 $this->data['error']++;
