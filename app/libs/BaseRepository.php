@@ -39,6 +39,7 @@ use App\Filters\UnblockedAtToFilter;
 use App\Filters\UserAccessToResourceFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -173,7 +174,11 @@ abstract class BaseRepository
 
     public function make($data, string $parameter = 'reference')
     {
-        return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
+        try {
+            return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
+        } catch (Exception $exception) {
+            logger($exception->getMessage());
+        }
     }
 
 
