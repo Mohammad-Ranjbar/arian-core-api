@@ -177,7 +177,7 @@ abstract class BaseRepository
         try {
             return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
         } catch (Exception $exception) {
-            logger($exception->getMessage());
+            return logger($exception->getMessage());
         }
     }
 
