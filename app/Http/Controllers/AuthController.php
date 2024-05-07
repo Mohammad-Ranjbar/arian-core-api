@@ -125,7 +125,7 @@ class AuthController extends Controller
     public function recoverPassword(RecoverPasswordRequest $request): JsonResponse
     {
         if (Cache::get('AUTH:USER:2FA'.$request->validated('mobile'))) {
-            return $this->responseError('کد وارد شده صحیح نیست');
+            return $this->responseError('The code has already been sent');
         }
         $code = 11111;
         if (app()->environment() == 'production') {
