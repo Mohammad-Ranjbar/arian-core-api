@@ -3,10 +3,17 @@
 namespace App\Services\Exporter;
 
 
+use Exception;
+
 class ExporterServiceFactory
 {
 
-    public static function getInstance($job)
+    /**
+     * @param $job
+     * @return ExportBlockItemsService|ExportFaultEvaluationService|ExportFaultQcService|ExportIncidentsService|ExportProductionLineActivityService|ExportVehicleQcService
+     * @throws Exception
+     */
+    public static function getInstance($job): ExportProductionLineActivityService|ExportFaultQcService|ExportVehicleQcService|ExportIncidentsService|ExportFaultEvaluationService|ExportBlockItemsService
     {
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
@@ -15,7 +22,7 @@ class ExporterServiceFactory
             'export-faults-evaluation' => new ExportFaultEvaluationService($job),
             'export-incidents' => new ExportIncidentsService($job),
             'export-production-line-activities' => new ExportProductionLineActivityService($job),
-            default => 'Invalid input',
+            default => throw  new Exception('Invalid input for type: ' . $job->type .'by user:'.auth()->user()->name),
         };
     }
 }
