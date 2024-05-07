@@ -51,7 +51,7 @@ use Illuminate\Support\Facades\Route;
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
-Route::get('/display-board/{salon}', DisplayBoardController::class);
+Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);

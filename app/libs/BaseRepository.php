@@ -170,12 +170,8 @@ abstract class BaseRepository
         return Pipeline::send($data)->through($this->filters)->thenReturn();
     }
 
-    /**
-     * @param $data
-     * @param string $parameter
-     * @return Model|Builder
-     */
-    public function make($data, string $parameter = 'reference'): Model|Builder
+
+    public function make($data, string $parameter = 'reference')
     {
         return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
     }
