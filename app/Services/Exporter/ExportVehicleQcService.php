@@ -55,7 +55,7 @@ class ExportVehicleQcService extends BaseExporterService
         $fileName = 'vehicleQcExport-' . Str::uuid() . '.xlsx';
         $path = '/public/exports/' . $fileName;
         Excel::store(new VehicleQcReportExport($rows, $eventData), $path);
-        return asset('/storage/exports/' . $fileName);
+        return $fileName;
 
     }
 }

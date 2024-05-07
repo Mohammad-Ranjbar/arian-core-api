@@ -25,23 +25,23 @@ class ExportIncidentsService extends BaseExporterService
      */
     public function export(): string
     {
-        request()->merge((array) $this->job->getAttribute('data'));
+        request()->merge((array)$this->job->getAttribute('data'));
         $rows = app()->make(IncidentRepository::class)->get();
 
         $eventData = [
-            'id'      => $this->job->uuid,
+            'id' => $this->job->uuid,
             'user_id' => $this->job->user_id,
-            'total'   => $rows->count(),
-            'done'    => 0,
+            'total' => $rows->count(),
+            'done' => 0,
             'success' => 0,
-            'error'   => 0,
+            'error' => 0,
         ];
         event(new JobProcessEvent($eventData));
 
-        $fileName = 'incidentExport-'.Str::uuid().'.xlsx';
-        $path = '/public/exports/'.$fileName;
+        $fileName = 'incidentExport-' . Str::uuid() . '.xlsx';
+        $path = '/public/exports/' . $fileName;
         Excel::store(new IncidentReportExport($rows, $eventData), $path);
-        return asset('/storage/exports/'.$fileName);
+        return $fileName;
 
     }
 }

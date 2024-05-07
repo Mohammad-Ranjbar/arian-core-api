@@ -72,7 +72,7 @@ class ExportFaultEvaluationService extends BaseExporterService
         $fileName = 'exportFaultsEvaluation-' . Str::uuid() . '.xlsx';
         $path = '/public/exports/' . $fileName;
         Excel::store(new FaultReportExport($rows, $eventData), $path);
-        return asset('/storage/exports/' . $fileName);
+        return $fileName;
 
     }
 }

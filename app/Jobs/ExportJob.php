@@ -38,10 +38,9 @@ class ExportJob implements ShouldQueue
         $service = ExporterServiceFactory::getInstance($job);
 
         $file = $service->export();
-
         $job->update([
             'result' => [
-                'file' => asset($file),
+                'file' => route('dl', ['path' => 'exports/' . $file ]),
             ]
         ]);
 
