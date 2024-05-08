@@ -47,7 +47,7 @@ class DeliverVehicleToCustomerController extends Controller
     public function set(Request $request, Vehicle $vehicle)
     {
 
-        $vehicle->update([
+      return  $vehicle->update([
             'files' => $request->get('files'),
             'delivered_customer_at' => Carbon::now()
         ]);
