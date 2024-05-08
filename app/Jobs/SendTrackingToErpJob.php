@@ -49,4 +49,17 @@ class SendTrackingToErpJob implements ShouldQueue, ShouldBeUnique
         $data = Tracking::query()->find($this->id);
         TrackingEvent::dispatch(new TrackingResource($data));
     }
+
+    /**
+     * @return void
+     */
+    public function failed(): void
+    {
+        $record = Tracking::query()->find($this->id);
+        $this->update($record, [
+            "status" => "error",
+            "message" => "cant received response from ERP."
+
+        ]);
+    }
 }
