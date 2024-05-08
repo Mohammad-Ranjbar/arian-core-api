@@ -11,6 +11,14 @@ class Job extends Model
 {
     use HasFactory, HasUuids;
 
+    /**
+     * @var string
+     */
+    protected $table = 'custom_jobs';
+
+    /**
+     * @var mixed
+     */
     public mixed $data;
 
     /**
@@ -37,12 +45,19 @@ class Job extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return void
+     */
     public function start(): void
     {
         $this->update([
             'status' => 'started'
         ]);
     }
+
+    /**
+     * @return void
+     */
     public function finish(): void
     {
         $this->update([

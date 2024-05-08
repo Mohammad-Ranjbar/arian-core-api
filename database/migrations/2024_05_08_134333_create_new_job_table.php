@@ -4,14 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class extends Migration
+{
     /**
-     * @return void
+     * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('jobs', function (Blueprint $table) {
+        Schema::create('custom_jobs', function (Blueprint $table) {
             $table->uuid();
             $table->string('type');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -23,10 +23,10 @@ return new class extends Migration {
     }
 
     /**
-     * @return void
+     * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('jobs');
+        Schema::dropIfExists('custom_jobs');
     }
 };
