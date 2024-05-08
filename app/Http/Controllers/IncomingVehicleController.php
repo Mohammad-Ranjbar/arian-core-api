@@ -17,7 +17,7 @@ class IncomingVehicleController extends Controller
         $this->authorize('incoming-vehicles');
 
         $user = $request->user();
-        $locationIds = $user->locations->get()->pluck('id')->all();
+        $locationIds = $user->locations()->get()->pluck('id')->all();
 
         return IncomingVehicleResource::collection(BillOfLading::query()
             ->with(['items', 'car.driver'])
@@ -25,6 +25,7 @@ class IncomingVehicleController extends Controller
             ->whereHasMorph('items', [Vehicle::class], function ($q) use($locationIds){
                 $q->whereNotIn('current_location', $locationIds);
                 $q->where('delivered_to_customer', false);
-            })->paginate());
+            })->paginate()
+        );
     }
 }

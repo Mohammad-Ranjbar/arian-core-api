@@ -248,11 +248,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('incoming-vehicles', IncomingVehicleController::class)->name('incoming-vehicles');
     Route::get('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'get'])->name('get-receipt-vehicle-information');
     Route::post('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'set'])->name('set-receipt-vehicle');
-    Route::post('deliver-vehicle/{vehicle}', [DeliverVehicleToCustomerController::class, 'set'])->name('set-deliver-vehicle-information');
 
 
     Route::get('location-vehicles', LocationVehicleController::class)->name('location-vehicles');
     Route::get('deliver-vehicle/{vehicle}', [DeliverVehicleToCustomerController::class, 'get'])->name('get-deliver-vehicle-information');
+    Route::post('deliver-vehicle/{vehicle}', [DeliverVehicleToCustomerController::class, 'set'])->name('set-deliver-vehicle-information');
+
 
 });
 
