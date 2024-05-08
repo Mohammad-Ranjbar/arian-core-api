@@ -23,7 +23,7 @@ class IncomingVehicleController extends Controller
             ->whereIn('location_destination_id', $locationIds)
             ->whereHas('vehicles', function ($q) use ($locationIds) {
                 $q->whereNotIn('current_location', $locationIds);
-                $q->where('delivered_to_customer', false);
+                $q->whereNull('delivered_customer_at');
             })->paginate()
         );
     }
