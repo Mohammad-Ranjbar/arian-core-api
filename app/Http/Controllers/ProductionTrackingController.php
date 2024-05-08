@@ -57,7 +57,7 @@ class ProductionTrackingController extends Controller
      */
     public function update(Tracking $tracking): TrackingResource
     {
-        $tracking->update(['data' => null]);
+        $tracking->update(['data' => null, 'user_id' => auth()->id()]);
 
         $modelTrackingService = TrackingServiceFactory::getInstance($tracking->getAttribute('model')->getTable());
         $type = $tracking->getAttribute('type') === 'enter' ? 'on_enter' : 'on_exit';
