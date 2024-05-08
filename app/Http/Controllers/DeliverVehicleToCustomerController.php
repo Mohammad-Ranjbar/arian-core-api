@@ -40,6 +40,8 @@ class DeliverVehicleToCustomerController extends Controller
 
 
         ];
+
+        return response()->json($information);
     }
 
     public function set(Request $request, Vehicle $vehicle)
