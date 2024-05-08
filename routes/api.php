@@ -11,6 +11,7 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomLocationController;
+use App\Http\Controllers\DeliverVehicleToCustomerController;
 use App\Http\Controllers\DisplayBoardController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\DriverController;
@@ -248,5 +249,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'get'])->name('get-receipt-vehicle-information');
     Route::post('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'set'])->name('set-receipt-vehicle');
     Route::get('location-vehicles', LocationVehicleController::class)->name('location-vehicles');
+    Route::get('deliver-vehicle/{vehicle}', [DeliverVehicleToCustomerController::class, 'get'])->name('get-deliver-vehicle-information');
+    Route::post('deliver-vehicle/{vehicle}', [DeliverVehicleToCustomerController::class, 'set'])->name('set-deliver-vehicle-information');
 });
 
