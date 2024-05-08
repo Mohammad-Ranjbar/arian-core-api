@@ -245,7 +245,8 @@ Route::middleware('auth:sanctum')->group(function () {
      */
 
     Route::get('incoming-vehicles', IncomingVehicleController::class)->name('incoming-vehicles');
+    Route::get('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'get'])->name('get-receipt-vehicle-information');
+    Route::post('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'set'])->name('set-receipt-vehicle');
+    Route::get('location-vehicles', LocationVehicleController::class)->name('location-vehicles');
 });
-Route::get('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'get'])->name('get-receipt-vehicle-information');
-Route::post('incoming-vehicles/{vehicle}', [ReceiptVehicleController::class, 'set'])->name('set-receipt-vehicle');
-Route::get('location-vehicles', LocationVehicleController::class)->name('location-vehicles');
+
