@@ -29,7 +29,7 @@ class VehicleIncidentRepository extends BaseRepository
         }
         if(!empty($data['make_code'])) {
             $query = $query->whereHas('vehicle', function ($query) use ($data){
-                $query->whereIn('make_code', $data['make_code']);
+                $query->whereIn('make_code_id', $data['make_code']);
                 if(!empty($data['car_model'])) {
                     $query->whereIn('car_model_id', $data['car_model']);
                 }
