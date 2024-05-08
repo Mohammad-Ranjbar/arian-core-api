@@ -24,7 +24,7 @@ class ReceiptVehicleController extends Controller
             ->whereHasMorph('items', [Vehicle::class], function ($q) use ($locationIds, $vehicle) {
                 $q->where('model_id', $vehicle->getAttribute('vin'));
                 $q->whereNotIn('current_location', $locationIds);
-                $q->where('delivered_to_customer', false);
+                $q->whereNull('delivered_customer_at');
             })->first();
 
         $vehicle->tracking()->create([
@@ -50,7 +50,7 @@ class ReceiptVehicleController extends Controller
                 ->whereHasMorph('items', [Vehicle::class], function ($q) use ($locationIds, $vehicle) {
                     $q->where('model_id', $vehicle->getAttribute('vin'));
                     $q->whereNotIn('current_location', $locationIds);
-                    $q->where('delivered_to_customer', false);
+                    $q->where('delivered_customer_at', false);
                 })->first());
     }
 }
