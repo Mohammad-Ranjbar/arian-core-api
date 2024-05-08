@@ -253,6 +253,7 @@ class VehicleFaultController extends Controller
         $job = Job::query()->create($validatedData);
 
         ExportJob::dispatch($job->getAttribute('uuid'));
+
         return response()->json([
             'message' => 'export job created',
             'data' => [

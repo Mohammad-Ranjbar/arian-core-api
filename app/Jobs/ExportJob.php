@@ -4,7 +4,9 @@ namespace App\Jobs;
 
 use App\Models\Job;
 use App\Services\Exporter\ExporterServiceFactory;
+use Exception;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,7 +18,7 @@ class ExportJob implements ShouldQueue
 
 
     /**
-     * @param  string  $uuid
+     * @param string $uuid
      */
     public function __construct(public string $uuid)
     {
@@ -24,6 +26,11 @@ class ExportJob implements ShouldQueue
     }
 
 
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
     public function handle(): void
     {
         /** @var Job $job */
@@ -40,7 +47,7 @@ class ExportJob implements ShouldQueue
         $file = $service->export();
         $job->update([
             'result' => [
-                'file' => route('dl', ['path' => 'exports/' . $file ]),
+                'file' => route('dl', ['path' => 'exports/' . $file]),
             ]
         ]);
 

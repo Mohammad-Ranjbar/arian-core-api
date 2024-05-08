@@ -61,17 +61,16 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
     public function map($row): array
     {
         $row = [
-            $row->model->vin,
+            $row->vin,
             $row->user?->name ?? '',
-            $row->mode->method,
-            $row->model->intensity,
-            $row->model->incident?->code ?? '',
-            $row->model->element?->code ?? '',
+            $row->method,
+            $row->intensity,
+            $row->incident?->code ?? '',
+            $row->element?->code ?? '',
             $row->checked_at,
             $row->created_at,
 
         ];
-
         $this->eventData['done']++;
         $this->eventData['success']++;
         $this->sendEvent();
