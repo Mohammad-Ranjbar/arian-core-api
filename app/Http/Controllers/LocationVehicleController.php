@@ -14,7 +14,8 @@ class LocationVehicleController extends Controller
 
         return VehicleResource::collection(
             Vehicle::query()
-                ->whereIn('current_location', Auth::user()->locations()->get()->pluck('id')->all()));
+                ->whereIn('current_location', Auth::user()->locations()->get()->pluck('id')->all())
+                ->paginate());
 
     }
 }
