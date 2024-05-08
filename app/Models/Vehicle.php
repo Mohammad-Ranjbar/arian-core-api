@@ -47,6 +47,9 @@ class Vehicle extends Model
         'grade',
         'grade_description',
         'qc_description',
+        'files',
+        'current_location',
+        'delivered_customer_at'
     ];
 
     /**
