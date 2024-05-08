@@ -19,6 +19,7 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitExitController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\IncomingVehicleController;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\JobController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\OptionController;
 use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
 use App\Http\Controllers\ProductionTrackingController;
+use App\Http\Controllers\ReceiptVehicleController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleLocationController;
 use App\Http\Controllers\SalonController;
@@ -236,4 +238,12 @@ Route::middleware('auth:sanctum')->group(function () {
         'accompanying-items' => AccompanyingItemController::class,
         'locations'          => LocationController::class,
     ]);
+
+    /*
+     * Agency panel
+     */
+
+    Route::get('incoming-vehicles', IncomingVehicleController::class)->name('incoming-vehicles');
 });
+Route::get('incoming-vehicles/{vehicle}',[ReceiptVehicleController::class, 'get'])->name('get-receipt-vehicle-information');
+Route::post('incoming-vehicles/{vehicle}',[ReceiptVehicleController::class, 'set'])->name('set-receipt-vehicle');

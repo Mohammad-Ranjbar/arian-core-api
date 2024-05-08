@@ -71,7 +71,7 @@ class Vehicle extends Model
      */
     public function hasAccess($userId): bool
     {
-        return $this->makeCode->users()?->where('users.id', $userId)->exists()??false;
+        return $this->makeCode->users()?->where('users.id', $userId)->exists() ?? false;
     }
 
     /**
@@ -113,5 +113,10 @@ class Vehicle extends Model
     public function actionLogs(): MorphMany
     {
         return $this->morphMany(ActionLog::class, 'model');
+    }
+
+    public function updateCurrentLocation($locationId): bool
+    {
+        return $this->update(['current_location' => $locationId]);
     }
 }
