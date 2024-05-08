@@ -19,12 +19,13 @@ class IncomingVehicleController extends Controller
         $locationIds = $user->locations()->get()->pluck('id')->all();
 
         return IncomingVehicleResource::collection(BillOfLading::query()
-            ->with(['vehicles', 'car.driver'])
+            ->with('vehicles', function ($query) use ($locationIds) {
+                $query->whereNotIn('current_location', $locationIds);
+            })
             ->whereIn('location_destination_id', $locationIds)
-            ->whereHas('vehicles', function ($q) use ($locationIds) {
-                $q->whereNotIn('current_location', $locationIds);
-                $q->whereNull('delivered_customer_at');
-            })->paginate()
+            ->whereHas('vehicles')
+            ->where('status','!=','discharge')
+            ->paginate()
         );
     }
 }
