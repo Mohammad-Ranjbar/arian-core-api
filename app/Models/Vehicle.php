@@ -124,6 +124,12 @@ class Vehicle extends Model
         return $this->update(['current_location' => $locationId]);
     }
 
+    public function activeBillOfLading(): BelongsToMany
+    {
+        return $this->billOfLadings()
+            ->where('bill_of_ladings.status', '!=', 'discharge')->limit(1);
+    }
+
     public function billOfLadings(): BelongsToMany
     {
         return $this->belongsToMany(BillOfLading::class, 'bill_of_lading_item', 'model_id')

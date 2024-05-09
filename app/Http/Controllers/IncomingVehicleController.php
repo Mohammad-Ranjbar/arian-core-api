@@ -21,10 +21,9 @@ class IncomingVehicleController extends Controller
 
         return IncomingVehicleResource::collection(
             Vehicle::query()
-                ->with('billOfLadings')
-                ->whereHas('billOfLadings',function ($q) use($locationIds){
+                ->with('activeBillOfLading')
+                ->whereHas('activeBillOfLading',function ($q) use($locationIds){
                     $q->whereIn('location_destination_id', $locationIds);
-                    $q->where('status','!=','discharge');
                 })
             ->paginate()
         );
