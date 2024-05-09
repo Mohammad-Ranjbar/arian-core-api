@@ -18,25 +18,16 @@ class ReceiptVehicleController extends Controller
     {
         $this->authorize('set-receipt-vehicle');
 
-        $user = $request->user();
-        $locationIds = $user->locations->get()->pluck('id')->all();
-
-        $billOfLading = BillOfLading::query()
-            ->with(['items', 'car.driver'])
-            ->whereIn('location_destination_id', $locationIds)
-            ->whereHasMorph('items', [Vehicle::class], function ($q) use ($locationIds, $vehicle) {
-                $q->where('model_id', $vehicle->getAttribute('vin'));
-                $q->whereNotIn('current_location', $locationIds);
-                $q->whereNull('delivered_customer_at');
-            })->first();
+        $data = $this->getVehicle($vehicle->getAttribute('vin'));
 
         $vehicle->tracking()->create([
             'model_type' => Location::class,
-            'model_id'   => $billOfLading->destination_source_id,
+            'model_id'   => $data->active_bill_of_lading->destination_source_id,
             'type'       => 'enter',
-            'user_id'    => $user->id
+            'user_id'    => auth()->id()
         ]);
-        return $vehicle->updateCurrentLocation($billOfLading->destination_source_id);
+
+        return $vehicle->updateCurrentLocation($data->active_bill_of_lading->destination_source_id);
     }
 
     /**
