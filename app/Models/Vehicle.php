@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -121,5 +122,11 @@ class Vehicle extends Model
     public function updateCurrentLocation($locationId): bool
     {
         return $this->update(['current_location' => $locationId]);
+    }
+
+    public function billOfLadings(): BelongsToMany
+    {
+        return $this->belongsToMany(BillOfLading::class, 'bill_of_lading_item', 'model_id')
+            ->where('model_type', self::class);
     }
 }
