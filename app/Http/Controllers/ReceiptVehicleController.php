@@ -6,6 +6,9 @@ use App\Http\Resources\IncomingVehicleResource;
 use App\Models\BillOfLading;
 use App\Models\Location;
 use App\Models\Vehicle;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class ReceiptVehicleController extends Controller
@@ -36,21 +39,31 @@ class ReceiptVehicleController extends Controller
         return $vehicle->updateCurrentLocation($billOfLading->destination_source_id);
     }
 
-    public function get(Request $request, Vehicle $vehicle)
+    /**
+     * @throws AuthorizationException
+     */
+    public function get(Vehicle $vehicle): IncomingVehicleResource
     {
         $this->authorize('get-receipt-vehicle-information');
+        return new IncomingVehicleResource($this->getVehicle($vehicle->getAttribute('vin')));
+    }
 
-        $user = $request->user();
-        $locationIds = $user->locations->get()->pluck('id')->all();
-
-        return new IncomingVehicleResource(
-            BillOfLading::query()
-                ->with(['items', 'car.driver'])
-                ->whereIn('location_destination_id', $locationIds)
-                ->whereHasMorph('items', [Vehicle::class], function ($q) use ($locationIds, $vehicle) {
-                    $q->where('model_id', $vehicle->getAttribute('vin'));
-                    $q->whereNotIn('current_location', $locationIds);
-                    $q->where('delivered_customer_at', false);
-                })->first());
+    private function getVehicle(
+        $vin
+    ): Model|Builder {
+        $locationIds = auth()->user()->locations()->get()->pluck('id')->all();
+        return Vehicle::query()
+            ->where('vin', $vin)
+            ->whereNotIn('current_location', $locationIds)
+            ->with([
+                'activeBillOfLading',
+                'activeBillOfLading.locationSource',
+                'activeBillOfLading.locationDestination',
+                'activeBillOfLading.car',
+            ])
+            ->whereHas('activeBillOfLading', function ($q) use ($locationIds) {
+                $q->whereIn('location_destination_id', $locationIds);
+            })
+            ->firstOrFail();
     }
 }
