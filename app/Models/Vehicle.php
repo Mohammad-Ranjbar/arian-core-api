@@ -132,7 +132,7 @@ class Vehicle extends Model
             BillOfLadingItem::class,
             'model_id',
             'id',
-            'bill_of_lading_id'
+            'vin'
         )
             ->where('model_type', self::class)
             ->where('bill_of_ladings.status', '!=', 'discharge');
