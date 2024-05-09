@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -124,10 +125,17 @@ class Vehicle extends Model
         return $this->update(['current_location' => $locationId]);
     }
 
-    public function activeBillOfLading(): BelongsToMany
+    public function activeBillOfLading(): HasOneThrough
     {
-        return $this->billOfLadings()
-            ->where('bill_of_ladings.status', '!=', 'discharge')->limit(1);
+        return $this->hasOneThrough(
+            BillOfLading::class,
+            BillOfLadingItem::class,
+            'id',
+            'id',
+            'model_id'
+        )
+            ->where('model_type', self::class)
+            ->where('bill_of_ladings.status', '!=', 'discharge');
     }
 
     public function billOfLadings(): BelongsToMany
