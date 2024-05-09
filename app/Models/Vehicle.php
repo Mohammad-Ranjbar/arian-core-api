@@ -131,6 +131,7 @@ class Vehicle extends Model
             BillOfLading::class,
             BillOfLadingItem::class,
             'model_id',
+            'id',
             'bill_of_lading_id'
         )
             ->where('model_type', self::class)
