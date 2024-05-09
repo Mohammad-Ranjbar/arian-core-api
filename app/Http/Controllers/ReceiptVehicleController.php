@@ -18,6 +18,7 @@ class ReceiptVehicleController extends Controller
     {
         $this->authorize('set-receipt-vehicle');
 
+        return true;
 
         $data = $this->getVehicle($vehicle->getAttribute('vin'));
 
