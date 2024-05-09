@@ -49,6 +49,8 @@ class ReceiptVehicleController extends Controller
             ->where('vin', $vin)
             ->whereNotIn('current_location', $locationIds)
             ->with([
+                'makeCode',
+                'carModel',
                 'activeBillOfLading',
                 'activeBillOfLading.locationSource',
                 'activeBillOfLading.locationDestination',

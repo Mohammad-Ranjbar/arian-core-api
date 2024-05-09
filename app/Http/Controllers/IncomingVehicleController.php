@@ -23,6 +23,8 @@ class IncomingVehicleController extends Controller
             Vehicle::query()
                 ->whereNotIn('current_location',$locationIds)
                 ->with([
+                    'carModel',
+                    'makeCode',
                     'activeBillOfLading',
                     'activeBillOfLading.locationSource',
                     'activeBillOfLading.locationDestination',
