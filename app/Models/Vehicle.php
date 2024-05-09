@@ -130,8 +130,7 @@ class Vehicle extends Model
         return $this->hasOneThrough(
             BillOfLading::class,
             BillOfLadingItem::class,
-            'id',
-            'id',
+            'bill_of_lading_id',
             'model_id'
         )
             ->where('model_type', self::class)
