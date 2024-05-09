@@ -18,16 +18,17 @@ class ReceiptVehicleController extends Controller
     {
         $this->authorize('set-receipt-vehicle');
 
+        /** @var Vehicle $data */
         $data = $this->getVehicle($vehicle->getAttribute('vin'));
 
         $vehicle->tracking()->create([
             'model_type' => Location::class,
-            'model_id'   => $data->active_bill_of_lading->destination_source_id,
+            'model_id'   => $data->activeBillOfLading->destination_source_id,
             'type'       => 'enter',
             'user_id'    => auth()->id()
         ]);
 
-        return $vehicle->updateCurrentLocation($data->active_bill_of_lading->destination_source_id);
+        return $vehicle->updateCurrentLocation($data->activeBillOfLading->destination_source_id);
     }
 
     /**
