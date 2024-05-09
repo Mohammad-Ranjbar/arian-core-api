@@ -21,7 +21,12 @@ class IncomingVehicleController extends Controller
 
         return IncomingVehicleResource::collection(
             Vehicle::query()
-                ->with('activeBillOfLading')
+                ->with([
+                    'activeBillOfLading',
+                    'activeBillOfLading.locationSource',
+                    'activeBillOfLading.locationDestination',
+                    'activeBillOfLading.car',
+                ])
                 ->whereHas('activeBillOfLading',function ($q) use($locationIds){
                     $q->whereIn('location_destination_id', $locationIds);
                 })
