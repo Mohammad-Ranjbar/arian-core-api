@@ -21,6 +21,7 @@ class IncomingVehicleController extends Controller
 
         return IncomingVehicleResource::collection(
             Vehicle::query()
+                ->whereNotIn('current_location',$locationIds)
                 ->with([
                     'activeBillOfLading',
                     'activeBillOfLading.locationSource',
