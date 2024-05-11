@@ -3,18 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\IncomingVehicleResource;
-use App\Models\BillOfLading;
 use App\Models\Location;
 use App\Models\Vehicle;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReceiptVehicleController extends Controller
 {
 
-    public function set(Request $request, Vehicle $vehicle)
+    /**
+     * @param Request $request
+     * @param Vehicle $vehicle
+     * @return bool
+     * @throws AuthorizationException
+     */
+    public function set(Request $request, Vehicle $vehicle): bool
     {
         $this->authorize('set-receipt-vehicle');
 
@@ -41,10 +47,14 @@ class ReceiptVehicleController extends Controller
         return new IncomingVehicleResource($this->getVehicle($vehicle->getAttribute('vin')));
     }
 
+    /**
+     * @param $vin
+     * @return Model|Builder
+     */
     private function getVehicle(
         $vin
     ): Model|Builder {
-        $locationIds = auth()->user()->locations()->get()->pluck('id')->all();
+        $locationIds = Auth::user()->locations()->get()->pluck('id')->all();
         return Vehicle::query()
             ->where('vin', $vin)
             ->whereNotIn('current_location', $locationIds)
