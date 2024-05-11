@@ -40,7 +40,14 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
     public function headings(): array
     {
         return [
-            "VIN", "کاربر", "متد" ,"شدت" ,"کد آسیب" , "کد قطعه",
+            "VIN",
+            "کاربر",
+            "متد",
+            "شدت",
+            "کد آسیب",
+            "عنوان آسیب",
+            "کد قطعه",
+            "عنوان قطعه",
             "زمان بررسی",
             "زمان",
         ];
@@ -66,7 +73,9 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
             $row->method,
             $row->intensity,
             $row->incident?->code ?? '',
+            $row->incident?->title ?? '',
             $row->element?->code ?? '',
+            $row->element?->title ?? '',
             $row->checked_at,
             $row->created_at,
 
