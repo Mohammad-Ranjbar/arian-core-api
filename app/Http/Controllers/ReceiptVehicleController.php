@@ -6,9 +6,9 @@ use App\Http\Resources\IncomingVehicleResource;
 use App\Models\Location;
 use App\Models\Vehicle;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class ReceiptVehicleController extends Controller
 {
@@ -16,35 +16,37 @@ class ReceiptVehicleController extends Controller
 
     /**
      * @param Vehicle $vehicle
-     * @return bool
+     * @return JsonResponse|bool
      * @throws AuthorizationException
      */
-    public function set(Vehicle $vehicle): bool
+    public function set(Vehicle $vehicle): JsonResponse|bool
     {
         $this->authorize('set-receipt-vehicle');
+        $locationDestinationId = $this->getVehicle($vehicle->getAttribute('vin'));
 
-        $data = $this->getVehicle($vehicle->getAttribute('vin'));
+        if (!$locationDestinationId) {
+            return new JsonResponse(
+                data: ['message' => 'No suitable location was found for the entered VIN'],
+                status: Response::HTTP_BAD_REQUEST
+            );
+        }
 
         $vehicle->tracking()->create([
             'model_type' => Location::class,
-            'model_id' => $data->activeBillOfLading->location_destination_id,
+            'model_id' => $locationDestinationId,
             'type' => 'enter',
             'user_id' => Auth::id()
         ]);
 
-        return $vehicle->updateCurrentLocation($data->activeBillOfLading->location_destination_id);
+        return $vehicle->updateCurrentLocation($locationDestinationId);
     }
 
 
-    /**
-     * @param string $vin
-     * @return Model|Builder
-     */
-    private function getVehicle(string $vin): Model|Builder
+    private function getVehicle(string $vin)
     {
         $locationIds = Auth::locations();
 
-        return Vehicle::query()
+        $vehicle = Vehicle::query()
             ->where('vin', $vin)
             ->whereNotIn('current_location', $locationIds)
             ->with([
@@ -58,7 +60,9 @@ class ReceiptVehicleController extends Controller
             ->whereHas('activeBillOfLading', function ($q) use ($locationIds) {
                 $q->whereIn('location_destination_id', $locationIds);
             })
-            ->firstOrFail();
+            ->first();
+
+        return $vehicle?->getAttribute('activeBillOfLading')->location_destination_id ?? null;
     }
 
     /**
