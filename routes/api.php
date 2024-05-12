@@ -54,8 +54,7 @@ use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
 
-
-Route::get('/block-history/{vehicle}',BlockHistoryController::class);
+Route::get('/block-history/{vehicle}', BlockHistoryController::class);
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
@@ -216,6 +215,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('gate-permits', GatePermitController::class)->only(['index', 'store', 'destroy']);
     Route::post('/old-gate/{vehicle}', [GatePermitController::class, 'oldGate'])->name('old-gate');
+
+    Route::get('/report-excel-tracking', [ProductionTrackingController::class, 'reportExcel'])->name('report-excel-tracking');
 
 
     Route::apiResources([

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TrackingReportExcelRequest;
 use App\Http\Requests\TrackingRequest;
 use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
+use App\Jobs\ExportJob;
+use App\Models\Job;
 use App\Models\SendErp;
 use App\Models\Tracking;
 use App\Models\Vehicle;
@@ -72,5 +75,26 @@ class ProductionTrackingController extends Controller
 
 
         return new TrackingResource($tracking);
+    }
+
+
+    public function reportExcel(TrackingReportExcelRequest $request)
+    {
+        $validatedData = $request->validated();
+        $validatedData['type'] = 'export-tracking';
+        $validatedData['user_id'] = $request->validated('user_id');
+        $validatedData['data'] = $request->validated();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+
     }
 }
