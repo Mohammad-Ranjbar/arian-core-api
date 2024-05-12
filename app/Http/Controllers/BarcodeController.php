@@ -44,7 +44,7 @@ class BarcodeController extends CrudController
                 status: 400
             );
         }
-        Cache::set('barcode_submitted_' . $validatedData['code'], true, 10000);
+        Cache::set('barcode_submitted_' . $validatedData['code'], true, 10);
 
         try {
             DB::beginTransaction();

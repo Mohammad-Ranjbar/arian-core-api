@@ -42,7 +42,7 @@ class SubmitEngineBarcodeController extends Controller
                 status: 400
             );
         }
-        Cache::set('barcode_submitted_' . $validatedData['code'], true, 10000);
+        Cache::set('barcode_submitted_' . $validatedData['code'], true, 10);
 
         DB::beginTransaction();
         try {
