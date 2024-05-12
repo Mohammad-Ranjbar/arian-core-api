@@ -27,10 +27,10 @@ class VehicleIncidentResource extends JsonResource
             'vin'                    => $this->resource->vin,
             'checked_at'             => $this->resource->checked_at,
             'vehicle'                => new VehicleResource($this->resource->vehicle),
-            'user'                   => new UserShortResource($this->resource->user),
-            'incident'               => new IncidentResource($this->resource->incident),
-            'element'                => new ElementResource($this->resource->element),
-            'productionTracking'     => new ProductionLineResource($this->resource->productionTracking),
+            'user'                   => $this->resource->user?->name ?? 'deleted user',
+            'incident'               => $this->resource->incident->title ?? 'deleted incident',
+            'element'                => $this->resource->element?->title ?? 'deleted element',
+//            'productionTracking'     => new ProductionLineResource($this->resource->productionTracking),
             'created_at'             => $this->resource->created_at,
         ];
     }
