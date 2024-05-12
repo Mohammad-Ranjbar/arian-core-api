@@ -1,1 +1,1 @@
-php artisan queue:work
+php artisan horizon
