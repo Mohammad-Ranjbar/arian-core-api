@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BasketController;
 use App\Http\Controllers\BillOfLadingController;
+use App\Http\Controllers\BlockHistoryController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
@@ -52,6 +53,9 @@ use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
+
+
+Route::get('/block-history/{vehicle}',BlockHistoryController::class);
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
