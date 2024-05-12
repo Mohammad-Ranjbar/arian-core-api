@@ -11,14 +11,14 @@ use App\Services\Erp\ErpGetVehicleComponent;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class SubmitEngineBarcodeController extends Controller
 {
     /**
-     * @param  ErpGetVehicleComponent  $erpGetVehicleComponent
+     * @param ErpGetVehicleComponent $erpGetVehicleComponent
      */
     public function __construct(public ErpGetVehicleComponent $erpGetVehicleComponent)
     {
@@ -27,16 +27,26 @@ class SubmitEngineBarcodeController extends Controller
 
 
     /**
-     * @param  Vehicle  $vehicle
-     * @param  EngineBarcodeRequest  $request
+     * @param Vehicle $vehicle
+     * @param EngineBarcodeRequest $request
      * @return BarcodeResource|JsonResponse
      */
     public function __invoke(Vehicle $vehicle, EngineBarcodeRequest $request): BarcodeResource|JsonResponse
     {
         $validatedData = $request->validated();
 
+        $submitted = Cache::get('barcode_submitted_' . $validatedData['code']);
+        if ($submitted) {
+            return new JsonResponse(
+                data: ['message' => 'barcode submitted'],
+                status: 400
+            );
+        }
+        Cache::set('barcode_submitted_' . $validatedData['code'], true, 10000);
+
         DB::beginTransaction();
         try {
+
             Barcode::query()->where('vin', $vehicle->getAttribute('vin'))
                 ->whereHas('erpProductItem', function ($q) {
                     $q->where('type', ErpProductItem::ENGINE);
@@ -50,17 +60,18 @@ class SubmitEngineBarcodeController extends Controller
                 ->firstOrFail();
 
             $new = Barcode::query()->create([
-                'vin'                 => $vehicle->getAttribute('vin'),
-                'user_id'             => Auth::id(),
-                'code'                => $validatedData['code'],
+                'vin' => $vehicle->getAttribute('vin'),
+                'user_id' => Auth::id(),
+                'code' => $validatedData['code'],
                 'erp_product_item_id' => $erpItem->getAttribute('id')
             ]);
+
             DB::commit();
             return new BarcodeResource($new);
 
         } catch (Exception $exception) {
             DB::rollBack();
-            Log::info($exception->getMessage());
+            logger($exception->getMessage());
             return new JsonResponse(
                 data: ['message' => $exception->getMessage()],
                 status: Response::HTTP_INTERNAL_SERVER_ERROR

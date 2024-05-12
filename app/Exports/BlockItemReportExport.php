@@ -40,7 +40,7 @@ class BlockItemReportExport implements FromCollection, WithMapping, WithHeadings
     public function headings(): array
     {
         return [
-            "id", "بلاک توسط", "آنبلاک توسط", "دلیل توقف", "زمان آنبلاک", "توضیحات", "VIN", "makeCode", "carModel","زمان ایجاد"
+            "id", "بلاک توسط", "آنبلاک توسط", "دلیل بلوکه", "زمان آنبلاک", "توضیحات", "VIN", "makeCode", "carModel","زمان ایجاد"
         ];
     }
 
