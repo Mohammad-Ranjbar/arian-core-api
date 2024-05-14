@@ -47,8 +47,9 @@ class TrackingHistoryController extends Controller
 
             $perPage = request()->input('per_page', 15);
             $data = Pipeline::send(Tracking::query()->where($whereCondition))->through([
+                CreatedAtFromFilter::class,
                 CreatedAtToFilter::class,
-                CreatedAtFromFilter::class
+
             ])->thenReturn()->latest()->paginate($perPage);
             return TrackingResource::collection($data);
         } else {
