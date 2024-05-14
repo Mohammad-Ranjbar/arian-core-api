@@ -88,7 +88,27 @@ class DisplayBoardController extends Controller
             ];
         });
 
-        return response()->json($result->values());
-
+        $temp = [];
+        if(env('app_env') != 'production') {
+            $temp = [
+                [
+                    'type'     => 'image-board',
+                    'duration' => 5000,
+                    'data'     => [
+                        'url' => 'http://172.16.0.87/_next/image?url=%2FArianPars.png&w=96&q=75'
+                    ]
+                ],
+                [
+                    'type'     => 'text-board',
+                    'duration' => 9000,
+                    'data'     => [
+                        'text' => 'متن دلخواه
+                    خط دوم متن
+                    به نظرم وسط تابلو باشه'
+                    ]
+                ],
+            ];
+        }
+        return response()->json(array_merge($result->values(), $temp));
     }
 }
