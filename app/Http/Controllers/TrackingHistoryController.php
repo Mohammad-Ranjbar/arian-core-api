@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\CreatedAtFromFilter;
+use App\Filters\CreatedAtToFilter;
 use App\Http\Resources\TrackingResource;
 use App\Models\ProductionLine;
 use App\Models\Salon;
@@ -10,6 +12,7 @@ use App\Models\Tracking;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Pipeline;
 
 class TrackingHistoryController extends Controller
 {
@@ -43,7 +46,10 @@ class TrackingHistoryController extends Controller
             ];
 
             $perPage = request()->input('per_page', 15);
-            $data = Tracking::query()->where($whereCondition)->latest()->paginate($perPage);
+            $data = Pipeline::send(Tracking::query())->through([
+                CreatedAtToFilter::class,
+                CreatedAtFromFilter::class
+            ])->thenReturn()->where($whereCondition)->latest()->paginate($perPage);
             return TrackingResource::collection($data);
         } else {
             return $this->responseError('ورودی باید از بین سالن - خط تولید یا ایستگاه های کاری باشد', 400);
