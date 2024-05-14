@@ -109,6 +109,6 @@ class DisplayBoardController extends Controller
                 ],
             ];
         }
-        return response()->json(array_merge($result->values(), $temp));
+        return response()->json(array_merge((array)$result->values(), $temp));
     }
 }
