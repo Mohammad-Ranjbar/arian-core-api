@@ -15,7 +15,8 @@ services:
         restart: always
     php:
         container_name: php
-        image: meysam1987/php
+        build:
+            context: ./docker/php
         volumes:
             - .:/laravel
         working_dir: /laravel
@@ -25,7 +26,8 @@ services:
         restart: always
     queue:
         container_name: queue
-        image: meysam1987/php
+        build:
+            context: ./docker/php
         volumes:
             - .:/laravel
         working_dir: /laravel
