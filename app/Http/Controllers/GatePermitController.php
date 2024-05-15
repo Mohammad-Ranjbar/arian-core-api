@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 class GatePermitController extends CrudController
 {
     /**
-     * @param GatePermitRepository $repository
+     * @param  GatePermitRepository  $repository
      */
     public function __construct(public readonly GatePermitRepository $repository)
     {
@@ -27,7 +27,7 @@ class GatePermitController extends CrudController
 
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return mixed
      */
     public function store(Request $request): mixed
@@ -40,6 +40,9 @@ class GatePermitController extends CrudController
             $validatedData['owner_id'] = Auth::id();
             $validatedData['owner_type'] = User::class;
 
+            $location = Location::query()->find($validatedData['location_id'])->first();
+
+
             if ($validatedData['type'] == 'exit') {
                 if ($validatedData['exit_type'] == 1) {
                     $typeExitErp = 'CONSIGNMENT EXIT';
@@ -47,13 +50,14 @@ class GatePermitController extends CrudController
                     $typeExitErp = 'PERMANENT EXIT';
                 }
 
-                $response = $this->createExitRequest($validatedData['vin'], $typeExitErp);
+                $response = $this->createExitRequest($validatedData['vin'], $typeExitErp,
+                    $location->getAttribute('code'));
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
             } elseif ($validatedData['type'] == 'enter') {
-                $response = $this->returnRequest($validatedData['vin']);
+                $response = $this->returnRequest($validatedData['vin'], $location->getAttribute('code'));
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
@@ -73,17 +77,17 @@ class GatePermitController extends CrudController
         }
     }
 
-    private function createExitRequest(string $vin, string $type): array
+    private function createExitRequest(string $vin, string $type, string $locationCode): array
     {
         return ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
-            ['vINP' => $vin, 'typeOfExitP' => $type]);
+            ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode]);
 
     }
 
-    private function returnRequest(string $vin): array
+    private function returnRequest(string $vin, string $locationCode): array
     {
         return ErpWsdlClient::run(config('erp.return_request'), 'ReturnRequest',
-            ['vINP' => $vin]);
+            ['vINP' => $vin, 'destinationP' => $locationCode]);
 
     }
 
@@ -96,9 +100,9 @@ class GatePermitController extends CrudController
         if ($response['status'] == 'ok') {
             $vehicle->tracking()->create([
                 'model_type' => Location::class,
-                'model_id' => 1,
-                'type' => 'exit',
-                'user_id' => Auth::id()
+                'model_id'   => 1,
+                'type'       => 'exit',
+                'user_id'    => Auth::id()
             ]);
 
             return response()->json(['message' => 'تردد مورد نظر ثبت گردید']);
