@@ -40,8 +40,7 @@ class GatePermitController extends CrudController
             $validatedData['owner_id'] = Auth::id();
             $validatedData['owner_type'] = User::class;
 
-            $location = Location::query()->find($validatedData['location_id'])->first();
-                dd($location);
+            $location = Location::query()->find($validatedData['location_id']);
 
             if ($validatedData['type'] == 'exit') {
 
@@ -50,7 +49,7 @@ class GatePermitController extends CrudController
 //                } elseif ($validatedData['exit_type'] == 2) {
 //                    $typeExitErp = 'PERMANENT EXIT';
 //                }
-                dd($location->code);
+
                 $response = $this->createExitRequest($validatedData['vin'], $validatedData['exit_type'],
                     $location->getAttribute('code'));
 
