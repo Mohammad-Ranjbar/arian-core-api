@@ -41,7 +41,7 @@ class GatePermitController extends CrudController
             $validatedData['owner_type'] = User::class;
 
             $location = Location::query()->find($validatedData['location_id'])->first();
-
+                dd($location);
 
             if ($validatedData['type'] == 'exit') {
 
