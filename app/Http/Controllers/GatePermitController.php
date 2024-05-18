@@ -79,7 +79,6 @@ class GatePermitController extends CrudController
 
     private function createExitRequest(string $vin, string $type, string $locationCode): array
     {
-        dd($vin,$type,$locationCode);
         return ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
             ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode]);
 
