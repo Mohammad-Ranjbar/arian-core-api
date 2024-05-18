@@ -69,7 +69,7 @@ class GatePermitExitController extends Controller
      */
     private function exit(string $vin): array
     {
-        return ErpWsdlClient::run(config('erp.gate'), 'CreateVehicleExitStatus',
+        return ErpWsdlClient::run(config('erp.gate'), 'ApproveExit',
             ['barcodeInfoP' => $vin]);
 
     }
