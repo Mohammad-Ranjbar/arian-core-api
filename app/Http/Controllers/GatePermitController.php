@@ -50,7 +50,7 @@ class GatePermitController extends CrudController
 //                } elseif ($validatedData['exit_type'] == 2) {
 //                    $typeExitErp = 'PERMANENT EXIT';
 //                }
-
+                dd($location->code);
                 $response = $this->createExitRequest($validatedData['vin'], $validatedData['exit_type'],
                     $location->getAttribute('code'));
 
