@@ -11,6 +11,7 @@ use App\Jobs\ExportJob;
 use App\Models\IncidentSource;
 use App\Models\Job;
 use App\Models\Vehicle;
+use App\Models\VehicleIncident;
 use App\Repositories\IncidentSourceRepository;
 use App\Repositories\VehicleIncidentRepository;
 use Exception;
@@ -56,6 +57,14 @@ class VehicleFaultController extends Controller
             $tracking = $vehicle->tracking()->latest()->first();
             if (!$tracking) {
                 return $this->responseError('can not find vehicle location');
+            }
+            $checking = VehicleIncident::query()
+                ->where('vin',$vehicle->getAttribute('vin'))
+                ->where('element_id',$validatedData['element_id'])
+                ->where('incident_id',$validatedData['incident_id'])->exists();
+
+            if ($checking) {
+                return $this->responseError('برای خودرو مورد نظر ایراد و قطعه انتخابی موجود است');
             }
             $validatedData['production_tracking_id'] = $tracking->getAttribute('id');
             $validatedData['custom_location_id'] = $validatedData['location']['custom_location_id'];
