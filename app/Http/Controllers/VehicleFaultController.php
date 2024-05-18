@@ -61,7 +61,9 @@ class VehicleFaultController extends Controller
             $checking = VehicleIncident::query()
                 ->where('vin',$vehicle->getAttribute('vin'))
                 ->where('element_id',$validatedData['element_id'])
-                ->where('incident_id',$validatedData['incident_id'])->exists();
+                ->where('incident_id',$validatedData['incident_id'])
+                ->whereNull('deleted_at')
+                ->exists();
 
             if ($checking) {
                 return $this->responseError('برای خودرو مورد نظر ایراد و قطعه انتخابی موجود است');
