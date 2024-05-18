@@ -62,6 +62,7 @@ class VehicleFaultController extends Controller
                 ->where('vin',$vehicle->getAttribute('vin'))
                 ->where('element_id',$validatedData['element_id'])
                 ->where('incident_id',$validatedData['incident_id'])
+                ->where('type',$validatedData['type'])
                 ->whereNull('deleted_at')
                 ->exists();
 
