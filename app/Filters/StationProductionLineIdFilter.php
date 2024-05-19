@@ -17,6 +17,7 @@ class StationProductionLineIdFilter
      */
     public function handle($request, Closure $next): mixed
     {
+        dd(request()->get('station_production_line_id'));
         if (!request()->has('station_production_line_id') || !request()->get('station_production_line_id')) {
             return $next($request);
         }
