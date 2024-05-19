@@ -17,12 +17,12 @@ class StationProductionLineIdFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('production_line_id') || !request()->get('production_line_id')) {
+        if (!request()->has('station_production_line_id') || !request()->get('station_production_line_id')) {
             return $next($request);
         }
         return $next($request)->whereHas('workGroupCenter',function ($q){
             $q->whereHas('ProductionLine',function ($query){
-                $query->where('production_line_id',request()->get('production_line_id'));
+                $query->where('production_line_id',request()->get('station_production_line_id'));
             });
         });
     }
