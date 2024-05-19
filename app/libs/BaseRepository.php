@@ -31,7 +31,6 @@ use App\Filters\QcMakeCodeFilter;
 use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\SearchQByFilter;
-use App\Filters\StationProductionLineIdFilter;
 use App\Filters\TitleFilter;
 use App\Filters\TypeFilter;
 use App\Filters\UnblockByFilter;
@@ -61,7 +60,6 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
-        StationProductionLineIdFilter::class,
         ProductionOrderNumberFilter::class,
         QcMakeCodeFilter::class,
         QcCarModelFilter::class,
