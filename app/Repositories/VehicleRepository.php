@@ -40,6 +40,8 @@ class VehicleRepository extends BaseRepository
 
             }
             $vehicle = $this->model->newQuery()->create($data);
+        }else{
+            $vehicle->update($data);
         }
 
         return $vehicle;

@@ -51,7 +51,8 @@ class Vehicle extends Model
         'qc_description',
         'files',
         'current_location',
-        'delivered_customer_at'
+        'delivered_customer_at',
+        'color_code',
     ];
 
     /**

@@ -82,6 +82,7 @@ class VehicleController extends CrudController
 
         $data = [
             'vin' => $vehicleData['vin'],
+            'color_code' => $vehicleData['color_code'],
             'production_order_number' => $vehicleData['production_order_number'],
             'engine_no' => $vehicleData['engine_no'], 'cabin_no' => $vehicleData['cabin_no'],
             'make_code_id' => $makeCode->getAttribute('id'),
