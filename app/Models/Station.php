@@ -38,6 +38,7 @@ class Station extends Model
     {
         return $this->belongsToMany(User::class)->withPivot('data');
     }
+
     /**
      * @return bool
      */
