@@ -21,9 +21,7 @@ class StationProductionLineIdFilter
             return $next($request);
         }
         return $next($request)->whereHas('workGroupCenter',function ($q){
-            $q->whereHas('ProductionLine',function ($query){
-                $query->where('id',request()->get('station_production_line_id'));
-            });
+                $q->where('production_line_id',request()->get('station_production_line_id'));
         });
     }
 
