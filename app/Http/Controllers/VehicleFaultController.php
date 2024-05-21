@@ -161,9 +161,15 @@ class VehicleFaultController extends Controller
         $where [] = 1;
         if (request()->get('date_type') === 'create') {
             $where[] = "vehicle_incidents.created_at BETWEEN '$fromDate' AND '$toDate'";
-
+            $dateField  = 'created_at';
         } else {
             $where[] = "vehicle_incidents.checked_at BETWEEN '$fromDate' AND '$toDate'";
+            $dateField  = 'checked_at';
+        }
+
+        $where[] = "vehicles.car_model_id in (".request()->get('car_model').")";
+        if(!empty(request()->get('make_code'))) {
+            $where[] = "vehicles.make_code_id in (".request()->get('make_code').")";
         }
 
 
@@ -171,16 +177,20 @@ class VehicleFaultController extends Controller
 
         $result = collect(DB::select(/** @lang text */ "
             SELECT
-                DATE(created_at) as date,
+                DATE({$dateField}) as date,
                 count(distinct vin) as vehicles,
                 COUNT(*) as incidents,
                 TRUNCATE(COUNT(*) / count(distinct vin), 2) as dpuoff
             FROM
                vehicle_incidents
+            left join
+                vehicles
+            on
+                vehicle_incidents.vin = vehicles.vin
             WHERE
                 $strWhere
             GROUP BY
-                DATE(created_at)
+                DATE($dateField)
        "));
 
 
@@ -204,15 +214,19 @@ class VehicleFaultController extends Controller
         foreach (['method', 'intensity'] as $column) {
             $temp = collect(DB::select(/** @lang text */ "
             SELECT
-                DATE(created_at) as `date`,
+                DATE($dateField) as `date`,
                 COUNT(*) as count,
                 `$column`
             FROM
                 vehicle_incidents
+            left join
+                vehicles
+            on
+                vehicle_incidents.vin = vehicles.vin                
             WHERE
                 $strWhere
             GROUP BY
-                DATE(created_at), `$column`
+                DATE($dateField), `$column`
         "));
 
             foreach ($temp->groupBy($column) as $value => $items) {
@@ -228,18 +242,26 @@ class VehicleFaultController extends Controller
 
         $list = collect(DB::select(/** @lang text */ "
             SELECT
-                incidents.title,
+                concat(incidents.title, elements.title) as title,
                 count(incident_id) as `count`
             FROM
                vehicle_incidents
             left join
+                vehicles
+            on
+                vehicle_incidents.vin = vehicles.vin
+            left join
                    incidents
             on
                 vehicle_incidents.incident_id = incidents.id
+            left join
+                   elements
+            on
+                vehicle_incidents.element_id = elements.id
             WHERE
                 $strWhere
             GROUP BY
-                incident_id
+                incident_id, element_id
             ORDER BY
                 COUNT(incident_id) DESC
        "));
