@@ -20,6 +20,7 @@ class GatePermit extends Model
         'model_type', 'model_id', 'type', 'location_id', 'status', 'owner_id', 'owner_type', 'exit_type'
     ];
 
+
     /**
      * @return MorphTo
      */

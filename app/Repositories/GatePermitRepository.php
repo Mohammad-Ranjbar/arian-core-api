@@ -7,6 +7,10 @@ use App\Models\GatePermit;
 
 class GatePermitRepository extends BaseRepository
 {
+
+    public array $searchTerms = [
+        'model_id'
+    ];
     /**
      * @var array|array[]
      */

@@ -30,8 +30,8 @@ class SaleCompanyRepository extends BaseRepository
         $this->model = $model;
 
         if (request()->route()) {
-            $this->rules['update']['title'] .= request()->route()->parameter('saleCompany');
-            $this->rules['update']['url'] .= request()->route()->parameter('saleCompany');
+            $this->rules['update']['title'] .= request()->route()->parameter('sale_company');
+            $this->rules['update']['url'] .= request()->route()->parameter('sale_company');
         }
     }
 
