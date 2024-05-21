@@ -22,6 +22,7 @@ use App\Filters\MakeCodeFilter;
 use App\Filters\MakeCodesFilter;
 use App\Filters\MethodFilter;
 use App\Filters\MobileFilter;
+use App\Filters\ModelIdFilter;
 use App\Filters\NameFilter;
 use App\Filters\NationalCodeFilter;
 use App\Filters\ProductionLineIdFilter;
@@ -62,6 +63,7 @@ abstract class BaseRepository
     public array $filters = [
         ProductionOrderNumberFilter::class,
         QcMakeCodeFilter::class,
+        ModelIdFilter::class,
         QcCarModelFilter::class,
         IntensityFilter::class,
         MethodFilter::class,
