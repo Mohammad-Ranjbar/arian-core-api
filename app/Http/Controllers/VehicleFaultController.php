@@ -176,7 +176,7 @@ class VehicleFaultController extends Controller
         $result = collect(DB::select(/** @lang text */ "
             SELECT
                 DATE({$dateField}) as date,
-                count(distinct vin) as vehicles,
+                count(distinct vehicle_incidents.vin) as vehicles,
                 COUNT(*) as incidents,
                 TRUNCATE(COUNT(*) / count(distinct vehicle_incidents.vin), 2) as dpuoff
             FROM
