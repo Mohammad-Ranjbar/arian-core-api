@@ -20,16 +20,24 @@ class BarcodeController extends CrudController
      * @var bool
      */
     protected bool $appendUserId = true;
+
+    /**
+     * @param BarcodeRepository $repository
+     */
     public function __construct(public readonly BarcodeRepository $repository)
     {
         $this->applyAuthorizeResource();
         $this->setResource(BarcodeResource::class);
     }
 
-    public function store(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse|mixed
+     */
+    public function store(Request $request): mixed
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         $validatedData = array_merge($validatedData, $this->appendStoreData);
@@ -59,12 +67,21 @@ class BarcodeController extends CrudController
         }
     }
 
-    public function afterSave($record, $data)
+    /**
+     * @param $record
+     * @param $data
+     * @return mixed
+     */
+    public function afterSave($record, $data): mixed
     {
         $record->updateErpProductItemId();
         return $record;
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function report(Request $request): JsonResponse
     {
         $validatedData['user_id'] = Auth::id();
@@ -75,7 +92,7 @@ class BarcodeController extends CrudController
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'export job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
