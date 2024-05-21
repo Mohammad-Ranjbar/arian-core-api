@@ -27,14 +27,13 @@ class VehicleFaultController extends Controller
 {
 
     /**
-     * @param VehicleIncidentRepository $repository
-     * @param IncidentSourceRepository $incidentSourceRepository
+     * @param  VehicleIncidentRepository  $repository
+     * @param  IncidentSourceRepository  $incidentSourceRepository
      */
     public function __construct(
         private readonly VehicleIncidentRepository $repository,
-        private readonly IncidentSourceRepository  $incidentSourceRepository
-    )
-    {
+        private readonly IncidentSourceRepository $incidentSourceRepository
+    ) {
 
     }
 
@@ -46,8 +45,8 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param VehicleFaultRequest $request
-     * @param Vehicle $vehicle
+     * @param  VehicleFaultRequest  $request
+     * @param  Vehicle  $vehicle
      * @return VehicleIncidentResource|JsonResponse
      */
     public function submit(VehicleFaultRequest $request, Vehicle $vehicle): VehicleIncidentResource|JsonResponse
@@ -59,10 +58,10 @@ class VehicleFaultController extends Controller
                 return $this->responseError('can not find vehicle location');
             }
             $checking = VehicleIncident::query()
-                ->where('vin',$vehicle->getAttribute('vin'))
-                ->where('element_id',$validatedData['element_id'])
-                ->where('incident_id',$validatedData['incident_id'])
-                ->where('type',$validatedData['type'])
+                ->where('vin', $vehicle->getAttribute('vin'))
+                ->where('element_id', $validatedData['element_id'])
+                ->where('incident_id', $validatedData['incident_id'])
+                ->where('type', $validatedData['type'])
                 ->whereNull('deleted_at')
                 ->exists();
 
@@ -73,8 +72,8 @@ class VehicleFaultController extends Controller
             $validatedData['custom_location_id'] = $validatedData['location']['custom_location_id'];
             $validatedData['custom_location_type'] = $validatedData['location']['custom_location_type'];
             $this->incidentSourceRepository->upsert([
-                'incident_id' => $validatedData['incident_id'],
-                'element_id' => $validatedData['element_id'],
+                'incident_id'  => $validatedData['incident_id'],
+                'element_id'   => $validatedData['element_id'],
                 'car_model_id' => $vehicle->carModel->id,
             ]);
             return new VehicleIncidentResource($this->repository->store($validatedData));
@@ -85,7 +84,7 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param Vehicle $vehicle
+     * @param  Vehicle  $vehicle
      * @param $type
      * @return JsonResponse|AnonymousResourceCollection
      * @throws AuthorizationException
@@ -102,15 +101,14 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param IncidentSourceRequest $request
-     * @param IncidentSource $incidentSource
+     * @param  IncidentSourceRequest  $request
+     * @param  IncidentSource  $incidentSource
      * @return IncidentSourceResource|JsonResponse
      */
     public function updateIncidentSource(
         IncidentSourceRequest $request,
-        IncidentSource        $incidentSource
-    ): IncidentSourceResource|JsonResponse
-    {
+        IncidentSource $incidentSource
+    ): IncidentSourceResource|JsonResponse {
         try {
             $validatedData = $request->validated();
             $validatedData['model_type'] = match ($validatedData['model_type']) {
@@ -126,7 +124,7 @@ class VehicleFaultController extends Controller
     }
 
     /**
-     * @param IncidentSource $incidentSource
+     * @param  IncidentSource  $incidentSource
      * @return IncidentSourceResource
      */
     public function showIncidentSource(IncidentSource $incidentSource): IncidentSourceResource
@@ -153,7 +151,7 @@ class VehicleFaultController extends Controller
      */
     public function report(): JsonResponse
     {
-        $this->authorize('vehicles.faults.' . request()->route()->parameter('type') . '.report');
+        $this->authorize('vehicles.faults.'.request()->route()->parameter('type').'.report');
 
 
         $fromDate = request()->get('from') ?? now()->subCentury()->toDateTimeString();
@@ -161,15 +159,15 @@ class VehicleFaultController extends Controller
         $where [] = 1;
         if (request()->get('date_type') === 'create') {
             $where[] = "vehicle_incidents.created_at BETWEEN '$fromDate' AND '$toDate'";
-            $dateField  = 'created_at';
+            $dateField = 'created_at';
         } else {
             $where[] = "vehicle_incidents.checked_at BETWEEN '$fromDate' AND '$toDate'";
-            $dateField  = 'checked_at';
+            $dateField = 'checked_at';
         }
 
-        $where[] = "vehicles.car_model_id in (".request()->get('car_model').")";
-        if(!empty(request()->get('make_code'))) {
-            $where[] = "vehicles.make_code_id in (".request()->get('make_code').")";
+        $where[] = "vehicles.car_model_id in (".implode(',', request()->get('car_model')).")";
+        if (!empty(request()->get('make_code'))) {
+            $where[] = "vehicles.make_code_id in (".implode(',', request()->get('make_code')).")";
         }
 
 
@@ -199,15 +197,15 @@ class VehicleFaultController extends Controller
         $datasets = [
             [
                 'label' => "Vehicles",
-                'data' => $result->pluck('vehicles')->all(),
+                'data'  => $result->pluck('vehicles')->all(),
             ],
             [
                 'label' => "Incidents",
-                'data' => $result->pluck('incidents')->all(),
+                'data'  => $result->pluck('incidents')->all(),
             ],
             [
                 'label' => "DPU-OFF",
-                'data' => $result->pluck('dpuoff')->all(),
+                'data'  => $result->pluck('dpuoff')->all(),
             ]
         ];
 
@@ -267,11 +265,11 @@ class VehicleFaultController extends Controller
        "));
 
         return response()->json([
-            'dpu_off' => $result->avg('dpuoff'),
+            'dpu_off'  => $result->avg('dpuoff'),
             'vehicles' => $result->sum('vehicles'),
-            'list' => $list->all(),
-            'chart' => [
-                'labels' => $labels,
+            'list'     => $list->all(),
+            'chart'    => [
+                'labels'   => $labels,
                 'datasets' => $datasets
             ]
         ]);
@@ -281,7 +279,7 @@ class VehicleFaultController extends Controller
     public function reportExcel(FaultReportExcelRequest $request): JsonResponse
     {
 
-        $validatedData['type'] = 'export-faults-' . $request->validated('type');
+        $validatedData['type'] = 'export-faults-'.$request->validated('type');
         $validatedData['user_id'] = $request->validated('user_id');
         $validatedData['data'] = $request->validated();
         $job = Job::query()->create($validatedData);
@@ -290,8 +288,8 @@ class VehicleFaultController extends Controller
 
         return response()->json([
             'message' => 'export job created',
-            'data' => [
-                'uuid' => $job->getAttribute('uuid'),
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
