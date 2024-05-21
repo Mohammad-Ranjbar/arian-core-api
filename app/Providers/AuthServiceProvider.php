@@ -25,6 +25,7 @@ use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\Role;
 use App\Models\SaleCompany;
+use App\Models\SaleInvoices;
 use App\Models\SaleLocation;
 use App\Models\Salon;
 use App\Models\SmsService;
@@ -79,7 +80,8 @@ class AuthServiceProvider extends ServiceProvider
         Location::class => CrudPolicy::class,
         LocationAttribute::class => CrudPolicy::class,
         Inspection::class => CrudPolicy::class,
-        SaleCompany::class=>CrudPolicy::class,
+        SaleCompany::class => CrudPolicy::class,
+        SaleInvoices::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 

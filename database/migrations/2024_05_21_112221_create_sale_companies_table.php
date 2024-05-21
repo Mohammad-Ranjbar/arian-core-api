@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('sale_companies', function (Blueprint $table) {
             $table->id();
             $table->string('title')->unique();
-            $table->text('url')->unique();
+            $table->string('url');
             $table->text('token')->nullable();
             $table->timestamps();
         });
