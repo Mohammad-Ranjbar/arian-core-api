@@ -240,7 +240,7 @@ class VehicleFaultController extends Controller
 
         $list = collect(DB::select(/** @lang text */ "
             SELECT
-                concat(incidents.title, elements.title) as title,
+                concat(incidents.title, ' ' ,elements.title) as title,
                 count(vehicle_incidents.incident_id) as `count`
             FROM
                vehicle_incidents
