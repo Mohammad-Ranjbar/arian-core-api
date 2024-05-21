@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class BasketController extends CrudController
 {
@@ -27,7 +28,16 @@ class BasketController extends CrudController
     public function store(Request $request)
     {
         $validatedData = $request->validate($this->repository->getCreateRules());
-        request()->merge(['code' => $validatedData['code'], 'created_at_from' => Carbon::now()->subMinutes(10)]);
+
+        $submitted = Cache::get('basket_barcode_submitted_' . $validatedData['code']);
+        if ($submitted) {
+            return new JsonResponse(
+                data: ['message' => 'barcode submitted'],
+                status: 400
+            );
+        }
+        Cache::set('basket_barcode_submitted_' . $validatedData['code'], true, 60 * 10);
+
         try {
             $validatedData['user_id'] = Auth::id();
 
