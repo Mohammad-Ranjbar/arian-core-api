@@ -18,6 +18,8 @@ class SaleCompanyResource extends JsonResource
             'id' => $this->resource->id,
             'title' => $this->resource->title,
             'url' => $this->resource->url,
+            'users' => UserShortResource::collection($this->resource->users),
+            'created_at' => $this->resource->created_at,
         ];
     }
 }
