@@ -24,6 +24,7 @@ class TrackingReportExcelRequest extends FormRequest
         return [
             'user_id' => 'nullable',
             'model_type' => 'in:salons,production_lines,stations',
+            'model_id' => 'nullable',
             'type' => 'in:enter,exit',
             'from' => 'date|nullable',
             'to' => 'date|nullable',

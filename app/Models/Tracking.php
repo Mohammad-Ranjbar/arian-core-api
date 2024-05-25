@@ -55,6 +55,9 @@ class Tracking extends Model
             };
             $query = $query->where('model_type', $type);
         }
+        if (!empty($data['model_id'])) {
+            $query = $query->where('model_id', $data['model_id']);
+        }
         if (!empty($data['user_id'])) {
             $query = $query->where('user_id', $data['user_id']);
         }
