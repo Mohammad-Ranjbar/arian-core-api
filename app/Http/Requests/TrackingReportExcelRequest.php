@@ -22,7 +22,6 @@ class TrackingReportExcelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'nullable',
             'model_type' => 'in:salons,production_lines,stations',
             'model_id' => 'nullable',
             'type' => 'in:enter,exit',
@@ -31,13 +30,5 @@ class TrackingReportExcelRequest extends FormRequest
         ];
     }
 
-    /**
-     * @return void
-     */
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'user_id' => Auth::id()
-        ]);
-    }
+
 }

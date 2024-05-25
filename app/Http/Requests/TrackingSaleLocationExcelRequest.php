@@ -13,11 +13,9 @@ class TrackingSaleLocationExcelRequest extends FormRequest
         return $this->user()->can('report-excel-tracking-sale-locations');
     }
 
-
     public function rules(): array
     {
         return [
-            'user_id' => 'nullable',
             'model_id' => 'nullable',
             'type' => 'in:enter,exit',
             'from' => 'date|nullable',
@@ -25,13 +23,4 @@ class TrackingSaleLocationExcelRequest extends FormRequest
         ];
     }
 
-    /**
-     * @return void
-     */
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'user_id' => Auth::id()
-        ]);
-    }
 }

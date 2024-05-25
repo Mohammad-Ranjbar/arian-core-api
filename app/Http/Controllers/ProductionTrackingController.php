@@ -15,6 +15,7 @@ use App\Models\Vehicle;
 use App\Services\TrackingService\TrackingServiceFactory;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class ProductionTrackingController extends Controller
 {
@@ -83,7 +84,7 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         $validatedData['type'] = 'export-tracking';
-        $validatedData['user_id'] = $request->validated('user_id');
+        $validatedData['user_id'] = Auth::id();
         $validatedData['data'] = $request->validated();
         $job = Job::query()->create($validatedData);
 
@@ -105,7 +106,7 @@ class ProductionTrackingController extends Controller
         $jobData = $validatedData;
         $jobData['model_type'] = 'sale_locations';
         $validatedData['type'] = 'export-tracking-sale-location';
-        $validatedData['user_id'] = $request->validated('user_id');
+        $validatedData['user_id'] = Auth::id();
         $validatedData['data'] = $jobData;
         $job = Job::query()->create($validatedData);
 
