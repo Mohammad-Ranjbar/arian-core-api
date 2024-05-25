@@ -165,17 +165,13 @@ class SaleLocationController extends CrudController
     }
 
 
-    public function listSaleLocations(): JsonResponse
+    public function listSaleLocations(): AnonymousResourceCollection
     {
         $data = request()->all();
 
         $data['model_type'] = 'sale_locations';
         $data['paginate'] = true;
-        $data = Tracking::getReportData($data);
-        dd($data);
-        return new JsonResponse(
-            data: TrackingSaleLocationResource::collection($data),
-            status: Response::HTTP_OK
-        );
+
+        return TrackingSaleLocationResource::collection($data);
     }
 }
