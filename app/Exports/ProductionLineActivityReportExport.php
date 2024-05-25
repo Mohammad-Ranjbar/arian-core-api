@@ -40,7 +40,18 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
     public function headings(): array
     {
         return [
-            "id", "خط تولید", "ایستگاه", "دلیل توقف", "نوع توقف", "توضیحات", "نوت", "زمان شروع", "زمان توقف", "رمان موثر", "زمان ایجاد"
+            "id",
+            "خط تولید",
+            "ایستگاه",
+            "عامل توقف",
+            "دلیل توقف",
+            "نوع توقف",
+            "توضیحات",
+            "نوت",
+            "زمان شروع",
+            "زمان توقف",
+            "رمان موثر",
+            "زمان ایجاد"
         ];
     }
 
@@ -60,8 +71,9 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
     {
         $row = [
             $row->id,
-            $row->productionLine->name,
+            $row->station->productionLine->name,
             $row->station->title,
+            $row->stopReason->stopFact->title,
             $row->stopReason->title,
             $row->stopType->title,
             $row->description,
