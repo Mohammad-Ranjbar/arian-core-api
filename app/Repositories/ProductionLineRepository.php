@@ -18,6 +18,7 @@ class ProductionLineRepository extends BaseRepository
             'on_enter' => 'nullable|boolean',
             'on_exit' => 'nullable|boolean',
             'location_code' => 'nullable|string',
+            'show_in_board' => 'required|boolean',
         ],
         'update' => [
             'title' => 'required|string|unique:production_lines,title,',
@@ -26,6 +27,7 @@ class ProductionLineRepository extends BaseRepository
             'on_enter' => 'nullable|boolean',
             'on_exit' => 'nullable|boolean',
             'location_code' => 'nullable|string',
+            'show_in_board' => 'required|boolean',
         ]
     ];
 
