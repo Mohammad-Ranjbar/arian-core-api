@@ -15,7 +15,7 @@ class ExporterServiceFactory
     {
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
-            'export-tracking' => new ExportTrackingService($job),
+            'export-tracking','export-tracking-sale-location' => new ExportTrackingService($job),
             'export-vehicle-qc' => new ExportVehicleQcService($job),
             'export-faults-qc' => new ExportFaultService($job, 'qc'),
             'export-faults-evaluation' => new ExportFaultService($job, 'evaluation'),

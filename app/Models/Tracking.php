@@ -63,7 +63,7 @@ class Tracking extends Model
             $query = $query->where('user_id', $data['user_id']);
         }
 
-        if ($data['paginate']) {
+        if (!empty($data['paginate'])) {
             return $query->paginate($data['per_page'] ?? 10);
         }
         return $query->get();

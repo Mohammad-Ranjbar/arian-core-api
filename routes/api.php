@@ -231,6 +231,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-tracking',
         [ProductionTrackingController::class, 'reportExcel'])->name('report-excel-tracking');
 
+    Route::get('/report-excel-tracking-sale-locations',
+        [ProductionTrackingController::class, 'reportExcelSaleLocation'])->name('report-excel-tracking-sale-locations');
+
     Route::apiResource('sale-invoices', SaleInvoicesController::class)->only('index');
 
 

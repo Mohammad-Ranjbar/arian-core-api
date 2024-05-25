@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddUsersToSaleLocationRequest;
 use App\Http\Requests\SetSaleLocationRequest;
 use App\Http\Resources\SaleLocationResource;
-use App\Http\Resources\TrackingResource;
+use App\Http\Resources\TrackingSaleLocationResource;
 use App\Http\Resources\UserShortResource;
-use App\Models\Location;
 use App\Models\SaleLocation;
 use App\Models\Tracking;
 use App\Models\User;
@@ -138,7 +137,7 @@ class SaleLocationController extends CrudController
             $response = $this->transfer($vehicle->getAttribute('vin'), $saleLocation->getAttribute('code'));
 
             if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'], 500);
+                return $this->responseError($response['message'], 400);
             }
             return $vehicle->tracking()->create([
                 'user_id'    => Auth::id(),
@@ -175,7 +174,7 @@ class SaleLocationController extends CrudController
         $data = Tracking::getReportData($data);
 
         return new JsonResponse(
-            data: TrackingResource::collection($data),
+            data: TrackingSaleLocationResource::collection($data),
             status: Response::HTTP_OK
         );
     }

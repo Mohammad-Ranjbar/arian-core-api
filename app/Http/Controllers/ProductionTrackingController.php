@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TrackingReportExcelRequest;
 use App\Http\Requests\TrackingRequest;
+use App\Http\Requests\TrackingSaleLocationExcelRequest;
 use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
@@ -95,6 +96,27 @@ class ProductionTrackingController extends Controller
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
+    }
 
+
+    public function reportExcelSaleLocation(TrackingSaleLocationExcelRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $jobData = $validatedData;
+        $jobData['model_type'] = 'sale_locations';
+        $validatedData['type'] = 'export-tracking-sale-location';
+        $validatedData['user_id'] = $request->validated('user_id');
+        $validatedData['data'] = $jobData;
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
     }
 }
