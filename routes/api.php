@@ -237,7 +237,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sale-invoices', SaleInvoicesController::class)->only('index');
 
 
-    Route::get('list-sale-locations',[SaleLocationController::class,'listSaleLocations'])->name('list-sale-locations');
+    Route::get('list-sale-locations', [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
 
 
     Route::apiResources([
