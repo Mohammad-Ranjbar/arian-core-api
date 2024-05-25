@@ -172,7 +172,7 @@ class SaleLocationController extends CrudController
         $data['model_type'] = 'sale_locations';
         $data['paginate'] = true;
         $data = Tracking::getReportData($data);
-
+        dd($data);
         return new JsonResponse(
             data: TrackingSaleLocationResource::collection($data),
             status: Response::HTTP_OK
