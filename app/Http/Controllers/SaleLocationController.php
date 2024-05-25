@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddUsersToSaleLocationRequest;
 use App\Http\Requests\SetSaleLocationRequest;
 use App\Http\Resources\SaleLocationResource;
+use App\Http\Resources\TrackingResource;
 use App\Http\Resources\UserShortResource;
 use App\Models\Location;
 use App\Models\SaleLocation;
+use App\Models\Tracking;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\SaleLocationRepository;
@@ -141,7 +143,7 @@ class SaleLocationController extends CrudController
             return $vehicle->tracking()->create([
                 'user_id'    => Auth::id(),
                 'type'       => 'enter',
-                'model_type' => Location::class,
+                'model_type' => SaleLocation::class,
                 'model_id'   => $validatedData['sale_location_id']
             ]);
 
@@ -161,5 +163,20 @@ class SaleLocationController extends CrudController
         return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts',
             ['vINP' => $vin, 'toLocationP' => $saleLocationCode]);
 
+    }
+
+
+    public function listSaleLocations(): JsonResponse
+    {
+        $data = request()->all();
+
+        $data['model_type'] = 'sale_locations';
+        $data['paginate'] = true;
+        $data = Tracking::getReportData($data);
+
+        return new JsonResponse(
+            data: TrackingResource::collection($data),
+            status: Response::HTTP_OK
+        );
     }
 }

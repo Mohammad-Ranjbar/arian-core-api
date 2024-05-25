@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,11 +12,12 @@ class ActionLog extends Model
     use HasFactory;
 
     const UPDATED_QC_STATUS = 'update_qc_status';
+    const UPDATED_GRADE_STATUS = 'update_grade_status';
 
     /**
      * @var string[]
      */
-    protected $fillable = ['user_id', 'action', 'model_type', 'model_id'];
+    protected $fillable = ['user_id', 'action', 'model_type', 'model_id', 'data'];
 
     /**
      * @return BelongsTo

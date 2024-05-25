@@ -52,6 +52,7 @@ class Tracking extends Model
                 'salons' => Salon::class,
                 'production_lines' => ProductionLine::class,
                 'stations' => Station::class,
+                'sale_locations' => SaleLocation::class,
             };
             $query = $query->where('model_type', $type);
         }
@@ -62,7 +63,9 @@ class Tracking extends Model
             $query = $query->where('user_id', $data['user_id']);
         }
 
-
+        if ($data['paginate']) {
+            return $query->paginate($data['per_page'] ?? 10);
+        }
         return $query->get();
     }
 

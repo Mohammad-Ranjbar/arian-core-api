@@ -113,8 +113,9 @@ class VehicleController extends CrudController
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
                 'model_id' => $vehicle->getAttribute('vin'),
-                'action' => 'update_qc_status',
+                'action' => ActionLog::UPDATED_QC_STATUS,
                 'user_id' => Auth::id(),
+                'data' => $validatedData['qc_status'],
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
@@ -150,8 +151,9 @@ class VehicleController extends CrudController
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
                 'model_id' => $vehicle->getAttribute('vin'),
-                'action' => 'update_grade_status',
+                'action' => ActionLog::UPDATED_GRADE_STATUS,
                 'user_id' => Auth::id(),
+                'data' => $validatedData['grade'],
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
