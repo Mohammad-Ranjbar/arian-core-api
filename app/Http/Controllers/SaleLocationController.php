@@ -171,7 +171,9 @@ class SaleLocationController extends CrudController
 
         $data['model_type'] = 'sale_locations';
         $data['paginate'] = true;
+        $data = Tracking::getReportData($data);
 
         return TrackingSaleLocationResource::collection($data);
+
     }
 }
