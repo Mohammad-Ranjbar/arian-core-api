@@ -21,6 +21,7 @@ class TrackingSaleLocationResource extends JsonResource
             'type' => $this->resource->type,
             'vin' => $this->resource->vin,
             'data' => $this->resource->data,
+            'created_at' => $this->resource->created_at,
         ];
     }
 }
