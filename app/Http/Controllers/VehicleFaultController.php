@@ -156,7 +156,9 @@ class VehicleFaultController extends Controller
 
         $fromDate = request()->get('from') ?? now()->subCentury()->toDateTimeString();
         $toDate = request()->get('to') ?? now()->addCentury()->toDateTimeString();
-        $where [] = 1;
+
+        $where [] = "vehicle_incidents.type = '".request()->route()->parameter('type')."'";
+
         if (request()->get('date_type') === 'create') {
             $where[] = "vehicle_incidents.created_at BETWEEN '$fromDate' AND '$toDate'";
             $dateField = 'vehicle_incidents.created_at';
@@ -263,7 +265,7 @@ class VehicleFaultController extends Controller
             ORDER BY
                 COUNT(incident_id) DESC
        ";
-        logger(print_r($sql,1));
+
         $list = collect(DB::select($sql));
 
         return response()->json([
