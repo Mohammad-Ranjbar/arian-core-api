@@ -157,6 +157,7 @@ class VehicleFaultController extends Controller
         $fromDate = request()->get('from') ?? now()->subCentury()->toDateTimeString();
         $toDate = request()->get('to') ?? now()->addCentury()->toDateTimeString();
 
+        $where [] = "vehicle_incidents.deleted_at is null";
         $where [] = "vehicle_incidents.type = '".request()->route()->parameter('type')."'";
 
         if (request()->get('date_type') === 'create') {
