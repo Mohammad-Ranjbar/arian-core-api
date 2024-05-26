@@ -20,6 +20,7 @@ class ProductionLineResource extends JsonResource
             'salon_id' => $this->resource->salon_id,
             'location_code' => $this->resource->location_code,
             'teams_webhook' => $this->resource->teams_webhook,
+            'show_in_board' => $this->resource->show_in_board,
             'on_enter' => $this->resource->sendErp?->on_enter ?? null,
             'on_exit' => $this->resource->sendErp?->on_exit ?? null,
         ];
