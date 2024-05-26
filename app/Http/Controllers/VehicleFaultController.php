@@ -263,7 +263,7 @@ class VehicleFaultController extends Controller
             ORDER BY
                 COUNT(incident_id) DESC
        ";
-        logger($sql);
+        logger(print_r($sql,1));
         $list = collect(DB::select($sql));
 
         return response()->json([
