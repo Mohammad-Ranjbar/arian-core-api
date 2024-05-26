@@ -15,7 +15,7 @@ class DisplayBoardController extends Controller
     {
         $data = ErpDisplayBoard::getData();
 
-        $lines = $salon->productionLines()->where('show_on_board',true)->get();
+        $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location_code')->all();
 
         $list = collect($data['data'])->whereIn('Location', $locations);
