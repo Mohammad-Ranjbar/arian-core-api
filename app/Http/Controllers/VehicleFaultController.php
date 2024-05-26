@@ -238,7 +238,7 @@ class VehicleFaultController extends Controller
             }
         }
 
-        $list = collect(DB::select(/** @lang text */ "
+        $sql = /** @lang text */ "
             SELECT
                 concat(incidents.title, ' ' ,elements.title) as title,
                 count(vehicle_incidents.incident_id) as `count`
@@ -262,7 +262,9 @@ class VehicleFaultController extends Controller
                 incident_id, element_id
             ORDER BY
                 COUNT(incident_id) DESC
-       "));
+       ";
+        logger($sql);
+        $list = collect(DB::select($sql));
 
         return response()->json([
             'dpu_off'  => $result->avg('dpuoff'),
