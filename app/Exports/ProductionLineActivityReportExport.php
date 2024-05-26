@@ -20,6 +20,7 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
      */
     public function __construct(private readonly Collection $data, private array $eventData)
     {
+
     }
 
     /**
