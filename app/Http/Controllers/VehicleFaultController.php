@@ -263,8 +263,10 @@ class VehicleFaultController extends Controller
             GROUP BY
                 incident_id, element_id
             ORDER BY
-                COUNT(incident_id) DESC
+                COUNT(*) DESC
        ";
+
+        logger(print_r($sql,1));
 
         $list = collect(DB::select($sql));
 
