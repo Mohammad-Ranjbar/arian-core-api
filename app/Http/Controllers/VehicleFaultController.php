@@ -266,8 +266,6 @@ class VehicleFaultController extends Controller
                 COUNT(*) DESC
        ";
 
-        logger(print_r($sql,1));
-
         $list = collect(DB::select($sql));
 
         return response()->json([
