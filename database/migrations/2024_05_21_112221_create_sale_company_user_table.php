@@ -12,6 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+
         Schema::create('sale_company_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->index()->constrained();
@@ -26,6 +27,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('sale_companies');
+        Schema::enableForeignKeyConstraints();
     }
 };

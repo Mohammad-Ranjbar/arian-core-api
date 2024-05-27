@@ -21,10 +21,7 @@ class SaleCompany extends Model
         'erp_url',
     ];
 
-    /**
-     * @var string[]
-     */
-    protected $hidden = ['token'];
+
 
     /**
      * @return BelongsToMany
