@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('sale_company_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->index()->constrained();
-            $table->foreignId('sale_company_id')->index()->constrained();
+            $table->foreignId('sale_company_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
