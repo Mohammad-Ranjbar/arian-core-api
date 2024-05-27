@@ -28,6 +28,5 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('sale_company_user');
-        Schema::enableForeignKeyConstraints();
     }
 };
