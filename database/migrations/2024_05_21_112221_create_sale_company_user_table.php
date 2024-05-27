@@ -14,7 +14,7 @@ return new class extends Migration
     {
 
         Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('sale_companies');
+        Schema::dropIfExists('sale_company_user');
         Schema::enableForeignKeyConstraints();
         Schema::create('sale_company_user', function (Blueprint $table) {
             $table->id();
