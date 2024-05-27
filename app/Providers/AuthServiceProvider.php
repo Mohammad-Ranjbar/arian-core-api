@@ -25,7 +25,7 @@ use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\Role;
 use App\Models\SaleCompany;
-use App\Models\SaleInvoices;
+use App\Models\SaleInvoice;
 use App\Models\SaleLocation;
 use App\Models\Salon;
 use App\Models\SmsService;
@@ -71,18 +71,18 @@ class AuthServiceProvider extends ServiceProvider
         Basket::class => CrudPolicy::class,
         Inventory::class => CrudPolicy::class,
         Container::class => CrudPolicy::class,
-        GatePermit::class => CrudPolicy::class,
-        BillOfLading::class => CrudPolicy::class,
-        Driver::class => CrudPolicy::class,
-        File::class => CrudPolicy::class,
-        SaleLocation::class => CrudPolicy::class,
-        AccompanyingItem::class => CrudPolicy::class,
-        Location::class => CrudPolicy::class,
+        GatePermit::class        => CrudPolicy::class,
+        BillOfLading::class      => CrudPolicy::class,
+        Driver::class            => CrudPolicy::class,
+        File::class              => CrudPolicy::class,
+        SaleLocation::class      => CrudPolicy::class,
+        AccompanyingItem::class  => CrudPolicy::class,
+        Location::class          => CrudPolicy::class,
         LocationAttribute::class => CrudPolicy::class,
-        Inspection::class => CrudPolicy::class,
-        SaleCompany::class => CrudPolicy::class,
-        SaleInvoices::class => CrudPolicy::class,
-        Vehicle::class => VehiclePolicy::class,
+        Inspection::class        => CrudPolicy::class,
+        SaleCompany::class       => CrudPolicy::class,
+        SaleInvoice::class       => CrudPolicy::class,
+        Vehicle::class           => VehiclePolicy::class,
     ];
 
 

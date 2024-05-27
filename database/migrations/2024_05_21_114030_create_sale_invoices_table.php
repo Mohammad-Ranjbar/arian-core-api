@@ -12,13 +12,13 @@ return new class extends Migration
         Schema::create('sale_invoices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_company_id')->index()->constrained();
-            $table->string('reference')->index()->unique();
-            $table->string('online_order_id')->index()->unique()->nullable();
+            $table->string('reference')->index();
+            $table->string('online_order_id')->index()->nullable();
             $table->string('payment_status')->index()->default('pending');
             $table->string('erp_status')->index()->default('pending');
             $table->json('data')->nullable();
             $table->string('type')->index();
-            $table->integer('value');
+            $table->bigInteger('value');
             $table->timestamps();
         });
     }

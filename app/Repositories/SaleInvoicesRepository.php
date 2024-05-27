@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\libs\BaseRepository;
-use App\Models\SaleInvoices;
+use App\Models\SaleInvoice;
 
 class SaleInvoicesRepository extends BaseRepository
 {
@@ -33,9 +33,9 @@ class SaleInvoicesRepository extends BaseRepository
     ];
 
     /**
-     * @param SaleInvoices $model
+     * @param SaleInvoice $model
      */
-    public function __construct(SaleInvoices $model)
+    public function __construct(SaleInvoice $model)
     {
         $this->model = $model;
         if (request()->route()) {
