@@ -13,6 +13,7 @@ return new class extends Migration
     public function up(): void
     {
 
+        Schema::dropIfExists('sale_companies');
         Schema::create('sale_company_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->index()->constrained();
