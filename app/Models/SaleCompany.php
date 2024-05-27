@@ -16,6 +16,9 @@ class SaleCompany extends Model
      */
     protected $fillable = [
         'title',
+        'folder_name',
+        'site_url',
+        'erp_url',
     ];
 
     /**
