@@ -12,10 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-
-        Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('sale_company_user');
-        Schema::enableForeignKeyConstraints();
         Schema::create('sale_company_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->index()->constrained();
