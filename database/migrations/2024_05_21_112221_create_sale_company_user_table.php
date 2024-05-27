@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('sale_company_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->index()->constrained();
+            $table->foreignId('user_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignId('sale_company_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
@@ -27,7 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('sale_companies');
+        Schema::dropIfExists('sale_company_user');
         Schema::enableForeignKeyConstraints();
     }
 };
