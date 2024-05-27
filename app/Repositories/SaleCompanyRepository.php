@@ -14,7 +14,8 @@ class SaleCompanyRepository extends BaseRepository
         'create' => [
             'title' => 'required|string|max:255|unique:sale_companies,title',
             'url' => 'required|unique:sale_companies,url',
-            'token' => 'nullable'
+            'site_url' => 'required|url',
+            'erp_url' => 'required|url',
         ], 'update' => [
             'title' => 'required|string|max:255|unique:sale_companies,title,',
             'url' => 'required|unique:sale_companies,url,',
