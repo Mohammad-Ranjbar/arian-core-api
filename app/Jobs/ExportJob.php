@@ -25,6 +25,10 @@ class ExportJob implements ShouldQueue
 
     }
 
+    public function maxAttempts(): int
+    {
+        return 0; // Increase the maximum attempts to 5
+    }
 
     /**
      * @return void
