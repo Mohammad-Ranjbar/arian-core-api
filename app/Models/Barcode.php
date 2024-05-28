@@ -41,7 +41,7 @@ class Barcode extends Model
             return $query->paginate($data['per_page'] ?? 10);
         }
 
-        return $query->select(['users.name','barcodes.code','barcodes.created_at','barcodes.vin']);
+        return $query->select(['users.name','barcodes.code','barcodes.created_at','barcodes.vin','barcodes.created_at']);
     }
 
     /**
