@@ -33,7 +33,7 @@ services:
         working_dir: /laravel
         depends_on:
             - php
-        command: bash -c 'php artisan queue:work'
+        command: bash -c 'php artisan horizon'
         restart: always
     io:
         container_name: io

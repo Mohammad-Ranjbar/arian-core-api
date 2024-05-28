@@ -12,6 +12,7 @@
         "laravel/framework": "^10.10",
         "laravel/horizon": "^5.24",
         "laravel/octane": "^2.1",
+        "laravel/pulse": "^1.2",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "^3.0",
