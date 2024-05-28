@@ -21,7 +21,7 @@ class Barcode extends Model
         'erp_product_item_id'
     ];
 
-    public static function getReportData(array $data)
+    public static function getReportData(array $data,$function = null)
     {
 
         $query = self::query();
@@ -40,7 +40,8 @@ class Barcode extends Model
         if (!empty($data['paginate'])) {
             return $query->paginate($data['per_page'] ?? 10);
         }
-        return $query->get();
+
+        return $query;
     }
 
     /**

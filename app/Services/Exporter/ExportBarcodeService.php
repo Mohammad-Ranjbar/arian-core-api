@@ -24,7 +24,6 @@ class ExportBarcodeService extends BaseExporterService
      */
     public function export(): string
     {
-//        $rows = Barcode::getReportData((array)$this->job->getAttribute('data'));
 
         $eventData = [
             'id' => $this->job->uuid,

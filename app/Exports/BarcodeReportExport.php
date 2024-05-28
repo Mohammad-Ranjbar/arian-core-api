@@ -7,6 +7,7 @@ use App\Models\Barcode;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomChunkSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -14,7 +15,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents,WithCustomChunkSize,ShouldQueue
+class BarcodeReportExport implements FromQuery, WithMapping, WithHeadings, ShouldAutoSize, WithEvents,WithCustomChunkSize
 {
 
 
@@ -23,15 +24,14 @@ class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, 
 
     }
 
-    public function collection()
+    public function query()
     {
-
         return Barcode::getReportData($this->data);
     }
 
     public function chunkSize(): int
     {
-        return 250;
+        return 100;
     }
 
     /**
@@ -70,7 +70,6 @@ class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, 
             $row->code,
             jdate($row->created_at),
         ];
-
         $this->eventData['done']++;
         $this->eventData['success']++;
         $this->sendEvent();
