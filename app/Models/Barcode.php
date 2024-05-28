@@ -24,7 +24,7 @@ class Barcode extends Model
     public static function getReportData(array $data,$function = null)
     {
 
-        $query = self::query()->with(['user','vehicle','erpProductItem']);
+        $query = self::query()->with(['user']);
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
@@ -41,7 +41,7 @@ class Barcode extends Model
             return $query->paginate($data['per_page'] ?? 10);
         }
 
-        return $query;
+        return $query->select(['users.name','barcodes.code','barcodes.created_at','barcodes.vin']);
     }
 
     /**
