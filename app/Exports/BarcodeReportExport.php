@@ -6,6 +6,7 @@ use App\Events\JobProcessEvent;
 use App\Models\Barcode;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -26,6 +27,7 @@ class BarcodeReportExport implements FromQuery, WithMapping, WithHeadings, Shoul
 
     public function query()
     {
+        DB::enableQueryLog();
         return Barcode::getReportData($this->data);
     }
 
