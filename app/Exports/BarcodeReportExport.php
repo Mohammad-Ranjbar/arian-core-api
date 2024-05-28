@@ -3,23 +3,33 @@
 namespace App\Exports;
 
 use App\Events\JobProcessEvent;
+use App\Models\Barcode;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithCustomChunkSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents
+class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents,WithCustomChunkSize
 {
 
-    /**
-     * @param Collection $data
-     * @param array $eventData
-     */
-    public function __construct(private readonly Collection $data, private array $eventData)
+
+    public function __construct(private readonly array $data, private array $eventData)
     {
+
+    }
+
+    public function collection()
+    {
+        return Barcode::getReportData($this->data);
+    }
+
+    public function chunkSize(): int
+    {
+        return 250;
     }
 
     /**

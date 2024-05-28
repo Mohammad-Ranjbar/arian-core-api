@@ -29,7 +29,7 @@ class ExportBarcodeService extends BaseExporterService
      */
     public function export(): string
     {
-        $rows = Barcode::getReportData((array)$this->job->getAttribute('data'));
+//        $rows = Barcode::getReportData((array)$this->job->getAttribute('data'));
 
         $eventData = [
             'id' => $this->job->uuid,
@@ -43,7 +43,8 @@ class ExportBarcodeService extends BaseExporterService
 
         $fileName = 'barcodeExport-' . Str::uuid() . '.xlsx';
         $path = '/public/exports/' . $fileName;
-        Excel::store(new BarcodeReportExport($rows, $eventData), $path);
+
+        Excel::store(new BarcodeReportExport((array)$this->job->getAttribute('data'), $eventData), $path);
         return $fileName;
 
     }
