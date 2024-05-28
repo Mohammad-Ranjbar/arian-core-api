@@ -54,13 +54,7 @@ class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, 
         ];
     }
 
-    /**
-     * @return Collection
-     */
-    public function collection(): Collection
-    {
-        return $this->data;
-    }
+
 
     /**
      * @param $row
