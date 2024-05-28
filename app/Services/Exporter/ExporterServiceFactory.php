@@ -8,14 +8,12 @@ use Exception;
 class ExporterServiceFactory
 {
 
-    /**
-     * @throws Exception
-     */
-    public static function getInstance($job): ExportProductionLineActivityService|ExportTrackingService|ExportVehicleQcService|ExportIncidentsService|ExportFaultService|ExportBlockItemsService
+
+    public static function getInstance($job): ExportProductionLineActivityService|ExportTrackingService|ExportVehicleQcService|ExportIncidentsService|ExportBarcodeService|ExportFaultService|ExportBlockItemsService
     {
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
-            'export-tracking','export-tracking-sale-location' => new ExportTrackingService($job),
+            'export-tracking', 'export-tracking-sale-location' => new ExportTrackingService($job),
             'export-vehicle-qc' => new ExportVehicleQcService($job),
             'export-barcodes' => new ExportBarcodeService($job),
             'export-faults-qc' => new ExportFaultService($job, 'qc'),
