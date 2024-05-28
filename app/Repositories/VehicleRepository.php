@@ -28,7 +28,7 @@ class VehicleRepository extends BaseRepository
         $this->model = $model;
     }
 
-    public function make($data, string $parameter = 'reference')
+    public function make($data,string  $parameter ='vin')
     {
         $vehicle = $this->model->newQuery()->where($parameter, $data[$parameter])->first();
         if (empty($vehicle)) {

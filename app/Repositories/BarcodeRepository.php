@@ -13,10 +13,10 @@ class BarcodeRepository extends BaseRepository
     protected array $rules = [
         'create'    => [
             'vin'     => 'required|string|exists:vehicles,vin',
-            'code'    => 'required|string|unique:barcodes,code',
+            'code'    => ['required','string','CodeUniqueWhenDeletedAtNullRule'],
         ], 'update' => [
             'vin'     => 'required|string|exists:vehicles,vin',
-            'code'    => 'required|string'
+            'code'    => 'required|string|CodeUniqueWhenDeletedAtNullRule'
         ]
     ];
 
