@@ -31,7 +31,7 @@ class BarcodeReportExport implements FromQuery, WithMapping, WithHeadings, Shoul
 
     public function chunkSize(): int
     {
-        return 100;
+        return 10000;
     }
 
     /**
