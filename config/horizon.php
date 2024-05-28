@@ -52,7 +52,7 @@ return [
     'fast_termination' => false,
 
 
-    'memory_limit' => 5120,
+    'memory_limit' => 8000,
 
 
     'defaults' => [
@@ -61,12 +61,12 @@ return [
             'queue' => ['default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
+            'maxProcesses' => 9,
             'maxTime' => 0,
             'maxJobs' => 0,
-            'memory' => 512,
+            'memory' => 4096,
             'tries' => 2,
-            'timeout' => 60,
+            'timeout' => 600,
             'nice' => 0,
         ],
     ],

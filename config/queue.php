@@ -66,8 +66,8 @@ return [
             'queue' => env('REDIS_QUEUE', 'default'),
             'retry_after' => 90,
             'block_for' => null,
-            'after_commit' => true,
-            'num_workers' => 6,
+            'after_commit' => false,
+            'num_workers' => 9,
         ],
 
     ],
