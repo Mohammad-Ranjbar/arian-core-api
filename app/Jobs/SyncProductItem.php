@@ -52,8 +52,10 @@ class SyncProductItem implements ShouldQueue
      */
     private function updateBarcodes(string $trackingCode, int $id): void
     {
-        Barcode::query()
-            ->where('code', 'LIKE', '%'.$trackingCode.'%')
-            ->update(['erp_product_item_id' => $id]);
+        if (!empty($trackingCode)) {
+            Barcode::query()
+                ->where('code', 'LIKE', '%'.$trackingCode.'%')
+                ->update(['erp_product_item_id' => $id]);
+        }
     }
 }
