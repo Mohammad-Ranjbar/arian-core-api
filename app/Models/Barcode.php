@@ -24,7 +24,7 @@ class Barcode extends Model
     public static function getReportData(array $data,$function = null)
     {
 
-        $query = self::query()->with('user');
+        $query = self::query()->join('users', 'users.id', '=', 'barcodes.user_id');
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
