@@ -21,6 +21,28 @@ class Barcode extends Model
         'erp_product_item_id'
     ];
 
+    public static function getReportData(array $data)
+    {
+
+        $query = self::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['make_code'])) {
+            $query = $query->whereHas('vehicle', function ($q) use ($data) {
+                $q->whereIn('make_code_id', $data['make_code']);
+            });
+        }
+
+        if (!empty($data['paginate'])) {
+            return $query->paginate($data['per_page'] ?? 10);
+        }
+        return $query->get();
+    }
+
     /**
      * @return BelongsTo
      */
