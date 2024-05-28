@@ -6,3 +6,5 @@ RUN docker-php-ext-enable smbclient
 RUN docker-php-ext-configure pcntl --enable-pcntl \
   && docker-php-ext-install \
     pcntl
+
+COPY memory.ini /usr/local/etc/php/conf.d/
