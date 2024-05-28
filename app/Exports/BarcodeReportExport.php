@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Events\JobProcessEvent;
 use App\Models\Barcode;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -13,7 +14,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents,WithCustomChunkSize
+class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents,WithCustomChunkSize,ShouldQueue
 {
 
 
@@ -24,6 +25,7 @@ class BarcodeReportExport implements FromCollection, WithMapping, WithHeadings, 
 
     public function collection()
     {
+
         return Barcode::getReportData($this->data);
     }
 
