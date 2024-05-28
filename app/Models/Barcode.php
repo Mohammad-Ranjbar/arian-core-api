@@ -26,10 +26,10 @@ class Barcode extends Model
 
         $query = self::query()->join('users', 'users.id', '=', 'barcodes.user_id');
         if (!empty($data['from'])) {
-            $query = $query->where('created_at', '>=', $data['from']);
+            $query = $query->where('barcodes.created_at', '>=', $data['from']);
         }
         if (!empty($data['to'])) {
-            $query = $query->where('created_at', '<=', $data['to']);
+            $query = $query->where('barcodes.created_at', '<=', $data['to']);
         }
         if (!empty($data['make_code'])) {
             $query = $query->whereHas('vehicle', function ($q) use ($data) {
