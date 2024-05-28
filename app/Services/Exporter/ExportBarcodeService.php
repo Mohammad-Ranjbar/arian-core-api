@@ -4,11 +4,6 @@ namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
 use App\Exports\BarcodeReportExport;
-use App\Exports\VehicleQcReportExport;
-use App\Models\ActionLog;
-use App\Models\Barcode;
-use App\Models\Tracking;
-use App\Models\Vehicle;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -34,7 +29,7 @@ class ExportBarcodeService extends BaseExporterService
         $eventData = [
             'id' => $this->job->uuid,
             'user_id' => $this->job->user_id,
-            'total' => $rows->count(),
+            'total' => 0,
             'done' => 0,
             'success' => 0,
             'error' => 0,
