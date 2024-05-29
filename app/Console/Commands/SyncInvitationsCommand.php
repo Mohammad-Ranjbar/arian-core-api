@@ -4,13 +4,10 @@ namespace App\Console\Commands;
 
 use App\Jobs\MoveToSaleOnlineApplicationCommand;
 use App\Models\SaleCompany;
-use App\Services\Erp\ErpOdataClient;
 use App\Services\SMBService;
 use Exception;
 use Icewind\SMB\Exception\DependencyException;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class SyncInvitationsCommand extends Command

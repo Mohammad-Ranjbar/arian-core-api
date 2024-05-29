@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\SyncInvitationsCommand;
+use App\Console\Commands\SyncProductItemsCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,8 +16,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('app:sync-product-items-command')->daily()->at('00:00')->withoutOverlapping();
-        $schedule->command('app:sync-invitations-command')->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command(SyncProductItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
+        $schedule->command(SyncInvitationsCommand::class)->everyFiveMinutes()->withoutOverlapping();
     }
 
 
