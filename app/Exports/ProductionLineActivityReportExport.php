@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Events\JobProcessEvent;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -54,7 +55,8 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
             "تاریخ شروع توقف",
             "ساعت شروع توقف",
             "زمان موثر",
-            "زمان ایجاد"
+            "زمان ایجاد",
+            "مدت توقف",
         ];
     }
 
@@ -72,6 +74,12 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
      */
     public function map($row): array
     {
+        $totalDuration = 0;
+        if (isset($row->stop_at) && isset($row->start_at)){
+            $startTime = Carbon::parse($row->stop_at);
+            $finishTime = Carbon::parse($row->start_at);
+            $totalDuration = $finishTime->diffForHumans($startTime);
+        }
         $row = [
             $row->id,
             $row->station->workGroupCenter->ProductionLine->title,
@@ -87,6 +95,7 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
             $row->stop_at ? jdate($row->stop_at)->format('H:i:s') : '',
             $row->effective_time,
             jdate($row->created_at),
+            $totalDuration
         ];
 
         $this->eventData['done']++;
