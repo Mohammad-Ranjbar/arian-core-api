@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Location;
+use App\Models\Tracking;
 use Illuminate\Console\Command;
 
 class EnterToFactoryCommand extends Command
@@ -33,10 +35,10 @@ class EnterToFactoryCommand extends Command
         ];
 
         foreach ($list as $vin) {
-            if (App\Models\Tracking::query()->where('vin',$vin)->count() === 0) {
-                App\Models\Tracking::query()->create([
+            if (Tracking::query()->where('vin',$vin)->count() === 0) {
+                Tracking::query()->create([
                     'vin' => $vin,
-                    'model_type' => App\Models\Location::class,
+                    'model_type' => Location::class,
                     'model_id' => 1,
                     'user_id' => 1,
                     'type' => 'enter',
