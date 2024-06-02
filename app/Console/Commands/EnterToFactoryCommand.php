@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Location;
 use App\Models\Tracking;
+use App\Models\Vehicle;
 use Illuminate\Console\Command;
 
 class EnterToFactoryCommand extends Command
@@ -35,6 +36,10 @@ class EnterToFactoryCommand extends Command
         ];
 
         foreach ($list as $vin) {
+            if(Vehicle::query()->where('vin',$vin)->count() === 0) {
+                $this->info($vin);
+                continue;
+            }
             if (Tracking::query()->where('vin',$vin)->count() === 0) {
                 Tracking::query()->create([
                     'vin' => $vin,
