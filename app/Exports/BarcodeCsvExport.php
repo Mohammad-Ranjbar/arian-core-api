@@ -31,9 +31,9 @@ class BarcodeCsvExport
                 fputcsv($this->handle, [
                     $row->user->name,
                     $row->vin,
-                    $row->created_at,
                     $row->code,
-                    $row->erpProductItem?->title . null,
+                    $row->erpProductItem?->title ?? null,
+                    jdate($row->created_at),
                 ]);
                 $this->eventData['done']++;
                 $this->eventData['success']++;

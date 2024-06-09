@@ -24,7 +24,7 @@ class FetchAllBarcodeCommand extends Command
     public function handle(): void
     {
         $url = 'http://172.16.0.52/api/barcode-list';
-        Barcode::query()->where('user_id',1)->delete();
+
         while ($url) {
             $res = Http::get($url)->json();
             if (empty($res)) {
