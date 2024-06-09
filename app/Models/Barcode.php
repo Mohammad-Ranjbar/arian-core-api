@@ -18,7 +18,8 @@ class Barcode extends Model
         'vin',
         'user_id',
         'code',
-        'erp_product_item_id'
+        'erp_product_item_id',
+        'created_at'
     ];
 
     public static function getReportData(array $data)
