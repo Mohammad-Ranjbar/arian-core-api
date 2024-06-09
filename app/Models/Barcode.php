@@ -21,15 +21,15 @@ class Barcode extends Model
         'erp_product_item_id'
     ];
 
-    public static function getReportData(array $data,$function = null)
+    public static function getReportData(array $data)
     {
 
-        $query = self::query()->join('users', 'users.id', '=', 'barcodes.user_id');
+        $query = self::query()->with('user');
         if (!empty($data['from'])) {
-            $query = $query->where('barcodes.created_at', '>=', $data['from']);
+            $query = $query->where('created_at', '>=', $data['from']);
         }
         if (!empty($data['to'])) {
-            $query = $query->where('barcodes.created_at', '<=', $data['to']);
+            $query = $query->where('created_at', '<=', $data['to']);
         }
         if (!empty($data['make_code'])) {
             $query = $query->whereHas('vehicle', function ($q) use ($data) {
@@ -41,7 +41,7 @@ class Barcode extends Model
             return $query->paginate($data['per_page'] ?? 10);
         }
 
-        return $query->select(['users.name','barcodes.code','barcodes.created_at','barcodes.vin','barcodes.created_at']);
+        return $query;
     }
 
     /**
