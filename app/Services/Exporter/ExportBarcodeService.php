@@ -3,6 +3,7 @@
 namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
+use App\Exports\BarcodeCsvExport;
 use App\Exports\BarcodeReportExport;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
@@ -35,10 +36,14 @@ class ExportBarcodeService extends BaseExporterService
         ];
         event(new JobProcessEvent($eventData));
 
-        $fileName = 'barcodeExport-' . Str::uuid() . '.xlsx';
+        $fileName = 'barcodeExport-' . Str::uuid() . '.csv';
         $path = '/public/exports/' . $fileName;
 
-        Excel::store(new BarcodeReportExport((array)$this->job->getAttribute('data'), $eventData), $path);
+        $exporter = new BarcodeCsvExport();
+
+        $exporter->make((array)$this->job->getAttribute('data'),$path,$eventData);
+
+//        Excel::store(new BarcodeReportExport((array)$this->job->getAttribute('data'), $eventData), $path);
         return $fileName;
 
     }
