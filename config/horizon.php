@@ -66,7 +66,7 @@ return [
             'maxJobs' => 0,
             'memory' => 4096,
             'tries' => 2,
-            'timeout' => 600,
+            'timeout' => 6000,
             'nice' => 0,
         ],
     ],
