@@ -25,10 +25,9 @@ class BarcodeCsvExport
         $this->handle = fopen(storage_path($path), 'w');
 
         fwrite($this->handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        logger($this->eventData);
+
         $query->chunk(10000, function ($rows) {
             foreach ($rows as $row) {
-                logger($this->eventData);
                 fputcsv($this->handle, [
                     $row->user->name,
                     $row->vin,
