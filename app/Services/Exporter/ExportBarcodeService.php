@@ -37,7 +37,7 @@ class ExportBarcodeService extends BaseExporterService
         event(new JobProcessEvent($eventData));
 
         $fileName = 'barcodeExport-' . Str::uuid() . '.csv';
-        $path = '/public/exports/' . $fileName;
+        $path = 'app/public/exports/' . $fileName;
 
         $exporter = new BarcodeCsvExport();
 
