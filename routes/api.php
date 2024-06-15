@@ -239,7 +239,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('list-sale-locations', [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
 
-
+    Route::get('gate-permits/{gatePermit}/print', [GatePermitController::class, 'print'])->name('gate-permits.print');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,

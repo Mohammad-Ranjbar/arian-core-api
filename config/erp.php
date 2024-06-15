@@ -30,6 +30,8 @@ return [
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'old_gate'         => env('WSDL_OLD_GATE',
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'print'         => env('WSDL_OLD_GATE',
+        'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'auth'             => [
         env('LDAP_USERNAME', ''),
         env('LDAP_PASSWORD', ''),

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GatePermitResource;
+use App\Models\GatePermit;
 use App\Models\Location;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class GatePermitController extends CrudController
 {
     /**
-     * @param  GatePermitRepository  $repository
+     * @param GatePermitRepository $repository
      */
     public function __construct(public readonly GatePermitRepository $repository)
     {
@@ -27,7 +29,7 @@ class GatePermitController extends CrudController
 
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @return mixed
      */
     public function store(Request $request): mixed
@@ -100,15 +102,31 @@ class GatePermitController extends CrudController
         if ($response['status'] == 'ok') {
             $vehicle->tracking()->create([
                 'model_type' => Location::class,
-                'model_id'   => 1,
-                'type'       => 'exit',
-                'user_id'    => Auth::id()
+                'model_id' => 1,
+                'type' => 'exit',
+                'user_id' => Auth::id()
             ]);
 
             return response()->json(['message' => 'تردد مورد نظر ثبت گردید']);
         }
 
         return response()->json(['message' => 'ثبت تردد امکان پذیر نیست']);
+    }
 
+    /**
+     * @param GatePermit $gatePermit
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function print(GatePermit $gatePermit): JsonResponse
+    {
+        $this->authorize('gate-permits.print');
+        ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
+            'vINP' => $gatePermit->getAttribute('model_id')
+        ]);
+
+        return new JsonResponse(
+            data: new GatePermitResource($gatePermit)
+        );
     }
 }
