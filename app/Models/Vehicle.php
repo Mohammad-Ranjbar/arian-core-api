@@ -20,11 +20,14 @@ class Vehicle extends Model
 {
     use HasFactory, SoftDeletes;
 
-
     /**
      * @var bool
      */
     public $incrementing = false;
+    /**
+     * @var string[]
+     */
+    protected $with = ['carModel', 'makeCode'];
     /**
      * @var string
      */
@@ -121,11 +124,18 @@ class Vehicle extends Model
         return $this->morphMany(ActionLog::class, 'model');
     }
 
+    /**
+     * @param $locationId
+     * @return bool
+     */
     public function updateCurrentLocation($locationId): bool
     {
         return $this->update(['current_location' => $locationId]);
     }
 
+    /**
+     * @return HasOneThrough
+     */
     public function activeBillOfLading(): HasOneThrough
     {
         return $this->hasOneThrough(
@@ -140,6 +150,9 @@ class Vehicle extends Model
             ->where('bill_of_ladings.status', '!=', 'discharge');
     }
 
+    /**
+     * @return BelongsToMany
+     */
     public function billOfLadings(): BelongsToMany
     {
         return $this->belongsToMany(BillOfLading::class, 'bill_of_lading_item', 'model_id')
