@@ -80,7 +80,7 @@ class ProductionTrackingController extends Controller
     }
 
 
-    public function reportExcel(TrackingReportExcelRequest $request)
+    public function reportExcel(TrackingReportExcelRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
         $validatedData['type'] = 'export-tracking';
