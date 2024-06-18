@@ -89,15 +89,15 @@ class DisplayBoardController extends Controller
         });
 
         $temp = [];
-        if(env('app_env') != 'production') {
-            $temp = [
-                [
-                    'type'     => 'image-board',
-                    'duration' => 5000,
-                    'data'     => [
-                        'url' => 'http://172.16.0.87/_next/image?url=%2FArianPars.png&w=96&q=75'
-                    ]
-                ],
+        if(env('APP_ENV') != 'production') {
+            $result->push([
+                'type'     => 'image-board',
+                'duration' => 5000,
+                'data'     => [
+                    'url' => 'http://172.16.0.87/_next/image?url=%2FArianPars.png&w=96&q=75'
+                ]
+            ]);
+            $result->push([
                 [
                     'type'     => 'text-board',
                     'duration' => 9000,
@@ -106,9 +106,9 @@ class DisplayBoardController extends Controller
                     خط دوم متن
                     به نظرم وسط تابلو باشه'
                     ]
-                ],
-            ];
+                ]
+            ]);
         }
-        return response()->json(array_merge((array)$result->values(), $temp));
+        return response()->json($result->values());
     }
 }
