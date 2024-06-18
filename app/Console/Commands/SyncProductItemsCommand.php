@@ -8,19 +8,8 @@ use Illuminate\Console\Command;
 
 class SyncProductItemsCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:sync-product-items-command';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
+    protected $signature = 'app:sync-product-items-command';
 
 
     public function __construct(private readonly ErpOdataClient $erpOdataClient)
@@ -29,9 +18,6 @@ class SyncProductItemsCommand extends Command
     }
 
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): void
     {
         $url = config('erp.items');
