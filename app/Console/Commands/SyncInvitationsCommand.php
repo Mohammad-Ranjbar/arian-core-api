@@ -21,7 +21,7 @@ class SyncInvitationsCommand extends Command
      */
     public function handle(): void
     {
-
+        logger('run command sync-invitations-command');
         $share = new SMBService(
             config('erp.share_server'),
             config('erp.auth')[0],
