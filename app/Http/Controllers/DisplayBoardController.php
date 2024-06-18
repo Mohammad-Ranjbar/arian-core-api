@@ -109,6 +109,6 @@ class DisplayBoardController extends Controller
                 ]
             ]);
         }
-        return response()->json($result->all());
+        return response()->json($result->values());
     }
 }
