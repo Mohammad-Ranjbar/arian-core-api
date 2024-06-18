@@ -89,7 +89,7 @@ class DisplayBoardController extends Controller
         });
 
         $temp = [];
-        if(env('app_env') != 'production') {
+        if(env('APP_ENV') != 'production') {
             $temp = [
                 [
                     'type'     => 'image-board',
@@ -109,6 +109,6 @@ class DisplayBoardController extends Controller
                 ],
             ];
         }
-        return response()->json(array_merge((array)$result->values(), $temp));
+        return response()->json(array_values(array_merge((array)$result->values(), $temp)));
     }
 }
