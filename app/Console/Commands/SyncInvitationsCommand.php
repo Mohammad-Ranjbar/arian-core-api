@@ -12,15 +12,11 @@ use Illuminate\Support\Facades\Storage;
 
 class SyncInvitationsCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:sync-invitations-command';
 
+
     /**
-     * Execute the console command.
      * @throws DependencyException
      */
     public function handle(): void
