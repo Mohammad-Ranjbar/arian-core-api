@@ -34,6 +34,8 @@ class ActionLog extends Model
     {
         return $this->morphTo();
     }
-
+    protected $casts = [
+        'data' => 'json',
+    ];
 
 }
