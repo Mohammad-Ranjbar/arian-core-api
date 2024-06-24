@@ -68,4 +68,20 @@ class VehicleIncident extends Model
         return $this->hasMany(IncidentSource::class,'incident_id');
     }
 
+    public static function getReportData(array $data)
+    {
+        $query = self::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+
+        if (!empty($data['paginate'])) {
+            return $query->paginate($data['per_page'] ?? 10);
+        }
+        return $query->get();
+    }
+
 }

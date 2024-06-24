@@ -283,7 +283,6 @@ class VehicleFaultController extends Controller
 
     public function reportExcel(FaultReportExcelRequest $request): JsonResponse
     {
-
         $validatedData['type'] = 'export-faults-'.$request->validated('type');
         $validatedData['user_id'] = $request->validated('user_id');
         $validatedData['data'] = $request->validated();
