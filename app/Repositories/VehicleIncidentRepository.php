@@ -27,8 +27,8 @@ class VehicleIncidentRepository extends BaseRepository
         if (!empty($data['to'])) {
             $query = $query->where($dateField, '<=', $data['to']);
         }
-        if (!empty($data['intensity'])) {
-            $query = $query->where('intensity',  $data['intensity']);
+        if (!empty($data['intensities'])) {
+            $query = $query->whereIn('intensity',  $data['intensities']);
         }
         if (!empty($data['method'])) {
             $query = $query->where('method',  $data['method']);
