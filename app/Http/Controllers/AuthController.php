@@ -180,11 +180,11 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'unauthenticated',
                 'code' => 401,
-            ]);
+            ],401);
         }
 
         return response()->json([
             'message' => 'logged in successfully',
-        ]);
+        ],200);
     }
 }
