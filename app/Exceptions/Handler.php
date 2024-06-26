@@ -29,7 +29,11 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => '404 ! The requested resource could not be found.'], 404);
         }
 
-        return parent::render($request, $e);
+        return response()->json([
+            'type' => get_class($exception),
+            'message' => $exception->getMessage()
+        ]);
+//        return parent::render($request, $e);
     }
 
     /**
