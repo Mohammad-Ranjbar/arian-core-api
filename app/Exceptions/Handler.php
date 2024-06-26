@@ -19,7 +19,7 @@ class Handler extends ExceptionHandler
 
     /**
      * @param $request
-     * @param  Throwable  $e
+     * @param Throwable $e
      * @return \Illuminate\Http\Response|JsonResponse|RedirectResponse|Response
      * @throws Throwable
      */
@@ -29,11 +29,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => '404 ! The requested resource could not be found.'], 404);
         }
 
-        return response()->json([
-            'type' => get_class($exception),
-            'message' => $exception->getMessage()
-        ]);
-//        return parent::render($request, $e);
+        return parent::render($request, $e);
     }
 
     /**

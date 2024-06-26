@@ -12,6 +12,7 @@ use App\Services\SmsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 
@@ -171,5 +172,19 @@ class AuthController extends Controller
             ->orWhere('mobile', $validatedData['username'])
             ->firstOrFail();
         return new UserResource($user);
+    }
+
+    public function checkLogin(): JsonResponse
+    {
+        if (!Auth::check()){
+            return response()->json([
+                'message' => 'unauthenticated',
+                'code' => 401,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'logged in successfully',
+        ]);
     }
 }

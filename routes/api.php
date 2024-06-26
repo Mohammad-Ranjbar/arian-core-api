@@ -60,6 +60,7 @@ Route::get('/block-history/{vehicle}', BlockHistoryController::class);
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
 });
+Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
