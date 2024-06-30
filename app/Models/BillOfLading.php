@@ -183,4 +183,18 @@ class BillOfLading extends Model
         );
     }
 
+    public static function getReportData( $data)
+    {
+        $query = self::query();
+
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+
+        return $query->get();
+    }
+
 }

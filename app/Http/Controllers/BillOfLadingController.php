@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Exports\TemplateExport;
 use App\Http\Requests\ImportBillOfLadingRequest;
 use App\Http\Requests\SetPriorityRequest;
+use App\Http\Requests\TrackingReportExcelRequest;
 use App\Http\Resources\BillOfLadingResource;
+use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
 use App\Models\BillOfLading;
 use App\Models\Job;
@@ -192,6 +194,25 @@ class BillOfLadingController extends CrudController
         ImportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'import job created', 'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
+
+    public function reportExcel(TrackingReportExcelRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $validatedData['type'] = 'export-bill-of-ladings';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = $request->validated();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data' => [
                 'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
