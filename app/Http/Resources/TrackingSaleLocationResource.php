@@ -15,9 +15,9 @@ class TrackingSaleLocationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'sale_location_title' => $this->resource->model->title,
+            'sale_location_title' => $this->resource->model?->title ?? '',
             'sale_location_id' => $this->resource->model_id,
-            'user' => $this->resource->user->name,
+            'user' => $this->resource->user?->name ?? '',
             'type' => $this->resource->type,
             'vin' => $this->resource->vin,
             'data' => $this->resource->data,
