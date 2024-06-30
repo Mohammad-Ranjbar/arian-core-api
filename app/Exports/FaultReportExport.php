@@ -77,8 +77,8 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
             $row->incident?->title ?? '',
             $row->element?->code ?? '',
             $row->element?->title ?? '',
-            $row->checked_at,
-            $row->created_at,
+            jdate($row->checked_at),
+            jdate($row->created_at),
             $row->description,
 
         ];
