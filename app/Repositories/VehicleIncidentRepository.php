@@ -18,6 +18,7 @@ class VehicleIncidentRepository extends BaseRepository
 
     public function getReportData($type, $data)
     {
+        logger($data['intensities']);
         $dateField = ($data['date_type'] == 'check') ? 'checked_at' : 'created_at';
 
         $query = VehicleIncident::query();
