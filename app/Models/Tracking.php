@@ -63,7 +63,7 @@ class Tracking extends Model
         }
 
         if (!empty($data['paginate'])) {
-            return $query->paginate($data['per_page'] ?? 10);
+            return $query->paginate($data['per_page'] ?? 40);
         }
         return $query->get();
     }
