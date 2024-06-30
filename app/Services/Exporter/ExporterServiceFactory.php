@@ -9,7 +9,7 @@ class ExporterServiceFactory
 {
 
 
-    public static function getInstance($job): ExportProductionLineActivityService|ExportTrackingService|ExportVehicleQcService|ExportIncidentsService|ExportBarcodeService|ExportFaultService|ExportBlockItemsService
+    public static function getInstance($job)
     {
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
