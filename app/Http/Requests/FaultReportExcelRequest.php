@@ -26,7 +26,7 @@ class FaultReportExcelRequest extends FormRequest
             'type' => 'required|in:qc,evaluation',
             'user_id' => 'nullable',
             'method' => 'nullable',
-            'intensity' => 'nullable',
+            'intensities' => 'nullable',
         ];
     }
 
