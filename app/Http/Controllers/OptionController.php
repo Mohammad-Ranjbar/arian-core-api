@@ -8,6 +8,7 @@ use App\Repositories\CarRepository;
 use App\Repositories\ContainerRepository;
 use App\Repositories\DriverRepository;
 use App\Repositories\ElementRepository;
+use App\Repositories\ErpProductItemRepository;
 use App\Repositories\IncidentRepository;
 use App\Repositories\LocationRepository;
 use App\Repositories\MakeCodeRepository;
@@ -48,27 +49,28 @@ class OptionController extends Controller
     public function match($resource): bool|string
     {
         return match ($resource) {
-            'permissions'        => PermissionRepository::class,
-            'roles'              => RoleRepository::class,
-            'salons'             => SalonRepository::class,
-            'production-lines'   => ProductionLineRepository::class,
+            'permissions' => PermissionRepository::class,
+            'roles' => RoleRepository::class,
+            'salons' => SalonRepository::class,
+            'production-lines' => ProductionLineRepository::class,
             'work-group-centers' => WorkGroupCenterRepository::class,
-            'stations'           => StationRepository::class,
-            'make-codes'         => MakeCodeRepository::class,
-            'cars'               => CarRepository::class,
-            'transit-companies'  => TransitCompanyRepository::class,
-            'locations'          => LocationRepository::class,
-            'incidents'          => IncidentRepository::class,
-            'elements'           => ElementRepository::class,
-            'containers'         => ContainerRepository::class,
-            'stop-facts'         => StopFactRepository::class,
-            'stop-types'         => StopTypeRepository::class,
-            'stop-reasons'       => StopReasonRepository::class,
-            'block-reasons'      => BlockReasonRepository::class,
-            'car-models'         => CarModelRepository::class,
-            'drivers'            => DriverRepository::class,
-            'sale-locations'     => SaleLocationRepository::class,
-             default             => false,
+            'stations' => StationRepository::class,
+            'make-codes' => MakeCodeRepository::class,
+            'cars' => CarRepository::class,
+            'transit-companies' => TransitCompanyRepository::class,
+            'locations' => LocationRepository::class,
+            'incidents' => IncidentRepository::class,
+            'elements' => ElementRepository::class,
+            'containers' => ContainerRepository::class,
+            'stop-facts' => StopFactRepository::class,
+            'stop-types' => StopTypeRepository::class,
+            'stop-reasons' => StopReasonRepository::class,
+            'block-reasons' => BlockReasonRepository::class,
+            'car-models' => CarModelRepository::class,
+            'drivers' => DriverRepository::class,
+            'sale-locations' => SaleLocationRepository::class,
+            'product-items' => ErpProductItemRepository::class,
+            default => false,
         };
     }
 

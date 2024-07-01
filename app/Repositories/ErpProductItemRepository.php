@@ -7,6 +7,10 @@ use App\Models\ErpProductItem;
 
 class ErpProductItemRepository extends BaseRepository
 {
+
+    public array $searchTerms = [
+        'title','reference','description'
+    ];
     /**
      * @var array|array[]
      */
@@ -27,4 +31,13 @@ class ErpProductItemRepository extends BaseRepository
         $this->model = $model;
     }
 
+    public function getOptions(): array
+    {
+        return $this->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title . ' - ' . $item->reference,
+            ];
+        })->all();
+    }
 }
