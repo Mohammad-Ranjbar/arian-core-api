@@ -13,8 +13,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('erp_product_item_production_line_activity', function (Blueprint $table) {
-           $table->foreignId('erp_product_item_id')->constrained()->cascadeOnDelete();
-           $table->foreignId('production_line_activity_id')->constrained()->cascadeOnDelete();
+
+            $table->unsignedBigInteger('erp_product_item_id');
+            $table->unsignedBigInteger('production_line_activity_id');
+           $table->foreign('erp_product_item_id','erp_foreign')->references('id')
+               ->on('erp_product_items')->cascadeOnDelete();
+            $table->foreign('production_line_activity_id','production_line_foreign')->references('id')
+                ->on('production_line_activities')->cascadeOnDelete();
+
         });
     }
 
