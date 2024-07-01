@@ -16,7 +16,8 @@ class StopReason extends Model
      */
     protected $fillable = [
         'title',
-        'stop_fact_id'
+        'stop_fact_id',
+        'has_options'
     ];
 
     /**
