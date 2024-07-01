@@ -11,28 +11,30 @@ class StopReasonRepository extends BaseRepository
      * @var array|array[]
      */
     protected array $rules = [
-        'create'    => [
-            'title'        => 'required|string',
+        'create' => [
+            'title' => 'required|string',
             'stop_fact_id' => 'required|exists:stop_facts,id',
         ], 'update' => [
-            'title'        => 'required|string',
+            'title' => 'required|string',
             'stop_fact_id' => 'required|exists:stop_facts,id',
         ]
     ];
 
     /**
-     * @param  StopReason  $model
+     * @param StopReason $model
      */
     public function __construct(StopReason $model)
     {
         $this->model = $model;
     }
+
     public function getOptions(): array
     {
         return $this->get()->map(function ($item) {
             return [
-                'id'    => $item->id,
-                'title' => $item->fact ? $item->fact->title.' - '.$item->title : $item->title,
+                'id' => $item->id,
+                'title' => $item->fact ? $item->fact->title . ' - ' . $item->title : $item->title,
+                'has_product_items' => (boolean)$item->has_options
             ];
         })->all();
     }
