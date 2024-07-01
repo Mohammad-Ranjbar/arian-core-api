@@ -29,8 +29,8 @@ class ProductionLineActivityResource extends JsonResource
             'station' => new StationResource($this->resource->satation),
             'stopReason' => new StopReasonResource($this->resource->stopReason),
             'stopType' => new StopTypeResource($this->resource->stopType),
-            'status' => $this->resource->logs()->latest()->first() ? $this->resource->logs()->latest()->first()->action : ''
-
+            'status' => $this->resource->logs()->latest()->first() ? $this->resource->logs()->latest()->first()->action : '',
+            'productItems' => ErpProductItemResource::collection($this->resource->productItems),
         ];
     }
 }

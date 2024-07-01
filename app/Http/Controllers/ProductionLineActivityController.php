@@ -31,7 +31,6 @@ class ProductionLineActivityController extends CrudController
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
-
     }
 
     public function report(Request $request): JsonResponse

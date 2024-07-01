@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -34,8 +35,28 @@ class ProductionLineActivity extends Model
      */
     protected $casts = [
         'start_at' => 'datetime',
-        'stop_at'  => 'datetime'
+        'stop_at' => 'datetime'
     ];
+
+    /**
+     * @param array $data
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public static function getReportData(array $data)
+    {
+        $query = self::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+
+        if (!empty($data['paginate'])) {
+            return $query->paginate($data['per_page'] ?? 15);
+        }
+        return $query->get();
+    }
 
     /**
      * @return BelongsTo
@@ -85,19 +106,11 @@ class ProductionLineActivity extends Model
         return $this->hasMany(ProductionLineActivityLogs::class);
     }
 
-    public static function getReportData(array $data)
+    /**
+     * @return BelongsToMany
+     */
+    public function productItems(): BelongsToMany
     {
-        $query = self::query();
-        if (!empty($data['from'])) {
-            $query = $query->where('created_at', '>=', $data['from']);
-        }
-        if (!empty($data['to'])) {
-            $query = $query->where('created_at', '<=', $data['to']);
-        }
-
-        if (!empty($data['paginate'])) {
-            return $query->paginate($data['per_page'] ?? 15);
-        }
-        return $query->get();
+        return $this->belongsToMany(ErpProductItem::class);
     }
 }
