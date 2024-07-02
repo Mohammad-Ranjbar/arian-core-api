@@ -40,7 +40,6 @@ class LineActivityStartStopController extends Controller
             ProductionLineActivitySmsJob::dispatch($productionLine->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
-        logger($validatedData['productItems']);
         $activity->productItems()->sync($validatedData['productItems']);
         return new ProductionLineActivityResource($activity);
     }
