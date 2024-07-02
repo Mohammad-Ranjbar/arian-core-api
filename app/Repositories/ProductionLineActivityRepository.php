@@ -21,7 +21,6 @@ class ProductionLineActivityRepository extends BaseRepository
             'stop_at' => 'nullable',
             'notify_on_start' => 'nullable',
             'notify_on_stop' => 'nullable',
-            'productItems' => 'nullable|array|exists:erp_product_items,id',
         ], 'update' => [
             'station_id' => 'required|exists:stations,id',
             'stop_reason_id' => 'required|exists:stop_reasons,id',
@@ -33,7 +32,6 @@ class ProductionLineActivityRepository extends BaseRepository
             'effective_time' => 'nullable|date_format:H:i',
             'notify_on_start' => 'nullable',
             'notify_on_stop' => 'nullable',
-            'productItems' => 'nullable|array|exists:erp_product_items,id',
         ]
     ];
 

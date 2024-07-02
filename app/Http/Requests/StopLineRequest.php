@@ -21,14 +21,15 @@ class StopLineRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'station_id'     => 'required|exists:stations,id',
+            'station_id' => 'required|exists:stations,id',
             'stop_reason_id' => 'required|exists:stop_reasons,id',
-            'stop_type_id'   => 'required|exists:stop_types,id',
-            'description'    => 'required',
-            'note'           => 'nullable',
-            'start_at'       => 'nullable|date_format:"Y-m-d H:i:s"',
-            'stop_at'        => 'nullable|date_format:"Y-m-d H:i:s"',
-            'notify'         => 'required|boolean'
+            'stop_type_id' => 'required|exists:stop_types,id',
+            'description' => 'required',
+            'note' => 'nullable',
+            'start_at' => 'nullable|date_format:"Y-m-d H:i:s"',
+            'stop_at' => 'nullable|date_format:"Y-m-d H:i:s"',
+            'notify' => 'required|boolean',
+            'productItems' => 'nullable|array|exists:erp_product_items,id',
         ];
     }
 }
