@@ -33,6 +33,17 @@ class ProductionLineActivityController extends CrudController
         }
     }
 
+    public function afterSave($record, $data)
+    {
+            if (!empty($data['productItems'])) {
+                foreach ($data['productItems'] as  $productItem) {
+                    $record->productItems()->attach($productItem);
+
+                }
+            }
+        return $record;
+    }
+
     public function report(Request $request): JsonResponse
     {
         $validatedData['user_id'] = Auth::id();
