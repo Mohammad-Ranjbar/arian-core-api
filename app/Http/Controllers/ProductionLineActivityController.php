@@ -35,6 +35,7 @@ class ProductionLineActivityController extends CrudController
 
     public function afterSave($record, $data)
     {
+        dd($data['productItems']);
             if (!empty($data['productItems'])) {
                 foreach ($data['productItems'] as  $productItem) {
                     $record->productItems()->attach($productItem);
