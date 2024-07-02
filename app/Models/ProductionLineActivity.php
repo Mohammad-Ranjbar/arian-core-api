@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,9 +43,9 @@ class ProductionLineActivity extends Model
 
     /**
      * @param array $data
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @return LengthAwarePaginator|Builder[]|Collection
      */
-    public static function getReportData(array $data)
+    public static function getReportData(array $data): Collection|LengthAwarePaginator|array
     {
         $query = self::query();
         if (!empty($data['from'])) {
@@ -111,6 +114,7 @@ class ProductionLineActivity extends Model
      */
     public function productItems(): BelongsToMany
     {
-        return $this->belongsToMany(ErpProductItem::class);
+        return $this->belongsToMany(ErpProductItem::class, 'erp_product_item_production_line_activity',
+            'production_line_activity_id', 'erp_product_item_id');
     }
 }
