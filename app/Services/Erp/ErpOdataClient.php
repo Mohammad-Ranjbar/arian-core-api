@@ -35,6 +35,7 @@ class ErpOdataClient
                     'Accept' => 'application/json'
                 ]
             ]);
+            dd($apiRequest->getBody()->getContents());
             return json_decode($apiRequest->getBody()->getContents());
         } catch (GuzzleException $e) {
             Log::error($e->getMessage());
