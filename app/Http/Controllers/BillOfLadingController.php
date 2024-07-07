@@ -10,7 +10,9 @@ use App\Http\Resources\BillOfLadingResource;
 use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
 use App\Models\BillOfLading;
+use App\Models\GatePermit;
 use App\Models\Job;
+use App\Models\Vehicle;
 use App\Repositories\BillOfLadingRepository;
 use App\Services\SmsService;
 use Exception;
@@ -56,6 +58,12 @@ class BillOfLadingController extends CrudController
             $record->containers()->update(['on_shipping' => true]);
         }
         if ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
+            if( GatePermit::query()
+                ->where('model_type', Vehicle::class)
+                ->whereIn('model_id', $data['items'])->count()  != count($data['items'])){
+                throw new Exception('Please add gate permits to create bill of ladings');
+            }
+
             $record->vehicles()->sync($data['items']);
         }
 
