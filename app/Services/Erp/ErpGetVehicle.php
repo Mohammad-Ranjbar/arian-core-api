@@ -27,7 +27,6 @@ class ErpGetVehicle
         $vin = trim($vin, '* ');
         $url = config('erp.vehicles') . '?$filter=VIN eq \'' . $vin . '\'';
         $result = $this->client->getOne($url);
-
         if (!$result) {
             Log::info('get VIN: ' . $vin . 'by User:' . Auth::id() . ' not found');
             throw ValidationException::withMessages(['message' => 'vehicle not found']);

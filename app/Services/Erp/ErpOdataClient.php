@@ -27,7 +27,7 @@ class ErpOdataClient
 
     public function get($url)
     {
-//        try {
+        try {
             $apiRequest = $this->client->request('GET', $url, [
                 'auth' => config('erp.auth'),
                 'headers' => [
@@ -35,12 +35,11 @@ class ErpOdataClient
                     'Accept' => 'application/json'
                 ]
             ]);
-            dd($apiRequest->getBody()->getContents());
             return json_decode($apiRequest->getBody()->getContents());
-//        } catch (GuzzleException $e) {
-//            Log::error($e->getMessage());
-//        }
-//        return false;
+        } catch (GuzzleException $e) {
+            Log::error($e->getMessage());
+        }
+        return false;
     }
 
 }
