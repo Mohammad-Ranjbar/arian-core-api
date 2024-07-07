@@ -182,7 +182,6 @@ class AuthController extends Controller
                 'code' => 401,
             ],401);
         }
-
         return response()->json([
             'message' => 'logged in successfully',
         ]);

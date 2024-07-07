@@ -134,7 +134,6 @@ class BillOfLadingController extends CrudController
             if ($status === 'discharge') {
                 $billOfLading->containers()->update(['on_shipping' => false]);
                 // todo : update vehicle current location and tracking
-
             }
             DB::commit();
             return new BillOfLadingResource($billOfLading);
