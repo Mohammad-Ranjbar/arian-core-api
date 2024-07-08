@@ -22,9 +22,11 @@ class CustomLocationController extends Controller
         $this->authorize('get-custom-locations');
         if ($request->get('type') == 'evaluation') {
             $data = [
+                [
                 'custom_location_type' => Location::class,
                 'custom_location_id' => 1,
                 'title' => 'سایت تولیدی خمین'
+            ]
             ];
         } elseif ($request->get('type') == 'qc') {
             $data = Station::query()->whereHas('users', fn($query) => $query->where('user_id', Auth::id()))
