@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Location;
 use App\Models\Station;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
