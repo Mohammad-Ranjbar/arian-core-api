@@ -19,8 +19,11 @@ class SaleCompany extends Model
         'folder_name',
         'site_url',
         'erp_url',
+        'invitation',
+        'contract',
+        'erp_contract_url',
+        'sync_order_url',
     ];
-
 
 
     /**
