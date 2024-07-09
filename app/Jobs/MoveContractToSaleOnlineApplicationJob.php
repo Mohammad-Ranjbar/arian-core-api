@@ -39,7 +39,7 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
             $data = $erpOdataClient->getOne($url);
             if ($data) {
                 $sendData = [
-                    'secret' => 'A@rX4898989jsdkjsdhfxyz',
+                    'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                     'items'  => [
                         [
                             'order_id'  => trim($data->Online_Contract_ID),
