@@ -19,9 +19,9 @@ class UploadS3Command extends Command
     {
         $path = $this->argument('path');
         $fileName = $this->argument('fileName');
-        if(File::exists($path.$fileName)){
+        if(File::exists(Storage::path($path.'/'.$fileName))){
            $fileNameUploaded = Storage::disk('s3')
-                ->putFile('/backups/mysql/'.$path, $fileName);
+                ->putFile(Storage::get($path.'/'.$fileName));
            if ($file){
                $this->info('backup file is uploaded to S3 Arvan Cloud filename is:'.$fileNameUploaded);
            }
