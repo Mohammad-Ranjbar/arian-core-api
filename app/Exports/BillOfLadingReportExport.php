@@ -56,6 +56,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             'description',
             'created_at',
             'deliver_date',
+            'discharge_date',
         ];
     }
 
@@ -74,6 +75,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
     public function map($row): array
     {
         $deliverDate = $row->logs->where('action', 'temporary_receipt')->first();
+        $dischargeDate = $row->logs->where('action', 'discharge')->first();
         $row = [
             $row->vehicles()->get()->implode('vin', ',') . $row->containers()->get()->implode('code', ','),
             $row->car->transitCompany->title,
@@ -89,6 +91,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             $row->description,
             jdate($row->created_at),
             $deliverDate ? jdate($deliverDate->created_at) : '',
+            $dischargeDate ? jdate($dischargeDate->created_at) : '',
         ];
         $this->eventData['done']++;
         $this->eventData['success']++;
