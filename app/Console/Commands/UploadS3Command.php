@@ -25,11 +25,11 @@ class UploadS3Command extends Command
                 ->putFile($destination, Storage::path($source));
             if ($fileNameUploaded) {
                 $this->info('backup file is uploaded to S3 Arvan Cloud filename is:'.$fileNameUploaded);
+            } else {
+                $this->error('error when backup file is uploading');
             }
-            $this->error('error when backup file is uploading');
+        } else {
+            $this->error($source.' does not exists');
         }
-        $this->error($source.' does not exists');
-
-
     }
 }
