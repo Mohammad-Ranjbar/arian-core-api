@@ -6,10 +6,10 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
-class BackupDatabaseCommand extends Command
+class UploadS3Command extends Command
 {
 
-    protected $signature = 'backup:mysql {path} {fileName}';
+    protected $signature = 'upload:s3 {path} {fileName}';
 
 
     protected $description = 'create backup database mysql and store in S3';
