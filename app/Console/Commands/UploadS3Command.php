@@ -18,6 +18,8 @@ class UploadS3Command extends Command
     {
         $source = $this->argument('source');
         $destination = $this->argument('destination');
+        $this->info($source);
+        $this->info($destination);
         if (Storage::exists($source)) {
             $fileNameUploaded = Storage::disk('s3')
                 ->putFile(Storage::get($source), $destination);
