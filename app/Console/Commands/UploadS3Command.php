@@ -22,7 +22,7 @@ class UploadS3Command extends Command
         $this->info($destination);
         if (Storage::exists($source)) {
             $fileNameUploaded = Storage::disk('s3')
-                ->putFile(Storage::get($source), $destination);
+                ->putFile($destination, Storage::get($source));
             if ($fileNameUploaded) {
                 $this->info('backup file is uploaded to S3 Arvan Cloud filename is:'.$fileNameUploaded);
             }
