@@ -98,9 +98,11 @@ class GatePermitController extends CrudController
 
     }
 
-    public function oldGate(Vehicle $vehicle): JsonResponse
+    public function oldGate(Vehicle $vehicle)
     {
 
+
+        return false;
         $response = ErpWsdlClient::run(config('erp.old_gate'), 'CreateVehicleExitStatus',
             ['vINP' => $vehicle->getAttribute('vin')]);
 
