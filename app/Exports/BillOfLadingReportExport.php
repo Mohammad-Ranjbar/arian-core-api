@@ -74,8 +74,8 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
      */
     public function map($row): array
     {
-        $deliverDate = $row->logs->where('action', 'temporary_receipt')->first();
-        $dischargeDate = $row->logs->where('action', 'discharge')->first();
+        $deliverDate = $row->logs()->where('action', 'temporary_receipt')->first();
+        $dischargeDate = $row->logs()->where('action', 'discharge')->first();
         $row = [
             $row->vehicles()->get()->implode('vin', ',') . $row->containers()->get()->implode('code', ','),
             $row->car->transitCompany->title,
