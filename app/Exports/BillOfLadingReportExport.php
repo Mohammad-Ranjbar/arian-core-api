@@ -40,7 +40,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
     public function headings(): array
     {
         return [
-//            'VIN/Container',
+            'VIN/Container',
             'shipping_company',
             'vehicle_title',
 //            'number_plates',
@@ -72,7 +72,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
     public function map($row): array
     {
         $row = [
-//            $row->vin,
+            $row->vehicles()->get()->implode('vin', ',') .$row->containers()->get()->implode('code', ','),
             $row->car->transitCompany->title,
             $row->car->title,
             $row->car->driver->name,
