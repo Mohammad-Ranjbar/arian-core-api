@@ -115,7 +115,7 @@ class GatePermitController extends CrudController
             return response()->json(['message' => 'تردد مورد نظر ثبت گردید']);
         }
 
-        return response()->json(['message' => 'ثبت تردد امکان پذیر نیست']);
+        return response()->json(['message' => 'ثبت تردد امکان پذیر نیست'],400);
     }
 
     /**
