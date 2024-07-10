@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\MoveToSaleOnlineApplicationCommand;
+use App\Jobs\MoveContractToSaleOnlineApplicationJob;
+use App\Jobs\MoveInvitationToSaleOnlineApplicationJob;
 use App\Models\SaleCompany;
 use App\Services\SMBService;
 use Exception;
@@ -15,13 +16,15 @@ class SyncInvitationsCommand extends Command
 
     protected $signature = 'app:sync-invitations-command';
 
+    public $share;
+
 
     /**
      * @throws DependencyException
      */
     public function handle(): void
     {
-        $share = new SMBService(
+        $this->share = new SMBService(
             config('erp.share_server'),
             config('erp.auth')[0],
             config('erp.auth')[1],
@@ -30,32 +33,75 @@ class SyncInvitationsCommand extends Command
         );
         $companies = SaleCompany::query()->get();
         foreach ($companies as $company) {
+            if(!empty($company->getAttribute('invitation'))){
+                $this->syncInvitation($company);
+            }
+            if(!empty($company->getAttribute('contract'))){
+                $this->syncContract($company);
+            }
+        }
+    }
+
+    private function syncInvitation(SaleCompany $company): void
+    {
+
+        try {
+            $files = $this->share->getFiles($company->getAttribute('folder_name').'/'.$company->getAttribute('invitation'));
+        } catch (Exception $exception) {
+            logger($exception->getMessage());
+            $files = [];
+        }
+        foreach ($files as $file) {
             try {
-                $files = $share->getFiles($company->getAttribute('folder_name').'/Invitation');
+                $content = $this->share->getFile($file->getPath());
+                $path = uniqid().$file->getName();
+                Storage::put($path, $content);
+                $reference = explode('.', $file->getName())[0];
+
+
+                dispatch(new MoveInvitationToSaleOnlineApplicationJob([
+                    'path'       => $path,
+                    'reference'  => $reference,
+                    'company_id' => $company->id
+                ]));
+
+                fclose($content);
+                $this->share->remove($file->getPath());
+
             } catch (Exception $exception) {
                 logger($exception->getMessage());
-                $files = [];
             }
-            foreach ($files as $file) {
-                try {
-                    $content = $share->getFile($file->getPath());
-                    $path = uniqid().$file->getName();
-                    Storage::put($path, $content);
-                    $reference = explode('.', $file->getName())[0];
+        }
+    }
+
+    private function syncContract(SaleCompany $company)
+    {
+
+        try {
+            $files = $this->share->getFiles($company->getAttribute('folder_name').'/'.$company->getAttribute('contract'));
+        } catch (Exception $exception) {
+            logger($exception->getMessage());
+            $files = [];
+        }
+        foreach ($files as $file) {
+            try {
+                $content = $this->share->getFile($file->getPath());
+                $path = uniqid().$file->getName();
+                Storage::put($path, $content);
+                $reference = explode('.', $file->getName())[0];
 
 
-                    dispatch(new MoveToSaleOnlineApplicationCommand([
-                        'path'       => $path,
-                        'reference'  => $reference,
-                        'company_id' => $company->id
-                    ]));
+                dispatch(new MoveContractToSaleOnlineApplicationJob([
+                    'path'       => $path,
+                    'reference'  => $reference,
+                    'company_id' => $company->id
+                ]));
 
-                    fclose($content);
-                    $share->remove($file->getPath());
+                fclose($content);
+                $this->share->remove($file->getPath());
 
-                } catch (Exception $exception) {
-                    logger($exception->getMessage());
-                }
+            } catch (Exception $exception) {
+                logger($exception->getMessage());
             }
         }
     }

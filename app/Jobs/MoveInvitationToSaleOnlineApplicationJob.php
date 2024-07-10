@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-class MoveToSaleOnlineApplicationCommand implements ShouldQueue
+class MoveInvitationToSaleOnlineApplicationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -30,7 +30,7 @@ class MoveToSaleOnlineApplicationCommand implements ShouldQueue
      */
     public function handle(): void
     {
-        $fileName = Storage::disk('s3')->putFile('/', Storage::path($this->data['path']));
+        $fileName = Storage::disk('s3')->putFile('/invitations/'.$this->data['company_id'], Storage::path($this->data['path']));
         if ($fileName) {
             $erpOdataClient = app()->make(ErpOdataClient::class);
             $company = SaleCompany::query()->find($this->data['company_id']);
