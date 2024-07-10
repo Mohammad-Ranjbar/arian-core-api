@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class UploadS3Command extends Command
 {
 
-    protected $signature = 'upload:s3 {path} {fileName}';
+    protected $signature = 'upload:s3 {source} {destination}';
 
 
     protected $description = 'create backup database mysql and store in S3';
@@ -17,17 +17,17 @@ class UploadS3Command extends Command
 
     public function handle(): void
     {
-        $path = $this->argument('path');
-        $fileName = $this->argument('fileName');
-        if(File::exists(Storage::path($path.'/'.$fileName))){
+        $source = $this->argument('path');
+        $destination = $this->argument('destination');
+        if(File::exists(Storage::path($source))){
            $fileNameUploaded = Storage::disk('s3')
-                ->putFile(Storage::get($path.'/'.$fileName));
+                ->putFile(Storage::get($source),$destination);
            if ($fileNameUploaded){
                $this->info('backup file is uploaded to S3 Arvan Cloud filename is:'.$fileNameUploaded);
            }
             $this->error('error when backup file is uploading');
         }
-        $this->error($fileName.' does not exists in path '.$path);
+        $this->error($source.' does not exists');
 
 
 
