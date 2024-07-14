@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.316.1",
+            "version": "3.316.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "888cee2adf890a5b749cc22c0f05051b53619d33"
+                "reference": "e832e594b3c213760e067e15ef2739f77505e832"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/888cee2adf890a5b749cc22c0f05051b53619d33",
-                "reference": "888cee2adf890a5b749cc22c0f05051b53619d33",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e832e594b3c213760e067e15ef2739f77505e832",
+                "reference": "e832e594b3c213760e067e15ef2739f77505e832",
                 "shasum": ""
             },
             "require": {
@@ -151,9 +151,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.316.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.316.3"
             },
-            "time": "2024-07-09T18:09:27+00:00"
+            "time": "2024-07-12T18:07:23+00:00"
         },
         {
             "name": "beberlei/assert",
@@ -353,16 +353,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.4.0",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "35e8d0af4486141bc745f23a29cc2091eb624a32"
+                "reference": "c51258e759afdb17f1fd1fe83bc12baaef6309d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/35e8d0af4486141bc745f23a29cc2091eb624a32",
-                "reference": "35e8d0af4486141bc745f23a29cc2091eb624a32",
+                "url": "https://api.github.com/repos/composer/semver/zipball/c51258e759afdb17f1fd1fe83bc12baaef6309d6",
+                "reference": "c51258e759afdb17f1fd1fe83bc12baaef6309d6",
                 "shasum": ""
             },
             "require": {
@@ -414,7 +414,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.4.0"
+                "source": "https://github.com/composer/semver/tree/3.4.2"
             },
             "funding": [
                 {
@@ -430,7 +430,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-31T09:50:34+00:00"
+            "time": "2024-07-12T11:35:52+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -1105,16 +1105,16 @@
         },
         {
             "name": "google/protobuf",
-            "version": "v3.25.3",
+            "version": "v4.27.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "983a87f4f8798a90ca3a25b0f300b8fda38df643"
+                "reference": "1b9bfead0ea8108e6ab411258fc38417b62d4bf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/983a87f4f8798a90ca3a25b0f300b8fda38df643",
-                "reference": "983a87f4f8798a90ca3a25b0f300b8fda38df643",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/1b9bfead0ea8108e6ab411258fc38417b62d4bf6",
+                "reference": "1b9bfead0ea8108e6ab411258fc38417b62d4bf6",
                 "shasum": ""
             },
             "require": {
@@ -1143,9 +1143,9 @@
                 "proto"
             ],
             "support": {
-                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v3.25.3"
+                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v4.27.2"
             },
-            "time": "2024-02-15T21:11:49+00:00"
+            "time": "2024-06-25T19:14:44+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -5575,20 +5575,20 @@
         },
         {
             "name": "roadrunner-php/roadrunner-api-dto",
-            "version": "v1.7.0",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roadrunner-php/roadrunner-api-dto.git",
-                "reference": "d46b24f8b51ca0bca36aa74df60822f024d8c6dd"
+                "reference": "a6dfcbaadad5448920fdc24f293f7e7039e0ccb6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/roadrunner-php/roadrunner-api-dto/zipball/d46b24f8b51ca0bca36aa74df60822f024d8c6dd",
-                "reference": "d46b24f8b51ca0bca36aa74df60822f024d8c6dd",
+                "url": "https://api.github.com/repos/roadrunner-php/roadrunner-api-dto/zipball/a6dfcbaadad5448920fdc24f293f7e7039e0ccb6",
+                "reference": "a6dfcbaadad5448920fdc24f293f7e7039e0ccb6",
                 "shasum": ""
             },
             "require": {
-                "google/protobuf": "^v3.22",
+                "google/protobuf": "^3.22 || ^4.0",
                 "php": "^8.1"
             },
             "conflict": {
@@ -5630,7 +5630,7 @@
                 "docs": "https://docs.roadrunner.dev",
                 "forum": "https://forum.roadrunner.dev",
                 "issues": "https://github.com/roadrunner-server/roadrunner/issues",
-                "source": "https://github.com/roadrunner-php/roadrunner-api-dto/tree/v1.7.0"
+                "source": "https://github.com/roadrunner-php/roadrunner-api-dto/tree/v1.8.0"
             },
             "funding": [
                 {
@@ -5638,7 +5638,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-04-11T14:08:46+00:00"
+            "time": "2024-07-12T06:50:39+00:00"
         },
         {
             "name": "sentry/sentry",
@@ -5731,16 +5731,16 @@
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "4.6.1",
+            "version": "4.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "7f5fd9f362e440c4c0c492f386b93095321f9101"
+                "reference": "44151798253145c1abc7fe7e38210b98f926d794"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/7f5fd9f362e440c4c0c492f386b93095321f9101",
-                "reference": "7f5fd9f362e440c4c0c492f386b93095321f9101",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/44151798253145c1abc7fe7e38210b98f926d794",
+                "reference": "44151798253145c1abc7fe7e38210b98f926d794",
                 "shasum": ""
             },
             "require": {
@@ -5804,7 +5804,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-laravel/issues",
-                "source": "https://github.com/getsentry/sentry-laravel/tree/4.6.1"
+                "source": "https://github.com/getsentry/sentry-laravel/tree/4.7.0"
             },
             "funding": [
                 {
@@ -5816,7 +5816,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-06-18T15:06:09+00:00"
+            "time": "2024-07-10T21:55:04+00:00"
         },
         {
             "name": "spatie/laravel-permission",
@@ -10430,16 +10430,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.26",
+            "version": "10.5.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "42e2f13ceaa2e34461bc89bea75407550b40b2aa"
+                "reference": "2425f713b2a5350568ccb1a2d3984841a23e83c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/42e2f13ceaa2e34461bc89bea75407550b40b2aa",
-                "reference": "42e2f13ceaa2e34461bc89bea75407550b40b2aa",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2425f713b2a5350568ccb1a2d3984841a23e83c5",
+                "reference": "2425f713b2a5350568ccb1a2d3984841a23e83c5",
                 "shasum": ""
             },
             "require": {
@@ -10449,26 +10449,26 @@
                 "ext-mbstring": "*",
                 "ext-xml": "*",
                 "ext-xmlwriter": "*",
-                "myclabs/deep-copy": "^1.10.1",
-                "phar-io/manifest": "^2.0.3",
-                "phar-io/version": "^3.0.2",
+                "myclabs/deep-copy": "^1.12.0",
+                "phar-io/manifest": "^2.0.4",
+                "phar-io/version": "^3.2.1",
                 "php": ">=8.1",
-                "phpunit/php-code-coverage": "^10.1.5",
-                "phpunit/php-file-iterator": "^4.0",
-                "phpunit/php-invoker": "^4.0",
-                "phpunit/php-text-template": "^3.0",
-                "phpunit/php-timer": "^6.0",
-                "sebastian/cli-parser": "^2.0",
-                "sebastian/code-unit": "^2.0",
-                "sebastian/comparator": "^5.0",
-                "sebastian/diff": "^5.0",
-                "sebastian/environment": "^6.0",
-                "sebastian/exporter": "^5.1",
-                "sebastian/global-state": "^6.0.1",
-                "sebastian/object-enumerator": "^5.0",
-                "sebastian/recursion-context": "^5.0",
-                "sebastian/type": "^4.0",
-                "sebastian/version": "^4.0"
+                "phpunit/php-code-coverage": "^10.1.15",
+                "phpunit/php-file-iterator": "^4.1.0",
+                "phpunit/php-invoker": "^4.0.0",
+                "phpunit/php-text-template": "^3.0.1",
+                "phpunit/php-timer": "^6.0.0",
+                "sebastian/cli-parser": "^2.0.1",
+                "sebastian/code-unit": "^2.0.0",
+                "sebastian/comparator": "^5.0.1",
+                "sebastian/diff": "^5.1.1",
+                "sebastian/environment": "^6.1.0",
+                "sebastian/exporter": "^5.1.2",
+                "sebastian/global-state": "^6.0.2",
+                "sebastian/object-enumerator": "^5.0.0",
+                "sebastian/recursion-context": "^5.0.0",
+                "sebastian/type": "^4.0.0",
+                "sebastian/version": "^4.0.1"
             },
             "suggest": {
                 "ext-soap": "To be able to generate mocks based on WSDL files"
@@ -10511,7 +10511,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.26"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.27"
             },
             "funding": [
                 {
@@ -10527,7 +10527,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-08T05:30:46+00:00"
+            "time": "2024-07-10T11:48:06+00:00"
         },
         {
             "name": "sebastian/cli-parser",
