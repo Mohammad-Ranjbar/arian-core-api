@@ -16,6 +16,7 @@ class CarModel extends Model
     protected $fillable = [
         'title',
         'reference',
+        'make_code_id'
     ];
 
 

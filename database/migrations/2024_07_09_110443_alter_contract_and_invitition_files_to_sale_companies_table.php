@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sale_companies', function (Blueprint $table) {
-            $table->dropColumn(['invitation','contract']);
+            $table->dropColumn(['invitation','contract','erp_contract_url','sync_order_url']);
         });
     }
 };
