@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command(SyncProductItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
-        $schedule->command(SyncInvitationsCommand::class)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();
     }
 
 
