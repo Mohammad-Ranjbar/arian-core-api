@@ -23,6 +23,10 @@ class Barcode extends Model
         'created_at'
     ];
 
+    /**
+     * @param array $data
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder
+     */
     public static function getReportData(array $data)
     {
 
@@ -84,5 +88,12 @@ class Barcode extends Model
         }
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function generalProductItem(): BelongsTo
+    {
+        return $this->belongsTo(GeneralProductItem::class);
+    }
 
 }
