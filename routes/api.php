@@ -20,6 +20,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitExitController;
+use App\Http\Controllers\GeneralProductItemController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\IncomingVehicleController;
 use App\Http\Controllers\InspectionController;
@@ -244,6 +245,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('list-sale-locations', [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
 
     Route::get('gate-permits/{gatePermit}/print', [GatePermitController::class, 'print'])->name('gate-permits.print');
+
+    Route::get('/general-product-items/car-model-id/{carModelId}',[GeneralProductItemController::class,'carModelItems'])->name('general-product-items.car-model-id');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -270,6 +273,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'accompanying-items' => AccompanyingItemController::class,
         'locations' => LocationController::class,
         'sale-companies' => SaleCompanyController::class,
+        'general-product-items' => GeneralProductItemController::class,
     ]);
 
     /*

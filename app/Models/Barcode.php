@@ -19,6 +19,7 @@ class Barcode extends Model
         'user_id',
         'code',
         'erp_product_item_id',
+        'general_product_item_id',
         'created_at'
     ];
 
@@ -72,13 +73,13 @@ class Barcode extends Model
     /**
      * @return void
      */
-    public function updateErpProductItemId():void
+    public function updateErpProductItemId(): void
     {
         $record = ErpProductItem::query()->whereNotNull('tracking_code')
             ->where('tracking_code', '!=', '')
             ->whereRaw("'$this->code' LIKE concat ('%',tracking_code,'%')")->first();
 
-        if ($record){
+        if ($record) {
             $this->update(['erp_product_item_id' => $record->getAttribute('id')]);
         }
     }

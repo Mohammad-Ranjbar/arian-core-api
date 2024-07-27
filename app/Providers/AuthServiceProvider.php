@@ -15,6 +15,7 @@ use App\Models\Driver;
 use App\Models\Element;
 use App\Models\File;
 use App\Models\GatePermit;
+use App\Models\GeneralProductItem;
 use App\Models\Incident;
 use App\Models\Inspection;
 use App\Models\Inventory;
@@ -71,18 +72,19 @@ class AuthServiceProvider extends ServiceProvider
         Basket::class => CrudPolicy::class,
         Inventory::class => CrudPolicy::class,
         Container::class => CrudPolicy::class,
-        GatePermit::class        => CrudPolicy::class,
-        BillOfLading::class      => CrudPolicy::class,
-        Driver::class            => CrudPolicy::class,
-        File::class              => CrudPolicy::class,
-        SaleLocation::class      => CrudPolicy::class,
-        AccompanyingItem::class  => CrudPolicy::class,
-        Location::class          => CrudPolicy::class,
+        GatePermit::class => CrudPolicy::class,
+        BillOfLading::class => CrudPolicy::class,
+        Driver::class => CrudPolicy::class,
+        File::class => CrudPolicy::class,
+        SaleLocation::class => CrudPolicy::class,
+        AccompanyingItem::class => CrudPolicy::class,
+        Location::class => CrudPolicy::class,
         LocationAttribute::class => CrudPolicy::class,
-        Inspection::class        => CrudPolicy::class,
-        SaleCompany::class       => CrudPolicy::class,
-        SaleInvoice::class       => CrudPolicy::class,
-        Vehicle::class           => VehiclePolicy::class,
+        Inspection::class => CrudPolicy::class,
+        SaleCompany::class => CrudPolicy::class,
+        SaleInvoice::class => CrudPolicy::class,
+        GeneralProductItem::class => CrudPolicy::class,
+        Vehicle::class => VehiclePolicy::class,
     ];
 
 
