@@ -33,7 +33,11 @@ class SyncCustomerClubDataCommand extends Command
             $this->info($url);
             $result = $this->client->get($url);
             $list = $result->value;
-            $url = $result->{'@odata.nextLink'};
+            try {
+                $url = $result->{'@odata.nextLink'};
+            }catch (\Exception $e){
+                $url = null;
+            }
             $records = [];
             foreach ($list as $record) {
                 if ($record->VIN and $record->Customer_No) {
