@@ -33,9 +33,10 @@ class SyncCustomerClubDataCommand extends Command
         Barcode::query()->chunk(500, function ($items) {
             $list = $items->map(function ($item) {
                 return [
-                    'vin'           => $item->vin,
-                    'serial_number' => $item->code,
-                    'description'   => $item->erpProductItem?->title,
+                    'vin'               => $item->vin,
+                    'serial_number'     => $item->code,
+                    'description'       => $item->erpProductItem?->title,
+                    'product_item_code' => ($item->erpProductItem) ? $item->erpProductItem->reference : '',
                 ];
             })->all();
             $this->sendData([], $list);
