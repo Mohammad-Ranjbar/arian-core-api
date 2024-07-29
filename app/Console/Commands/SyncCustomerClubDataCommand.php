@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Barcode;
 use App\Services\Erp\ErpOdataClient;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -28,6 +30,32 @@ class SyncCustomerClubDataCommand extends Command
      */
     public function handle()
     {
+        Barcode::query()->chunk(500, function ($items) {
+            $list = $items->map(function ($item) {
+                return [
+                    'vin'           => $item->vin,
+                    'serial_number' => $item->code,
+                    'description'   => $item->erpProductItem?->title,
+                ];
+            });
+            $this->sendData([], $list);
+            $this->info('500 barcode submitted');
+        });
+        $this->addVehicles();
+    }
+
+    private function sendData(array $records = [], array $barcodes = []): void
+    {
+        $this->info('Sending '.count($records));
+        Http::post(config('customers.club_url'), [
+            'items'    => $records,
+            'barcodes' => $barcodes,
+            'token'    => config('customers.club_token')
+        ]);
+    }
+
+    private function addVehicles(): void
+    {
         $url = config('erp.vehicles');
         do {
             $this->info($url);
@@ -35,7 +63,7 @@ class SyncCustomerClubDataCommand extends Command
             $list = $result->value;
             try {
                 $url = $result->{'@odata.nextLink'};
-            }catch (\Exception $e){
+            } catch (Exception $e) {
                 $url = null;
             }
             $records = [];
@@ -56,16 +84,5 @@ class SyncCustomerClubDataCommand extends Command
                 $this->sendData($records);
             }
         } while ($url);
-
-
-    }
-
-    private function sendData(array $records): void
-    {
-        $this->info('Sending '.count($records));
-        Http::post(config('customers.club_url'), [
-            'items' => $records,
-            'token' => config('customers.club_token')
-        ]);
     }
 }
