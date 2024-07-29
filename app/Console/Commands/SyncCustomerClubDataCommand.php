@@ -37,7 +37,7 @@ class SyncCustomerClubDataCommand extends Command
                     'serial_number' => $item->code,
                     'description'   => $item->erpProductItem?->title,
                 ];
-            });
+            })->all();
             $this->sendData([], $list);
             $this->info('500 barcode submitted');
         });
