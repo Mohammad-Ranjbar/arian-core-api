@@ -35,8 +35,8 @@ class SyncCustomerClubDataCommand extends Command
                 return [
                     'vin'               => $item->vin,
                     'serial_number'     => $item->code,
-                    'description'       => ($item->erpProductItem)? $item->erpProductItem->title : '',
-                    'product_item_code' => ($item->erpProductItem) ? $item->erpProductItem->reference : '',
+                    'description'       => ($item->erpProductItem)? $item->erpProductItem->title : '--',
+                    'product_item_code' => ($item->erpProductItem) ? $item->erpProductItem->reference : '--',
                 ];
             })->all();
             $this->sendData([], $list);
