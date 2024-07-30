@@ -17,7 +17,7 @@ class SyncFromSqlServerCommand extends Command
     {
         $connection = DB::connection('sqlsrv');
 
-        $result = $connection->select('SELECT * FROM your_table_name');
+        $result = $connection->select('SELECT * FROM ServiceLine');
         dd($result);
 
 // Fetch the results
