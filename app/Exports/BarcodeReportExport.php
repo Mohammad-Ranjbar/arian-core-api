@@ -70,9 +70,6 @@ class BarcodeReportExport implements FromQuery, WithMapping, WithHeadings, Shoul
         $this->eventData['done']++;
         $this->eventData['success']++;
         $this->sendEvent();
-
-        logger($this->eventData['done']);
-
         return $row;
     }
 
