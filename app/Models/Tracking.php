@@ -61,6 +61,16 @@ class Tracking extends Model
         if (!empty($data['user_id'])) {
             $query = $query->where('user_id', $data['user_id']);
         }
+        if (!empty($data['sale_location_id'])) {
+            $query = $query->whereHas('model', function ($query) use ($data) {
+                $query->where('id', $data['sale_location_id']);
+            });
+        }
+        if (!empty($data['make_code_id'])) {
+            $query = $query->whereHas('vehicle', function ($query) use ($data) {
+                $query->where('make_code_id', $data['make_code_id']);
+            });
+        }
 
         if (!empty($data['paginate'])) {
             return $query->paginate($data['per_page'] ?? 40);
