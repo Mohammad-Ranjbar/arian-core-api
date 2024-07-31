@@ -60,7 +60,7 @@ return [
             'username' => env('DB_SQLSRV_USERNAME', 'root'),
             'password' => env('DB_SQLSRV_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => 'dbo',
+            //'prefix' => 'dbo',
             'timeout' => 30,
             'LoginTimeout' => 0,
 //            'prefix_indexes' => true,
