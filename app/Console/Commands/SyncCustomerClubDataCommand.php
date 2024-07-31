@@ -48,9 +48,10 @@ class SyncCustomerClubDataCommand extends Command
         $sendList = [];
         foreach ($result as $row) {
             $record = [
-                'service_at' => Carbon::make($row->date)->toDateTimeString(),
-                'vin'        => $row->vin,
-                'reference'  => $row->document_no
+                'service_at'   => Carbon::make($row->date)->toDateTimeString(),
+                'vin'          => $row->vin,
+                'reference'    => $row->document_no,
+                'total_amount' => 0,
             ];
             $items = [];
             $list = DWVehicleServiceHistoryTree::query()
@@ -85,7 +86,7 @@ class SyncCustomerClubDataCommand extends Command
         $progress->finish();
     }
 
-    private function sendData(array $records = [], array $barcodes = [], array $services =[]): void
+    private function sendData(array $records = [], array $barcodes = [], array $services = []): void
     {
         Http::post(config('customers.club_url'), [
             'items'    => $records,
@@ -93,6 +94,21 @@ class SyncCustomerClubDataCommand extends Command
             'services' => $services,
             'token'    => config('customers.club_token')
         ]);
+    }
+
+    private function addBarcodes(): void
+    {
+        Barcode::query()->chunk(500, function ($items) {
+            $list = $items->map(function ($item) {
+                return [
+                    'vin'               => $item->vin,
+                    'serial_number'     => $item->code,
+                    'description'       => ($item->erpProductItem) ? $item->erpProductItem->title : '--',
+                    'product_item_code' => ($item->erpProductItem) ? $item->erpProductItem->reference : '--',
+                ];
+            })->all();
+            $this->sendData([], $list);
+        });
     }
 
     private function addVehicles(): void
@@ -124,20 +140,5 @@ class SyncCustomerClubDataCommand extends Command
                 $this->sendData($records);
             }
         } while ($url);
-    }
-
-    private function addBarcodes(): void
-    {
-        Barcode::query()->chunk(500, function ($items) {
-            $list = $items->map(function ($item) {
-                return [
-                    'vin'               => $item->vin,
-                    'serial_number'     => $item->code,
-                    'description'       => ($item->erpProductItem) ? $item->erpProductItem->title : '--',
-                    'product_item_code' => ($item->erpProductItem) ? $item->erpProductItem->reference : '--',
-                ];
-            })->all();
-            $this->sendData([], $list);
-        });
     }
 }
