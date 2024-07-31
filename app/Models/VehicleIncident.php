@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VehicleIncident extends Model
@@ -17,8 +18,24 @@ class VehicleIncident extends Model
      */
     protected $fillable = [
         'type', 'intensity', 'method', 'description', 'user_id', 'production_tracking_id', 'element_id', 'incident_id',
-        'vin', 'checked_at' , 'custom_location_type','custom_location_id','created_at','checked_at'
+        'vin', 'checked_at', 'custom_location_type', 'custom_location_id', 'created_at', 'checked_at'
     ];
+
+    public static function getReportData(array $data)
+    {
+        $query = self::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+
+        if (!empty($data['paginate'])) {
+            return $query->paginate($data['per_page'] ?? 10);
+        }
+        return $query->get();
+    }
 
     /**
      * @return BelongsTo
@@ -63,25 +80,14 @@ class VehicleIncident extends Model
     /**
      * @return HasMany
      */
-    public function incidentSources():HasMany
+    public function incidentSources(): HasMany
     {
-        return $this->hasMany(IncidentSource::class,'incident_id');
+        return $this->hasMany(IncidentSource::class, 'incident_id');
     }
 
-    public static function getReportData(array $data)
+    public function customLocation(): MorphTo
     {
-        $query = self::query();
-        if (!empty($data['from'])) {
-            $query = $query->where('created_at', '>=', $data['from']);
-        }
-        if (!empty($data['to'])) {
-            $query = $query->where('created_at', '<=', $data['to']);
-        }
-
-        if (!empty($data['paginate'])) {
-            return $query->paginate($data['per_page'] ?? 10);
-        }
-        return $query->get();
+        return $this->morphTo();
     }
 
 }
