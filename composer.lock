@@ -1858,18 +1858,6 @@
         },
         {
             "name": "laravel/framework",
-<<<<<<< HEAD
-            "version": "v10.48.17",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laravel/framework.git",
-                "reference": "60f3c8f667b24a09e0392e26b1f40fb9067cdc3c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/60f3c8f667b24a09e0392e26b1f40fb9067cdc3c",
-                "reference": "60f3c8f667b24a09e0392e26b1f40fb9067cdc3c",
-=======
             "version": "v10.48.18",
             "source": {
                 "type": "git",
@@ -1880,7 +1868,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/framework/zipball/d9729d476c3efe79f950ebcb6de1ec8199a421e6",
                 "reference": "d9729d476c3efe79f950ebcb6de1ec8199a421e6",
->>>>>>> master
                 "shasum": ""
             },
             "require": {
@@ -2074,22 +2061,6 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-<<<<<<< HEAD
-            "time": "2024-07-23T16:06:06+00:00"
-        },
-        {
-            "name": "laravel/horizon",
-            "version": "v5.26.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laravel/horizon.git",
-                "reference": "ee804ece8e0376e8ddf44348de947945751c06f2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laravel/horizon/zipball/ee804ece8e0376e8ddf44348de947945751c06f2",
-                "reference": "ee804ece8e0376e8ddf44348de947945751c06f2",
-=======
             "time": "2024-07-30T15:05:11+00:00"
         },
         {
@@ -2104,7 +2075,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/horizon/zipball/8830039251591d1af353f571b40fe0c774dfda20",
                 "reference": "8830039251591d1af353f571b40fe0c774dfda20",
->>>>>>> master
                 "shasum": ""
             },
             "require": {
@@ -2168,15 +2138,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/horizon/issues",
-<<<<<<< HEAD
-                "source": "https://github.com/laravel/horizon/tree/v5.26.0"
-            },
-            "time": "2024-07-22T14:37:58+00:00"
-=======
                 "source": "https://github.com/laravel/horizon/tree/v5.27.0"
             },
             "time": "2024-07-26T05:41:51+00:00"
->>>>>>> master
         },
         {
             "name": "laravel/octane",
