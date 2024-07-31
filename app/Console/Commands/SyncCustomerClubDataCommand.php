@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Barcode;
+use App\Models\DWVehicleServiceHistoryTree;
 use App\Services\Erp\ErpOdataClient;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -25,32 +27,70 @@ class SyncCustomerClubDataCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+
+    public function handle(): void
     {
-        Barcode::query()->chunk(500, function ($items) {
-            $list = $items->map(function ($item) {
-                return [
-                    'vin'               => $item->vin,
-                    'serial_number'     => $item->code,
-                    'description'       => ($item->erpProductItem)? $item->erpProductItem->title : '--',
-                    'product_item_code' => ($item->erpProductItem) ? $item->erpProductItem->reference : '--',
-                ];
-            })->all();
-            $this->sendData([], $list);
-            $this->info('500 barcode submitted');
-        });
+        $this->addServices();
+        $this->addBarcodes();
         $this->addVehicles();
     }
 
-    private function sendData(array $records = [], array $barcodes = []): void
+    public function addServices(): void
     {
-        $this->info('Sending '.count($records));
+        $result = DWVehicleServiceHistoryTree::query()
+            ->groupBy(['VIN', 'Document No_'])
+            ->selectRaw('VIN as vin, [Document No_] as document_no ,count(*) as count, max(Date) as date')
+            ->get();
+
+        $progress = $this->output->createProgressBar($result->count());
+        $progress->start();
+
+        $sendList = [];
+        foreach ($result as $row) {
+            $record = [
+                'service_at' => Carbon::make($row->date)->toDateTimeString(),
+                'vin'        => $row->vin,
+                'reference'  => $row->document_no
+            ];
+            $items = [];
+            $list = DWVehicleServiceHistoryTree::query()
+                ->where('VIN', $row->vin)
+                ->where('Document No_', $row->document_no)
+                ->get();
+            foreach ($list as $item) {
+                if ((int) $item->Quantity) {
+                    $items[] = [
+                        'title' => $item->Description.' '.$item->{'Description 2'},
+                        'qty'   => (int) $item->Quantity,
+                    ];
+                }
+
+            }
+            if (!empty($items)) {
+                $record['items'] = $items;
+                $sendList[] = $record;
+            }
+
+            if (count($sendList) > 99) {
+                $this->sendData([], [], $sendList);
+                $sendList = [];
+            }
+
+            $progress->advance();
+        }
+
+        if (count($sendList) > 1) {
+            $this->sendData([], [], $sendList);
+        }
+        $progress->finish();
+    }
+
+    private function sendData(array $records = [], array $barcodes = [], array $services =[]): void
+    {
         Http::post(config('customers.club_url'), [
             'items'    => $records,
             'barcodes' => $barcodes,
+            'services' => $services,
             'token'    => config('customers.club_token')
         ]);
     }
@@ -59,7 +99,6 @@ class SyncCustomerClubDataCommand extends Command
     {
         $url = config('erp.vehicles');
         do {
-            $this->info($url);
             $result = $this->client->get($url);
             $list = $result->value;
             try {
@@ -85,5 +124,20 @@ class SyncCustomerClubDataCommand extends Command
                 $this->sendData($records);
             }
         } while ($url);
+    }
+
+    private function addBarcodes(): void
+    {
+        Barcode::query()->chunk(500, function ($items) {
+            $list = $items->map(function ($item) {
+                return [
+                    'vin'               => $item->vin,
+                    'serial_number'     => $item->code,
+                    'description'       => ($item->erpProductItem) ? $item->erpProductItem->title : '--',
+                    'product_item_code' => ($item->erpProductItem) ? $item->erpProductItem->reference : '--',
+                ];
+            })->all();
+            $this->sendData([], $list);
+        });
     }
 }
