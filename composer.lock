@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.316.10",
+            "version": "3.317.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "eeb8df6ff6caa428e8bcd631ad2a96430900a249"
+                "reference": "dc1e3031c2721a25beb2e8fbb175b576e3d60ab9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/eeb8df6ff6caa428e8bcd631ad2a96430900a249",
-                "reference": "eeb8df6ff6caa428e8bcd631ad2a96430900a249",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/dc1e3031c2721a25beb2e8fbb175b576e3d60ab9",
+                "reference": "dc1e3031c2721a25beb2e8fbb175b576e3d60ab9",
                 "shasum": ""
             },
             "require": {
@@ -151,9 +151,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.316.10"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.317.1"
             },
-            "time": "2024-07-30T18:10:20+00:00"
+            "time": "2024-08-02T18:09:42+00:00"
         },
         {
             "name": "beberlei/assert",
@@ -1105,16 +1105,16 @@
         },
         {
             "name": "google/protobuf",
-            "version": "v4.27.2",
+            "version": "v4.27.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "1b9bfead0ea8108e6ab411258fc38417b62d4bf6"
+                "reference": "ff079fe467bf86ac8f3359e2eb77a1613ebd204d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/1b9bfead0ea8108e6ab411258fc38417b62d4bf6",
-                "reference": "1b9bfead0ea8108e6ab411258fc38417b62d4bf6",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/ff079fe467bf86ac8f3359e2eb77a1613ebd204d",
+                "reference": "ff079fe467bf86ac8f3359e2eb77a1613ebd204d",
                 "shasum": ""
             },
             "require": {
@@ -1143,9 +1143,9 @@
                 "proto"
             ],
             "support": {
-                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v4.27.2"
+                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v4.27.3"
             },
-            "time": "2024-06-25T19:14:44+00:00"
+            "time": "2024-07-31T13:27:16+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -9623,16 +9623,16 @@
         },
         {
             "name": "laravel/pint",
-            "version": "v1.17.0",
+            "version": "v1.17.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/pint.git",
-                "reference": "4dba80c1de4b81dc4c4fb10ea6f4781495eb29f5"
+                "reference": "b5b6f716db298671c1dfea5b1082ec2c0ae7064f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/pint/zipball/4dba80c1de4b81dc4c4fb10ea6f4781495eb29f5",
-                "reference": "4dba80c1de4b81dc4c4fb10ea6f4781495eb29f5",
+                "url": "https://api.github.com/repos/laravel/pint/zipball/b5b6f716db298671c1dfea5b1082ec2c0ae7064f",
+                "reference": "b5b6f716db298671c1dfea5b1082ec2c0ae7064f",
                 "shasum": ""
             },
             "require": {
@@ -9685,7 +9685,7 @@
                 "issues": "https://github.com/laravel/pint/issues",
                 "source": "https://github.com/laravel/pint"
             },
-            "time": "2024-07-23T16:40:20+00:00"
+            "time": "2024-08-01T09:06:33+00:00"
         },
         {
             "name": "laravel/sail",
@@ -11584,16 +11584,16 @@
         },
         {
             "name": "spatie/flare-client-php",
-            "version": "1.7.0",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/flare-client-php.git",
-                "reference": "097040ff51e660e0f6fc863684ac4b02c93fa234"
+                "reference": "180f8ca4c0d0d6fc51477bd8c53ce37ab5a96122"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/flare-client-php/zipball/097040ff51e660e0f6fc863684ac4b02c93fa234",
-                "reference": "097040ff51e660e0f6fc863684ac4b02c93fa234",
+                "url": "https://api.github.com/repos/spatie/flare-client-php/zipball/180f8ca4c0d0d6fc51477bd8c53ce37ab5a96122",
+                "reference": "180f8ca4c0d0d6fc51477bd8c53ce37ab5a96122",
                 "shasum": ""
             },
             "require": {
@@ -11611,7 +11611,7 @@
                 "phpstan/extension-installer": "^1.1",
                 "phpstan/phpstan-deprecation-rules": "^1.0",
                 "phpstan/phpstan-phpunit": "^1.0",
-                "spatie/phpunit-snapshot-assertions": "^4.0|^5.0"
+                "spatie/pest-plugin-snapshots": "^1.0|^2.0"
             },
             "type": "library",
             "extra": {
@@ -11641,7 +11641,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/flare-client-php/issues",
-                "source": "https://github.com/spatie/flare-client-php/tree/1.7.0"
+                "source": "https://github.com/spatie/flare-client-php/tree/1.8.0"
             },
             "funding": [
                 {
@@ -11649,7 +11649,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-06-12T14:39:14+00:00"
+            "time": "2024-08-01T08:27:26+00:00"
         },
         {
             "name": "spatie/ignition",

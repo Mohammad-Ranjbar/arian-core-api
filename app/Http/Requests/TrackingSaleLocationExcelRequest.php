@@ -21,7 +21,8 @@ class TrackingSaleLocationExcelRequest extends FormRequest
             'from' => 'date|nullable',
             'to' => 'date|nullable',
             'make_code_id' => 'required|exists:make_codes,id',
-            'sale_location_id' => 'required|exists:sale_locations,id',
+            'sale_location_ids' => 'required|array',
+            'sale_location_ids.*' => 'required|exists:sale_locations,id',
         ];
     }
 

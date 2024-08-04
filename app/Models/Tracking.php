@@ -61,9 +61,9 @@ class Tracking extends Model
         if (!empty($data['user_id'])) {
             $query = $query->where('user_id', $data['user_id']);
         }
-        if (!empty($data['sale_location_id'])) {
+        if (!empty($data['sale_location_ids'])) {
             $query = $query->whereHas('model', function ($query) use ($data) {
-                $query->where('id', $data['sale_location_id']);
+                $query->whereIn('id', $data['sale_location_ids']);
             });
         }
         if (!empty($data['make_code_id'])) {
