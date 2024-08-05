@@ -1,22 +1,63 @@
 <?php
 return [
     'JAC' => [
-        'engine',
-        'body',
-        'gearbox',
+        [
+            'type' => 'engine',
+        ],
+        [
+            'type' => 'custom_engine',
+            'prefix' => '4A95TD',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
     ],
     'LAMARI' => [
-        'custom_engine',
-        'body',
-        'gearbox',
+        [
+            'type' => 'engine',
+        ],
+        [
+            'type' => 'custom_engine',
+            'prefix' => '4A95TD',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
     ],
     'SHACMOTO' => [
-        'engine',
-        'body',
-        'gearbox',
+        [
+            'type' => 'engine',
+        ],
+        [
+            'type' => 'custom_engine',
+            'prefix' => '4A95TD',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
     ],
     'XGMA' => [
-        'engine',
-        'gearbox',
+        [
+            'type' => 'engine',
+        ],
+        [
+            'type' => 'custom_engine',
+            'prefix' => '4A95TD',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
     ]
 ];
