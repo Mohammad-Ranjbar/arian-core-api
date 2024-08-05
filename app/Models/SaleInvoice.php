@@ -16,6 +16,7 @@ class SaleInvoice extends Model
         'payment_status',
         'erp_status',
         'data',
+        "data->message",
         'type',
         'value'
     ];

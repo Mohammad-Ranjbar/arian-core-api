@@ -40,6 +40,10 @@ class PublishMessageJob implements ShouldQueue
                 $saleCompany->invoices()->where('reference',$data['reference'])->update([
                     'erp_status' => 'transferred'
                 ]);
+            }else{
+                $saleCompany->invoices()->where('reference',$data['reference'])->update([
+                    'data->message' => $result['message']
+                ]);
             }
         }
     }
