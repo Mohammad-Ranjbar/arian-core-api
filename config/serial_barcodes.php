@@ -1,6 +1,6 @@
 <?php
 return [
-    'JAC' => [
+    'JAC'      => [
         [
             'type' => 'engine',
         ],
@@ -11,9 +11,9 @@ return [
             'type' => 'gearbox',
         ]
     ],
-    'LAMARI' => [
+    'LAMARI'   => [
         [
-            'type' => 'custom_engine',
+            'type'   => 'custom_engine',
             'prefix' => '4A95TD',
         ],
         [
@@ -34,7 +34,7 @@ return [
             'type' => 'gearbox',
         ]
     ],
-    'XGMA' => [
+    'XGMA'     => [
         [
             'type' => 'engine',
         ],
@@ -44,5 +44,11 @@ return [
         [
             'type' => 'gearbox',
         ]
+    ],
+    'erp_map'  => [
+        'engine'        => 3,
+        'custom_engine' => 3,
+        'body'          => 2,
+        'gearbox'       => 1,
     ]
 ];

@@ -57,6 +57,16 @@ class BarcodeController extends CrudController
         try {
             DB::beginTransaction();
             $saveItem = $this->repository->store($validatedData);
+
+
+            if (!empty($validatedData['type'])) {
+                $erpMap = config('serial_barcodes.erp_map');
+                if(isset($erpMap[$validatedData['type']])){
+                    // TODO send to erp - vin , $erpMap[$validatedData['type']] barcode
+                }
+            }
+
+
             $saveItem = $this->afterSave($saveItem, $validatedData);
             $data = new $this->resource($saveItem);
             DB::commit();
