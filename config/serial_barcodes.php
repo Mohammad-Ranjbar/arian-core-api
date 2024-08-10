@@ -5,10 +5,6 @@ return [
             'type' => 'engine',
         ],
         [
-            'type' => 'custom_engine',
-            'prefix' => '4A95TD',
-        ],
-        [
             'type' => 'body',
         ],
         [
@@ -16,9 +12,6 @@ return [
         ]
     ],
     'LAMARI' => [
-        [
-            'type' => 'engine',
-        ],
         [
             'type' => 'custom_engine',
             'prefix' => '4A95TD',
@@ -35,10 +28,6 @@ return [
             'type' => 'engine',
         ],
         [
-            'type' => 'custom_engine',
-            'prefix' => '4A95TD',
-        ],
-        [
             'type' => 'body',
         ],
         [
@@ -48,10 +37,6 @@ return [
     'XGMA' => [
         [
             'type' => 'engine',
-        ],
-        [
-            'type' => 'custom_engine',
-            'prefix' => '4A95TD',
         ],
         [
             'type' => 'body',
