@@ -57,7 +57,8 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
             "زمان موثر",
             "زمان ایجاد",
             "مدت توقف",
-            "قطعا مصرفی"
+            "قطعا مصرفی",
+            "مدت توقف",
         ];
     }
 
@@ -97,7 +98,8 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
             $row->effective_time,
             jdate($row->created_at),
             $totalDuration,
-            $row->productItems()->get()->implode('title', ' , ')
+            $row->productItems()->get()->implode('title', ' , '),
+            Carbon::make($row->start_at)->diffInMinutes($row->stop_at),
         ];
 
         $this->eventData['done']++;
