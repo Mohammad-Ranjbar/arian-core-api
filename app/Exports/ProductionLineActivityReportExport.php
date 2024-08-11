@@ -99,7 +99,7 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
             jdate($row->created_at),
             $totalDuration,
             $row->productItems()->get()->implode('title', ' , '),
-            Carbon::make($row->start_at)->diffInMinutes($row->stop_at),
+            ($row->start_at && $row->stop_at ) ? Carbon::make($row->start_at)->diffInMinutes($row->stop_at) : '',
         ];
 
         $this->eventData['done']++;
