@@ -50,9 +50,16 @@ class MoveInvitationToSaleOnlineApplicationJob implements ShouldQueue
                 $company->invoices()->create($temp);
 
 
+
+                if ($company->getAttribute('id') == 3) {
+                    $expireDate = Carbon::make($data->Due_Date);
+                }else{
+                    $expireDate = Carbon::make($data->Due_Date)->addDays(15);
+                }
+
                 $sendData = [
                     'order_id'    => trim($data->Online_Contract_ID),
-                    'expire_at'   => Carbon::make($data->Due_Date)->toDateTimeString(),
+                    'expire_at'   => $expireDate->toDateTimeString(),
                     'amount'      => $data->Net_To_Pay_when_issued,
                     'reference'   => $data->No,
                     'description' => 'دعوت نامه شماره '.$data->No,
