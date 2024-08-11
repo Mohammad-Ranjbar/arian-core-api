@@ -6,6 +6,7 @@ use App\Http\Resources\BarcodeResource;
 use App\Jobs\ExportJob;
 use App\Models\Job;
 use App\Repositories\BarcodeRepository;
+use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,10 +63,14 @@ class BarcodeController extends CrudController
             if (!empty($validatedData['type'])) {
                 $erpMap = config('serial_barcodes.erp_map');
                 if(isset($erpMap[$validatedData['type']])){
-                    // TODO send to erp - vin , $erpMap[$validatedData['type']] barcode
+
+                    $response = $this->checkBasketBarcode($validatedData['vin'],$validatedData['code'],$erpMap[$validatedData['type']]);
+
+                    if ($response['status'] !== 'ok') {
+                        return $this->responseError($response['message'], 400);
+                    }
                 }
             }
-
 
             $saveItem = $this->afterSave($saveItem, $validatedData);
             $data = new $this->resource($saveItem);
@@ -75,6 +80,16 @@ class BarcodeController extends CrudController
             DB::rollBack();
             return response()->json(['message' => $exception->getMessage()], 500);
         }
+    }
+
+    public function checkBasketBarcode($vin,$barcode,$erpCode): array
+    {
+        return ErpWsdlClient::run(config('erp.barcode'), 'SetTracking', [
+            'vINP' => $vin,
+            'barCodeP' => $barcode,
+            'itemTypeP' => $erpCode,
+        ]);
+
     }
 
     /**
