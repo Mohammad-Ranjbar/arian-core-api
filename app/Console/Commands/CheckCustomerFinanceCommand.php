@@ -23,6 +23,8 @@ class CheckCustomerFinanceCommand extends Command
         SaleInvoice::query()->where('payment_status','paid')
             ->where('sale_company_id',3)
             ->where('erp_status','!=', 'transferred')
+            ->distinct()
+            ->select('reference')
             ->get()
             ->each(function ($row) {
                 Http::get('https://sales.lamari.ir/api/check-customer-finance/'.$row->reference);
