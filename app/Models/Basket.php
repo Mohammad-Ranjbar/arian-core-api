@@ -23,6 +23,8 @@ class Basket extends Model
         'description'
     ];
 
+    protected $casts = ['description' => 'json'];
+
     /**
      * @return void
      */
