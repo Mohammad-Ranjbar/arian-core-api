@@ -47,7 +47,7 @@ class BasketController extends CrudController
                 return $this->responseError($response['message'], 500);
             }
 
-
+            $validatedData['description'] = $response['data'];
             $saveItem = $this->repository->store($validatedData);
             return new $this->resource($saveItem);
         } catch (Exception $exception) {
