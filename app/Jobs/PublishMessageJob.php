@@ -36,6 +36,7 @@ class PublishMessageJob implements ShouldQueue
             ]);
             $service = CustomerFinanceFactory::make($saleCompany->getAttribute('reference'));
             $result = $service->process($data);
+            logger($result);
             if ($result['status'] == 'ok') {
                 $saleCompany->invoices()->where('reference',$data['reference'])->update([
                     'erp_status' => 'transferred'
