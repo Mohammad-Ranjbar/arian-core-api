@@ -296,6 +296,6 @@ Route::middleware('auth:sanctum')->group(function () {
         [DeliverVehicleToCustomerController::class, 'set'])->name('set-deliver-vehicle-information');
 
 
-    Route::get('pending-invoices', PendingInvoiceController::class)->name('sales-company.pending-orders');
+    Route::get('pending-invoices', PendingInvoiceController::class)->name('sales-company.pending-invoices');
 });
 
