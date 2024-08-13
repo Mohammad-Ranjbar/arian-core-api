@@ -13,15 +13,17 @@ class PendingInvoiceController extends Controller
     public function __invoke(Request $request)
     {
         $list = DB::select("
-            SELECT DISTINCT
-                reference,
-                JSON_EXTRACT(DATA, '$.message') AS message
-            FROM
-                `sale_invoices`
-            WHERE
-                `sale_company_id` = 3 AND
-                `payment_status` = 'paid' AND
-                `erp_status` = 'pending';
+SELECT DISTINCT
+    CONCAT(
+        'https://sales.lamari.ir/api/check-customer-finance/',
+        reference
+    ) AS url,
+    reference,
+    JSON_EXTRACT(DATA, '$.message') AS message
+FROM
+    `sale_invoices`
+WHERE
+    `sale_company_id` = 3 AND `payment_status` = 'paid' AND `erp_status` = 'pending';
         ");
 
         return response()->json($list);
