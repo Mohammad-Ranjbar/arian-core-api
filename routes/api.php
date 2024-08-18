@@ -32,6 +32,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationVehicleController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
+use App\Http\Controllers\PendingInvoiceController;
 use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
 use App\Http\Controllers\ProductionTrackingController;
@@ -48,6 +49,7 @@ use App\Http\Controllers\StopReasonController;
 use App\Http\Controllers\StopTypeController;
 use App\Http\Controllers\SubmitEngineBarcodeController;
 use App\Http\Controllers\SubmitIncidentLocationController;
+use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
@@ -247,11 +249,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sale-invoices', SaleInvoicesController::class)->only('index');
 
 
-    Route::get('list-sale-locations', [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
+    Route::get('list-sale-locations',
+        [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
 
     Route::get('gate-permits/{gatePermit}/print', [GatePermitController::class, 'print'])->name('gate-permits.print');
 
-    Route::get('/general-product-items/car-model-id/{carModelId}',[GeneralProductItemController::class,'carModelItems'])->name('general-product-items.car-model-id');
+    Route::get('/general-product-items/car-model-id/{carModelId}',
+        [GeneralProductItemController::class, 'carModelItems'])->name('general-product-items.car-model-id');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -279,6 +283,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'locations' => LocationController::class,
         'sale-companies' => SaleCompanyController::class,
         'general-product-items' => GeneralProductItemController::class,
+        'synchronous-type' => SynchronousTypeController::class,
     ]);
 
     /*
@@ -298,5 +303,6 @@ Route::middleware('auth:sanctum')->group(function () {
         [DeliverVehicleToCustomerController::class, 'set'])->name('set-deliver-vehicle-information');
 
 
+    Route::get('pending-invoices', PendingInvoiceController::class)->name('sales-company.pending-invoices');
 });
 

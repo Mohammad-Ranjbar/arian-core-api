@@ -34,6 +34,7 @@ use App\Models\Station;
 use App\Models\StopFact;
 use App\Models\StopReason;
 use App\Models\StopType;
+use App\Models\SynchronousType;
 use App\Models\TransitCompany;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -84,6 +85,7 @@ class AuthServiceProvider extends ServiceProvider
         SaleCompany::class => CrudPolicy::class,
         SaleInvoice::class => CrudPolicy::class,
         GeneralProductItem::class => CrudPolicy::class,
+        SynchronousType::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 

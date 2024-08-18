@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CheckCustomerFinanceCommand;
 use App\Console\Commands\SyncInvitationsCommand;
 use App\Console\Commands\SyncProductItemsCommand;
 use Illuminate\Console\Scheduling\Schedule;
@@ -18,6 +19,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(SyncProductItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
         $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();
+        $schedule->command(CheckCustomerFinanceCommand::class)->everyTenMinutes()->withoutOverlapping();
     }
 
 
