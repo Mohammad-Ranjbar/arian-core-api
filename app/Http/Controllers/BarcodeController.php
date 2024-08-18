@@ -65,7 +65,7 @@ class BarcodeController extends CrudController
                 if(isset($erpMap[$validatedData['type']])){
 
                     $response = $this->checkBasketBarcode($validatedData['vin'],$validatedData['code'],$erpMap[$validatedData['type']]);
-
+                    dd($response);
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
                     }
