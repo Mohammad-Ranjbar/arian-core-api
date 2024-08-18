@@ -46,9 +46,9 @@ return [
         ]
     ],
     'erp_map'  => [
-        'engine'        => 3,
-        'custom_engine' => 3,
-        'body'          => 2,
-        'gearbox'       => 1,
+        'engine'        => 2,
+        'custom_engine' => 2,
+        'body'          => 1,
+        'gearbox'       => 3,
     ]
 ];
