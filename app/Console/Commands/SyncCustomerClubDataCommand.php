@@ -30,7 +30,7 @@ class SyncCustomerClubDataCommand extends Command
 
     public function handle(): void
     {
-        $this->addServices();
+       // $this->addServices();
         $this->addBarcodes();
         $this->addVehicles();
     }
