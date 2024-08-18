@@ -4,6 +4,9 @@ namespace App\Services\TrackingService;
 
 use App\Jobs\SendTrackingToErpJob;
 use App\Models\ProductionLine;
+use App\Models\Synchronous;
+use App\Models\SynchronousItem;
+use App\Models\SynchronousType;
 
 class ProductionLineTrackingService extends BaseTrackingService
 {
@@ -27,8 +30,33 @@ class ProductionLineTrackingService extends BaseTrackingService
         if ($tracking and $tracking->getAttribute('type') === 'enter') {
             return false;
         }
-
+        $this->submitSynchronous($data['vin'], $productionLine->getAttribute('id'));
         return $this->prepareData($data);
+
+    }
+
+    public function submitSynchronous(string $vin, $productionLineId): void
+    {
+        $synchronousTypes = SynchronousType::query()->where('production_line_id', $productionLineId)->get();
+
+        foreach ($synchronousTypes as $synchronousType) {
+            $synchronous = Synchronous::query()->where('capacity', '>', 0)
+                ->where('synchronous_type_id', $synchronousType->id)->first();
+            if (!$synchronous) {
+                $counter = Synchronous::query()
+                        ->where('synchronous_type_id', $synchronousType->id)->max('counter') + 1;
+                $synchronous = Synchronous::query()->create([
+                    'synchronous_type_id' => $synchronousType->id,
+                    'counter' => $counter,
+                    'capacity' => $synchronousType->qty,
+                ]);
+            }
+            SynchronousItem::query()->create([
+                'synchronous_id' => $synchronous->getAttribute('id'),
+                'vin' => $vin
+            ]);
+            $synchronous->decrement('capacity');
+        }
 
     }
 
@@ -65,10 +93,10 @@ class ProductionLineTrackingService extends BaseTrackingService
     public function sendToErp($record): void
     {
         $params = [
-            'vINL'         => $record->vin,
-            'wCGroup'      => '',
+            'vINL' => $record->vin,
+            'wCGroup' => '',
             'withTracking' => 'false',
-            'withOutput'   => 'false',
+            'withOutput' => 'false',
         ];
 
         if ($record->type == 'exit') {
