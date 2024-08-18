@@ -29,7 +29,7 @@ class ErpWsdlClient
             $response = $client->sendAsync($request, [
                 'auth' => config('erp.auth')
             ])->wait();
-
+            dd($response);
             $list = (array) json_decode(trim(strip_tags($response->getBody()->getContents())));
             $output = [];
             foreach ($list as $key => $value) {
@@ -43,7 +43,7 @@ class ErpWsdlClient
                     ['error', 'fail', '0', 'false', 'not'])) {
                 $output['status'] = 'error';
             }
-            dd($output);
+
             return $output;
 
         } catch (Exception $exception) {
