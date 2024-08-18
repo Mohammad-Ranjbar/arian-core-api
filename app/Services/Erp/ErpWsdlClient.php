@@ -43,6 +43,7 @@ class ErpWsdlClient
                     ['error', 'fail', '0', 'false', 'not'])) {
                 $output['status'] = 'error';
             }
+            dd($output);
             return $output;
 
         } catch (Exception $exception) {
