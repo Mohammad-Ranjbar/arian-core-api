@@ -22,6 +22,7 @@ class ErpOdataClient
     public function getValue($url)
     {
         $content = $this->get($url);
+
         return $content->value ?? false;
     }
 
