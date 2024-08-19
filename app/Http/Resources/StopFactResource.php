@@ -16,7 +16,8 @@ class StopFactResource extends JsonResource
     {
         return [
             'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'title' => $this->resource->title,
+            'users' => UserShortResource::collection($this->resource->users)
         ];
     }
 }

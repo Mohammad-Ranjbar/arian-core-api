@@ -10,9 +10,9 @@ class SynchronousType extends Model
     protected $fillable = [
         'title',
         'production_line_id',
-        'qty'
+        'qty',
+        'prefix'
     ];
-
     public function productionLine(): BelongsTo
     {
         return $this->belongsTo(ProductionLine::class);

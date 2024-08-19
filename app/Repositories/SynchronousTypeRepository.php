@@ -15,10 +15,12 @@ class SynchronousTypeRepository extends BaseRepository
             'production_line_id' => 'required|exists:production_lines,id',
             'title' => 'required|string',
             'qty' => 'required|numeric',
+            'prefix' => 'required|string',
         ], 'update' => [
             'production_line_id' => 'required|exists:production_lines,id',
             'title' => 'required|string',
             'qty' => 'required|numeric',
+            'prefix' => 'required|string',
         ]
     ];
 

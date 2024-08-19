@@ -47,11 +47,7 @@ class StationController extends CrudController
         }
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws AuthorizationException
-     */
+
     public function users(Station $station): AnonymousResourceCollection
     {
 
@@ -61,12 +57,7 @@ class StationController extends CrudController
         return UserShortResource::collection($station->users()->paginate($perPage));
     }
 
-    /**
-     * @param Station $station
-     * @param User $user
-     * @return JsonResponse
-     * @throws AuthorizationException
-     */
+
     public function removeUser(Station $station, User $user): JsonResponse
     {
         $this->authorize('station.remove.user');

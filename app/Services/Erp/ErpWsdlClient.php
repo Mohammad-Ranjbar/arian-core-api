@@ -31,6 +31,7 @@ class ErpWsdlClient
             ])->wait();
 
             $list = (array) json_decode(trim(strip_tags($response->getBody()->getContents())));
+
             $output = [];
             foreach ($list as $key => $value) {
                 $output[strtolower($key)] = $value;
@@ -43,6 +44,7 @@ class ErpWsdlClient
                     ['error', 'fail', '0', 'false', 'not'])) {
                 $output['status'] = 'error';
             }
+
             return $output;
 
         } catch (Exception $exception) {

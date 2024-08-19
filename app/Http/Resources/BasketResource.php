@@ -19,7 +19,7 @@ class BasketResource extends JsonResource
             'code' => $this->resource->code,
             'user_id' => $this->resource->user_id,
             'status' => $this->resource->status,
-            'description' => $this->resource->descriotion,
+            'description' => $this->resource->description,
             'user' => new UserShortResource($this->resource->user)
         ];
     }
