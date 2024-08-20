@@ -72,6 +72,8 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::post('/return-container/{billOfLading}',[BillOfLadingController::class,'returnContainer'])->name('return-container');
+
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
     Route::get('/report-vehicle-qc', [VehicleController::class, 'reportVehicleQc'])->name('report-vehicle-qc');
@@ -201,6 +203,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::post('/production-tracking/{vehicle}', [ProductionTrackingController::class, 'submit']);
     });
+
     Route::put('/update-production-tracking/{tracking}',
         [ProductionTrackingController::class, 'update'])->name('update-production-tracking');
     Route::get('/faults/{type}/report', [VehicleFaultController::class, 'report']);

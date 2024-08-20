@@ -14,6 +14,8 @@ class ActionLog extends Model
     const UPDATED_QC_STATUS = 'update_qc_status';
     const UPDATED_GRADE_STATUS = 'update_grade_status';
 
+    const RETURN_CONTAINER_AT = 'return_container';
+
     /**
      * @var string[]
      */

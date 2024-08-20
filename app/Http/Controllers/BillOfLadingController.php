@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Exports\TemplateExport;
 use App\Http\Requests\ImportBillOfLadingRequest;
+use App\Http\Requests\ReturnContainerRequest;
 use App\Http\Requests\SetPriorityRequest;
 use App\Http\Requests\TrackingReportExcelRequest;
 use App\Http\Resources\BillOfLadingResource;
 use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
+use App\Models\ActionLog;
 use App\Models\BillOfLading;
 use App\Models\GatePermit;
 use App\Models\Job;
 use App\Models\Vehicle;
+use App\Repositories\ActionLogRepository;
 use App\Repositories\BillOfLadingRepository;
 use App\Services\SmsService;
 use Exception;
@@ -39,7 +42,8 @@ class BillOfLadingController extends CrudController
 
     public function __construct(
         public readonly BillOfLadingRepository $repository,
-        private readonly SmsService            $smsService
+        private readonly SmsService            $smsService,
+        private readonly ActionLogRepository $actionLogRepository,
     )
     {
 
@@ -224,5 +228,26 @@ class BillOfLadingController extends CrudController
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
+    }
+
+    public function returnContainer(BillOfLading $billOfLading,ReturnContainerRequest $request): JsonResponse
+    {
+        try {
+            $validatedData = $request->validated();
+            $validatedData['user_id'] = Auth::id();
+            $validatedData['model_type'] = BillOfLading::class;
+            $validatedData['model_id'] = $billOfLading->getAttribute('id');
+            $validatedData['action'] = ActionLog::RETURN_CONTAINER_AT;
+            $validatedData['data'] = $validatedData['return_container_at'];
+            $this->actionLogRepository->store($validatedData);
+
+            return response()->json([
+                'message' => 'return container created'
+            ],201);
+        }catch (Exception $exception){
+            return $this->responseError($exception->getMessage(), 500);
+        }
+
+
     }
 }
