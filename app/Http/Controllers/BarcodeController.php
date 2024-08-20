@@ -64,7 +64,7 @@ class BarcodeController extends CrudController
                 $erpMap = config('serial_barcodes.erp_map');
                 if(isset($erpMap[$validatedData['type']])){
 
-                    $response = $this->checkBasketBarcode($validatedData['vin'],$validatedData['code'],$erpMap[$validatedData['type']]);
+                    $response = $this->submitSerialBarcode($validatedData['vin'],$validatedData['code'],$erpMap[$validatedData['type']]);
 
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
@@ -82,7 +82,7 @@ class BarcodeController extends CrudController
         }
     }
 
-    public function checkBasketBarcode($vin,$barcode,$erpCode): array
+    public function submitSerialBarcode($vin,$barcode,$erpCode): array
     {
         return ErpWsdlClient::run(config('erp.barcode'), 'SetTracking', [
             'vINP' => $vin,
