@@ -14,7 +14,7 @@ class SynchronousItem extends Model
 
     public function vehicle(): BelongsTo
     {
-        return $this->belongsTo(Vehicle::class);
+        return $this->belongsTo(Vehicle::class,'vin');
     }
 
     public function synchronous(): BelongsTo
