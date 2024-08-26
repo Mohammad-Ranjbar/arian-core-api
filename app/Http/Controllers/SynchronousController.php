@@ -30,4 +30,9 @@ class SynchronousController extends Controller
 
         return new SynchronousResource($synchronous->fresh());
     }
+
+    public function printSynchronous(Synchronous $synchronous)
+    {
+
+    }
 }

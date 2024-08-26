@@ -75,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/synchronous', [SynchronousController::class,'index'])->name('index.synchronous');
     Route::patch('/close-synchronous/{synchronous}', [SynchronousController::class,'closeSynchronous'])->name('close-synchronous');
+    Route::get('/print-synchronous/{synchronous}', [SynchronousController::class,'printSynchronous'])->name('print-synchronous');
 
     Route::post('/return-container/{billOfLading}', [BillOfLadingController::class, 'returnContainer'])->name('return-container');
 

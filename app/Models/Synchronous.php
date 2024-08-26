@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Synchronous extends Model
 {
@@ -19,5 +20,10 @@ class Synchronous extends Model
     public function synchronousType(): BelongsTo
     {
         return $this->belongsTo(SynchronousType::class);
+    }
+
+    public function SynchronousItems(): HasMany
+    {
+        return $this->hasMany(SynchronousItem::class);
     }
 }
