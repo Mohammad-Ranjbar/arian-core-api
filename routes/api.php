@@ -49,6 +49,7 @@ use App\Http\Controllers\StopReasonController;
 use App\Http\Controllers\StopTypeController;
 use App\Http\Controllers\SubmitEngineBarcodeController;
 use App\Http\Controllers\SubmitIncidentLocationController;
+use App\Http\Controllers\SynchronousController;
 use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
@@ -72,7 +73,8 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/return-container/{billOfLading}',[BillOfLadingController::class,'returnContainer'])->name('return-container');
+    Route::get('/synchronous', [SynchronousController::class,'index'])->name('index.synchronous');
+    Route::post('/return-container/{billOfLading}', [BillOfLadingController::class, 'returnContainer'])->name('return-container');
 
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
