@@ -16,6 +16,7 @@ class SynchronousResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
+            'capacity' => $this->resource->capacity,
             'synchronous_type_id' => $this->resource->synchronous_type_id,
             'counter' => $this->resource->counter,
             'capacity' => $this->resource->capacity,
