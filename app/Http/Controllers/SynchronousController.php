@@ -17,7 +17,7 @@ class SynchronousController extends Controller
     {
         $this->authorize('index.synchronous');
 
-        $data = Synchronous::query()->with('synchronousType')->latest()->get();
+        $data = Synchronous::query()->with('synchronousType')->latest()->paginate(request()->per_page ?? 15);
 
         return SynchronousResource::collection($data);
     }
