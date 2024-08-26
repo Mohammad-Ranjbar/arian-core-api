@@ -34,7 +34,7 @@ class Synchronous extends Model
             get: fn() => $this->getRelation('synchronousType')->prefix
                 . '-' .
                 $this->getRelation('synchronousType')->id . '-' .
-                str_pad($this->getAttribute('counter'), 5, STR_PAD_LEFT)
+                str_pad($this->getAttribute('counter'), 5, STR_PAD_RIGHT)
         );
     }
 }
