@@ -74,6 +74,8 @@ Route::get('/dl', DownloadController::class)->name('dl');
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/synchronous', [SynchronousController::class,'index'])->name('index.synchronous');
+    Route::patch('/close-synchronous/{synchronous}', [SynchronousController::class,'closeSynchronous'])->name('close-synchronous');
+
     Route::post('/return-container/{billOfLading}', [BillOfLadingController::class, 'returnContainer'])->name('return-container');
 
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');

@@ -21,4 +21,13 @@ class SynchronousController extends Controller
 
         return SynchronousResource::collection($data);
     }
+
+    public function closeSynchronous(Synchronous $synchronous): SynchronousResource
+    {
+        $synchronous->update([
+            'capacity' => 0
+        ]);
+
+        return new SynchronousResource($synchronous->fresh());
+    }
 }
