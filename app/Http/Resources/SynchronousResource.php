@@ -15,6 +15,7 @@ class SynchronousResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->resource->id,
             'synchronous_type_id' => $this->resource->synchronous_type_id,
             'counter' => $this->resource->counter,
             'capacity' => $this->resource->capacity,
