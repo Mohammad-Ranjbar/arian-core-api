@@ -27,6 +27,7 @@ use App\Filters\MobileFilter;
 use App\Filters\ModelIdFilter;
 use App\Filters\NameFilter;
 use App\Filters\NationalCodeFilter;
+use App\Filters\PhoneFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\ProductionOrderNumberFilter;
 use App\Filters\QcCarModelFilter;
@@ -107,7 +108,8 @@ abstract class BaseRepository
         StationProductionLineIdFilter::class,
         DriverIdFilter::class,
         TransitCompanyIdFilter::class,
-        CarFilter::class
+        CarFilter::class,
+        PhoneFilter::class
     ];
     public array $searchTerms = [
         'title'
