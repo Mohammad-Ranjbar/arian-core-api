@@ -7,11 +7,13 @@ use App\Filters\BillOfLadingDriverNationalCodeFilter;
 use App\Filters\BlockByFilter;
 use App\Filters\BlockItemMakeCodeIdFilter;
 use App\Filters\BlockReasonIdFilter;
+use App\Filters\CarFilter;
 use App\Filters\CarModelIdFilter;
 use App\Filters\CodeFilter;
 use App\Filters\CreatedAtFilter;
 use App\Filters\CreatedAtFromFilter;
 use App\Filters\CreatedAtToFilter;
+use App\Filters\DriverIdFilter;
 use App\Filters\ElementIdFilter;
 use App\Filters\EmailFilter;
 use App\Filters\EngineBarcodeFilter;
@@ -34,6 +36,7 @@ use App\Filters\SalonIdFilter;
 use App\Filters\SearchQByFilter;
 use App\Filters\StationProductionLineIdFilter;
 use App\Filters\TitleFilter;
+use App\Filters\TransitCompanyIdFilter;
 use App\Filters\TypeFilter;
 use App\Filters\UnblockByFilter;
 use App\Filters\UnblockedAtFilter;
@@ -101,7 +104,10 @@ abstract class BaseRepository
         BillOfLadingDriverMobileFilter::class,
         BillOfLadingDriverNationalCodeFilter::class,
         CodeFilter::class,
-        StationProductionLineIdFilter::class
+        StationProductionLineIdFilter::class,
+        DriverIdFilter::class,
+        TransitCompanyIdFilter::class,
+        CarFilter::class
     ];
     public array $searchTerms = [
         'title'
