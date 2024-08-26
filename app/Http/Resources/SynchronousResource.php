@@ -19,7 +19,7 @@ class SynchronousResource extends JsonResource
             'capacity' => $this->resource->capacity,
             'synchronous_type_id' => $this->resource->synchronous_type_id,
             'counter' => $this->resource->counter,
-            'number' =>$this->resource->synchronousType->prefix.'-'.$this->resource->synchronousType->id.'-'.str_pad($this->resource->counter,5,STR_PAD_LEFT),
+            'number' =>$this->resource->number,
             'synchronousType' => new SynchronousTypeResource($this->resource->synchronousType),
             'items' => new SynchronousItemResource($this->resource->items),
         ];
