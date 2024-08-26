@@ -24,15 +24,17 @@ class SynchronousController extends Controller
 
     public function closeSynchronous(Synchronous $synchronous): SynchronousResource
     {
+        $synchronous->load('synchronousType');
         $synchronous->update([
             'capacity' => 0
         ]);
 
-        return new SynchronousResource($synchronous->fresh());
+        return new SynchronousResource($synchronous);
     }
 
-    public function printSynchronous(Synchronous $synchronous)
+    public function printSynchronous(Synchronous $synchronous): SynchronousResource
     {
-
+        $synchronous->load('synchronousType');
+        return new SynchronousResource($synchronous);
     }
 }
