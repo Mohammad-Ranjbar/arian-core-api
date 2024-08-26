@@ -11,7 +11,7 @@ class Synchronous extends Model
 {
 
     protected $table = 'synchronous';
-
+    protected $with = 'synchronousType';
     protected $fillable = [
         'synchronous_type_id',
         'counter',
