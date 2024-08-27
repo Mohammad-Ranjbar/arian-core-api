@@ -41,7 +41,7 @@ class BasketController extends CrudController
         try {
             $validatedData['user_id'] = Auth::id();
 
-            $response = $this->checkBasketBarcode($validatedData['code']);
+            $response = $this->checkBasketBarcode($validatedData['code'],$validatedData['batch']);
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 500);
@@ -55,9 +55,12 @@ class BasketController extends CrudController
         }
     }
 
-    public function checkBasketBarcode($barcode): array
+    public function checkBasketBarcode($barcode,$batch): array
     {
-        return ErpWsdlClient::run(config('erp.basket'), 'GetValidationItem_No', ['barcodeInfoP' => $barcode]);
+        return ErpWsdlClient::run(config('erp.basket'), 'GetValidationItem_No', [
+            'barcodeInfoP' => $barcode,
+            'BatchNoP'=>$batch
+        ]);
     }
 
     /**
