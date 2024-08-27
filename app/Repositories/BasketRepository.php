@@ -11,15 +11,15 @@ class BasketRepository extends BaseRepository
      * @var array|array[]
      */
     protected array $rules = [
-        'create'    => [
-            'code'    => 'required|string',
-            'batch' => 'nullable|string',
+        'create' => [
+            'code' => 'required|string',
         ], 'update' => [
+            'batch' => 'nullable|string'
         ]
     ];
 
     /**
-     * @param  Basket  $model
+     * @param Basket $model
      */
     public function __construct(Basket $model)
     {

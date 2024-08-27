@@ -41,7 +41,7 @@ class BasketController extends CrudController
         try {
             $validatedData['user_id'] = Auth::id();
 
-            $response = $this->checkBasketBarcode($validatedData['code'],$validatedData['batch']);
+            $response = $this->checkBasketBarcode($validatedData['code']);
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 500);
@@ -55,7 +55,7 @@ class BasketController extends CrudController
         }
     }
 
-    public function checkBasketBarcode($barcode,$batch): array
+    public function checkBasketBarcode($barcode): array
     {
         return ErpWsdlClient::run(config('erp.basket'), 'GetValidationItem_No', [
             'barcodeInfoP' => $barcode,
@@ -74,7 +74,7 @@ class BasketController extends CrudController
         if ($basket->status != 'new') {
             return $this->responseError('cant update this basket');
         }
-        $response = $this->sendBasketBarcode($basket->code);
+        $response = $this->sendBasketBarcode($basket->code,$request->get('batch'));
 
         if ($response['status'] !== 'ok') {
             return $this->responseError($response['message']);
@@ -84,8 +84,8 @@ class BasketController extends CrudController
         return true;
     }
 
-    public function sendBasketBarcode($barcode): array
+    public function sendBasketBarcode($barcode,$batch): array
     {
-        return ErpWsdlClient::run(config('erp.basket'), 'CreateItemReclassJournal', ['barcodeInfoP' => $barcode]);
+        return ErpWsdlClient::run(config('erp.basket'), 'CreateItemReclassJournal', ['barcodeInfoP' => $barcode,'BatchNoP' => $batch]);
     }
 }
