@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class BasketController extends CrudController
 {
@@ -86,6 +87,6 @@ class BasketController extends CrudController
     public function sendBasketBarcode($barcode,$batch): array
     {
         return ErpWsdlClient::run(config('erp.basket'), 'CreateItemReclassJournal', ['barcodeInfoP' => $barcode,
-            'batchNoP' => md5($batch)]);
+            'batchNoP' => Str::random(4).$batch]);
     }
 }
