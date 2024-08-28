@@ -15,6 +15,7 @@ class SynchronousItemResource extends JsonResource
             'synchronous_id' => $this->resource->synchronous_id,
             'vin' => $this->resource->vin,
             'vehicle' => new VehicleResource($this->resource->vehicle),
+            'synchronous_at' => $this->resource->created_at
         ];
     }
 }
