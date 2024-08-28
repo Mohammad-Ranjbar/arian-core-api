@@ -87,6 +87,6 @@ class BasketController extends CrudController
     public function sendBasketBarcode($barcode,$batch): array
     {
         return ErpWsdlClient::run(config('erp.basket'), 'CreateItemReclassJournal', ['barcodeInfoP' => $barcode,
-            'batchNoP' => 'batch-'.$batch]);
+            'batchNoP' => 'Batch-'.$batch]);
     }
 }
