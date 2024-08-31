@@ -11,7 +11,6 @@ class SynchronousType extends Model
         'title',
         'production_line_id',
         'qty',
-        'prefix'
     ];
     public function productionLine(): BelongsTo
     {

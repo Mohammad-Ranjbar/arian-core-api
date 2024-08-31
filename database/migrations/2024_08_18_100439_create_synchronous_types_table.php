@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('title');
             $table->foreignId('production_line_id')->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('qty');
-            $table->string('prefix')->nullable();
             $table->timestamps();
         });
     }
