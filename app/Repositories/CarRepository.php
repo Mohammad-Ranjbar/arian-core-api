@@ -32,4 +32,16 @@ class CarRepository extends BaseRepository
         $this->model = $model;
     }
 
+    public function getOptions():array
+    {
+        return $this->get('id', 'asc', request()->get('limit'))->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'driverName' => $item->driver->name,
+                'driverMobile' => $item->driver->phone,
+            ];
+        })->all();
+    }
+
 }
