@@ -32,6 +32,13 @@ class ErpWsdlClient
 
             $list = (array) json_decode(trim(strip_tags($response->getBody()->getContents())));
 
+            if(empty($list)) {
+                return [
+                    'status' => 'error',
+                    'message' => 'No response received from "Microsoft Navision"'
+                ];
+            }
+
             $output = [];
             foreach ($list as $key => $value) {
                 $output[strtolower($key)] = $value;
