@@ -18,6 +18,7 @@ class ProductionLineResource extends JsonResource
             'id' => (int)$this->resource->id,
             'title' => $this->resource->title,
             'salon_id' => $this->resource->salon_id,
+            'prefix' => $this->resource->prefix,
             'location_code' => $this->resource->location_code,
             'teams_webhook' => $this->resource->teams_webhook,
             'show_in_board' => $this->resource->show_in_board,
