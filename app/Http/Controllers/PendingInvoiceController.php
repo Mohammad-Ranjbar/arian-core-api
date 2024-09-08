@@ -27,13 +27,13 @@ WHERE
         ");
 
         return response()->json(array_map(function ($row) {
-            if ($row['sale_company_id'] === 3) {
-                $row['url'] = 'https://sales.lamari.ir/api/check-customer-finance/'.$row['reference'];
+            if ($row->sale_company_id === 3) {
+                $row->url = 'https://sales.lamari.ir/api/check-customer-finance/'.$row->reference;
             }
-            if ($row['sale_company_id'] === 2) {
-                $row['url'] = 'https://sales.arian-motor.com/api/check-customer-finance/'.$row['reference'];
+            if ($row->sale_company_id === 2) {
+                $row->url = 'https://sales.arian-motor.com/api/check-customer-finance/'.$row->reference;
             }
-            $row['reference'] .= ' '.$row['title'];
+            $row->reference .= ' '.$row->title;
             return $row;
         },$list));
     }
