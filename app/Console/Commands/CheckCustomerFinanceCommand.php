@@ -23,7 +23,7 @@ class CheckCustomerFinanceCommand extends Command
         SaleInvoice::query()->where('payment_status','paid')
             ->where('erp_status','!=', 'transferred')
             ->distinct()
-            ->select('reference')
+            ->select(['reference','sale_company_id'])
             ->get()
             ->each(function ($row) {
                 if ($row->sale_company_id === 3) {
