@@ -31,7 +31,7 @@ class Synchronous extends Model
     public function number(): Attribute
     {
         return new Attribute(
-            get: fn() => $this->getRelation('synchronousType')->prefix
+            get: fn() => $this->getRelation('synchronousType')->productionLine->prefix
                 . '-' .
                 $this->getRelation('synchronousType')->id . '-' .
                 str_pad($this->getAttribute('counter'), 5, 0, STR_PAD_LEFT)

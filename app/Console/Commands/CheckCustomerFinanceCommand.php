@@ -21,13 +21,17 @@ class CheckCustomerFinanceCommand extends Command
     public function handle()
     {
         SaleInvoice::query()->where('payment_status','paid')
-            ->where('sale_company_id',3)
             ->where('erp_status','!=', 'transferred')
             ->distinct()
-            ->select('reference')
+            ->select(['reference','sale_company_id'])
             ->get()
             ->each(function ($row) {
-                Http::get('https://sales.lamari.ir/api/check-customer-finance/'.$row->reference);
+                if ($row->sale_company_id === 3) {
+                    Http::get('https://sales.lamari.ir/api/check-customer-finance/'.$row->reference);
+                }
+                if ($row->sale_company_id === 2) {
+                    Http::get('https://sales.arian-motor.com/api/check-customer-finance/'.$row->reference);
+                }
                 $this->info($row->reference);
             });
     }
