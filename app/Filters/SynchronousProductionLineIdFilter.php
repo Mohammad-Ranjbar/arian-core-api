@@ -20,6 +20,7 @@ class SynchronousProductionLineIdFilter
         if (!request()->has('synchronous_production_line_id') || !request()->get('synchronous_production_line_id')) {
             return $next($request);
         }
+        dd('ok');
         return $next($request)->whereHas('synchronousType', function ($query) {
                 $query->where('production_line_id', request()->get('synchronous_production_line_id'));
             });
