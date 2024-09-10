@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\SynchronousProductionLineIdFilter;
+use App\Filters\SynchronousTitleFilter;
 use App\Http\Resources\SynchronousResource;
 use App\Models\Synchronous;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Pipeline;
 
 class SynchronousController extends Controller
 {
@@ -17,7 +20,13 @@ class SynchronousController extends Controller
     {
         $this->authorize('index.synchronous');
 
-        $data = Synchronous::query()->with('synchronousType')->latest()->paginate(request()->per_page ?? 15);
+       $data = Pipeline::send(Synchronous::query()->with('synchronousType')->latest())
+           ->through([
+               SynchronousProductionLineIdFilter::class,
+               SynchronousTitleFilter::class
+           ])
+            ->thenReturn()->paginate(request()->per_page ?? 15);
+
 
         return SynchronousResource::collection($data);
     }
