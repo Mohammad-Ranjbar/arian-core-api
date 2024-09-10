@@ -20,8 +20,7 @@ class SynchronousTitleFilter
         if (!request()->has('synchronous_title') || !request()->get('synchronous_title')) {
             return $next($request);
         }
-        return
-            $q->whereHas('synchronousType', function ($query) {
+        return $next($request)->whereHas('synchronousType', function ($query) {
                 $query->where('title', request()->get('synchronous_title'));
             });
 
