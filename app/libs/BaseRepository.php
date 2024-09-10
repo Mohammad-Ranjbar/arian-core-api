@@ -36,6 +36,9 @@ use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\SearchQByFilter;
 use App\Filters\StationProductionLineIdFilter;
+use App\Filters\SynchronousNumberFilter;
+use App\Filters\SynchronousProductionLineIdFilter;
+use App\Filters\SynchronousTitleFilter;
 use App\Filters\TitleFilter;
 use App\Filters\TransitCompanyIdFilter;
 use App\Filters\TypeFilter;
@@ -109,7 +112,10 @@ abstract class BaseRepository
         DriverIdFilter::class,
         TransitCompanyIdFilter::class,
         CarFilter::class,
-        PhoneFilter::class
+        PhoneFilter::class,
+        SynchronousNumberFilter::class,
+        SynchronousTitleFilter::class,
+        SynchronousProductionLineIdFilter::class
     ];
     public array $searchTerms = [
         'title'
