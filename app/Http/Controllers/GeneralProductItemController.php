@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\GeneralProductItemResource;
 use App\Models\Vehicle;
 use App\Repositories\GeneralProductItemRepository;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 
 class GeneralProductItemController extends CrudController
@@ -27,8 +28,12 @@ class GeneralProductItemController extends CrudController
         );
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function vehicleItems(Vehicle $vehicle): JsonResponse
     {
+        $this->authorize('general-product-items.vehicle');
         $carModelId = $vehicle->getAttribute('car_model_id');
 
         $items = $this->repository->model->newQuery()->whereHas('carModels', function ($query) use ($carModelId) {
