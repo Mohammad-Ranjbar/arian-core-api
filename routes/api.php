@@ -264,6 +264,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/general-product-items/car-model-id/{carModelId}',
         [GeneralProductItemController::class, 'carModelItems'])->name('general-product-items.car-model-id');
+
+    Route::get('/vehicle/{vehicle}/general-product-items',
+        [GeneralProductItemController::class, 'vehicleItems'])->name('general-product-items.vehicle');
+
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
