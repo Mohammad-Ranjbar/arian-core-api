@@ -32,6 +32,9 @@ class CheckCustomerFinanceCommand extends Command
                 if ($row->sale_company_id === 2) {
                     Http::get('https://sales.arian-motor.com/api/check-customer-finance/'.$row->reference);
                 }
+                if ($row->sale_company_id === 1) {
+                    Http::get('https://sales.arian-diesel.com/api/check-customer-finance/'.$row->reference);
+                }
                 $this->info($row->reference);
             });
     }
