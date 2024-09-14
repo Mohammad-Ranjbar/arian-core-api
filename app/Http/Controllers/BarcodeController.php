@@ -63,9 +63,7 @@ class BarcodeController extends CrudController
             if (!empty($validatedData['type'])) {
                 $erpMap = config('serial_barcodes.erp_map');
                 if(isset($erpMap[$validatedData['type']])){
-                        dd($erpMap[$validatedData['type']]);
                     $response = $this->submitSerialBarcode($validatedData['vin'],$validatedData['code'],$erpMap[$validatedData['type']]);
-
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
                     }
