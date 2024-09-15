@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BarcodeResource;
 use App\Jobs\ExportJob;
+use App\Models\GeneralProductItem;
 use App\Models\Job;
+use App\Models\Vehicle;
 use App\Repositories\BarcodeRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
@@ -46,13 +48,26 @@ class BarcodeController extends CrudController
             $validatedData['user_id'] = Auth::id();
         }
 
+        $vehicle = Vehicle::query()->find($validatedData['vin']);
+        if (!empty($validatedData['general_product_item_id'])) {
+            if (in_array($vehicle->getAttribute('qc_status'), [24, 34, 84, 85])) {
+                return $this->responseError("You Can Not Enter Serial NO. for Items. VIN Has Been Sign Off ");
+            }
+            $generalProductItem = GeneralProductItem::query()->find($validatedData['general_product_item_id']);
+            if (!$generalProductItem->getAttribute('carModels')->exists($vehicle->getAttribute('car_model_id'))) {
+                return $this->responseError('invalid general product item');
+            }
+        }
+
         $submitted = Cache::get('barcode_submitted_' . $validatedData['code']);
+
         if ($submitted) {
             return new JsonResponse(
                 data: ['message' => 'barcode submitted'],
                 status: 400
             );
         }
+
         Cache::set('barcode_submitted_' . $validatedData['code'], true, 10);
 
         try {
@@ -62,8 +77,8 @@ class BarcodeController extends CrudController
 
             if (!empty($validatedData['type'])) {
                 $erpMap = config('serial_barcodes.erp_map');
-                if(isset($erpMap[$validatedData['type']])){
-                    $response = $this->submitSerialBarcode($validatedData['vin'],$validatedData['code'],$erpMap[$validatedData['type']]);
+                if (isset($erpMap[$validatedData['type']])) {
+                    $response = $this->submitSerialBarcode($validatedData['vin'], $validatedData['code'], $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
                     }
@@ -80,7 +95,7 @@ class BarcodeController extends CrudController
         }
     }
 
-    public function submitSerialBarcode($vin,$barcode,$erpCode): array
+    public function submitSerialBarcode($vin, $barcode, $erpCode): array
     {
         return ErpWsdlClient::run(config('erp.barcode'), 'SetTracking', [
             'vINP' => $vin,

@@ -15,10 +15,14 @@ class GeneralProductItemRepository extends BaseRepository
             'title' => 'required|string|max:255',
             'code' => 'required|string|unique:general_product_items,code',
             'carModels' => 'nullable|array|exists:car_models,id',
+            'height' => 'required|integer|between:1,2',
+            'priority' => 'required|integer',
         ], 'update' => [
             'title' => 'required|string|max:255',
             'code' => 'required|string|unique:general_product_items,code,',
             'carModels' => 'nullable|array|exists:car_models,id',
+            'height' => 'required|integer|between:1,2',
+            'priority' => 'required|integer',
         ]
     ];
 

@@ -38,7 +38,7 @@ class GeneralProductItemController extends CrudController
 
         $items = $this->repository->model->newQuery()->whereHas('carModels', function ($query) use ($carModelId) {
             $query->where('car_model_id', $carModelId);
-        })->get();
+        })->orderBy('priority')->get();
 
         return new JsonResponse(
             data: GeneralProductItemResource::collection($items),

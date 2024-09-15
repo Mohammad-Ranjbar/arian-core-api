@@ -9,7 +9,9 @@ class GeneralProductItem extends Model
 {
     protected $fillable = [
         'title',
-        'code'
+        'code',
+        'priority',
+        'height'
     ];
 
     protected $with = ['carModels'];

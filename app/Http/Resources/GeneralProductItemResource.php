@@ -20,6 +20,8 @@ class GeneralProductItemResource extends JsonResource
             'code' => $this->resource->code,
             'created_at' => $this->resource->created_at,
             'carModels' => CarModelResource::collection($this->resource->carModels),
+            'height' => $this->resource->heigth,
+            'priority' => $this->resource->priority,
         ];
     }
 }
