@@ -31,26 +31,25 @@ class VehicleController extends CrudController
 {
 
     /**
-     * @param MakeCodeRepository $makeCodeRepository
-     * @param CarModelRepository $carModelRepository
-     * @param VehicleRepository $vehicleRepository
-     * @param ErpGetVehicle $erpGetVehicle
-     * @param ActionLogRepository $actionLogRepository
+     * @param  MakeCodeRepository  $makeCodeRepository
+     * @param  CarModelRepository  $carModelRepository
+     * @param  VehicleRepository  $vehicleRepository
+     * @param  ErpGetVehicle  $erpGetVehicle
+     * @param  ActionLogRepository  $actionLogRepository
      */
     public function __construct(
-        private readonly MakeCodeRepository  $makeCodeRepository,
-        private readonly CarModelRepository  $carModelRepository,
-        private readonly VehicleRepository   $vehicleRepository,
-        private readonly ErpGetVehicle       $erpGetVehicle,
+        private readonly MakeCodeRepository $makeCodeRepository,
+        private readonly CarModelRepository $carModelRepository,
+        private readonly VehicleRepository $vehicleRepository,
+        private readonly ErpGetVehicle $erpGetVehicle,
         private readonly ActionLogRepository $actionLogRepository
-    )
-    {
+    ) {
 
     }
 
 
     /**
-     * @param string $vin
+     * @param  string  $vin
      * @return JsonResponse|VehicleResource
      * @throws ValidationException
      */
@@ -70,7 +69,7 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param string $vin
+     * @param  string  $vin
      * @return Model|Builder
      * @throws ValidationException
      */
@@ -81,28 +80,28 @@ class VehicleController extends CrudController
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
         $carModel->update(['make_code_id' => $makeCode->getAttribute('id')]);
         $data = [
-            'vin' => $vehicleData['vin'],
-            'color_code' => $vehicleData['color_code'],
+            'vin'                     => $vehicleData['vin'],
+            'color_code'              => $vehicleData['color_code'],
             'production_order_number' => $vehicleData['production_order_number'],
-            'engine_no' => $vehicleData['engine_no'],
-            'cabin_no' => $vehicleData['cabin_no'],
-            'make_code_id' => $makeCode->getAttribute('id'),
-            'car_model_id' => $carModel->getAttribute('id'),
+            'engine_no'               => $vehicleData['engine_no'],
+            'cabin_no'                => $vehicleData['cabin_no'],
+            'make_code_id'            => $makeCode->getAttribute('id'),
+            'car_model_id'            => $carModel->getAttribute('id'),
+            'erp_data'                => $vehicleData
         ];
 
         return $this->vehicleRepository->make($data, 'vin');
     }
 
     /**
-     * @param UpdateQcStatusRequest $request
-     * @param Vehicle $vehicle
+     * @param  UpdateQcStatusRequest  $request
+     * @param  Vehicle  $vehicle
      * @return JsonResponse|VehicleResource
      */
     public function updateQcStatus(
         UpdateQcStatusRequest $request,
-        Vehicle               $vehicle
-    ): JsonResponse|VehicleResource
-    {
+        Vehicle $vehicle
+    ): JsonResponse|VehicleResource {
         try {
             $validatedData = $request->validated();
             $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
@@ -112,10 +111,10 @@ class VehicleController extends CrudController
             }
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
-                'model_id' => $vehicle->getAttribute('vin'),
-                'action' => ActionLog::UPDATED_QC_STATUS,
-                'user_id' => Auth::id(),
-                'data' => $validatedData['qc_status'],
+                'model_id'   => $vehicle->getAttribute('vin'),
+                'action'     => ActionLog::UPDATED_QC_STATUS,
+                'user_id'    => Auth::id(),
+                'data'       => $validatedData['qc_status'],
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
@@ -125,8 +124,8 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param string $vin
-     * @param string $qcStatus
+     * @param  string  $vin
+     * @param  string  $qcStatus
      * @return array
      */
     private function updateStatus(string $vin, string $qcStatus): array
@@ -137,23 +136,22 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param UpdateGradeRequest $request
-     * @param Vehicle $vehicle
+     * @param  UpdateGradeRequest  $request
+     * @param  Vehicle  $vehicle
      * @return JsonResponse|VehicleResource
      */
     public function updateGradeStatus(
         UpdateGradeRequest $request,
-        Vehicle            $vehicle
-    ): JsonResponse|VehicleResource
-    {
+        Vehicle $vehicle
+    ): JsonResponse|VehicleResource {
         try {
             $validatedData = $request->validated();
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
-                'model_id' => $vehicle->getAttribute('vin'),
-                'action' => ActionLog::UPDATED_GRADE_STATUS,
-                'user_id' => Auth::id(),
-                'data' => $validatedData['grade'],
+                'model_id'   => $vehicle->getAttribute('vin'),
+                'action'     => ActionLog::UPDATED_GRADE_STATUS,
+                'user_id'    => Auth::id(),
+                'data'       => $validatedData['grade'],
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
@@ -163,7 +161,7 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return JsonResponse
      */
     public function reportVehicleQc(Request $request): JsonResponse
@@ -176,7 +174,7 @@ class VehicleController extends CrudController
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'export job created', 'data' => [
-                'uuid' => $job->getAttribute('uuid'),
+                'uuid'         => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
