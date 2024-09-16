@@ -18,7 +18,7 @@ class VehicleOverviewController extends Controller
                     'title' => 'رهگیری محصول',
                     'values' => $vehicle->tracking()->get()->map(function ($tracking) {
                         return [
-                            $tracking->created_at,
+                            jdate($tracking->created_at)->toDateTimeString(),
                             $tracking->model?->title,
                             $tracking->user->name,
                             $tracking->type
