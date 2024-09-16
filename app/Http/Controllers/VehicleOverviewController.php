@@ -50,6 +50,22 @@ class VehicleOverviewController extends Controller
                             (string)$record->data,
                         ];
                     })->all()
+                ],
+                [
+                    'title' => 'ایرادات کیفی',
+                    'values' => $vehicle->vehicleIncidents()
+                        ->get()->map(function ($record) {
+                        return [
+                            jdate($record->created_at)->toDateTimeString(),
+                            $record->description,
+                            $record->type,
+                            $record->method,
+                            $record->intensity,
+                            $record->user->name,
+                            $record->element->title.' ('.$record->element->code.')',
+                            $record->incident->title.' ('.$record->element->code.')'
+                        ];
+                    })->all()
                 ]
             ]
         ]);
