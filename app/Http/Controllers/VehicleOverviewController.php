@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActionLog;
 use App\Models\Barcode;
+use App\Models\BillOfLadingItem;
 use App\Models\BlockItem;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
@@ -82,6 +83,18 @@ class VehicleOverviewController extends Controller
                             $record->blockedBy->name,
                             ($record->unblockedBy)? "رفع شده" : '--',
                             ($record->unblockedBy)? jdate($record->unblocked_at)->toDateTimeString() : '--'
+                        ];
+                    })->all()
+                ],
+                [
+                    'title' => 'حمل و نقل',
+                    'values' => BillOfLadingItem::query()
+                        ->where('model_id',$vehicle->getAttribute('vin'))
+                        ->get()->map(function ($record) {
+                        return [
+                            jdate($record->billOfLading->created_at)->toDateTimeString(),
+                            $record->billOfLading->locationSource->title,
+                            $record->billOfLading->locationDestination->title
                         ];
                     })->all()
                 ]
