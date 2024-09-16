@@ -13,18 +13,19 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle)
     {
         return response()->json([
-            'items' => array_map(function ($no) {
-                return [
-                    'title'  => 'row '.$no,
-                    'type'   => 'table',
-                    'values' => array_map(function ($index) {
+            'items' => [
+                [
+                    'title' => 'رهگیری محصول',
+                    'values' => $vehicle->tracking()->get()->map(function ($tracking) {
                         return [
-                            'key'   => 'key '.$index,
-                            'value' => 'value '.$index
+                            $tracking->created_at,
+                            $tracking->model->title,
+                            $tracking->user->name,
+                            $tracking->type
                         ];
-                    }, range(1, 10))
-                ];
-            } , range(1,5))
+                    })->all()
+                ]
+            ]
         ]);
     }
 }
