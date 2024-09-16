@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActionLog;
 use App\Models\Barcode;
+use App\Models\BlockItem;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
 use Illuminate\Http\Request;
@@ -66,6 +67,21 @@ class VehicleOverviewController extends Controller
                             $record->user->name,
                             $record->element->title.' ('.$record->element->code.')',
                             $record->incident->title.' ('.$record->element->code.')'
+                        ];
+                    })->all()
+                ],
+                [
+                    'title' => 'بلوکه',
+                    'values' => BlockItem::query()
+                        ->where('vin',$vehicle->getAttribute('vin'))
+                        ->get()->map(function ($record) {
+                        return [
+                            jdate($record->created_at)->toDateTimeString(),
+                            $record->description,
+                            $record->blockReason?->title,
+                            $record->blockedBy->name,
+                            ($record->unblockedBy)? "رفع شده" : '--',
+                            ($record->unblockedBy)? jdate($record->unblocked_at)->toDateTimeString() : '--'
                         ];
                     })->all()
                 ]
