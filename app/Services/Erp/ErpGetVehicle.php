@@ -22,7 +22,7 @@ class ErpGetVehicle
      * @return array
      * @throws ValidationException
      */
-    public function get($vin, $useRow = false): array
+    public function get($vin): array
     {
         $vin = trim($vin, '* ');
         $url = config('erp.vehicles').'?$filter=VIN eq \''.$vin.'\'';
@@ -33,9 +33,6 @@ class ErpGetVehicle
             throw ValidationException::withMessages(['message' => 'vehicle not found']);
         }
 
-        if ($useRow) {
-            return (array)$result;
-        }
         return [
             'vin'                     => $result->VIN,
             'color_code'              => $result->Color_Code,
