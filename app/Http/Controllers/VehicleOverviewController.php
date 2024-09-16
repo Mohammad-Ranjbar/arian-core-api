@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActionLog;
 use App\Models\Barcode;
 use App\Models\Vehicle;
+use App\Models\VehicleIncident;
 use Illuminate\Http\Request;
 
 class VehicleOverviewController extends Controller
@@ -53,10 +54,11 @@ class VehicleOverviewController extends Controller
                 ],
                 [
                     'title' => 'ایرادات کیفی',
-                    'values' => $vehicle->vehicleIncidents()
+                    'values' => VehicleIncident::query()
+                        ->where('vin',$vehicle->getAttribute('vin'))
                         ->get()->map(function ($record) {
                         return [
-                            jdate($record->created_at)->toDateTimeString(),
+                            jdate($record->checked_at)->toDateTimeString(),
                             $record->description,
                             $record->type,
                             $record->method,
