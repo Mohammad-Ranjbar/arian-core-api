@@ -87,7 +87,7 @@ class VehicleController extends CrudController
             'cabin_no'                => $vehicleData['cabin_no'],
             'make_code_id'            => $makeCode->getAttribute('id'),
             'car_model_id'            => $carModel->getAttribute('id'),
-            'erp_data'                => $vehicleData
+            'erp_data'                => $this->erpGetVehicle->get($vin, true)
         ];
 
         return $this->vehicleRepository->make($data, 'vin');
