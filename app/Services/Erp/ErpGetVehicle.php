@@ -34,7 +34,7 @@ class ErpGetVehicle
         }
 
         if ($useRow) {
-            return $result;
+            return (array)$result;
         }
         return [
             'vin'                     => $result->VIN,
