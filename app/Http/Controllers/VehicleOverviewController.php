@@ -19,7 +19,7 @@ class VehicleOverviewController extends Controller
                     'values' => $vehicle->tracking()->get()->map(function ($tracking) {
                         return [
                             $tracking->created_at,
-                            $tracking->model->title,
+                            $tracking->model?->title,
                             $tracking->user->name,
                             $tracking->type
                         ];
