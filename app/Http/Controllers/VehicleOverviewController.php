@@ -16,6 +16,28 @@ class VehicleOverviewController extends Controller
 
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
+        try {
+            $police = [
+                'title' => 'اطلاعات شماره گذاری',
+                'values' => [
+                    [
+                        'تاریخ بررسی پلیس' ,
+                        $vehicle->getAttribute('data')['Police_Inspection_Date'] ?
+                            jdate($vehicle->getAttribute('data')['Police_Inspection_Date'])->toDateString()
+                            : '-'
+                        ,
+                    ],
+                    [
+                        'تاریخ شماره گذاری' ,
+                        $vehicle->getAttribute('data')['Platting_Date'] ?
+                            jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString()
+                            : '-',
+                    ],
+                ]
+            ];
+        }catch (\Exception $exception) {
+            $police = null;
+        }
         $result = DWVehicleServiceHistoryTree::query()
             ->groupBy(['VIN', 'Document No_'])
             ->where('VIN',$vehicle->getAttribute('vin'))
@@ -46,7 +68,7 @@ class VehicleOverviewController extends Controller
         }
 
         return response()->json([
-            'items' => array_merge([
+            'items' => array_filter(array_merge([
                 [
                     'title' => 'رهگیری محصول',
                     'values' => $vehicle->tracking()->get()->map(function ($record) {
@@ -75,22 +97,7 @@ class VehicleOverviewController extends Controller
                         ];
                     })->all()
                 ],
-                [
-                    'title' => 'اطلاعات شماره گذاری',
-                    'values' => [
-                        [
-                            'تاریخ بررسی پلیس' ,
-                            $vehicle->getAttribute('data')['Police_Inspection_Date']?
-                                jdate($vehicle->getAttribute('data')['Police_Inspection_Date'])->toDateString() : '-'
-                           ,
-                        ],
-                        [
-                            'تاریخ شماره گذاری' ,
-                            $vehicle->getAttribute('data')['Platting_Date'] ?
-                                jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString() : '-',
-                        ],
-                    ]
-                ],
+                $police,
                 [
                     'title' => 'کنترل کیفیت',
                     'values' => ActionLog::query()
@@ -154,7 +161,7 @@ class VehicleOverviewController extends Controller
                             ];
                         })->all()
                 ]
-            ],$services)
+            ],$services))
         ]);
     }
 }
