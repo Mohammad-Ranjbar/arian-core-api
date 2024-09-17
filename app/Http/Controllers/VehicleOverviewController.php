@@ -68,7 +68,7 @@ class VehicleOverviewController extends Controller
         }
 
         return response()->json([
-            'items' => array_filter(array_merge([
+            'items' => array_values(array_filter(array_merge([
                 [
                     'title' => 'رهگیری محصول',
                     'values' => $vehicle->tracking()->get()->map(function ($record) {
@@ -161,7 +161,7 @@ class VehicleOverviewController extends Controller
                             ];
                         })->all()
                 ]
-            ],$services))
+            ],$services)))
         ]);
     }
 }
