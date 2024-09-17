@@ -81,6 +81,7 @@ class VehicleController extends CrudController
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
         $carModel->update(['make_code_id' => $makeCode->getAttribute('id')]);
         $data = [
+            'data' => $vehicleData['data'],
             'vin' => $vehicleData['vin'],
             'color_code' => $vehicleData['color_code'],
             'production_order_number' => $vehicleData['production_order_number'],

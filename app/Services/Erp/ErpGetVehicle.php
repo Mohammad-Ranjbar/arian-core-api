@@ -41,6 +41,7 @@ class ErpGetVehicle
             'make_code' => $this->getMakeCode($result->Make_Code),
             'car_model' => $this->getCarModel($result->Model_No),
             'is_blocked' => $result->Blocked,
+            'data' => $result
         ];
     }
 

@@ -36,7 +36,8 @@ class Vehicle extends Model
      * @var string[]
      */
     protected $casts = [
-        'vin' => 'string'
+        'vin' => 'string',
+        'data' => 'json'
     ];
     /**
      * @var string[]
@@ -56,6 +57,7 @@ class Vehicle extends Model
         'current_location',
         'delivered_customer_at',
         'color_code',
+        'data'
     ];
 
     /**

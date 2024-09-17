@@ -36,6 +36,7 @@ class VehicleResource extends JsonResource
                 'reference' => $this->resource->carModel->reference,
             ],
             'serial_barcodes' => config('serial_barcodes.'.$this->resource->makeCode->reference),
+            'data' => $this->resource->data
         ];
     }
 }
