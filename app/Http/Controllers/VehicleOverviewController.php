@@ -60,10 +60,12 @@ class VehicleOverviewController extends Controller
                     ];
                 }
             }
-            $services[] =[
-                'title' => 'سابقه تعمیرگاهی: '.$item->document_no,
-                'values' => $items
-            ];
+            if (!empty($items)) {
+                $services[] = [
+                    'title'  => 'سابقه تعمیرگاهی: '.$row->document_no,
+                    'values' => $items
+                ];
+            }
 
         }
 
