@@ -44,11 +44,14 @@ class VehicleOverviewController extends Controller
                     'values' => [
                         [
                             'تاریخ بررسی پلیس' ,
-                            $vehicle->getAttribute('data')['Police_Inspection_Date'],
+                            $vehicle->getAttribute('data')['Police_Inspection_Date']?
+                                jdate($vehicle->getAttribute('data')['Police_Inspection_Date'])->toDateTimeString() : '-'
+                           ,
                         ],
                         [
                             'تاریخ شماره گذاری' ,
-                            $vehicle->getAttribute('data')['Platting_Date'],
+                            $vehicle->getAttribute('data')['Platting_Date'] ?
+                                jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateTimeString() : '-',
                         ],
                     ]
                 ],
