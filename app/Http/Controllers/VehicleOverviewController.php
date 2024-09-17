@@ -22,17 +22,31 @@ class VehicleOverviewController extends Controller
             ->selectRaw('VIN as vin, [Document No_] as document_no ,count(*) as count, max(Date) as date')
             ->get();
 
+        $services = [];
         foreach ($result as $row) {
             $list = DWVehicleServiceHistoryTree::query()
                 ->where('VIN', $row->vin)
                 ->where('Document No_', $row->document_no)
                 ->get();
 
-            logger($list);
+            $items = [];
+            foreach ($list as $item) {
+                if ((int) $item->Quantity) {
+                    $items[] = [
+                        'title' => $item->Description.' '.$item->{'Description 2'},
+                        'qty'   => (int) $item->Quantity,
+                    ];
+                }
+            }
+            $services[] =[
+                'title' => 'سابقه تعمیرگاهی: '.$item->document_no,
+                'values' => $items
+            ];
+
         }
 
         return response()->json([
-            'items' => [
+            'items' => array_merge([
                 [
                     'title' => 'رهگیری محصول',
                     'values' => $vehicle->tracking()->get()->map(function ($record) {
@@ -128,7 +142,7 @@ class VehicleOverviewController extends Controller
                             ];
                         })->all()
                 ]
-            ]
+            ],$services)
         ]);
     }
 }
