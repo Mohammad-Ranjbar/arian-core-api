@@ -21,7 +21,16 @@ class VehicleOverviewController extends Controller
             ->where('VIN',$vehicle->getAttribute('vin'))
             ->selectRaw('VIN as vin, [Document No_] as document_no ,count(*) as count, max(Date) as date')
             ->get();
-        logger($result);
+
+        foreach ($result as $row) {
+            $list = DWVehicleServiceHistoryTree::query()
+                ->where('VIN', $row->vin)
+                ->where('Document No_', $row->document_no)
+                ->get();
+
+            logger($list);
+        }
+
         return response()->json([
             'items' => [
                 [
