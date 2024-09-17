@@ -51,7 +51,10 @@ class VehicleOverviewController extends Controller
                     'title' => 'رهگیری محصول',
                     'values' => $vehicle->tracking()->get()->map(function ($record) {
                         return [
-                            jdate($record->created_at)->toDateTimeString(),
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-'
+                            ,
                             $record->model?->title,
                             $record->user->name,
                             $record->type
@@ -62,7 +65,10 @@ class VehicleOverviewController extends Controller
                     'title' => 'بارکد قطعات',
                     'values' => Barcode::query()->where('vin', $vehicle->getAttribute('vin'))->get()->map(function ($record) {
                         return [
-                            jdate($record->created_at)->toDateTimeString(),
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-'
+                            ,
                             $record->code,
                             $record->user->name,
                             $record->erpProductItem?->title,
@@ -92,7 +98,10 @@ class VehicleOverviewController extends Controller
                         ->where('action', 'update_qc_status')
                         ->get()->map(function ($record) {
                             return [
-                                jdate($record->created_at)->toDateTimeString(),
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-'
+                                ,
                                 $record->user->name,
                                 (string)$record->data,
                             ];
@@ -121,7 +130,10 @@ class VehicleOverviewController extends Controller
                         ->where('vin', $vehicle->getAttribute('vin'))
                         ->get()->map(function ($record) {
                             return [
-                                jdate($record->created_at)->toDateTimeString(),
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-'
+                                ,
                                 $record->description,
                                 $record->blockReason?->title,
                                 $record->blockedBy->name,
