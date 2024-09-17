@@ -21,6 +21,7 @@ class VehicleOverviewController extends Controller
             ->where('VIN',$vehicle->getAttribute('vin'))
             ->selectRaw('VIN as vin, [Document No_] as document_no ,count(*) as count, max(Date) as date')
             ->get();
+        logger($result);
         return response()->json([
             'items' => [
                 [
