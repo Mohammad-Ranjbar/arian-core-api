@@ -6,6 +6,7 @@ use App\Models\ActionLog;
 use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
 use App\Models\BlockItem;
+use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +16,21 @@ class VehicleOverviewController extends Controller
 
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
+        $result = DWVehicleServiceHistoryTree::query()
+            ->groupBy(['VIN', 'Document No_'])
+            ->where('VIN',$vehicle->getAttribute('vin'))
+            ->selectRaw('VIN as vin, [Document No_] as document_no ,count(*) as count, max(Date) as date')
+            ->get();
+
+        foreach ($result as $row) {
+            $list = DWVehicleServiceHistoryTree::query()
+                ->where('VIN', $row->vin)
+                ->where('Document No_', $row->document_no)
+                ->get();
+
+            logger($list);
+        }
+
         return response()->json([
             'items' => [
                 [
