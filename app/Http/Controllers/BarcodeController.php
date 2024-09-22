@@ -86,7 +86,10 @@ class BarcodeController extends CrudController
 
             if ($generalProductItem->getAttribute('carModels')
                 ->where('id',$vehicle->getAttribute('car_model_id'))->count() == 0) {
-                return $this->responseError('invalid general product item');
+                return $this->responseError('enter general item code is not valid for car models',400);
+            }
+            if ($this->repository->model->newQuery()->where('vin',$validatedData['vin'])->where('general_product_item_id',$generalProductItem->getAttribute('id'))->count() > 0) {
+                return $this->responseError('for this vin and general product item has been registered code',400);
             }
         }
 
