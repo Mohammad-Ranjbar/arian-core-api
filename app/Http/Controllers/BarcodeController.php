@@ -90,6 +90,7 @@ class BarcodeController extends CrudController
             }
 
             $saveItem = $this->afterSave($saveItem, $validatedData);
+
             $data = new $this->resource($saveItem);
             DB::commit();
             return $data;

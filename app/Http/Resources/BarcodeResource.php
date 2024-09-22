@@ -14,8 +14,12 @@ class BarcodeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $title = '';
+        $this->resource->erpProductItem ? $title = $this->resource->erpProductItem->title : '';
+        $this->resource->generalProductItem ? $title = $this->resource->generalProductItem->title .' '. $this->resource->generalProductItem->code: '';
         return [
             'id' => $this->resource->id,
+            'title' => $title,
             'user_id' => $this->resource->user_id,
             'code' => $this->resource->code,
             'item' => $this->resource->erpProductItem,
