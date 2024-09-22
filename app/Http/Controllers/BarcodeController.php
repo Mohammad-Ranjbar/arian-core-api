@@ -53,6 +53,7 @@ class BarcodeController extends CrudController
             $generalProductItem = GeneralProductItem::query()->where('code', $validatedData['general_product_item_code'])->first();
 
             $validatedData['general_product_item_id'] = $generalProductItem->getAttribute('id');
+            dd($validatedData);
             if (in_array($vehicle->getAttribute('qc_status'), [24, 34, 84, 85])) {
                 return $this->responseError("You Can Not Enter Serial NO. for Items. VIN Has Been Sign Off ");
             }
