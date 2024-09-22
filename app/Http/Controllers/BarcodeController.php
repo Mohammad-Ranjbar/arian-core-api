@@ -50,7 +50,7 @@ class BarcodeController extends CrudController
                     $data = $data->whereNotNull('type');
                 }
                 if (request()->get('section') == "general-items"){
-                    $data = $data->whereHas('generalProductItem');
+                    $data = $data->model->whereHas('generalProductItem');
                 }
 
             }
