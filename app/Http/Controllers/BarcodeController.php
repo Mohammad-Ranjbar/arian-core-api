@@ -12,9 +12,12 @@ use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 
 class BarcodeController extends CrudController
@@ -31,6 +34,29 @@ class BarcodeController extends CrudController
     {
         $this->applyAuthorizeResource();
         $this->setResource(BarcodeResource::class);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function index(Request $request): JsonResponse |AnonymousResourceCollection
+    {
+        $perPage = $request->get('per_page', 15);
+        $data = $this->repository;
+        if (isset($this->repository)) {
+            if (request()->has('section')) {
+                if (request()->get('section') == "serial-items"){
+                    $data = $data->whereNotNull('type');
+                }
+                if (request()->get('section') == "general-items"){
+                    $data = $data->whereHas('generalProductItem');
+                }
+
+            }
+            return $this->collect($data->paginate($perPage));
+        }
+        return $this->responseError('repository not found',400);
     }
 
     /**
