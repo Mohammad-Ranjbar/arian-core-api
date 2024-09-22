@@ -47,10 +47,10 @@ class BarcodeController extends CrudController
         if (isset($this->repository)) {
             if (request()->has('section')) {
                 if (request()->get('section') == "serial-items"){
-                    $data = $data->whereNotNull('type');
+                    $data = $data->model->newQuery()->whereNotNull('type');
                 }
                 if (request()->get('section') == "general-items"){
-                    $data = $data->model->whereHas('generalProductItem');
+                    $data = $data->model->newQuery()->whereHas('generalProductItem');
                 }
 
             }
