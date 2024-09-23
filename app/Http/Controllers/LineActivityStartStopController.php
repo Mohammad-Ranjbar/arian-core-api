@@ -30,7 +30,7 @@ class LineActivityStartStopController extends Controller
         if ($productionLine->isStop()) {
             return $this->responseError('can not stop the line');
         }
-        dd($validatedData);
+
         /** @var ProductionLineActivity $activity */
         $activity = $productionLine->activities()->create($validatedData);
         $activity->logs()->create([
