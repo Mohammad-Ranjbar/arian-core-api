@@ -9,6 +9,7 @@ use App\Filters\BlockItemMakeCodeIdFilter;
 use App\Filters\BlockReasonIdFilter;
 use App\Filters\CarFilter;
 use App\Filters\CarModelIdFilter;
+use App\Filters\CarModelIdsFilter;
 use App\Filters\CodeFilter;
 use App\Filters\CreatedAtFilter;
 use App\Filters\CreatedAtFromFilter;
@@ -115,7 +116,8 @@ abstract class BaseRepository
         PhoneFilter::class,
         SynchronousNumberFilter::class,
         SynchronousTitleFilter::class,
-        SynchronousProductionLineIdFilter::class
+        SynchronousProductionLineIdFilter::class,
+        CarModelIdsFilter::class,
     ];
     public array $searchTerms = [
         'title'
