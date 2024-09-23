@@ -13,12 +13,12 @@ class ProductionTestResultRepository extends BaseRepository
     protected array $rules = [
         'create'    => [
             'vin' => 'required|exists:vehicles,vin',
-            'files' => 'json',
+            'files' => 'required|json',
             'description' => 'required',
             'production_test_id' => 'required|exists:production_tests,id',
         ], 'update' => [
             'vin' => 'required|exists:vehicles,vin',
-            'files' => 'json',
+            'files' => 'required|json',
             'description' => 'required',
             'production_test_id' => 'required|exists:production_tests,id',
         ]
