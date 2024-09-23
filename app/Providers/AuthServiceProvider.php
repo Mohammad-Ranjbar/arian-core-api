@@ -25,6 +25,7 @@ use App\Models\MakeCode;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\ProductionTest;
+use App\Models\ProductionTestResult;
 use App\Models\Role;
 use App\Models\SaleCompany;
 use App\Models\SaleInvoice;
@@ -87,7 +88,8 @@ class AuthServiceProvider extends ServiceProvider
         SaleInvoice::class => CrudPolicy::class,
         GeneralProductItem::class => CrudPolicy::class,
         SynchronousType::class => CrudPolicy::class,
-        ProductionTest::class=>CrudPolicy::class,
+        ProductionTest::class => CrudPolicy::class,
+        ProductionTestResult::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
