@@ -18,6 +18,6 @@ class ProductionTest extends Model
      */
     public function carModels(): BelongsToMany
     {
-        return $this->belongsToMany(CarModel::class);
+        return $this->belongsToMany(CarModel::class,'production_test_car_model','production_test_id','car_model_id');
     }
 }
