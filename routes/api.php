@@ -35,6 +35,7 @@ use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PendingInvoiceController;
 use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
+use App\Http\Controllers\ProductionTestController;
 use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\ReceiptVehicleController;
 use App\Http\Controllers\RoleController;
@@ -303,6 +304,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'sale-companies'        => SaleCompanyController::class,
         'general-product-items' => GeneralProductItemController::class,
         'synchronous-type'      => SynchronousTypeController::class,
+        'production-tests'    => ProductionTestController::class,
     ]);
 
     /*
