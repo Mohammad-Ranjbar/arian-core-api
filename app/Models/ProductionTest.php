@@ -12,6 +12,7 @@ class ProductionTest extends Model
      */
     protected $fillable = ['title'];
 
+    protected $table = 'production_tests';
     /**
      * @return BelongsToMany
      */
