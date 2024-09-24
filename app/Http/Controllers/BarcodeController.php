@@ -75,8 +75,8 @@ class BarcodeController extends CrudController
         }
 
         $vehicle = Vehicle::query()->find($validatedData['vin']);
-        if (!empty($validatedData['general_product_item_code'])) {
-            $generalProductItem = GeneralProductItem::query()->where('code', $validatedData['general_product_item_code'])->first();
+        if (!empty($validatedData['general_product_item_id'])) {
+            $generalProductItem = GeneralProductItem::query()->find( $validatedData['general_product_item_id']);
 
             $validatedData['general_product_item_id'] = $generalProductItem->getAttribute('id');
 
