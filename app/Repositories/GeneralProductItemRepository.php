@@ -30,9 +30,6 @@ class GeneralProductItemRepository extends BaseRepository
     public function __construct(GeneralProductItem $model)
     {
         $this->model = $model;
-        if (request()->route()) {
-            $this->rules['update']['code'] .= request()->route()->parameter('general_product_item');
-        }
     }
 
 }
