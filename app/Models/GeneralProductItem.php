@@ -9,7 +9,6 @@ class GeneralProductItem extends Model
 {
     protected $fillable = [
         'title',
-        'code',
         'priority',
         'height'
     ];

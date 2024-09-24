@@ -17,7 +17,6 @@ class GeneralProductItemResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
-            'code' => $this->resource->code,
             'created_at' => $this->resource->created_at,
             'carModels' => CarModelResource::collection($this->resource->carModels),
             'height' => $this->resource->height,
