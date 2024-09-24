@@ -10,6 +10,7 @@ use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomLocationController;
 use App\Http\Controllers\DeliverVehicleToCustomerController;
@@ -35,6 +36,8 @@ use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PendingInvoiceController;
 use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
+use App\Http\Controllers\ProductionTestController;
+use App\Http\Controllers\ProductionTestResultController;
 use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\ReceiptVehicleController;
 use App\Http\Controllers\RoleController;
@@ -188,7 +191,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-
+            Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
             Route::get('overview', VehicleOverviewController::class)->name('vehicle.overview');
 
             Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');
@@ -237,7 +240,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
     Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
     Route::group([
-        'prefix'     => 'production-lines/{production_line}',
+        'prefix' => 'production-lines/{production_line}',
         'controller' => LineActivityStartStopController::class, 'as' => 'production-lines.'
     ], function () {
         Route::get('status', 'status')->name('status');
@@ -276,33 +279,35 @@ Route::middleware('auth:sanctum')->group(function () {
         [GeneralProductItemController::class, 'vehicleItems'])->name('general-product-items.vehicle');
 
     Route::apiResources([
-        'roles'                 => RoleController::class,
-        'make-codes'            => MakeCodeController::class,
-        'car-models'            => CarModelController::class,
-        'users'                 => UserController::class,
-        'salons'                => SalonController::class,
-        'production-lines'      => ProductionLineController::class,
-        'work-group-centers'    => WorkGroupCenterController::class,
-        'stations'              => StationController::class,
-        'incidents'             => IncidentController::class,
-        'elements'              => ElementController::class,
-        'block-reasons'         => BlockReasonController::class,
-        'transit-companies'     => TransitCompanyController::class,
-        'cars'                  => CarController::class,
-        'stop-facts'            => StopFactController::class,
-        'stop-reasons'          => StopReasonController::class,
-        'stop-types'            => StopTypeController::class,
-        'barcodes'              => BarcodeController::class,
-        'baskets'               => BasketController::class,
-        'inventories'           => InventoryController::class,
-        'containers'            => ContainerController::class,
-        'drivers'               => DriverController::class,
-        'sale-locations'        => SaleLocationController::class,
-        'accompanying-items'    => AccompanyingItemController::class,
-        'locations'             => LocationController::class,
-        'sale-companies'        => SaleCompanyController::class,
+        'roles' => RoleController::class,
+        'make-codes' => MakeCodeController::class,
+        'car-models' => CarModelController::class,
+        'users' => UserController::class,
+        'salons' => SalonController::class,
+        'production-lines' => ProductionLineController::class,
+        'work-group-centers' => WorkGroupCenterController::class,
+        'stations' => StationController::class,
+        'incidents' => IncidentController::class,
+        'elements' => ElementController::class,
+        'block-reasons' => BlockReasonController::class,
+        'transit-companies' => TransitCompanyController::class,
+        'cars' => CarController::class,
+        'stop-facts' => StopFactController::class,
+        'stop-reasons' => StopReasonController::class,
+        'stop-types' => StopTypeController::class,
+        'barcodes' => BarcodeController::class,
+        'baskets' => BasketController::class,
+        'inventories' => InventoryController::class,
+        'containers' => ContainerController::class,
+        'drivers' => DriverController::class,
+        'sale-locations' => SaleLocationController::class,
+        'production-test-results' => ProductionTestResultController::class,
+        'accompanying-items' => AccompanyingItemController::class,
+        'locations' => LocationController::class,
+        'sale-companies' => SaleCompanyController::class,
         'general-product-items' => GeneralProductItemController::class,
-        'synchronous-type'      => SynchronousTypeController::class,
+        'synchronous-type' => SynchronousTypeController::class,
+        'production-tests' => ProductionTestController::class,
     ]);
 
     /*

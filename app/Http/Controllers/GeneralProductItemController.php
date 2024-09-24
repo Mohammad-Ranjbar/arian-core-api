@@ -10,7 +10,6 @@ use Illuminate\Http\JsonResponse;
 
 class GeneralProductItemController extends CrudController
 {
-
     public function __construct(public readonly GeneralProductItemRepository $repository)
     {
         $this->applyAuthorizeResource();

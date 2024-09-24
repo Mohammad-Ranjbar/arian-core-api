@@ -30,6 +30,7 @@ class StopLineRequest extends FormRequest
             'stop_at' => 'nullable|date_format:"Y-m-d H:i:s"',
             'notify' => 'required|boolean',
             'productItems' => 'nullable|array|exists:erp_product_items,id',
+            'effective_time' => 'nullable'
         ];
     }
 }

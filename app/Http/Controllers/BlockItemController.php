@@ -12,6 +12,7 @@ use App\Jobs\ImportJob;
 use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\BlockItemRepository;
+use App\Repositories\BlockReasonRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Carbon\Carbon;
 use Exception;
@@ -29,7 +30,7 @@ class BlockItemController extends Controller
     /**
      * @param  BlockItemRepository  $repository
      */
-    public function __construct(public readonly BlockItemRepository $repository)
+    public function __construct(public readonly BlockItemRepository $repository,public readonly BlockReasonRepository $reasonRepository)
     {
     }
 
@@ -54,8 +55,12 @@ class BlockItemController extends Controller
 
         try {
             $validatedData = $request->validated();
-
-            ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', ['barcodeInfoP' => $vehicle->vin]);
+            $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'],'id');
+            $blockType = $blockReason->getAttribute('block_type');
+            ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', [
+                'barcodeInfoP' => $vehicle->vin,
+                'BlockTypeP' => $blockType,
+            ]);
             return new BlockItemResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);

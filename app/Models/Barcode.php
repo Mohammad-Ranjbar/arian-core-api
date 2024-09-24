@@ -20,13 +20,11 @@ class Barcode extends Model
         'code',
         'erp_product_item_id',
         'general_product_item_id',
+        'type',
         'created_at'
     ];
 
-    /**
-     * @param array $data
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder
-     */
+
     public static function getReportData(array $data)
     {
 

@@ -12,9 +12,12 @@ use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 
 class BarcodeController extends CrudController
@@ -34,6 +37,29 @@ class BarcodeController extends CrudController
     }
 
     /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function index(Request $request): JsonResponse |AnonymousResourceCollection
+    {
+        $perPage = $request->get('per_page', 15);
+        $data = $this->repository;
+        if (isset($this->repository)) {
+            if (request()->has('section')) {
+                if (request()->get('section') == "serial-items"){
+                    $data = $data->model->newQuery()->whereNotNull('type');
+                }
+                if (request()->get('section') == "general-items"){
+                    $data = $data->model->newQuery()->whereHas('generalProductItem');
+                }
+
+            }
+            return $this->collect($data->paginate($perPage));
+        }
+        return $this->responseError('repository not found',400);
+    }
+
+    /**
      * @param Request $request
      * @return JsonResponse|mixed
      */
@@ -49,13 +75,21 @@ class BarcodeController extends CrudController
         }
 
         $vehicle = Vehicle::query()->find($validatedData['vin']);
-        if (!empty($validatedData['general_product_item_id'])) {
+        if (!empty($validatedData['general_product_item_code'])) {
+            $generalProductItem = GeneralProductItem::query()->where('code', $validatedData['general_product_item_code'])->first();
+
+            $validatedData['general_product_item_id'] = $generalProductItem->getAttribute('id');
+
             if (in_array($vehicle->getAttribute('qc_status'), [24, 34, 84, 85])) {
                 return $this->responseError("You Can Not Enter Serial NO. for Items. VIN Has Been Sign Off ");
             }
-            $generalProductItem = GeneralProductItem::query()->find($validatedData['general_product_item_id']);
-            if (!$generalProductItem->getAttribute('carModels')->exists($vehicle->getAttribute('car_model_id'))) {
-                return $this->responseError('invalid general product item');
+
+            if ($generalProductItem->getAttribute('carModels')
+                ->where('id',$vehicle->getAttribute('car_model_id'))->count() == 0) {
+                return $this->responseError('enter general item code is not valid for car models',400);
+            }
+            if ($this->repository->model->newQuery()->where('vin',$validatedData['vin'])->where('general_product_item_id',$generalProductItem->getAttribute('id'))->count() > 0) {
+                return $this->responseError('for this vin and general product item has been registered code',400);
             }
         }
 
@@ -86,6 +120,7 @@ class BarcodeController extends CrudController
             }
 
             $saveItem = $this->afterSave($saveItem, $validatedData);
+
             $data = new $this->resource($saveItem);
             DB::commit();
             return $data;

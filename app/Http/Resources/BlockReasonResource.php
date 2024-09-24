@@ -15,7 +15,8 @@ class BlockReasonResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
-            'title' => $this->resource->title
+            'title' => $this->resource->title,
+            'block_type' => $this->resource->block_type,
         ];
     }
 }

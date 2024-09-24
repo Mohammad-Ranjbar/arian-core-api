@@ -13,9 +13,11 @@ class BlockReasonRepository extends BaseRepository
     protected array $rules = [
         'create' => [
             'title' => 'required|string',
+            'block_type' => 'required|string|in:cop,critical',
         ],
         'update' => [
             'title' => 'required|string',
+            'block_type' => 'required|string|in:cop,critical',
         ]
     ];
 

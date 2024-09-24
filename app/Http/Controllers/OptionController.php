@@ -14,6 +14,7 @@ use App\Repositories\LocationRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProductionLineRepository;
+use App\Repositories\ProductionTestRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SaleLocationRepository;
 use App\Repositories\SalonRepository;
@@ -70,6 +71,7 @@ class OptionController extends Controller
             'drivers' => DriverRepository::class,
             'sale-locations' => SaleLocationRepository::class,
             'product-items' => ErpProductItemRepository::class,
+            'production-tests' => ProductionTestRepository::class,
             default => false,
         };
     }

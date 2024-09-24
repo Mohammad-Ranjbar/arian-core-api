@@ -8,17 +8,10 @@ use Illuminate\Support\Facades\File;
 
 class MakeCrudCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'make:crud {name}';
 
 
-    /**
-     * @return void
-     */
     public function handle(): void
     {
         $name = $this->argument('name');
