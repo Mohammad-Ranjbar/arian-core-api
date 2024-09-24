@@ -16,6 +16,28 @@ class VehicleOverviewController extends Controller
 
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
+        try {
+            $police = [
+                'title' => 'اطلاعات شماره گذاری',
+                'values' => [
+                    [
+                        'تاریخ بررسی پلیس' ,
+                        $vehicle->getAttribute('data')['Police_Inspection_Date'] ?
+                            jdate($vehicle->getAttribute('data')['Police_Inspection_Date'])->toDateString()
+                            : '-'
+                        ,
+                    ],
+                    [
+                        'تاریخ شماره گذاری' ,
+                        $vehicle->getAttribute('data')['Platting_Date'] ?
+                            jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString()
+                            : '-',
+                    ],
+                ]
+            ];
+        }catch (\Exception $exception) {
+            $police = null;
+        }
         $result = DWVehicleServiceHistoryTree::query()
             ->groupBy(['VIN', 'Document No_'])
             ->where('VIN',$vehicle->getAttribute('vin'))
@@ -33,25 +55,30 @@ class VehicleOverviewController extends Controller
             foreach ($list as $item) {
                 if ((int) $item->Quantity) {
                     $items[] = [
-                        'title' => $item->Description.' '.$item->{'Description 2'},
-                        'qty'   => (int) $item->Quantity,
+                        $item->Description.' '.$item->{'Description 2'},
+                        (int) $item->Quantity,
                     ];
                 }
             }
-            $services[] =[
-                'title' => 'سابقه تعمیرگاهی: '.$item->document_no,
-                'values' => $items
-            ];
+            if (!empty($items)) {
+                $services[] = [
+                    'title'  => 'سابقه تعمیرگاهی: '.$row->document_no,
+                    'values' => $items
+                ];
+            }
 
         }
 
         return response()->json([
-            'items' => array_merge([
+            'items' => array_values(array_filter(array_merge([
                 [
                     'title' => 'رهگیری محصول',
                     'values' => $vehicle->tracking()->get()->map(function ($record) {
                         return [
-                            jdate($record->created_at)->toDateTimeString(),
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-'
+                            ,
                             $record->model?->title,
                             $record->user->name,
                             $record->type
@@ -62,29 +89,17 @@ class VehicleOverviewController extends Controller
                     'title' => 'بارکد قطعات',
                     'values' => Barcode::query()->where('vin', $vehicle->getAttribute('vin'))->get()->map(function ($record) {
                         return [
-                            jdate($record->created_at)->toDateTimeString(),
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-'
+                            ,
                             $record->code,
                             $record->user->name,
                             $record->erpProductItem?->title,
                         ];
                     })->all()
                 ],
-                [
-                    'title' => 'اطلاعات شماره گذاری',
-                    'values' => [
-                        [
-                            'تاریخ بررسی پلیس' ,
-                            $vehicle->getAttribute('data')['Police_Inspection_Date']?
-                                jdate($vehicle->getAttribute('data')['Police_Inspection_Date'])->toDateString() : '-'
-                           ,
-                        ],
-                        [
-                            'تاریخ شماره گذاری' ,
-                            $vehicle->getAttribute('data')['Platting_Date'] ?
-                                jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString() : '-',
-                        ],
-                    ]
-                ],
+                $police,
                 [
                     'title' => 'کنترل کیفیت',
                     'values' => ActionLog::query()
@@ -92,7 +107,10 @@ class VehicleOverviewController extends Controller
                         ->where('action', 'update_qc_status')
                         ->get()->map(function ($record) {
                             return [
-                                jdate($record->created_at)->toDateTimeString(),
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-'
+                                ,
                                 $record->user->name,
                                 (string)$record->data,
                             ];
@@ -121,7 +139,10 @@ class VehicleOverviewController extends Controller
                         ->where('vin', $vehicle->getAttribute('vin'))
                         ->get()->map(function ($record) {
                             return [
-                                jdate($record->created_at)->toDateTimeString(),
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-'
+                                ,
                                 $record->description,
                                 $record->blockReason?->title,
                                 $record->blockedBy->name,
@@ -142,7 +163,7 @@ class VehicleOverviewController extends Controller
                             ];
                         })->all()
                 ]
-            ],$services)
+            ],$services)))
         ]);
     }
 }
