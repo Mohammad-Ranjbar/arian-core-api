@@ -2,6 +2,7 @@
 
 namespace App\Services\Erp;
 
+use App\Models\ErpProductItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -31,6 +32,24 @@ class ErpGetVehicleComponent
             throw ValidationException::withMessages(['message' => 'component not found']);
         }
         return $result->value;
+    }
+
+    public function getItem($itemNo)
+    {
+        $url = config('erp.items').'?$filter=No eq \''.$itemNo.'\'';
+        $row = $this->client->getOne($url);
+        if (!$row){
+            return false;
+        }
+        $data = [
+            'reference'     => $row->No,
+            'tracking_code' => $row->Vendor_Tracking_Code,
+            'title'         => $row->Description,
+            'description'   => $row->Description_2,
+            'type'          => $row->Engin ? 'engine' : $row->Item_Type,
+        ];
+      return  ErpProductItem::query()->create($data);
+
     }
 
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomLocationController;
 use App\Http\Controllers\DeliverVehicleToCustomerController;
@@ -190,7 +191,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-
+            Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
             Route::get('overview', VehicleOverviewController::class)->name('vehicle.overview');
 
             Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');
