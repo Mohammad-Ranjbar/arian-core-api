@@ -45,6 +45,7 @@ use App\Http\Controllers\SaleCompanyController;
 use App\Http\Controllers\SaleInvoicesController;
 use App\Http\Controllers\SaleLocationController;
 use App\Http\Controllers\SalonController;
+use App\Http\Controllers\ShortageController;
 use App\Http\Controllers\SmsServiceController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\StopFactController;
@@ -191,6 +192,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::apiResource('/shortages', ShortageController::class)->only(['index', 'store', 'update']);
+
             Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
             Route::get('overview', VehicleOverviewController::class)->name('vehicle.overview');
 

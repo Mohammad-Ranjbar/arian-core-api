@@ -31,6 +31,7 @@ use App\Models\SaleCompany;
 use App\Models\SaleInvoice;
 use App\Models\SaleLocation;
 use App\Models\Salon;
+use App\Models\ShortageItem;
 use App\Models\SmsService;
 use App\Models\Station;
 use App\Models\StopFact;
@@ -90,6 +91,7 @@ class AuthServiceProvider extends ServiceProvider
         SynchronousType::class => CrudPolicy::class,
         ProductionTest::class => CrudPolicy::class,
         ProductionTestResult::class => CrudPolicy::class,
+        ShortageItem::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
