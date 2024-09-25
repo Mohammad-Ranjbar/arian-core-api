@@ -14,34 +14,40 @@ class ComponentItemController extends Controller
 
     public function __invoke(Vehicle $vehicle)
     {
-        $items = collect($this->component->get($vehicle->getAttribute('product_order_number')))
-//            ->filter(function ($item) {
-//                return $item->Main_Component;
-//            })
-            ->map(function ($item) {
-                $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
-                if (empty($erpProductItem)) {
-                    $erpProductItem = $this->component->getItem($item->Item_No);
-                }
-                if (!$erpProductItem) {
+        $items = collect($this->component->get($vehicle->getAttribute('production_order_number')));
+        $items->each(function ($item) {
+            $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
+            if (empty($erpProductItem)) {
+                $erpProductItem =  $this->component->getItem($item->Item_No);
+            }
+            $item->productItem = $erpProductItem;
+        });
+
+        $items = $items
+            ->filter(function ($item) {
+                return $item->Main_Component;
+            })
+            ->map(function ($item) use ($items) {
+                if (!$item->productItem) {
                     return [
                         'id' => 0,
                         'title' => 'unknown item for ' . $item->Item_No,
                         'reference' => 'unknown item for ' . $item->Item_No,
                         'description' => 'unknown item for ' . $item->Item_No,
-                        'is_main' => false,
+                        'related' => []
                     ];
                 }
                 return [
-                    'id' => $erpProductItem->id,
-                    'title' => $erpProductItem->title,
-                    'reference' => $erpProductItem->reference,
-                    'description' => $erpProductItem->description,
-                    'is_main' => $item->Main_Component,
-                    'related_to' => $item->Related_Component,
+                    'id' => $item->productItem->id,
+                    'title' => $item->productItem->title,
+                    'reference' => $item->productItem->reference,
+                    'description' => $item->productItem->description,
+                    'related' => $items->filter(function ($row) use($item){
+                        return $row->Related_Component == $item->Item_No && $row->Item_No != $item->Item_No;
+                    })->pluck('productItem.title')
                 ];
             });
 
-        return response()->json($items);
+        return response()->json($items->values());
     }
 }
