@@ -26,6 +26,7 @@ class BarcodeResource extends JsonResource
             'id' => $this->resource->id,
             'title' => $title,
             'user_id' => $this->resource->user_id,
+            'type' => $this->resource->type,
             'code' => $this->resource->code,
             'item' => $this->resource->erpProductItem,
             'general_product_item_id' => $this->resource->general_product_item_id,
