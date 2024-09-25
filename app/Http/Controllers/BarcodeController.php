@@ -43,18 +43,18 @@ class BarcodeController extends CrudController
     public function index(Request $request): JsonResponse |AnonymousResourceCollection
     {
         $perPage = $request->get('per_page', 15);
-        $data = $this->repository;
+        $data = $this->repository->model->newQuery();
         if (isset($this->repository)) {
             if (request()->has('section')) {
                 if (request()->get('section') == "serial-items"){
-                    $data = $data->model->newQuery()->whereNotNull('type');
+                    $data = $data->whereNotNull('type');
                 }
                 if (request()->get('section') == "general-items"){
-                    $data = $data->model->newQuery()->whereHas('generalProductItem');
+                    $data = $data->whereHas('generalProductItem');
                 }
             }
             if (request()->get('vin')){
-                $data = $data->model->newQuery()->where('vin',request()->get('vin'));
+                $data = $data->where('vin',request()->get('vin'));
             }
             return $this->collect($data->paginate($perPage));
         }
