@@ -8,6 +8,8 @@ use App\Http\Resources\VehicleQcResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
 use App\Models\ActionLog;
+use App\Models\Barcode;
+use App\Models\GeneralProductItem;
 use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\ActionLogRepository;
@@ -110,6 +112,15 @@ class VehicleController extends CrudController
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
+            }
+            if (in_array($validatedData['qc_status'],[24, 84, 85])){
+                $generalItems = GeneralProductItem::query()->whereHas('carModels',function ($q){
+                    $q->where('id',$vehicle->getAttribute('car_model_id'));
+                });
+                if( Barcode::query()->where('vin',$vehicle->vin)->whereIn('general_product_item_id',$generalItems->pluck('id'))->count()
+                < $generalItems->count()){
+                    return $this->responseError('all barcode not submitted yet', 400);
+                }
             }
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
