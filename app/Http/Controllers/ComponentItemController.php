@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ErpProductItem;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpGetVehicleComponent;
+use Illuminate\Http\JsonResponse;
 
 class ComponentItemController extends Controller
 {
@@ -12,13 +13,13 @@ class ComponentItemController extends Controller
     {
     }
 
-    public function __invoke(Vehicle $vehicle)
+    public function __invoke(Vehicle $vehicle): JsonResponse
     {
         $items = collect($this->component->get($vehicle->getAttribute('production_order_number')));
         $items->each(function ($item) {
             $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
             if (empty($erpProductItem)) {
-                $erpProductItem =  $this->component->getItem($item->Item_No);
+                $erpProductItem = $this->component->getItem($item->Item_No);
             }
             $item->productItem = $erpProductItem;
         });
@@ -42,7 +43,7 @@ class ComponentItemController extends Controller
                     'title' => $item->productItem->title,
                     'reference' => $item->productItem->reference,
                     'description' => $item->productItem->description,
-                    'related' => $items->filter(function ($row) use($item){
+                    'related' => $items->filter(function ($row) use ($item) {
                         return $row->Related_Component == $item->Item_No && $row->Item_No != $item->Item_No;
                     })->pluck('productItem.title')
                 ];

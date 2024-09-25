@@ -4,6 +4,7 @@ namespace App\Services\TrackingService;
 
 use App\Jobs\SendTrackingToErpJob;
 use App\Models\ProductionLine;
+use App\Models\ShortageItem;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
@@ -11,10 +12,8 @@ use App\Models\SynchronousType;
 class ProductionLineTrackingService extends BaseTrackingService
 {
 
-    /**
-     *
-     */
-    const MODEL_TYPE = 'App\Models\ProductionLine';
+
+    const string MODEL_TYPE = 'App\Models\ProductionLine';
 
     /**
      * @param $data
@@ -102,8 +101,17 @@ class ProductionLineTrackingService extends BaseTrackingService
         if ($record->type == 'exit') {
             $params['withOutput'] = 'true';
         }
+        $method = 'PostProduction_OnlyBIN';
+        $shortages = ShortageItem::query()->where('vin', $record->vin)
+            ->where('status', 'pending')->with('erpProductItem')->get();
+        if ($count = $shortages->count()) {
+            $method = 'PostProduction_OnlyBIN_Lack';
+            $params['LackItemNo'] = $shortages->implode('erpProductItem.reference');
+            $params['NumberFractionalItems'] = $count;
+        }
 
-        dispatch(new SendTrackingToErpJob($record->id, config('erp.post_production'), 'PostProduction_OnlyBIN',
+
+        dispatch(new SendTrackingToErpJob($record->id, config('erp.post_production'), $method,
             $params));
     }
 }

@@ -192,7 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-            Route::apiResource('/shortages', ShortageController::class)->only(['index', 'store', 'update']);
+            Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update']);
 
             Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
             Route::get('overview', VehicleOverviewController::class)->name('vehicle.overview');

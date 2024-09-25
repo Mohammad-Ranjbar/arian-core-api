@@ -60,6 +60,11 @@ class Vehicle extends Model
         'data'
     ];
 
+    public function shortageItems(): HasMany
+    {
+        return $this->hasMany(ShortageItem::class,'vin');
+    }
+
     /**
      * @return BelongsTo
      */
