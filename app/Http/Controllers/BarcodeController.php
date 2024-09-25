@@ -36,30 +36,6 @@ class BarcodeController extends CrudController
         $this->setResource(BarcodeResource::class);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function index(Request $request): JsonResponse |AnonymousResourceCollection
-    {
-        $perPage = $request->get('per_page', 15);
-        $data = $this->repository->model->newQuery();
-        if (isset($this->repository)) {
-            if (request()->has('section')) {
-                if (request()->get('section') == "serial-items"){
-                    $data = $data->whereNotNull('type');
-                }
-                if (request()->get('section') == "general-items"){
-                    $data = $data->whereHas('generalProductItem');
-                }
-            }
-            if (request()->get('vin')){
-                $data = $data->where('vin',request()->get('vin'));
-            }
-            return $this->collect($data->paginate($perPage));
-        }
-        return $this->responseError('repository not found',400);
-    }
 
     /**
      * @param Request $request

@@ -36,6 +36,7 @@ use App\Filters\QcMakeCodeFilter;
 use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\SearchQByFilter;
+use App\Filters\SectionFilter;
 use App\Filters\StationProductionLineIdFilter;
 use App\Filters\SynchronousNumberFilter;
 use App\Filters\SynchronousProductionLineIdFilter;
@@ -118,6 +119,7 @@ abstract class BaseRepository
         SynchronousTitleFilter::class,
         SynchronousProductionLineIdFilter::class,
         CarModelIdsFilter::class,
+        SectionFilter::class
     ];
     public array $searchTerms = [
         'title'
