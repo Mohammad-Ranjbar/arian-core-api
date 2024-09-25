@@ -22,7 +22,7 @@ class CarModelIdsFilter
             return $next($request);
         }
         return $next($request)->whereHas('carModels',function ($q){
-            $q->whereIn('id', request()->get('car_model_ids'));
+            $q->whereIn('id',(array) request()->get('car_model_ids'));
         });
     }
 
