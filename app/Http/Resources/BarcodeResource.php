@@ -16,7 +16,12 @@ class BarcodeResource extends JsonResource
     {
         $title = '';
         $this->resource->erpProductItem ? $title = $this->resource->erpProductItem->title : '';
-        $this->resource->generalProductItem ? $title = $this->resource->generalProductItem->title .' '. $this->resource->generalProductItem->code: '';
+        $this->resource->generalProductItem ? $title = $this->resource->generalProductItem->title . ' ' . $this->resource->generalProductItem->code : '';
+        $trackable = true;
+        if (in_array($this->resource->code, ['shortage', 'noLabel', 'unreadable']) && $this->resource->type == null) {
+            $trackable = false;
+        }
+
         return [
             'id' => $this->resource->id,
             'title' => $title,
@@ -25,7 +30,8 @@ class BarcodeResource extends JsonResource
             'item' => $this->resource->erpProductItem,
             'general_product_item_id' => $this->resource->general_product_item_id,
             'generalProductItem' => new GeneralProductItemResource($this->resource->generalProductItem),
-            'user' => new UserShortResource($this->resource->user)
+            'user' => new UserShortResource($this->resource->user),
+            'trackable' => $trackable
         ];
     }
 }
