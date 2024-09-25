@@ -30,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Validator::extend('CodeUniqueWhenDeletedAtNullRule', function ($attribute, $value, $parameters, $validator) {
 
+            if (in_array($value,['shortage', 'noLabel', 'unreadable'])){
+                return true;
+            }
             $barcode = Barcode::query()->where($attribute, $value)->first();
             if ($barcode && $barcode->deleted_at == null) {
                 return false;
