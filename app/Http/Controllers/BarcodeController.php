@@ -52,7 +52,9 @@ class BarcodeController extends CrudController
                 if (request()->get('section') == "general-items"){
                     $data = $data->model->newQuery()->whereHas('generalProductItem');
                 }
-
+            }
+            if (request()->get('vin')){
+                $data = $data->model->where('vin',request()->get('vin'));
             }
             return $this->collect($data->paginate($perPage));
         }
