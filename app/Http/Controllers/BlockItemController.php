@@ -60,7 +60,7 @@ class BlockItemController extends Controller
             dd($blockType);
           $response =  ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', [
                 'barcodeInfoP' => $vehicle->vin,
-                'BlockTypeP' => $blockType,
+                'blockTypeP' => $blockType,
             ]);
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
