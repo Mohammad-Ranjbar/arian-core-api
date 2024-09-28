@@ -57,10 +57,13 @@ class BlockItemController extends Controller
             $validatedData = $request->validated();
             $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'],'id');
             $blockType = $blockReason->getAttribute('block_type');
-            ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', [
+          $response =  ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', [
                 'barcodeInfoP' => $vehicle->vin,
                 'BlockTypeP' => $blockType,
             ]);
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 400);
+            }
             return new BlockItemResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
