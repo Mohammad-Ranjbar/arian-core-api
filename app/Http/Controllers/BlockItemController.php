@@ -27,9 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BlockItemController extends Controller
 {
-    /**
-     * @param  BlockItemRepository  $repository
-     */
+
     public function __construct(public readonly BlockItemRepository $repository,public readonly BlockReasonRepository $reasonRepository)
     {
     }
