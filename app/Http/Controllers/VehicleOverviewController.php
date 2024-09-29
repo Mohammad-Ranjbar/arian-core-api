@@ -7,14 +7,20 @@ use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
 use App\Models\BlockItem;
 use App\Models\DWVehicleServiceHistoryTree;
+use App\Models\ErpProductItem;
 use App\Models\ProductionLine;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
+use App\Services\Erp\ErpGetVehicleComponent;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
 class VehicleOverviewController extends Controller
 {
+    public function __construct(private readonly ErpGetVehicleComponent $component)
+    {
+
+    }
 
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
@@ -71,14 +77,30 @@ class VehicleOverviewController extends Controller
 
         }
 
+        $components = collect($this->component->get($vehicle->getAttribute('production_order_number')))->filter(function ($item) {
+            return $item->Quantity > 0;
+        });
+        $components->each(function ($item) {
+            $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
+            if (empty($erpProductItem)) {
+                $erpProductItem = $this->component->getItem($item->Item_No);
+            }
+            $item->productItem = $erpProductItem;
+        });
+
         return response()->json([
             'items' => array_values(array_filter(array_merge([
                 [
                     'title'  => 'رهگیری محصول',
-                    'values' => $vehicle->tracking()->where(function ($q) {
-                        $q->where('model_type', '!=', ProductionLine::class);
-                        $q->where('model_id', '!=', 1);
-                    })->get()->map(function ($record) {
+                    'values' => array_values(array_filter($vehicle->tracking()->get()->map(function ($record) {
+                        if($record->model) {
+                            if(
+                                $record->model->model_type == ProductionLine::class and
+                                $record->model->model_id == 1
+                            ) {
+                                return false;
+                            }
+                        }
                         return [
                             $record->created_at ?
                                 jdate($record->created_at)->toDateTimeString()
@@ -88,7 +110,7 @@ class VehicleOverviewController extends Controller
                             $record->user->name,
                             $record->type
                         ];
-                    })->all()
+                    })->all()))
                 ],
                 [
                     'title'  => 'بارکد قطعات',
@@ -173,6 +195,17 @@ class VehicleOverviewController extends Controller
                                 $record->billOfLading->locationDestination->title
                             ];
                         })->all()
+                ],
+                [
+                    'title' => 'اقلام مصرفی (BOM)',
+                    'values' => $components->map(function ($item) {
+                        return [
+                            $item->productItem?->title,
+                            $item->productItem?->description,
+                            $item->productItem?->reference,
+                            $item->Quantity
+                        ];
+                    })->all()
                 ]
             ], $services)))
         ]);
