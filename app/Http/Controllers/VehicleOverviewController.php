@@ -7,6 +7,7 @@ use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
 use App\Models\BlockItem;
 use App\Models\DWVehicleServiceHistoryTree;
+use App\Models\ErpProductItem;
 use App\Models\ProductionLine;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
@@ -16,7 +17,7 @@ use Illuminate\Http\JsonResponse;
 
 class VehicleOverviewController extends Controller
 {
-    public function __construct(private readonly ErpGetVehicleComponent $erpGetVehicleComponent)
+    public function __construct(private readonly ErpGetVehicleComponent $component)
     {
 
     }
@@ -76,8 +77,14 @@ class VehicleOverviewController extends Controller
 
         }
 
-        $components = $this->erpGetVehicleComponent->get($vehicle->getAttribute('reference'));
-        logger($components);
+        $components = collect($this->component->get($vehicle->getAttribute('production_order_number')));
+        $components->each(function ($item) {
+            $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
+            if (empty($erpProductItem)) {
+                $erpProductItem = $this->component->getItem($item->Item_No);
+            }
+            $item->productItem = $erpProductItem;
+        });
 
         return response()->json([
             'items' => array_values(array_filter(array_merge([
@@ -102,6 +109,15 @@ class VehicleOverviewController extends Controller
                             $record->type
                         ];
                     })->all()))
+                ],
+                [
+                    'title' => 'BOM',
+                    'values' => $components->map(function ($item) {
+                        return [
+                            $item->productItem?->title,
+                            $item->productItem?->description,
+                        ];
+                    })->all()
                 ],
                 [
                     'title'  => 'بارکد قطعات',
