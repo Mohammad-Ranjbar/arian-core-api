@@ -162,6 +162,10 @@ class VehicleOverviewController extends Controller
                     'title'  => 'حمل و نقل',
                     'values' => BillOfLadingItem::query()
                         ->where('model_id', $vehicle->getAttribute('vin'))
+                        ->whereDoesntHave('billOfLading', function ($q) {
+                            $q->where('location_source_id',4);
+                            $q->orWhere('location_destination_id',4);
+                        })
                         ->get()->map(function ($record) {
                             return [
                                 jdate($record->billOfLading->created_at)->toDateTimeString(),
