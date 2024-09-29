@@ -111,15 +111,6 @@ class VehicleOverviewController extends Controller
                     })->all()))
                 ],
                 [
-                    'title' => 'BOM',
-                    'values' => $components->map(function ($item) {
-                        return [
-                            $item->productItem?->title,
-                            $item->productItem?->description,
-                        ];
-                    })->all()
-                ],
-                [
                     'title'  => 'بارکد قطعات',
                     'values' => Barcode::query()->where('vin', $vehicle->getAttribute('vin'))->get()->map(function (
                         $record
@@ -202,6 +193,15 @@ class VehicleOverviewController extends Controller
                                 $record->billOfLading->locationDestination->title
                             ];
                         })->all()
+                ],
+                [
+                    'title' => 'اقلام مصرفی (BOM)',
+                    'values' => $components->map(function ($item) {
+                        return [
+                            $item->productItem?->title,
+                            $item->productItem?->description,
+                        ];
+                    })->all()
                 ]
             ], $services)))
         ]);
