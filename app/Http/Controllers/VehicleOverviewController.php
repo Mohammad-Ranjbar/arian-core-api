@@ -75,7 +75,15 @@ class VehicleOverviewController extends Controller
             'items' => array_values(array_filter(array_merge([
                 [
                     'title'  => 'رهگیری محصول',
-                    'values' => $vehicle->tracking()->get()->map(function ($record) {
+                    'values' => array_values(array_filter($vehicle->tracking()->get()->map(function ($record) {
+                        if($record->model) {
+                            if(
+                                $record->mode->model_type == ProductionLine::class and
+                                $record->mode->model_id == 1
+                            ) {
+                                return false;
+                            }
+                        }
                         return [
                             $record->created_at ?
                                 jdate($record->created_at)->toDateTimeString()
@@ -85,7 +93,7 @@ class VehicleOverviewController extends Controller
                             $record->user->name,
                             $record->type
                         ];
-                    })->all()
+                    })->all()))
                 ],
                 [
                     'title'  => 'بارکد قطعات',
