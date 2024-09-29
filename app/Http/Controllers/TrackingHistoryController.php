@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Filters\CreatedAtFromFilter;
 use App\Filters\CreatedAtToFilter;
+use App\Filters\VinFilter;
 use App\Http\Resources\TrackingResource;
 use App\Models\ProductionLine;
 use App\Models\Salon;
@@ -49,7 +50,7 @@ class TrackingHistoryController extends Controller
             $data = Pipeline::send(Tracking::query()->where($whereCondition))->through([
                 CreatedAtFromFilter::class,
                 CreatedAtToFilter::class,
-
+                VinFilter::class
             ])->thenReturn()->latest()->paginate($perPage);
             return TrackingResource::collection($data);
         } else {
