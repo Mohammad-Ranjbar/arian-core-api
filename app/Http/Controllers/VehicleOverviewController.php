@@ -77,7 +77,9 @@ class VehicleOverviewController extends Controller
 
         }
 
-        $components = collect($this->component->get($vehicle->getAttribute('production_order_number')));
+        $components = collect($this->component->get($vehicle->getAttribute('production_order_number')))->filter(function ($item) {
+            return $item->Quantity > 0;
+        });
         $components->each(function ($item) {
             $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
             if (empty($erpProductItem)) {
@@ -201,6 +203,7 @@ class VehicleOverviewController extends Controller
                             $item->productItem?->title,
                             $item->productItem?->description,
                             $item->productItem?->reference,
+                            $item->Quantity
                         ];
                     })->all()
                 ]
