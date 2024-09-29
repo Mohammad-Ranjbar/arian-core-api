@@ -78,8 +78,8 @@ class VehicleOverviewController extends Controller
                     'values' => array_values(array_filter($vehicle->tracking()->get()->map(function ($record) {
                         if($record->model) {
                             if(
-                                $record->mode->model_type == ProductionLine::class and
-                                $record->mode->model_id == 1
+                                $record->model->model_type == ProductionLine::class and
+                                $record->model->model_id == 1
                             ) {
                                 return false;
                             }
