@@ -200,6 +200,7 @@ class VehicleOverviewController extends Controller
                         return [
                             $item->productItem?->title,
                             $item->productItem?->description,
+                            $item->productItem?->reference,
                         ];
                     })->all()
                 ]
