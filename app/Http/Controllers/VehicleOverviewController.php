@@ -7,6 +7,7 @@ use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
 use App\Models\BlockItem;
 use App\Models\DWVehicleServiceHistoryTree;
+use App\Models\ProductionLine;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
 use Illuminate\Http\JsonResponse;
@@ -73,7 +74,10 @@ class VehicleOverviewController extends Controller
             'items' => array_values(array_filter(array_merge([
                 [
                     'title' => 'رهگیری محصول',
-                    'values' => $vehicle->tracking()->get()->map(function ($record) {
+                    'values' => $vehicle->tracking()->where(function ($q) {
+                        $q->where('model_type', ProductionLine::class);
+                        $q->where('model_id', 1);
+                    })->get()->map(function ($record) {
                         return [
                             $record->created_at ?
                                 jdate($record->created_at)->toDateTimeString()
