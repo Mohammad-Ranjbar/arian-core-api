@@ -198,14 +198,14 @@ class VehicleOverviewController extends Controller
                 ],
                 [
                     'title' => 'اقلام مصرفی (BOM)',
-                    'values' => $components->map(function ($item) {
+                    'values' => array_values($components->map(function ($item) {
                         return [
                             $item->productItem?->title,
                             $item->productItem?->description,
                             $item->productItem?->reference,
                             $item->Quantity
                         ];
-                    })->all()
+                    })->all())
                 ]
             ], $services)))
         ]);
