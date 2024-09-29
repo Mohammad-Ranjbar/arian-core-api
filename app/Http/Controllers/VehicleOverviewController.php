@@ -10,11 +10,16 @@ use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ProductionLine;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
+use App\Services\Erp\ErpGetVehicleComponent;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
 class VehicleOverviewController extends Controller
 {
+    public function __construct(private readonly ErpGetVehicleComponent $erpGetVehicleComponent)
+    {
+
+    }
 
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
@@ -70,6 +75,9 @@ class VehicleOverviewController extends Controller
             }
 
         }
+
+        $components = $this->erpGetVehicleComponent->get($vehicle->getAttribute('reference'));
+        logger($components);
 
         return response()->json([
             'items' => array_values(array_filter(array_merge([
