@@ -8,6 +8,7 @@ use App\Models\BillOfLadingItem;
 use App\Models\BlockItem;
 use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ErpProductItem;
+use App\Models\Location;
 use App\Models\ProductionLine;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
@@ -94,8 +95,8 @@ class VehicleOverviewController extends Controller
                     'title'  => 'رهگیری محصول',
                     'values' => array_values(array_filter($vehicle->tracking()->get()->map(function ($record) {
                         if(
-                            $record->model_type == ProductionLine::class and
-                            $record->model_id == 1
+                            ($record->model_type == ProductionLine::class and $record->model_id == 1) or
+                            ($record->model_type == Location::class and $record->model_id == 1)
                         ) {
                             return false;
                         }
