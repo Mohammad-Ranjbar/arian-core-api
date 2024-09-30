@@ -87,7 +87,7 @@ class BlockItemController extends Controller
 
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
             if (!$exists) {
-                ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', ['barcodeInfoP' => $vehicle->vin]);
+               $response = ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', ['barcodeInfoP' => $vehicle->vin]);
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
