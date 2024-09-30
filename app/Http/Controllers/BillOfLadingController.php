@@ -96,6 +96,7 @@ class BillOfLadingController extends CrudController
                         'type' => $type,
                         'exit_type' => $exitType
                     ]);
+                   dd($gate);
                     if ($type == 'exit') {
                         $response = ErpCreateExitRequest::createExitRequest($record->vin, $exitType,
                             $gate->location->getAttribute('code'));
