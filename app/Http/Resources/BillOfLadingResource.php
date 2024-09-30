@@ -42,7 +42,7 @@ class BillOfLadingResource extends JsonResource
                 }) :
                 $this->resource->vehicles()->get()->map(function ($item) {
                     return [
-                        'code' => $item->code,
+                        'code' => $item->vin,
                         'destination' => GatePermit::withTrashed()
                             ->where('model_id',$item->vin)
                             ->where('created_at','<=',$item->created_at)
