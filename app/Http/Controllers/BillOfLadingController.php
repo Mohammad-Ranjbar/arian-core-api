@@ -90,13 +90,13 @@ class BillOfLadingController extends CrudController
                    $gate =  GatePermit::query()->create([
                         'model_type' => Vehicle::class,
                         'model_id' => $item,
-                        'location_id' => $record->destination_id,
+                        'location_id' => $record->location_destination_id,
                         'owner_id' => Auth::id(),
                         'owner_type' => User::class,
                         'type' => $type,
                         'exit_type' => $exitType
                     ]);
-                   dd($gate);
+
                     if ($type == 'exit') {
                         $response = ErpCreateExitRequest::createExitRequest($record->vin, $exitType,
                             $gate->location->getAttribute('code'));
