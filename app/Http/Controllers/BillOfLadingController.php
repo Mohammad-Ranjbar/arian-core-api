@@ -105,7 +105,7 @@ class BillOfLadingController extends CrudController
                             throw new Exception($response['message']);
                         }
                     } elseif ($validatedData['type'] == 'enter') {
-                     $response =   ErpReturnRequest::returnRequest($validatedData['vin'], $gate->location->getAttribute('code'));
+                     $response =   ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
 
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
