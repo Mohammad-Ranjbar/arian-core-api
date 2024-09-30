@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\SaleCompany;
 use App\Services\CustomerFinance\CustomerFinanceFactory;
+use App\Services\CustomerFinance\DieselExtraPaymentService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,6 +28,10 @@ class PublishMessageJob implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->data['action'] === 'extra-payment-paid') {
+            $service  = new DieselExtraPaymentService();
+            $service->process($this->data['online_order_id']);
+        }
         if ($this->data['action'] === 'customer-finance-paid') {
             $data = $this->data;
             /** @var SaleCompany $saleCompany */
