@@ -100,7 +100,12 @@ class VehicleOverviewController extends Controller
                 [
                     'title'  => 'رهگیری محصول',
                     'type'   => 'table',
-                    'heads'  => [],
+                    'heads'  => [
+                        'ثبت شده توسط',
+                        'زمان',
+                        'مکان',
+                        'نوع',
+                    ],
                     'values' => array_values(array_filter($vehicle->tracking()->get()->map(function ($record) {
                         if (
                             ($record->model_type == ProductionLine::class and $record->model_id == 1) or
@@ -110,13 +115,13 @@ class VehicleOverviewController extends Controller
                         }
 
                         return [
+                            $record->user->name,
                             $record->created_at ?
                                 jdate($record->created_at)->toDateTimeString()
                                 : '-'
                             ,
                             $record->model?->title,
-                            $record->user->name,
-                            $record->type
+                            $record->type == 'enter' ? 'ورود' : 'خروج'
                         ];
                     })->all()))
                 ],
