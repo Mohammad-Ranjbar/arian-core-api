@@ -87,7 +87,7 @@ class BillOfLadingController extends CrudController
                     }
                     $type = $record->destination_id == 1 ? 'enter' : 'exit';
                     $exitType = 1;// by reza => consignment , 1
-                    GatePermit::query()->create([
+                   $gate =  GatePermit::query()->create([
                         'model_type' => Vehicle::class,
                         'model_id' => $item,
                         'location_id' => $record->destination_id,
@@ -98,13 +98,13 @@ class BillOfLadingController extends CrudController
                     ]);
                     if ($type == 'exit') {
                         $response = ErpCreateExitRequest::createExitRequest($record->vin, $exitType,
-                            $location->getAttribute('code'));
+                            $gate->location->getAttribute('code'));
 
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }
                     } elseif ($validatedData['type'] == 'enter') {
-                     $response =   ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'));
+                     $response =   ErpReturnRequest::returnRequest($validatedData['vin'], $gate->location->getAttribute('code'));
 
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
