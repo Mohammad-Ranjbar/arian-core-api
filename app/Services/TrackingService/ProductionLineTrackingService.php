@@ -112,7 +112,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             $params['LackItemNo'] = $shortages->implode('erpProductItem.reference',',');
             $params['NumberFractionalItems'] = $count;
         }
-        throw new Exception($params['NumberFractionalItems']);
+
         $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
         if ($response['status'] !== 'ok') {
 
