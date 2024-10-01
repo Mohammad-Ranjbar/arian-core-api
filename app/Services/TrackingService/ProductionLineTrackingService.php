@@ -8,6 +8,8 @@ use App\Models\ShortageItem;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
+use App\Services\Erp\ErpWsdlClient;
+use Exception;
 
 class ProductionLineTrackingService extends BaseTrackingService
 {
@@ -88,6 +90,7 @@ class ProductionLineTrackingService extends BaseTrackingService
     /**
      * @param $record
      * @return void
+     * @throws Exception
      */
     public function sendToErp($record): void
     {
@@ -109,7 +112,11 @@ class ProductionLineTrackingService extends BaseTrackingService
             $params['LackItemNo'] = $shortages->implode('erpProductItem.reference');
             $params['NumberFractionalItems'] = $count;
         }
+        $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
+        if ($response['status'] !== 'ok') {
 
+            throw new Exception($response['message']);
+        }
 
         dispatch(new SendTrackingToErpJob($record->id, config('erp.post_production'), $method,
             $params));

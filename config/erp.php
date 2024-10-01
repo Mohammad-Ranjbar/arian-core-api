@@ -18,6 +18,8 @@ return [
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'block_unblock'    => env('WSDL_BLOCK_UNBLOCK',
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'shortage'    => env('WSDL_BLOCK_UNBLOCK',
+        'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'transfer_vehicle' => env('WSDL_TRANSFER_VEHICLE',
         'http://172.16.0.35:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'update_qc_status' => env('WSDL_UPDATE_QC',
