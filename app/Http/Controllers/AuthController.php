@@ -168,10 +168,14 @@ class AuthController extends Controller
     public function checkUserName(Request $request): UserResource
     {
         $validatedData = $request->validate(['username' => 'required']);
-        $user = User::query()->where('email', $validatedData['username'])
-            ->orWhere('mobile', $validatedData['username'])
-            ->firstOrFail();
-        return new UserResource($user);
+        try {
+            $user = User::query()->where('email', $validatedData['username'])
+                ->orWhere('mobile', $validatedData['username'])
+                ->firstOrFail();
+            return new UserResource($user);
+        }catch (Exception $exception) {
+            abort('422', 'نام کاربری '.$validatedData['username'].' یافت نشد.');
+        }
     }
 
     public function checkLogin(): JsonResponse
