@@ -39,7 +39,7 @@ class EventServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         Station::observe(StationObserver::class);
         Salon::observe(SalonObserver::class);
-        ProductionLine::observe(ProductionLineObserver::class);
+//        ProductionLine::observe(ProductionLineObserver::class);
         WorkGroupCenter::observe(WorkGroupCenterObserver::class);
         Tracking::observe(TrackingObserver::class);
     }
