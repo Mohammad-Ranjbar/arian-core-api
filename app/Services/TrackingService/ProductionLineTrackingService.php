@@ -95,7 +95,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             'vINL' => $record->vin,
             'wCGroup' => '',
             'withTracking' => 'false',
-            'withOutput' => 'false',
+            'withOutput' => 'true',//change to true => shaghayegh
         ];
 
         if ($record->type == 'exit') {

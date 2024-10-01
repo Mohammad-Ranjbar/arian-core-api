@@ -44,8 +44,7 @@ class ProductionTrackingController extends Controller
         $record = $vehicle->tracking()->create($data);
 
         if (method_exists($modelTrackingService, 'sendToErp')) {
-            if
-            ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
+            if ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
                 $modelTrackingService->sendToErp($record);
             }
         }
