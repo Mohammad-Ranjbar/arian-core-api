@@ -76,8 +76,8 @@ class ShortageController extends Controller
                 'vINL' => $vehicle->getAttribute('vin'),
                 'wCGroup' => '',
                 'qTYCalcP' => 0,
-                'withTracking' => false,
-                'withOutput' => false,
+                'withTracking' => 'false',
+                'withOutput' => 'false',
                 'lackItemNo' => $shortage->getAttribute('erpProductItem')->reference,
                 'numberFractionalItems' => 1,
             ];
