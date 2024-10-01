@@ -109,8 +109,8 @@ class ProductionLineTrackingService extends BaseTrackingService
             ->where('status', 'pending')->with('erpProductItem')->get();
         if ($count = $shortages->count()) {
             $method = 'PostProduction_OnlyBIN_Shortage';
-            $params['LackItemNo'] = $shortages->implode('erpProductItem.reference',',');
-            $params['NumberFractionalItems'] = $count;
+            $params['lackItemNo'] = $shortages->implode('erpProductItem.reference',',');
+            $params['numberFractionalItems'] = $count;
         }
 
         $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
