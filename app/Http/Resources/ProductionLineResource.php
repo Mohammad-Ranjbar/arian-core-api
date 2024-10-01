@@ -14,7 +14,6 @@ class ProductionLineResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        dd($this->resource->sendErp?->on_enter);
         return [
             'id' => (int)$this->resource->id,
             'title' => $this->resource->title,
