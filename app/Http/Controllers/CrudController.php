@@ -76,11 +76,11 @@ class CrudController extends Controller
 
     public function afterSave($record, $data)
     {
-        $record->sendErp()->delete();
-        $record->sendErp()->create([
-            'on_enter' => $data['on_enter'],
-            'on_exit'  => $data['on_exit'],
-        ]);
+        foreach ($data as $key => $input) {
+            if (method_exists($record, $key) and is_array($input)) {
+                $record->{$key}()->sync($input);
+            }
+        }
         return $record;
     }
 
