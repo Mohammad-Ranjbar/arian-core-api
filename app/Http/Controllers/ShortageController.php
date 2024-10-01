@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ShortageItemResource;
 use App\Models\ShortageItem;
 use App\Models\Vehicle;
+use App\Services\Erp\ErpWsdlClient;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -59,7 +62,6 @@ class ShortageController extends Controller
     public function update(Request $request, Vehicle $vehicle, ShortageItem $shortage): ShortageItemResource
     {
         $this->authorize('shortages.update');
-
         $validatedData = $request->validate([
             'status' => ['required', 'in:done',
                 Rule::unique('shortage_items')
@@ -67,10 +69,32 @@ class ShortageController extends Controller
                     ->where('id', $shortage->getAttribute('id'))
             ],
         ]);
+        try {
+            DB::beginTransaction();
+            $params = [
+                'vINL' => $vehicle->getAttribute('vin'),
+                'wCGroup' => '',
+                'qTYCalcP' => 0,
+                'withTracking' => false,
+                'withOutput' => false,
+                'lackItemNo' => $shortage->getAttribute('erpProductItem')->reference,
+                'numberFractionalItems' => 1,
+            ];
 
-        $shortage->update($validatedData);
 
-        return new ShortageItemResource($shortage);
+            $response = ErpWsdlClient::run(config('erp.shortage'), 'PostProduction_Resolving_Shortage', $params);
+            if ($response['status'] !== 'ok') {
+
+                throw new Exception($response['message']);
+            }
+            $shortage->update($validatedData);
+            DB::commit();
+            return new ShortageItemResource($shortage);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return $this->responseError($exception->getMessage());
+        }
+
     }
 
 }
