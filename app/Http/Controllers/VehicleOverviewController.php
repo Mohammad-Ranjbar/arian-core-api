@@ -15,6 +15,7 @@ use App\Models\VehicleIncident;
 use App\Services\Erp\ErpGetVehicleComponent;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class VehicleOverviewController extends Controller
 {
@@ -23,6 +24,9 @@ class VehicleOverviewController extends Controller
 
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
         try {
@@ -48,6 +52,7 @@ class VehicleOverviewController extends Controller
             ];
         } catch (Exception $exception) {
             $police = null;
+            logger()->error($exception);
         }
         $result = DWVehicleServiceHistoryTree::query()
             ->groupBy(['VIN', 'Document No_'])
