@@ -14,6 +14,7 @@ use App\Models\VehicleIncident;
 use App\Services\Erp\ErpGetVehicleComponent;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class VehicleOverviewController extends Controller
 {
@@ -22,11 +23,14 @@ class VehicleOverviewController extends Controller
 
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
         try {
             $police = [
-                'title'  => 'اطلاعات شماره گذاری',
+                'title' => 'اطلاعات شماره گذاری',
                 'values' => [
                     [
                         'تاریخ بررسی پلیس',
@@ -45,6 +49,7 @@ class VehicleOverviewController extends Controller
             ];
         } catch (Exception $exception) {
             $police = null;
+            logger($exception);
         }
         $result = DWVehicleServiceHistoryTree::query()
             ->groupBy(['VIN', 'Document No_'])
@@ -61,16 +66,16 @@ class VehicleOverviewController extends Controller
 
             $items = [];
             foreach ($list as $item) {
-                if ((int) $item->Quantity) {
+                if ((int)$item->Quantity) {
                     $items[] = [
-                        $item->Description.' '.$item->{'Description 2'},
-                        (int) $item->Quantity,
+                        $item->Description . ' ' . $item->{'Description 2'},
+                        (int)$item->Quantity,
                     ];
                 }
             }
             if (!empty($items)) {
                 $services[] = [
-                    'title'  => 'سابقه تعمیرگاهی: '.$row->document_no,
+                    'title' => 'سابقه تعمیرگاهی: ' . $row->document_no,
                     'values' => $items
                 ];
             }
@@ -91,10 +96,10 @@ class VehicleOverviewController extends Controller
         return response()->json([
             'items' => array_values(array_filter(array_merge([
                 [
-                    'title'  => 'رهگیری محصول',
+                    'title' => 'رهگیری محصول',
                     'values' => array_values(array_filter($vehicle->tracking()->get()->map(function ($record) {
-                        if($record->model) {
-                            if(
+                        if ($record->model) {
+                            if (
                                 $record->model->model_type == ProductionLine::class and
                                 $record->model->model_id == 1
                             ) {
@@ -113,7 +118,7 @@ class VehicleOverviewController extends Controller
                     })->all()))
                 ],
                 [
-                    'title'  => 'بارکد قطعات',
+                    'title' => 'بارکد قطعات',
                     'values' => Barcode::query()->where('vin', $vehicle->getAttribute('vin'))->get()->map(function (
                         $record
                     ) {
@@ -130,7 +135,7 @@ class VehicleOverviewController extends Controller
                 ],
                 $police,
                 [
-                    'title'  => 'کنترل کیفیت',
+                    'title' => 'کنترل کیفیت',
                     'values' => ActionLog::query()
                         ->where('model_id', $vehicle->getAttribute('vin'))
                         ->where('action', 'update_qc_status')
@@ -141,12 +146,12 @@ class VehicleOverviewController extends Controller
                                     : '-'
                                 ,
                                 $record->user->name,
-                                (string) $record->data,
+                                (string)$record->data,
                             ];
                         })->all()
                 ],
                 [
-                    'title'  => 'ایرادات کیفی',
+                    'title' => 'ایرادات کیفی',
                     'values' => VehicleIncident::query()
                         ->where('vin', $vehicle->getAttribute('vin'))
                         ->get()->map(function ($record) {
@@ -157,13 +162,13 @@ class VehicleOverviewController extends Controller
                                 $record->method,
                                 $record->intensity,
                                 $record->user->name,
-                                $record->element->title.' ('.$record->element->code.')',
-                                $record->incident->title.' ('.$record->element->code.')'
+                                $record->element->title . ' (' . $record->element->code . ')',
+                                $record->incident->title . ' (' . $record->element->code . ')'
                             ];
                         })->all()
                 ],
                 [
-                    'title'  => 'بلوکه',
+                    'title' => 'بلوکه',
                     'values' => BlockItem::query()
                         ->where('vin', $vehicle->getAttribute('vin'))
                         ->get()->map(function ($record) {
@@ -181,12 +186,12 @@ class VehicleOverviewController extends Controller
                         })->all()
                 ],
                 [
-                    'title'  => 'حمل و نقل',
+                    'title' => 'حمل و نقل',
                     'values' => BillOfLadingItem::query()
                         ->where('model_id', $vehicle->getAttribute('vin'))
                         ->whereDoesntHave('billOfLading', function ($q) {
-                            $q->where('location_source_id',4);
-                            $q->orWhere('location_destination_id',4);
+                            $q->where('location_source_id', 4);
+                            $q->orWhere('location_destination_id', 4);
                         })
                         ->get()->map(function ($record) {
                             return [

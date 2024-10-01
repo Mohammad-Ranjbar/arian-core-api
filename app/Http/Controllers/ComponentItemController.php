@@ -6,6 +6,7 @@ use App\Models\ErpProductItem;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpGetVehicleComponent;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class ComponentItemController extends Controller
 {
@@ -13,6 +14,9 @@ class ComponentItemController extends Controller
     {
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
         $items = collect($this->component->get($vehicle->getAttribute('production_order_number')));

@@ -48,6 +48,11 @@ class StationController extends CrudController
     }
 
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws AuthorizationException
+     * @throws NotFoundExceptionInterface
+     */
     public function users(Station $station): AnonymousResourceCollection
     {
 
@@ -58,6 +63,9 @@ class StationController extends CrudController
     }
 
 
+    /**
+     * @throws AuthorizationException
+     */
     public function removeUser(Station $station, User $user): JsonResponse
     {
         $this->authorize('station.remove.user');
