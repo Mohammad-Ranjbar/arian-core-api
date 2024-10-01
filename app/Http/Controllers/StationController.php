@@ -61,6 +61,16 @@ class StationController extends CrudController
 
         return UserShortResource::collection($station->users()->paginate($perPage));
     }
+    public function afterSave($record,$data)
+    {
+        $record->sendErp()->delete();
+        $record->sendErp()->create([
+            'on_enter' => $data['on_enter'],
+            'on_exit'  => $data['on_exit'],
+        ]);
+
+        return $record;
+    }
 
 
     /**

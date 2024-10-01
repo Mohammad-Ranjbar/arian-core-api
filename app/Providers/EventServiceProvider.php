@@ -2,13 +2,11 @@
 
 namespace App\Providers;
 
-use App\Models\ProductionLine;
 use App\Models\Salon;
 use App\Models\Station;
 use App\Models\Tracking;
 use App\Models\User;
 use App\Models\WorkGroupCenter;
-use App\Observers\ProductionLineObserver;
 use App\Observers\SalonObserver;
 use App\Observers\StationObserver;
 use App\Observers\TrackingObserver;
@@ -39,7 +37,6 @@ class EventServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         Station::observe(StationObserver::class);
         Salon::observe(SalonObserver::class);
-//        ProductionLine::observe(ProductionLineObserver::class);
         WorkGroupCenter::observe(WorkGroupCenterObserver::class);
         Tracking::observe(TrackingObserver::class);
     }
