@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ShortageItemResource;
+use App\Models\ProductionLine;
 use App\Models\ShortageItem;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpWsdlClient;
@@ -36,7 +37,7 @@ class ShortageController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function store(Vehicle $vehicle, Request $request): ShortageItemResource
+    public function store(Vehicle $vehicle, Request $request): ShortageItemResource|JsonResponse
     {
         $this->authorize('shortages.store');
         $validatedData = $request->validate([
@@ -49,7 +50,10 @@ class ShortageController extends Controller
             ],
         ]);
 
-
+        if ($vehicle->tracking()->where('model_type', ProductionLine::class)
+            ->where('type','exit')->whereIn('model_id',[2,3,4,5])->exists()) {
+            return $this->responseError('cant register shortage for vehicle');
+        }
         return new ShortageItemResource(ShortageItem::query()->create([
             'erp_product_item_id' => $validatedData['erp_product_item_id'],
             'user_id' => Auth::id(),
