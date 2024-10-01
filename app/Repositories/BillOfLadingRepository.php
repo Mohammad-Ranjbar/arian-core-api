@@ -16,7 +16,6 @@ class BillOfLadingRepository extends BaseRepository
             'items'                   => 'array|required',
             'location_source_id'      => 'required|exists:locations,id',
             'location_destination_id' => 'required|exists:locations,id',
-            'code'                    => 'required|string',
             'request_no'              => 'nullable|required_if:type,containers',
             'cottage'                 => 'nullable|required_if:type,containers',
             'weight'                  => 'nullable|required_if:type,containers',

@@ -27,6 +27,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Bus\PendingClosureDispatch;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -44,6 +45,7 @@ class BillOfLadingController extends CrudController
     protected array $appendStoreData = ['status' => 'new'];
 
 
+
     public function __construct(
         public readonly BillOfLadingRepository $repository,
         private readonly SmsService            $smsService,
@@ -55,7 +57,39 @@ class BillOfLadingController extends CrudController
         $this->setResource(BillOfLadingResource::class);
     }
 
-
+    public function store(Request $request)
+    {
+        if (! isset($this->repository)) {
+            return $this->responseError('repository not found',400);
+        }
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
+        $request->validate([
+            'code' => [
+                'required',
+                'string',
+                'max:255', // Adjust as needed
+                Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
+                    return $query->where('location_source_id', $request->get('location_source_id'))
+                        ->where('location_destination_id', $request->get('location_destination_id'));
+                }),
+            ],
+        ]);
+        $validatedData = array_merge($validatedData, $this->appendStoreData);
+        if ($this->appendUserId) {
+            $validatedData['user_id'] = Auth::id();
+        }
+        try {
+            DB::beginTransaction();
+            $saveItem = $this->repository->store($validatedData);
+            $saveItem = $this->afterSave($saveItem, $validatedData);
+            $data = new $this->resource($saveItem);
+            DB::commit();
+            return $data;
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => $exception->getMessage()], 500);
+        }
+    }
     /**
      * @throws Exception
      */
@@ -134,18 +168,45 @@ class BillOfLadingController extends CrudController
      */
     public function customStoreRules(): array
     {
+
         if (request()->get('type') === 'containers') {
             return [
+                'code' => [
+                    'required',
+                    'string',
+                    'max:255', // Adjust as needed
+                    Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
+                        return $query->where('location_source_id', $request->get('location_source_id'))
+                            ->where('location_destination_id', $request->get('location_destination_id'));
+                    }),
+                ],
                 'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
             ];
         }
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
+                'code' => [
+                    'required',
+                    'string',
+                    'max:255', // Adjust as needed
+                    Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
+                        return $query->where('location_source_id', $request->get('location_source_id'))
+                            ->where('location_destination_id', $request->get('location_destination_id'));
+                    }),
+                ],
                 'items.*' => Rule::exists('vehicles', 'vin'),
             ];
         }
 
-        return [];
+        return [ 'code' => [
+            'required',
+            'string',
+            'max:255', // Adjust as needed
+            Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
+                return $query->where('location_source_id', $request->get('location_source_id'))
+                    ->where('location_destination_id', $request->get('location_destination_id'));
+            }),
+        ],];
 
     }
 
