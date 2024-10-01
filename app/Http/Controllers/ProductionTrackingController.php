@@ -17,6 +17,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class ProductionTrackingController extends Controller
 {
@@ -31,6 +32,7 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
+           DB::beginTransaction();
             if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
                 $this->authorize('production-tracking.' . $validatedData['model_type'] . '.enter');
             }
@@ -51,9 +53,11 @@ class ProductionTrackingController extends Controller
                 }
             }
 
+            DB::commit();
 
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {
+            DB::rollBack();
             return $this->responseError($exception->getMessage(), 400);
         }
 
