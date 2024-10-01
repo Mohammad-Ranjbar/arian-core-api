@@ -8,7 +8,8 @@ use App\Models\Location;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
-use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\ErpCreateExitRequest;
+use App\Services\Erp\ErpReturnRequest;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -46,20 +47,14 @@ class GatePermitController extends CrudController
 
             if ($validatedData['type'] == 'exit') {
 
-//                if ($validatedData['exit_type'] == 1) {
-//                    $typeExitErp = 'CONSIGNMENT EXIT';
-//                } elseif ($validatedData['exit_type'] == 2) {
-//                    $typeExitErp = 'PERMANENT EXIT';
-//                }
-
-                $response = $this->createExitRequest($validatedData['vin'], $validatedData['exit_type'],
+                $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
                     $location->getAttribute('code'));
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
             } elseif ($validatedData['type'] == 'enter') {
-                $response = $this->returnRequest($validatedData['vin'], $location->getAttribute('code'));
+                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'));
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
@@ -79,46 +74,9 @@ class GatePermitController extends CrudController
         }
     }
 
-    private function createExitRequest(string $vin, string $type, string $locationCode): array
-    {
-        ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
-            ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode]);
 
 
-        return   ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
-            'vINP' => $vin
-        ]);
 
-    }
-
-    private function returnRequest(string $vin, string $locationCode): array
-    {
-        return ErpWsdlClient::run(config('erp.return_request'), 'ReturnRequest',
-            ['vINP' => $vin, 'destinationP' => $locationCode]);
-
-    }
-
-    public function oldGate(Vehicle $vehicle)
-    {
-
-
-        return false;
-        $response = ErpWsdlClient::run(config('erp.old_gate'), 'CreateVehicleExitStatus',
-            ['vINP' => $vehicle->getAttribute('vin')]);
-
-        if ($response['status'] == 'ok') {
-            $vehicle->tracking()->create([
-                'model_type' => Location::class,
-                'model_id' => 1,
-                'type' => 'exit',
-                'user_id' => Auth::id()
-            ]);
-
-            return response()->json(['message' => 'تردد مورد نظر ثبت گردید']);
-        }
-
-        return response()->json(['message' => 'ثبت تردد امکان پذیر نیست'],400);
-    }
 
     /**
      * @param GatePermit $gatePermit

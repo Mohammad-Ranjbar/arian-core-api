@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddUserToStationsRequest;
-use App\Http\Resources\StationResource;
 use App\Http\Resources\StopFactResource;
 use App\Http\Resources\UserShortResource;
-use App\Models\Station;
 use App\Models\StopFact;
 use App\Models\User;
 use App\Repositories\StopFactRepository;

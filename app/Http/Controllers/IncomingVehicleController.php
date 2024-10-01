@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\IncomingVehicleResource;
-use App\Models\BillOfLading;
 use App\Models\Vehicle;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class IncomingVehicleController extends Controller
 {
+
     /**
-     * Handle the incoming request.
+     * @throws AuthorizationException
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): AnonymousResourceCollection
     {
         $this->authorize('incoming-vehicles');
 
@@ -21,7 +23,7 @@ class IncomingVehicleController extends Controller
 
         return IncomingVehicleResource::collection(
             Vehicle::query()
-                ->whereNotIn('current_location',$locationIds)
+                ->whereNotIn('current_location', $locationIds)
                 ->with([
                     'carModel',
                     'makeCode',
@@ -30,10 +32,10 @@ class IncomingVehicleController extends Controller
                     'activeBillOfLading.locationDestination',
                     'activeBillOfLading.car',
                 ])
-                ->whereHas('activeBillOfLading',function ($q) use($locationIds){
+                ->whereHas('activeBillOfLading', function ($q) use ($locationIds) {
                     $q->whereIn('location_destination_id', $locationIds);
                 })
-            ->paginate()
+                ->paginate()
         );
     }
 }

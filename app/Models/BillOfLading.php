@@ -55,7 +55,7 @@ class BillOfLading extends Model
     protected $fillable = [
         'user_id', 'location_source_id', 'location_destination_id', 'code', 'request_no',
         'status', 'priority', 'cottage',
-        'weight', 'batch', 'description', 'car_id'
+        'weight', 'batch', 'description', 'car_id','created_at'
     ];
 
     /**

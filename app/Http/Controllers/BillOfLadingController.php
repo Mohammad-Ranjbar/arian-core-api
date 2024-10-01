@@ -14,10 +14,14 @@ use App\Models\ActionLog;
 use App\Models\BillOfLading;
 use App\Models\GatePermit;
 use App\Models\Job;
+use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\ActionLogRepository;
 use App\Repositories\BillOfLadingRepository;
+use App\Services\Erp\ErpCreateExitRequest;
+use App\Services\Erp\ErpReturnRequest;
 use App\Services\SmsService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Bus\PendingClosureDispatch;
@@ -43,7 +47,7 @@ class BillOfLadingController extends CrudController
     public function __construct(
         public readonly BillOfLadingRepository $repository,
         private readonly SmsService            $smsService,
-        private readonly ActionLogRepository $actionLogRepository,
+        private readonly ActionLogRepository   $actionLogRepository,
     )
     {
 
@@ -61,17 +65,63 @@ class BillOfLadingController extends CrudController
             $record->containers()->sync($data['items']);
             $record->containers()->update(['on_shipping' => true]);
         }
-        if ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
-            if( GatePermit::query()
-                ->where('model_type', Vehicle::class)
-                ->whereIn('model_id', $data['items'])->count()  != count($data['items'])){
+        if ($data['type'] === 'vehicles') {
+            if (GatePermit::query()
+                    ->where('model_type', Vehicle::class)
+                    ->whereIn('model_id', $data['items'])->count() != count($data['items'])) {
                 throw new Exception('Please add gate permits to create bill of ladings');
             }
 
             $record->vehicles()->sync($data['items']);
         }
+        if ($data['type'] === 'bodies') {
+            if (GatePermit::query()
+                    ->where('model_type', Vehicle::class)
+                    ->whereIn('model_id', $data['items'])->count() < count($data['items'])) {
+
+                foreach ($data['items'] as $item) {
+                    if (GatePermit::query()
+                        ->where('model_type', Vehicle::class)
+                        ->where('model_id', $item)->exists()) {
+                        continue;
+                    }
+                    $type = $record->destination_id == 1 ? 'enter' : 'exit';
+                    $exitType = 1;// by reza => consignment , 1
+                   $gate =  GatePermit::query()->create([
+                        'model_type' => Vehicle::class,
+                        'model_id' => $item,
+                        'location_id' => $record->location_destination_id,
+                        'owner_id' => Auth::id(),
+                        'owner_type' => User::class,
+                        'type' => $type,
+                        'exit_type' => $exitType
+                    ]);
+
+                    if ($type == 'exit') {
+                        $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
+                            $gate->location->getAttribute('code'));
+
+                        if ($response['status'] !== 'ok') {
+                            throw new Exception($response['message']);
+                        }
+                    } elseif ($validatedData['type'] == 'enter') {
+                     $response =   ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
+
+                        if ($response['status'] !== 'ok') {
+                            throw new Exception($response['message']);
+                        }
+                    }
+                }
+            }
+            $record->vehicles()->sync($data['items']);
+        }
 
         $action = $record->wasRecentlyCreated ? 'new' : 'edit';
+
+        $record->update([
+            'created_at' => Carbon::now()
+        ]);
+
         $record->actionLogs()->create(['user_id' => Auth::id(), 'action' => $action]);
 
         return $record;
@@ -230,7 +280,7 @@ class BillOfLadingController extends CrudController
         ]);
     }
 
-    public function returnContainer(BillOfLading $billOfLading,ReturnContainerRequest $request): JsonResponse
+    public function returnContainer(BillOfLading $billOfLading, ReturnContainerRequest $request): JsonResponse
     {
         try {
             $validatedData = $request->validated();
@@ -243,8 +293,8 @@ class BillOfLadingController extends CrudController
 
             return response()->json([
                 'message' => 'return container created'
-            ],201);
-        }catch (Exception $exception){
+            ], 201);
+        } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
 
