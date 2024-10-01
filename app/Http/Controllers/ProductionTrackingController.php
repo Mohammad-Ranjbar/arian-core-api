@@ -31,8 +31,8 @@ class ProductionTrackingController extends Controller
     public function submit(TrackingRequest $request, Vehicle $vehicle): JsonResponse|VehicleResource
     {
         $validatedData = $request->validated();
-        try {
-           DB::beginTransaction();
+//        try {
+//           DB::beginTransaction();
             if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
                 $this->authorize('production-tracking.' . $validatedData['model_type'] . '.enter');
             }
@@ -53,13 +53,13 @@ class ProductionTrackingController extends Controller
                 }
             }
 
-            DB::commit();
+//            DB::commit();
 
             return new VehicleResource($vehicle);
-        } catch (Exception $exception) {
-            DB::rollBack();
-            return $this->responseError($exception->getMessage(), 400);
-        }
+//        } catch (Exception $exception) {
+//            DB::rollBack();
+//            return $this->responseError($exception->getMessage(), 400);
+//        }
 
     }
 
