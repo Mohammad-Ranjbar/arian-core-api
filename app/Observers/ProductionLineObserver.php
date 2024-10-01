@@ -3,9 +3,6 @@
 namespace App\Observers;
 
 use App\Models\ProductionLine;
-use App\Models\Salon;
-use App\Models\Tracking;
-use Illuminate\Support\Facades\Auth;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -35,7 +32,6 @@ class ProductionLineObserver
      */
     public function updated(ProductionLine $productionLine): void
     {
-        dd(request()->all());
         $productionLine->sendErp()->delete();
         $productionLine->sendErp()->create([
             'on_enter' => request()->get('on_enter'),

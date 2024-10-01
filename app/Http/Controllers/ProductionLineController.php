@@ -26,6 +26,11 @@ class ProductionLineController extends CrudController
         $this->setResource(ProductionLineResource::class);
     }
 
+    public function afterSave()
+    {
+        
+    }
+
 
     /**
      * @param  ProductionLine  $productionLine
