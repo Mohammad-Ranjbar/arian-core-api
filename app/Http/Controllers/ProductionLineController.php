@@ -26,13 +26,15 @@ class ProductionLineController extends CrudController
         $this->setResource(ProductionLineResource::class);
     }
 
-    public function afterSave($productionLine,$data): void
+    public function afterSave($record,$data)
     {
-        $productionLine->sendErp()->delete();
-        $productionLine->sendErp()->create([
+        $record->sendErp()->delete();
+        $record->sendErp()->create([
             'on_enter' => $data['on_enter'],
             'on_exit'  => $data['on_exit'],
         ]);
+
+        return $record;
     }
 
 
