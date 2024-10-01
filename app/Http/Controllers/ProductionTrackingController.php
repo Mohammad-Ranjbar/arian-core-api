@@ -16,6 +16,7 @@ use App\Services\TrackingService\TrackingServiceFactory;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Exception;
 
 class ProductionTrackingController extends Controller
 {
@@ -29,33 +30,38 @@ class ProductionTrackingController extends Controller
     public function submit(TrackingRequest $request, Vehicle $vehicle): JsonResponse|VehicleResource
     {
         $validatedData = $request->validated();
-        if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
-            $this->authorize('production-tracking.' . $validatedData['model_type'] . '.enter');
-        }
-        if ($validatedData['type'] === 'exit' && $validatedData['model_type']) {
-            $this->authorize('production-tracking.' . $validatedData['model_type'] . '.exit');
-        }
-
-        $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
-        $data = $modelTrackingService->{$validatedData['type']}($validatedData);
-        if (!$data) {
-            return $this->responseError('cant not exit or enter to this location', 400);
-        }
-        $record = $vehicle->tracking()->create($data);
-
-        if (method_exists($modelTrackingService, 'sendToErp')) {
-            if ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
-                $modelTrackingService->sendToErp($record);
+        try {
+            if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
+                $this->authorize('production-tracking.' . $validatedData['model_type'] . '.enter');
             }
+            if ($validatedData['type'] === 'exit' && $validatedData['model_type']) {
+                $this->authorize('production-tracking.' . $validatedData['model_type'] . '.exit');
+            }
+
+            $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
+            $data = $modelTrackingService->{$validatedData['type']}($validatedData);
+            if (!$data) {
+                return $this->responseError('cant not exit or enter to this location', 400);
+            }
+            $record = $vehicle->tracking()->create($data);
+
+            if (method_exists($modelTrackingService, 'sendToErp')) {
+                if ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
+                    $modelTrackingService->sendToErp($record);
+                }
+            }
+
+
+            return new VehicleResource($vehicle);
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 400);
         }
 
-
-        return new VehicleResource($vehicle);
     }
 
+
     /**
-     * @param Tracking $tracking
-     * @return TrackingResource
+     * @throws Exception
      */
     public function update(Tracking $tracking): TrackingResource
     {
