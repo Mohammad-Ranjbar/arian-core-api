@@ -18,7 +18,7 @@ class VehicleIncident extends Model
      */
     protected $fillable = [
         'type', 'intensity', 'method', 'description', 'user_id', 'production_tracking_id', 'element_id', 'incident_id',
-        'vin', 'checked_at', 'custom_location_type', 'custom_location_id', 'created_at', 'checked_at'
+        'vin', 'checked_at', 'custom_location_type', 'custom_location_id', 'created_at', 'checked_at','vin_type'
     ];
 
     public static function getReportData(array $data)
