@@ -35,6 +35,7 @@ class ProductionLineObserver
      */
     public function updated(ProductionLine $productionLine): void
     {
+        dd(request()->all());
         $productionLine->sendErp()->delete();
         $productionLine->sendErp()->create([
             'on_enter' => request()->get('on_enter'),

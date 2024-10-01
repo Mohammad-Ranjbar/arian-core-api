@@ -7,14 +7,12 @@ use App\Models\Salon;
 use App\Models\Station;
 use App\Models\Tracking;
 use App\Models\User;
-use App\Models\VehicleIncident;
 use App\Models\WorkGroupCenter;
 use App\Observers\ProductionLineObserver;
 use App\Observers\SalonObserver;
 use App\Observers\StationObserver;
 use App\Observers\TrackingObserver;
 use App\Observers\UserObserver;
-use App\Observers\VehicleIncidentObserver;
 use App\Observers\WorkGroupCenterObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -38,7 +36,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-//        VehicleIncident::observe(VehicleIncidentObserver::class);
         User::observe(UserObserver::class);
         Station::observe(StationObserver::class);
         Salon::observe(SalonObserver::class);
