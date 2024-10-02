@@ -68,8 +68,8 @@ class ShortageReportExport implements FromCollection, WithMapping, WithHeadings,
             $row->erpProductItem->description,
             $row->erpProductItem->reference,
             $row->status,
-            $row->actionLog->user?->name,
-            jdate($row->actionLog->created_at),
+            $row->actionLog?->user->name ?? '',
+            $row->actionLog? jdate($row->actionLog->created_at) : '',
         ];
 
         $this->eventData['done']++;
