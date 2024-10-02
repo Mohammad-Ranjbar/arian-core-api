@@ -27,7 +27,7 @@ class ExportShortageService extends BaseExporterService
      */
     public function export(): string
     {
-
+        dd($this->job);
         $rows = ShortageItem::getReportData((array)$this->job->getAttribute('data'));
 
         $eventData = [
