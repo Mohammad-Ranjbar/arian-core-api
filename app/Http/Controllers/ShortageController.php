@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ShortageReportExcelRequest;
 use App\Http\Resources\ShortageItemResource;
+use App\Jobs\ExportJob;
+use App\Models\ActionLog;
+use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\ShortageItem;
 use App\Models\Vehicle;
@@ -49,16 +53,21 @@ class ShortageController extends Controller
                     ->where('status', 'pending')
             ],
         ]);
-
-        if ($vehicle->tracking()->where('model_type', ProductionLine::class)
-            ->where('type','exit')->whereIn('model_id',[2,3,4,5])->exists()) {
-            return $this->responseError('cant register shortage for vehicle');
+        try {
+            if ($vehicle->tracking()->where('model_type', ProductionLine::class)
+                ->where('type','exit')->whereIn('model_id',[2,3,4,5])->exists()) {
+                return $this->responseError('cant register shortage for vehicle');
+            }
+            $shortage = ShortageItem::query()->create([
+                'erp_product_item_id' => $validatedData['erp_product_item_id'],
+                'user_id' => Auth::id(),
+                'vin' => $vehicle->getAttribute('vin')
+            ]);
+            return new ShortageItemResource($shortage->fresh());
+        }catch (Exception $exception){
+            return $this->responseError($exception->getMessage(), 400);
         }
-        return new ShortageItemResource(ShortageItem::query()->create([
-            'erp_product_item_id' => $validatedData['erp_product_item_id'],
-            'user_id' => Auth::id(),
-            'vin' => $vehicle->getAttribute('vin')
-        ]));
+
     }
 
     /**
@@ -92,7 +101,16 @@ class ShortageController extends Controller
 
                 throw new Exception($response['message']);
             }
+            if ($shortage->getAttribute('status') === 'done') {
+                return $this->responseError('The status has already changed',400);
+            }
             $shortage->update($validatedData);
+            ActionLog::query()->create([
+                'user_id' => Auth::id(),
+                'action' => ActionLog::REPORT_SHORTAGE,
+                'model_type' => ShortageItem::class,
+                'model_id' => $shortage->getAttribute('id'),
+            ]);
             DB::commit();
             return new ShortageItemResource($shortage);
         } catch (Exception $exception) {
@@ -100,6 +118,24 @@ class ShortageController extends Controller
             return $this->responseError($exception->getMessage());
         }
 
+    }
+
+    public function reportShortages(ShortageReportExcelRequest $request): JsonResponse
+    {
+        $validatedData['type'] = 'export-shortages';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = $request->validated();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
     }
 
 }

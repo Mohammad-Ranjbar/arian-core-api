@@ -11,10 +11,11 @@ class ActionLog extends Model
 {
     use HasFactory;
 
-    const UPDATED_QC_STATUS = 'update_qc_status';
-    const UPDATED_GRADE_STATUS = 'update_grade_status';
+    const string UPDATED_QC_STATUS = 'update_qc_status';
+    const string UPDATED_GRADE_STATUS = 'update_grade_status';
 
-    const RETURN_CONTAINER_AT = 'return_container';
+    const string RETURN_CONTAINER_AT = 'return_container';
+    const string REPORT_SHORTAGE = 'report_shortage';
 
     /**
      * @var string[]

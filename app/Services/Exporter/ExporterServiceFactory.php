@@ -21,6 +21,7 @@ class ExporterServiceFactory
             'export-faults-evaluation' => new ExportFaultService($job, 'evaluation'),
             'export-incidents' => new ExportIncidentsService($job),
             'export-production-line-activities' => new ExportProductionLineActivityService($job),
+            'export-shortages' => new ExportShortageService($job),
             default => throw  new Exception('Invalid input for type: ' . $job->type . 'by user:' . auth()->user()->name),
         };
     }

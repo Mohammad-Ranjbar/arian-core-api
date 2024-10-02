@@ -18,6 +18,8 @@ class ShortageItemResource extends JsonResource
             'erpProductItem' => new ErpProductItemResource($this->resource->erpProductItem),
             'user' => new UserResource($this->resource->user),
             'status' => $this->resource->status,
+            'done_by' => $this->resource->actionLog?->user->name ?? null,
+            'done_at' => $this->resource->actionLog?->created_at ?? null,
             'created_at' => $this->resource->created_at,
         ];
     }
