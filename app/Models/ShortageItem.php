@@ -28,7 +28,9 @@ class ShortageItem extends Model
             $query = $query->where('vin', $data['vin']);
         }
         if (!empty($data['items'])) {
-            $query = $query->whereIn('reference', $data['items']);
+            $query = $query->whereHas('erpProductItem',function ($q){
+                $q->whereIn('reference', $data['items'])
+            });
         }
 
         if (!empty($data['make_code_id'])) {
