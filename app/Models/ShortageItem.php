@@ -29,7 +29,7 @@ class ShortageItem extends Model
         }
         if (!empty($data['items'])) {
             $query = $query->whereHas('erpProductItem',function ($q){
-                $q->whereIn('reference', $data['items'])
+                $q->whereIn('reference', $data['items']);
             });
         }
 
