@@ -247,16 +247,15 @@ class BillOfLadingController extends CrudController
      */
     public function customStoreRules(): array
     {
-
         if (request()->get('type') === 'containers') {
             return [
                 'code'    => [
                     'required',
                     'string',
                     'max:255', // Adjust as needed
-                    Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
-                        return $query->where('location_source_id', $request->get('location_source_id'))
-                            ->where('location_destination_id', $request->get('location_destination_id'));
+                    Rule::unique('bill_of_ladings')->where(function ($query) {
+                        return $query->where('location_source_id', request()->get('location_source_id'))
+                            ->where('location_destination_id', request()->get('location_destination_id'));
                     }),
                 ],
                 'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
@@ -268,9 +267,9 @@ class BillOfLadingController extends CrudController
                     'required',
                     'string',
                     'max:255', // Adjust as needed
-                    Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
-                        return $query->where('location_source_id', $request->get('location_source_id'))
-                            ->where('location_destination_id', $request->get('location_destination_id'));
+                    Rule::unique('bill_of_ladings')->where(function ($query)  {
+                        return $query->where('location_source_id', request()->get('location_source_id'))
+                            ->where('location_destination_id', request()->get('location_destination_id'));
                     }),
                 ],
                 'items.*' => Rule::exists('vehicles', 'vin'),
@@ -282,9 +281,9 @@ class BillOfLadingController extends CrudController
                 'required',
                 'string',
                 'max:255', // Adjust as needed
-                Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
-                    return $query->where('location_source_id', $request->get('location_source_id'))
-                        ->where('location_destination_id', $request->get('location_destination_id'));
+                Rule::unique('bill_of_ladings')->where(function ($query) {
+                    return $query->where('location_source_id', request()->get('location_source_id'))
+                        ->where('location_destination_id', request()->get('location_destination_id'));
                 }),
             ],
         ];
