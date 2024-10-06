@@ -41,173 +41,18 @@ class BillOfLadingController extends CrudController
     /**
      * @var bool
      */
-    protected bool $appendUserId = true;
+    protected bool  $appendUserId    = true;
     protected array $appendStoreData = ['status' => 'new'];
-
 
 
     public function __construct(
         public readonly BillOfLadingRepository $repository,
-        private readonly SmsService            $smsService,
-        private readonly ActionLogRepository   $actionLogRepository,
-    )
-    {
+        private readonly SmsService $smsService,
+        private readonly ActionLogRepository $actionLogRepository,
+    ) {
 
         $this->applyAuthorizeResource();
         $this->setResource(BillOfLadingResource::class);
-    }
-
-    public function store(Request $request)
-    {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
-        }
-        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
-        $request->validate([
-            'code' => [
-                'required',
-                'string',
-                'max:255', // Adjust as needed
-                Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
-                    return $query->where('location_source_id', $request->get('location_source_id'))
-                        ->where('location_destination_id', $request->get('location_destination_id'));
-                }),
-            ],
-        ]);
-        $validatedData = array_merge($validatedData, $this->appendStoreData);
-        if ($this->appendUserId) {
-            $validatedData['user_id'] = Auth::id();
-        }
-        try {
-            DB::beginTransaction();
-            $saveItem = $this->repository->store($validatedData);
-            $saveItem = $this->afterSave($saveItem, $validatedData);
-            $data = new $this->resource($saveItem);
-            DB::commit();
-            return $data;
-        } catch (Exception $exception) {
-            DB::rollBack();
-            return response()->json(['message' => $exception->getMessage()], 500);
-        }
-    }
-    /**
-     * @throws Exception
-     */
-    public function afterSave($record, $data)
-    {
-        if ($data['type'] === 'containers') {
-            $record->containers()->sync($data['items']);
-            $record->containers()->update(['on_shipping' => true]);
-        }
-        if ($data['type'] === 'vehicles') {
-            if (GatePermit::query()
-                    ->where('model_type', Vehicle::class)
-                    ->whereIn('model_id', $data['items'])->count() != count($data['items'])) {
-                throw new Exception('Please add gate permits to create bill of ladings');
-            }
-
-            $record->vehicles()->sync($data['items']);
-        }
-        if ($data['type'] === 'bodies') {
-            if (GatePermit::query()
-                    ->where('model_type', Vehicle::class)
-                    ->whereIn('model_id', $data['items'])->count() < count($data['items'])) {
-
-                foreach ($data['items'] as $item) {
-                    if (GatePermit::query()
-                        ->where('model_type', Vehicle::class)
-                        ->where('model_id', $item)->exists()) {
-                        continue;
-                    }
-                    $type = $record->destination_id == 1 ? 'enter' : 'exit';
-                    $exitType = 1;// by reza => consignment , 1
-                   $gate =  GatePermit::query()->create([
-                        'model_type' => Vehicle::class,
-                        'model_id' => $item,
-                        'location_id' => $record->location_destination_id,
-                        'owner_id' => Auth::id(),
-                        'owner_type' => User::class,
-                        'type' => $type,
-                        'exit_type' => $exitType
-                    ]);
-
-                    if ($type == 'exit') {
-                        $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
-                            $gate->location->getAttribute('code'));
-
-                        if ($response['status'] !== 'ok') {
-                            throw new Exception($response['message']);
-                        }
-                    } elseif ($validatedData['type'] == 'enter') {
-                     $response =   ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
-
-                        if ($response['status'] !== 'ok') {
-                            throw new Exception($response['message']);
-                        }
-                    }
-                }
-            }
-            $record->vehicles()->sync($data['items']);
-        }
-
-        $action = $record->wasRecentlyCreated ? 'new' : 'edit';
-
-        $record->update([
-            'created_at' => Carbon::now()
-        ]);
-
-        $record->actionLogs()->create(['user_id' => Auth::id(), 'action' => $action]);
-
-        return $record;
-    }
-
-    /**
-     * @return array
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function customStoreRules(): array
-    {
-
-        if (request()->get('type') === 'containers') {
-            return [
-                'code' => [
-                    'required',
-                    'string',
-                    'max:255', // Adjust as needed
-                    Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
-                        return $query->where('location_source_id', $request->get('location_source_id'))
-                            ->where('location_destination_id', $request->get('location_destination_id'));
-                    }),
-                ],
-                'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
-            ];
-        }
-        if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
-            return [
-                'code' => [
-                    'required',
-                    'string',
-                    'max:255', // Adjust as needed
-                    Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
-                        return $query->where('location_source_id', $request->get('location_source_id'))
-                            ->where('location_destination_id', $request->get('location_destination_id'));
-                    }),
-                ],
-                'items.*' => Rule::exists('vehicles', 'vin'),
-            ];
-        }
-
-        return [ 'code' => [
-            'required',
-            'string',
-            'max:255', // Adjust as needed
-            Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
-                return $query->where('location_source_id', $request->get('location_source_id'))
-                    ->where('location_destination_id', $request->get('location_destination_id'));
-            }),
-        ],];
-
     }
 
     public function destroy($id)
@@ -234,10 +79,9 @@ class BillOfLadingController extends CrudController
      */
     public function changeStatus(
         BillOfLading $billOfLading,
-        string       $status
-    ): BillOfLadingResource|JsonResponse
-    {
-        $this->authorize('bill-of-lading.change-status.' . $status);
+        string $status
+    ): BillOfLadingResource|JsonResponse {
+        $this->authorize('bill-of-lading.change-status.'.$status);
 
         if (!$this->checkCanChangeStatus($billOfLading, $status)) {
             return $this->responseError('The selected status is available in registered statuses');
@@ -279,8 +123,7 @@ class BillOfLadingController extends CrudController
     }
 
     public function notice(BillOfLading $billOfLading
-    ): bool|PendingDispatch|PendingClosureDispatch
-    {
+    ): bool|PendingDispatch|PendingClosureDispatch {
         return $this->smsService->send($billOfLading->getAttribute('car')->driver->phone, 'driver-enter-notify');
     }
 
@@ -288,14 +131,14 @@ class BillOfLadingController extends CrudController
     {
         $headers = BillOfLading::HEAD_VEHICLE;
         $export = new TemplateExport($headers);
-        return Excel::download($export, $this->repository->model->getTable() . '-template-for-vehicle' . time() . '.xlsx');
+        return Excel::download($export, $this->repository->model->getTable().'-template-for-vehicle'.time().'.xlsx');
     }
 
     public function getTemplateBillOfLadingForContainer(): BinaryFileResponse
     {
         $headers = BillOfLading::HEAD_CONTAINER;
         $export = new TemplateExport($headers);
-        return Excel::download($export, $this->repository->model->getTable() . '-template-for-container' . time() . '.xlsx');
+        return Excel::download($export, $this->repository->model->getTable().'-template-for-container'.time().'.xlsx');
     }
 
     public function importBillOfLading(ImportBillOfLadingRequest $request): JsonResponse
@@ -304,19 +147,19 @@ class BillOfLadingController extends CrudController
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
         $validatedData['type_bill_of_lading'] = $validatedData['type'];
-        $validatedData['type'] = 'import-' . $this->repository->model->getTable();
+        $validatedData['type'] = 'import-'.$this->repository->model->getTable();
         $validatedData['data'] = [
-            'file' => $validatedData['file'],
-            'location_source_id' => $validatedData['location_source_id'],
+            'file'                    => $validatedData['file'],
+            'location_source_id'      => $validatedData['location_source_id'],
             'location_destination_id' => $validatedData['location_destination_id'],
-            'type' => $validatedData['type_bill_of_lading'],
+            'type'                    => $validatedData['type_bill_of_lading'],
         ];
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'import job created', 'data' => [
-                'uuid' => $job->getAttribute('uuid'),
+                'uuid'         => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
@@ -334,8 +177,8 @@ class BillOfLadingController extends CrudController
 
         return response()->json([
             'message' => 'export job created',
-            'data' => [
-                'uuid' => $job->getAttribute('uuid'),
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
@@ -360,5 +203,161 @@ class BillOfLadingController extends CrudController
         }
 
 
+    }
+
+    public function store(Request $request)
+    {
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
+        }
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),
+            $this->customStoreRules()));
+        $request->validate([
+            'code' => [
+                'required',
+                'string',
+                'max:255', // Adjust as needed
+                Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
+                    return $query->where('location_source_id', $request->get('location_source_id'))
+                        ->where('location_destination_id', $request->get('location_destination_id'));
+                }),
+            ],
+        ]);
+        $validatedData = array_merge($validatedData, $this->appendStoreData);
+        if ($this->appendUserId) {
+            $validatedData['user_id'] = Auth::id();
+        }
+        try {
+            DB::beginTransaction();
+            $saveItem = $this->repository->store($validatedData);
+            $saveItem = $this->afterSave($saveItem, $validatedData);
+            $data = new $this->resource($saveItem);
+            DB::commit();
+            return $data;
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    /**
+     * @return array
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function customStoreRules(): array
+    {
+        if (request()->get('type') === 'containers') {
+            return [
+                'code'    => [
+                    'required',
+                    'string',
+                    'max:255', // Adjust as needed
+                    Rule::unique('bill_of_ladings')->where(function ($query) {
+                        return $query->where('location_source_id', request()->get('location_source_id'))
+                            ->where('location_destination_id', request()->get('location_destination_id'));
+                    }),
+                ],
+                'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
+            ];
+        }
+        if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
+            return [
+                'code'    => [
+                    'required',
+                    'string',
+                    'max:255', // Adjust as needed
+                    Rule::unique('bill_of_ladings')->where(function ($query)  {
+                        return $query->where('location_source_id', request()->get('location_source_id'))
+                            ->where('location_destination_id', request()->get('location_destination_id'));
+                    }),
+                ],
+                'items.*' => Rule::exists('vehicles', 'vin'),
+            ];
+        }
+
+        return [
+            'code' => [
+                'required',
+                'string',
+                'max:255', // Adjust as needed
+                Rule::unique('bill_of_ladings')->where(function ($query) {
+                    return $query->where('location_source_id', request()->get('location_source_id'))
+                        ->where('location_destination_id', request()->get('location_destination_id'));
+                }),
+            ],
+        ];
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function afterSave($record, $data)
+    {
+        if ($data['type'] === 'containers') {
+            $record->containers()->sync($data['items']);
+            $record->containers()->update(['on_shipping' => true]);
+        }
+        if ($data['type'] === 'vehicles') {
+            if (GatePermit::query()
+                    ->where('model_type', Vehicle::class)
+                    ->whereIn('model_id', $data['items'])->count() != count($data['items'])) {
+                throw new Exception('Please add gate permits to create bill of ladings');
+            }
+
+            $record->vehicles()->sync($data['items']);
+        }
+        if ($data['type'] === 'bodies') {
+            if (GatePermit::query()
+                    ->where('model_type', Vehicle::class)
+                    ->whereIn('model_id', $data['items'])->count() < count($data['items'])) {
+
+                foreach ($data['items'] as $item) {
+                    if (GatePermit::query()
+                        ->where('model_type', Vehicle::class)
+                        ->where('model_id', $item)->exists()) {
+                        continue;
+                    }
+                    $type = $record->destination_id == 1 ? 'enter' : 'exit';
+                    $exitType = 1;// by reza => consignment , 1
+                    $gate = GatePermit::query()->create([
+                        'model_type'  => Vehicle::class,
+                        'model_id'    => $item,
+                        'location_id' => $record->location_destination_id,
+                        'owner_id'    => Auth::id(),
+                        'owner_type'  => User::class,
+                        'type'        => $type,
+                        'exit_type'   => $exitType
+                    ]);
+
+                    if ($type == 'exit') {
+                        $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
+                            $gate->location->getAttribute('code'));
+
+                        if ($response['status'] !== 'ok') {
+                            throw new Exception($response['message']);
+                        }
+                    } else {
+                        $response = ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
+
+                        if ($response['status'] !== 'ok') {
+                            throw new Exception($response['message']);
+                        }
+                    }
+                }
+            }
+            $record->vehicles()->sync($data['items']);
+        }
+
+        $action = $record->wasRecentlyCreated ? 'new' : 'edit';
+
+        $record->update([
+            'created_at' => Carbon::now()
+        ]);
+
+        $record->actionLogs()->create(['user_id' => Auth::id(), 'action' => $action]);
+
+        return $record;
     }
 }
