@@ -41,7 +41,7 @@ class ShortageReportExport implements FromCollection, WithMapping, WithHeadings,
     {
         return [
             'vin', 'زمان ایجاد', 'کاربر', 'عنوان کد', 'توضیحات کد', 'شناسه کد',
-            'وضعیت', 'رفع کسری توسط', 'تاریخ رفع کسری'
+            'وضعیت', 'رفع کسری توسط', 'زمان رفع کسری'
 
         ];
     }
