@@ -29,16 +29,33 @@ class Barcode extends Model
     {
 
         $query = self::query()->with('user');
+        if (!empty($data['vin'])) {
+            $query = $query->where('vin' , $data['vin']);
+        }
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
         if (!empty($data['to'])) {
             $query = $query->where('created_at', '<=', $data['to']);
         }
-        if (!empty($data['make_code'])) {
+        if (!empty($data['car_model_id'])) {
             $query = $query->whereHas('vehicle', function ($q) use ($data) {
-                $q->whereIn('make_code_id', $data['make_code']);
+                $q->whereIn('make_code_id', array($data['car_model_id']));
             });
+        }
+        if (!empty($data['make_code_id'])) {
+            $query = $query->whereHas('vehicle', function ($q) use ($data) {
+                $q->whereIn('make_code_id', array($data['make_code_id']));
+            });
+        }
+        if (!empty($data['tracking']) ) {
+
+            if ($data['tracking'] == 0) {
+                $query = $query->whereNotIn('code', ['shortage', 'noLabel', 'unreadable'])->whereNull('type');
+            }
+            if ($data['tracking'] == 1) {
+                $query = $query->whereIn('code',['shortage', 'noLabel', 'unreadable'])->whereNotNull('type');
+            }
         }
 
         if (!empty($data['paginate'])) {
