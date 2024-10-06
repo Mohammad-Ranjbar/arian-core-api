@@ -38,11 +38,12 @@ class BarcodeCsvExport
         ]);
         $query->chunk(10000, function ($rows) {
 
-            $trackable = 'دارد';
-            if (in_array($this->resource->code, ['shortage', 'noLabel', 'unreadable']) && $this->resource->type == null) {
-                $trackable = 'ندارد';
-            }
+
             foreach ($rows as $row) {
+                $trackable = 'دارد';
+                if (in_array($row->code, ['shortage', 'noLabel', 'unreadable']) && $row->type == null) {
+                    $trackable = 'ندارد';
+                }
                 fputcsv($this->handle, [
                     $row->user->name,
                     $row->vin,
