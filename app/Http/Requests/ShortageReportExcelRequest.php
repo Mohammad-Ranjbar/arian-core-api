@@ -27,7 +27,7 @@ class ShortageReportExcelRequest extends FormRequest
             'items' => 'array',
             'items.*' => 'nullable|exists:erp_product_items,reference',
             'vin' => 'nullable|exists:vehicles,vin',
-            'make_code_id' => 'nullable|exists:make_code,id',
+            'make_code_id' => 'nullable|exists:make_codes,id',
             'car_model_id' => 'nullable|exists:car_models,id',
 
         ];

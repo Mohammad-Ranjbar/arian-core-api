@@ -76,6 +76,7 @@ class VehicleFaultController extends Controller
                 'element_id'   => $validatedData['element_id'],
                 'car_model_id' => $vehicle->carModel->id,
             ]);
+            $validatedData['vin_type'] = $vehicle->getAttribute('data')->Item_Type;
             return new VehicleIncidentResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);

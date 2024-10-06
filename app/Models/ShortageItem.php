@@ -17,6 +17,7 @@ class ShortageItem extends Model
 
     public static function getReportData(array $data)
     {
+
         $query = self::query();
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
@@ -28,7 +29,9 @@ class ShortageItem extends Model
             $query = $query->where('vin', $data['vin']);
         }
         if (!empty($data['items'])) {
-            $query = $query->whereIn('reference', $data['items']);
+            $query = $query->whereHas('erpProductItem',function ($q) use ($data) {
+                $q->whereIn('reference', $data['items']);
+            });
         }
 
         if (!empty($data['make_code_id'])) {
