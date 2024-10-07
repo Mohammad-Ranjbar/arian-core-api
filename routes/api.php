@@ -79,6 +79,7 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('/vehicle-shortages',[ShortageController::class,'vehicleShortages'])->name('vehicle-shortages');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/synchronous', [SynchronousController::class, 'index'])->name('index.synchronous');

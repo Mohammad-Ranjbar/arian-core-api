@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ShortageReportExcelRequest;
 use App\Http\Resources\ShortageItemResource;
+use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
 use App\Models\ActionLog;
 use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\ShortageItem;
 use App\Models\Vehicle;
+use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -25,6 +27,9 @@ use Psr\Container\NotFoundExceptionInterface;
 class ShortageController extends Controller
 {
 
+    public function __construct(public readonly VehicleRepository $vehicleRepository)
+    {
+    }
 
     /**
      * @throws ContainerExceptionInterface
@@ -55,7 +60,7 @@ class ShortageController extends Controller
         ]);
         try {
             if ($vehicle->tracking()->where('model_type', ProductionLine::class)
-                ->where('type','exit')->whereIn('model_id',[2,3,4,5])->exists()) {
+                ->where('type', 'exit')->whereIn('model_id', [2, 3, 4, 5])->exists()) {
                 return $this->responseError('cant register shortage for vehicle');
             }
             $shortage = ShortageItem::query()->create([
@@ -64,7 +69,7 @@ class ShortageController extends Controller
                 'vin' => $vehicle->getAttribute('vin')
             ]);
             return new ShortageItemResource($shortage->fresh());
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 400);
         }
 
@@ -102,7 +107,7 @@ class ShortageController extends Controller
                 throw new Exception($response['message']);
             }
             if ($shortage->getAttribute('status') === 'done') {
-                return $this->responseError('The status has already changed',400);
+                return $this->responseError('The status has already changed', 400);
             }
             $shortage->update($validatedData);
             ActionLog::query()->create([
@@ -131,11 +136,24 @@ class ShortageController extends Controller
 
         return response()->json([
             'message' => 'export job created',
-            'data'    => [
-                'uuid'         => $job->getAttribute('uuid'),
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function vehicleShortages(): JsonResponse
+    {
+        $perPage = request()->get('per_page', 15);
+        $vehicles = $this->vehicleRepository->makeQuery()->whereHas('shortageItems')->paginate($perPage);
+
+        return new JsonResponse(
+            data: VehicleResource::collection($vehicles)
+        );
+    }
 }

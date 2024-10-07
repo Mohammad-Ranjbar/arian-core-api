@@ -37,6 +37,8 @@ class VehicleResource extends JsonResource
             ],
             'serial_barcodes' => config('serial_barcodes.'.$this->resource->makeCode->reference),
             'info' => $this->resource->data,
+            'shortage_count' => $this->resource->shortageItems->count(),
+            'shortage_done_count' => $this->resource->shortageItems->where('status','done')->count(),
         ];
     }
 }
