@@ -7,6 +7,7 @@ use App\Models\ProductionLine;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
@@ -23,37 +24,17 @@ class DashboardController extends Controller
             ->get()->groupBy('model_id');
 
         $qcActionLogs = ActionLog::query()
-            ->with(['model','model.carModel'])
-            ->where('action', 'update_qc_status')
-            ->where('created_at', '>=', $startTime)
-            ->where('created_at', '<', $endTime)
-            ->where('model_type', Vehicle::class)
-            ->get()->groupBy('model.car_model_id');
+            ->selectRaw('car_models.title, count(`data`), `data`')
+            ->with(['model', 'model.carModel'])
+            ->where('action_logs.action', 'update_qc_status')
+            ->where('action_logs.created_at', '>=', $startTime)
+            ->where('action_logs.created_at', '<', $endTime)
+            ->where('action_logs.model_type', Vehicle::class)
+            ->groupBy(['model.car_model_id','action_logs.data'])->get();
 
 
-        $a = $qcActionLogs->map(function ($carModelActionLogs) {
-            $row = $carModelActionLogs->first();
-            try {
-                return [
-                    'title' => $row->model->car_model->title,
-                    'type'  => 'table',
-                    'heads' => [
-                        'کد کیفی',
-                        'تعداد',
-                    ],
-                    'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
-                        return [
-                            (string)$row->data,
-                            $actions->count()
-                        ];
-                    })->values()
-                ];
-            }catch (\Exception $exception) {
-                logger($row);
-            }
+        logger($qcActionLogs);
 
-        })->values();
-        logger($a);
         return response()->json(
             [
                 $linesTracking->map(function ($lineTracking) {
