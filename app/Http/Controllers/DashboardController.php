@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActionLog;
 use App\Models\ProductionLine;
 use App\Models\Tracking;
+use App\Models\Vehicle;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
@@ -11,18 +13,32 @@ class DashboardController extends Controller
 {
     public function __invoke(): JsonResponse
     {
+        $startTime = Carbon::today();
+        $endTime = Carbon::tomorrow();
         $linesTracking = Tracking::query()
             ->with('model')
-            ->where('created_at','>=',Carbon::today())
-            ->where('created_at','<',Carbon::tomorrow())
+            ->where('created_at','>=',$startTime)
+            ->where('created_at','<',$endTime)
             ->where('model_type', ProductionLine::class)
             ->get()->groupBy('model_id');
-        if ($linesTracking) {
-            return response()->json(
+
+        $qcActionLogs = ActionLog::query()
+            ->with('model')
+            ->where('action','update_qc_status')
+            ->where('created_at','>=',$startTime)
+            ->where('created_at','<',$endTime)
+            ->where('model_type', Vehicle::class)
+            ->get()->groupBy('model.car_model_id');
+
+        logger($qcActionLogs);
+
+
+
+        return response()->json(
                 [
                     $linesTracking->map(function ($lineTracking) {
                         return [
-                            'title' => $lineTracking->first()->model->title,
+                            'title' => $lineTracking->first()->model->title . '(امروز)',
                             'type'  => 'table',
                             'heads' => [
                                 'ورود',
@@ -37,7 +53,7 @@ class DashboardController extends Controller
                         ];
                     })->values()
                 ]);
-        }
+
         return response()->json([
             [
                 [
