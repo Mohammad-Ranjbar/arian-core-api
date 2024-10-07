@@ -31,6 +31,25 @@ class DashboardController extends Controller
             ->get()->groupBy('model.car_model_id');
 
 
+        $a = $qcActionLogs->map(function ($carModelActionLogs) {
+            $row = $carModelActionLogs->first();
+            return [
+                'title' => print_r($row->model,1),
+                'type'  => 'table',
+                'heads' => [
+                    'کد کیفی',
+                    'تعداد',
+                ],
+                'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
+                    return [
+                        0,
+                        //(string)$row->data,
+                        $actions->count()
+                    ];
+                })->values()
+            ];
+        })->values();
+        logger($a);
         return response()->json(
             [
                 $linesTracking->map(function ($lineTracking) {
@@ -47,26 +66,6 @@ class DashboardController extends Controller
                                 $lineTracking->where('type', 'exit')->count(),
                             ]
                         ]
-                    ];
-                })->values()
-            ],
-            [
-                $qcActionLogs->map(function ($carModelActionLogs) {
-                    $row = $carModelActionLogs->first();
-                    return [
-                        'title' => print_r($row->model,1),
-                        'type'  => 'table',
-                        'heads' => [
-                            'کد کیفی',
-                            'تعداد',
-                        ],
-                        'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
-                            return [
-                                0,
-                                //(string)$row->data,
-                                $actions->count()
-                            ];
-                        })->values()
                     ];
                 })->values()
             ]
