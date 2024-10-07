@@ -34,7 +34,7 @@ class DashboardController extends Controller
         $a = $qcActionLogs->map(function ($carModelActionLogs) {
             $row = $carModelActionLogs->first();
             return [
-                'title' => print_r($row->model,1),
+                'title' => $row->model->car_model->title,
                 'type'  => 'table',
                 'heads' => [
                     'کد کیفی',
@@ -42,8 +42,7 @@ class DashboardController extends Controller
                 ],
                 'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
                     return [
-                        0,
-                        //(string)$row->data,
+                        (string)$row->data,
                         $actions->count()
                     ];
                 })->values()
