@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProductionLine;
 use App\Models\Tracking;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
@@ -13,8 +14,8 @@ class DashboardController extends Controller
 
         $linesTracking = Tracking::query()
             ->with('model')
-//            ->where('created_at','>=',Carbon::today())
-//            ->where('created_at','<',Carbon::tomorrow())
+            ->where('created_at','>=',Carbon::today())
+            ->where('created_at','<',Carbon::tomorrow())
             ->where('model_type', ProductionLine::class)
             ->latest()
             ->limit(500)
