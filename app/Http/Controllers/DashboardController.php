@@ -54,7 +54,7 @@ class DashboardController extends Controller
                 $qcActionLogs->map(function ($carModelActionLogs) {
                     $row = $carModelActionLogs->first();
                     return [
-                        'title' => $row->model?->car_model?->title,
+                        'title' => print_r($row->model,1),
                         'type'  => 'table',
                         'heads' => [
                             'کد کیفی',
