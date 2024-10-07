@@ -62,7 +62,8 @@ class DashboardController extends Controller
                         ],
                         'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
                             return [
-                                (string)$row->data,
+                                0,
+                                //(string)$row->data,
                                 $actions->count()
                             ];
                         })->values()
