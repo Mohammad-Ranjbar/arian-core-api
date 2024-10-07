@@ -54,8 +54,8 @@ class DashboardController extends Controller
                 ],
                 'items' => $list->map(function ($row) {
                     return [
-                        $row['code'],
-                        $row['count'],
+                        $row->code,
+                        $row->count,
                     ];
                 })->values()
             ];
