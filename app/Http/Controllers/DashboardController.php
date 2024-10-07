@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -23,14 +24,24 @@ class DashboardController extends Controller
             ->where('model_type', ProductionLine::class)
             ->get()->groupBy('model_id');
 
-        $qcActionLogs = ActionLog::query()
-            ->selectRaw('car_models.title, count(`data`), `data`')
-            ->with(['model', 'model.carModel'])
-            ->where('action_logs.action', 'update_qc_status')
-            ->where('action_logs.created_at', '>=', $startTime)
-            ->where('action_logs.created_at', '<', $endTime)
-            ->where('action_logs.model_type', Vehicle::class)
-            ->groupBy(['model.car_model_id','action_logs.data'])->get();
+        $sql = "
+                SELECT
+                    car_models.title,
+                    action_logs.`data` as `code`,
+                    COUNT(action_logs.`data`) as `count`
+                FROM
+                    `action_logs`
+                LEFT JOIN vehicles ON action_logs.model_id = vehicles.vin
+                LEFT JOIN car_models ON vehicles.car_model_id = car_models.id
+                WHERE
+                    `action_logs`.`action` = 'update_qc_status' AND 
+                    `action_logs`.`model_type` = 'App\\Models\\Vehicle' AND
+                    `action_logs`.`created_at` >= ? AND 
+                    `action_logs`.`created_at` < ?
+                GROUP BY
+                    `action_logs`.`data`, car_models.id;        
+        ";
+        $qcActionLogs = DB::select($sql,[$startTime,$endTime]);
 
 
         logger($qcActionLogs);
