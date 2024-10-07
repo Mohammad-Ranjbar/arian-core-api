@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProductionLine;
+use App\Models\Tracking;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,6 +15,13 @@ class DashboardController extends Controller
         if (env('APP_ENV') === 'production') {
             return response()->json([]);
         }
+        $linesTracking = Tracking::query()
+            ->with('model')
+            ->where('created_at','>=',Carbon::today())
+            ->where('created_at','<=',Carbon::tomorrow())
+            ->where('model_type',ProductionLine::class)
+            ->get()->groupBy('model_id');
+        dd($linesTracking);
         return response()->json([
             [
                 [
