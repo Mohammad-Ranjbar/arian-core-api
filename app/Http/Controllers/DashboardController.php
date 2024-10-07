@@ -15,12 +15,12 @@ class DashboardController extends Controller
         return response()->json([
             [
                 [
-                    'title' => fake('fa')->title,
+                    'title' => fake('fa_IR')->title,
                     'type' => 'table',
                     'heads' => [
-                        fake('fa')->title,
-                        fake('fa')->title,
-                        fake('fa')->title
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title
                     ],
                     'items' => [
                         [1,2,3],
@@ -29,12 +29,12 @@ class DashboardController extends Controller
                     ]
                 ],
                 [
-                    'title' => fake('fa')->title,
+                    'title' => fake('fa_IR')->title,
                     'type' => 'table',
                     'heads' => [
-                        fake('fa')->title,
-                        fake('fa')->title,
-                        fake('fa')->title
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title
                     ],
                     'items' => [
                         [1,2,3],
@@ -43,12 +43,12 @@ class DashboardController extends Controller
                     ]
                 ],
                 [
-                    'title' => fake('fa')->title,
+                    'title' => fake('fa_IR')->title,
                     'type' => 'table',
                     'heads' => [
-                        fake('fa')->title,
-                        fake('fa')->title,
-                        fake('fa')->title
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title
                     ],
                     'items' => [
                         [1,2,3],
@@ -57,42 +57,12 @@ class DashboardController extends Controller
                     ]
                 ],
                 [
-                    'title' => fake('fa')->title,
+                    'title' => fake('fa_IR')->title,
                     'type' => 'table',
                     'heads' => [
-                        fake('fa')->title,
-                        fake('fa')->title,
-                        fake('fa')->title
-                    ],
-                    'items' => [
-                        [1,2,3],
-                        [4,5,6],
-                        [7,8,9]
-                    ]
-                ],
-            ],
-            [
-                [
-                    'title' => fake('fa')->title,
-                    'type' => 'table',
-                    'heads' => [
-                        fake('fa')->title,
-                        fake('fa')->title,
-                        fake('fa')->title
-                    ],
-                    'items' => [
-                        [1,2,3],
-                        [4,5,6],
-                        [7,8,9]
-                    ]
-                ],
-                [
-                    'title' => fake('fa')->title,
-                    'type' => 'table',
-                    'heads' => [
-                        fake('fa')->title,
-                        fake('fa')->title,
-                        fake('fa')->title
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title
                     ],
                     'items' => [
                         [1,2,3],
@@ -103,12 +73,42 @@ class DashboardController extends Controller
             ],
             [
                 [
-                    'title' => fake('fa')->title,
+                    'title' => fake('fa_IR')->title,
                     'type' => 'table',
                     'heads' => [
-                        fake('fa')->title,
-                        fake('fa')->title,
-                        fake('fa')->title
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title
+                    ],
+                    'items' => [
+                        [1,2,3],
+                        [4,5,6],
+                        [7,8,9]
+                    ]
+                ],
+                [
+                    'title' => fake('fa_IR')->title,
+                    'type' => 'table',
+                    'heads' => [
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title
+                    ],
+                    'items' => [
+                        [1,2,3],
+                        [4,5,6],
+                        [7,8,9]
+                    ]
+                ],
+            ],
+            [
+                [
+                    'title' => fake('fa_IR')->title,
+                    'type' => 'table',
+                    'heads' => [
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title,
+                        fake('fa_IR')->title
                     ],
                     'items' => [
                         [1,2,3],
