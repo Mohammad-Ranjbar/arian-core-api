@@ -17,42 +17,61 @@ class DashboardController extends Controller
         $endTime = Carbon::tomorrow();
         $linesTracking = Tracking::query()
             ->with('model')
-            ->where('created_at','>=',$startTime)
-            ->where('created_at','<',$endTime)
+            ->where('created_at', '>=', $startTime)
+            ->where('created_at', '<', $endTime)
             ->where('model_type', ProductionLine::class)
             ->get()->groupBy('model_id');
 
         $qcActionLogs = ActionLog::query()
             ->with('model')
-            ->where('action','update_qc_status')
-            ->where('created_at','>=',$startTime)
-            ->where('created_at','<',$endTime)
+            ->where('action', 'update_qc_status')
+            ->where('created_at', '>=', $startTime)
+            ->where('created_at', '<', $endTime)
             ->where('model_type', Vehicle::class)
             ->get()->groupBy('model.car_model_id');
 
         logger($qcActionLogs);
 
 
-
         return response()->json(
-                [
-                    $linesTracking->map(function ($lineTracking) {
-                        return [
-                            'title' => $lineTracking->first()->model->title . '(امروز)',
-                            'type'  => 'table',
-                            'heads' => [
-                                'ورود',
-                                'خروج',
-                            ],
-                            'items' => [
-                                [
-                                    $lineTracking->where('type','enter')->count(),
-                                    $lineTracking->where('type','exit')->count(),
-                                ]
+            [
+                $linesTracking->map(function ($lineTracking) {
+                    return [
+                        'title' => $lineTracking->first()->model->title.'(امروز)',
+                        'type'  => 'table',
+                        'heads' => [
+                            'ورود',
+                            'خروج',
+                        ],
+                        'items' => [
+                            [
+                                $lineTracking->where('type', 'enter')->count(),
+                                $lineTracking->where('type', 'exit')->count(),
                             ]
-                        ];
-                    })->values()
-                ]);
+                        ]
+                    ];
+                })->values()
+            ],
+            [
+                $qcActionLogs->map(function ($carModelActionLogs) {
+                    $row = $carModelActionLogs->first();
+                    return [
+                        'title' => $row->model->car_model->title,
+                        'type'  => 'table',
+                        'heads' => [
+                            'کد کیفی',
+                            'تعداد',
+                        ],
+                        'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
+                            return [
+                                (string)$row->data,
+                                $actions->count()
+                            ];
+                        })->values()
+                    ];
+                })->values()
+            ]
+        );
 
         return response()->json([
             [
