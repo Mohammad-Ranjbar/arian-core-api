@@ -2,6 +2,7 @@
 
 namespace App\libs;
 
+use App\Filters\AllShortageDoneFilter;
 use App\Filters\BillOfLadingDriverMobileFilter;
 use App\Filters\BillOfLadingDriverNationalCodeFilter;
 use App\Filters\BlockByFilter;
@@ -42,6 +43,7 @@ use App\Filters\SynchronousNumberFilter;
 use App\Filters\SynchronousProductionLineIdFilter;
 use App\Filters\SynchronousTitleFilter;
 use App\Filters\TitleFilter;
+use App\Filters\TrackingFilter;
 use App\Filters\TransitCompanyIdFilter;
 use App\Filters\TypeFilter;
 use App\Filters\UnblockByFilter;
@@ -119,7 +121,9 @@ abstract class BaseRepository
         SynchronousTitleFilter::class,
         SynchronousProductionLineIdFilter::class,
         CarModelIdsFilter::class,
-        SectionFilter::class
+        SectionFilter::class,
+        TrackingFilter::class,
+        AllShortageDoneFilter::class,
     ];
     public array $searchTerms = [
         'title'
