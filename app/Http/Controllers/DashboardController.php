@@ -41,10 +41,25 @@ class DashboardController extends Controller
                 GROUP BY
                     `action_logs`.`data`, car_models.id;        
         ";
-        $qcActionLogs = DB::select($sql,[Vehicle::class,$startTime,$endTime]);
+        $qcActionLogs = collect(DB::select($sql,[Vehicle::class,$startTime,$endTime]));
 
-
-        logger($qcActionLogs);
+        $rows = [];
+        foreach ($qcActionLogs->groupBy('title') as $title => $list){
+            $rows[] = [
+                'title' => $title,
+                'type'  => 'table',
+                'heads' => [
+                    'کد کیفی',
+                    'تعداد',
+                ],
+                'items' => $list->map(function ($row) {
+                    return [
+                        $row['code'],
+                        $row['count'],
+                    ];
+                })->values()
+            ];
+        }
 
         return response()->json(
             [
@@ -64,7 +79,8 @@ class DashboardController extends Controller
                         ]
                     ];
                 })->values()
-            ]
+            ],
+            [$rows]
         );
 
         return response()->json([
