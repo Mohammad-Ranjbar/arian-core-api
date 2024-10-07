@@ -56,6 +56,20 @@ class DashboardController extends Controller
                         [7,8,9]
                     ]
                 ],
+                [
+                    'title' => fake('fa')->title,
+                    'type' => 'table',
+                    'heads' => [
+                        fake('fa')->title,
+                        fake('fa')->title,
+                        fake('fa')->title
+                    ],
+                    'items' => [
+                        [1,2,3],
+                        [4,5,6],
+                        [7,8,9]
+                    ]
+                ],
             ],
             [
                 [
