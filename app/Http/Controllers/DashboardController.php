@@ -33,20 +33,25 @@ class DashboardController extends Controller
 
         $a = $qcActionLogs->map(function ($carModelActionLogs) {
             $row = $carModelActionLogs->first();
-            return [
-                'title' => $row->model->car_model->title,
-                'type'  => 'table',
-                'heads' => [
-                    'کد کیفی',
-                    'تعداد',
-                ],
-                'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
-                    return [
-                        (string)$row->data,
-                        $actions->count()
-                    ];
-                })->values()
-            ];
+            try {
+                return [
+                    'title' => $row->model->car_model->title,
+                    'type'  => 'table',
+                    'heads' => [
+                        'کد کیفی',
+                        'تعداد',
+                    ],
+                    'items' => $carModelActionLogs->groupBy('data')->map(function ($actions) use($row){
+                        return [
+                            (string)$row->data,
+                            $actions->count()
+                        ];
+                    })->values()
+                ];
+            }catch (\Exception $exception) {
+                logger($row);
+            }
+
         })->values();
         logger($a);
         return response()->json(
