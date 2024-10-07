@@ -35,13 +35,13 @@ class DashboardController extends Controller
                 LEFT JOIN car_models ON vehicles.car_model_id = car_models.id
                 WHERE
                     `action_logs`.`action` = 'update_qc_status' AND 
-                    `action_logs`.`model_type` = 'App\\Models\\Vehicle' AND
+                    `action_logs`.`model_type` = ? AND
                     `action_logs`.`created_at` >= ? AND 
                     `action_logs`.`created_at` < ?
                 GROUP BY
                     `action_logs`.`data`, car_models.id;        
         ";
-        $qcActionLogs = DB::select($sql,[$startTime,$endTime]);
+        $qcActionLogs = DB::select($sql,[Vehicle::class,$startTime,$endTime]);
 
 
         logger($qcActionLogs);
