@@ -11,14 +11,11 @@ class DashboardController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-
         $linesTracking = Tracking::query()
             ->with('model')
             ->where('created_at','>=',Carbon::today())
             ->where('created_at','<',Carbon::tomorrow())
             ->where('model_type', ProductionLine::class)
-            ->latest()
-            ->limit(500)
             ->get()->groupBy('model_id');
         if ($linesTracking) {
             return response()->json(
