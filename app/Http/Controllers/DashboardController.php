@@ -16,7 +16,8 @@ class DashboardController extends Controller
 //            ->where('created_at','>=',Carbon::today())
 //            ->where('created_at','<',Carbon::tomorrow())
             ->where('model_type', ProductionLine::class)
-            ->limit(150)
+            ->latest()
+            ->limit(500)
             ->get()->groupBy('model_id');
         if ($linesTracking) {
             return response()->json(
