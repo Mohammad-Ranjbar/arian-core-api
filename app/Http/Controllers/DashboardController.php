@@ -61,6 +61,7 @@ class DashboardController extends Controller
             ];
         }
 
+
         return response()->json(
             [
                 $linesTracking->map(function ($lineTracking) {
@@ -78,9 +79,9 @@ class DashboardController extends Controller
                             ]
                         ]
                     ];
-                })->values()
-            ],
-            [$rows]
+                })->values(),
+                $rows
+            ]
         );
 
         return response()->json([
