@@ -36,7 +36,7 @@ class DashboardController extends Controller
                                 ]
                             ]
                         ];
-                    })
+                    })->values()
                 ]);
         }
         return response()->json([
