@@ -23,14 +23,12 @@ class DashboardController extends Controller
             ->get()->groupBy('model_id');
 
         $qcActionLogs = ActionLog::query()
-            ->with('model')
+            ->with(['model','model.carModel'])
             ->where('action', 'update_qc_status')
             ->where('created_at', '>=', $startTime)
             ->where('created_at', '<', $endTime)
             ->where('model_type', Vehicle::class)
             ->get()->groupBy('model.car_model_id');
-
-        logger($qcActionLogs);
 
 
         return response()->json(
