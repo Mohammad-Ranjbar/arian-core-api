@@ -80,7 +80,7 @@ class DashboardController extends Controller
                         ]
                     ];
                 })->values(),
-                array_chunk($rows,2)
+                $rows
             ]
         );
     }
