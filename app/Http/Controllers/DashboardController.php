@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ActionLog;
 use App\Models\ProductionLine;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -41,10 +39,10 @@ class DashboardController extends Controller
                 GROUP BY
                     `action_logs`.`data`, car_models.id;        
         ";
-        $qcActionLogs = collect(DB::select($sql,[Vehicle::class,$startTime,$endTime]));
+        $qcActionLogs = collect(DB::select($sql, [Vehicle::class, $startTime, $endTime]));
 
         $rows = [];
-        foreach ($qcActionLogs->groupBy('title') as $title => $list){
+        foreach ($qcActionLogs->groupBy('title') as $title => $list) {
             $rows[] = [
                 'title' => $title,
                 'type'  => 'table',
@@ -66,7 +64,7 @@ class DashboardController extends Controller
             [
                 $linesTracking->map(function ($lineTracking) {
                     return [
-                        'title' => $lineTracking->first()->model->title.'(امروز)',
+                        'title' => $lineTracking->first()->model->title,
                         'type'  => 'table',
                         'heads' => [
                             'ورود',
