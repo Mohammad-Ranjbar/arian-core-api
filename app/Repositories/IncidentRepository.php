@@ -36,4 +36,14 @@ class IncidentRepository extends BaseRepository
     public array $searchTerms = [
         'title','title_en','code'
     ];
+
+    public function getOptions(): array
+    {
+        return $this->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title . ' - ' . $item->code,
+            ];
+        })->all();
+    }
 }
