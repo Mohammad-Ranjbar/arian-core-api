@@ -21,7 +21,7 @@ class IncidentIdFilter
         if (!request()->has('incident_id') || !request()->get('incident_id')) {
             return $next($request);
         }
-        return $next($request)->where('incident_id', request()->input('incident_id'));
+        return $next($request)->whereIn('incident_id', array(request()->input('incident_id')));
     }
 
 }
