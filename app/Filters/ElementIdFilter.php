@@ -21,7 +21,6 @@ class ElementIdFilter
         if (!request()->has('element_id') || !request()->get('element_id')) {
             return $next($request);
         }
-        logger(array(request()->input('element_id')));
         return $next($request)->whereIn('element_id', array(request()->input('element_id')));
     }
 

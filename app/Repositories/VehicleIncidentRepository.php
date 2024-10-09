@@ -33,7 +33,12 @@ class VehicleIncidentRepository extends BaseRepository
         if (!empty($data['method'])) {
             $query = $query->where('method',  $data['method']);
         }
-
+        if (!empty($data['incident_id'])) {
+            $query = $query->whereIn('incident_id',  $data['incident_id']);
+        }
+        if (!empty($data['element_id'])) {
+            $query = $query->whereIn('incident_id',  $data['element_id']);
+        }
         if (!empty($data['make_code']) || !empty($data['car_model'])) {
             $query = $query->whereHas('vehicle', function ($query) use ($data) {
                 if (!empty($data['make_code'])) {
