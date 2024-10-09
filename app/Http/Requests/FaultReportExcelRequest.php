@@ -28,7 +28,7 @@ class FaultReportExcelRequest extends FormRequest
             'method' => 'nullable',
             'intensities' => 'nullable',
             'incident_id' => 'array',
-            'incident_id.*' => 'exists:elements,id',
+            'incident_id.*' => 'exists:incidents,id',
             'element_id' => 'array',
             'element_id.*' => 'exists:elements,id',
         ];
