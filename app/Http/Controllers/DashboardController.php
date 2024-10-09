@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductionLine;
+use App\Models\SaleLocation;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use Carbon\Carbon;
@@ -20,6 +21,13 @@ class DashboardController extends Controller
             ->where('created_at', '>=', $startTime)
             ->where('created_at', '<', $endTime)
             ->where('model_type', ProductionLine::class)
+            ->get()->groupBy('model_id');
+
+        $salesTracking = Tracking::query()
+            ->with('model')
+            ->where('created_at', '>=', $startTime)
+            ->where('created_at', '<', $endTime)
+            ->where('model_type', SaleLocation::class)
             ->get()->groupBy('model_id');
 
         $sql = "
@@ -74,6 +82,20 @@ class DashboardController extends Controller
                             [
                                 $lineTracking->where('type', 'enter')->count(),
                                 $lineTracking->where('type', 'exit')->count(),
+                            ]
+                        ]
+                    ];
+                })->values(),
+                $salesTracking->map(function ($saleTracking) {
+                    return [
+                        'title' => $saleTracking->first()->model->title,
+                        'type'  => 'table',
+                        'heads' => [
+                            'ورود',
+                        ],
+                        'items' => [
+                            [
+                                $saleTracking->where('type', 'enter')->count(),
                             ]
                         ]
                     ];
