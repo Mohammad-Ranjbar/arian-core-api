@@ -82,7 +82,7 @@ class ProductionLineActivity extends Model
      */
     public function stopReason(): BelongsTo
     {
-        return $this->belongsTo(StopReason::class);
+        return $this->belongsTo(StopReason::class,'stop_reason_id');
     }
 
     /**
