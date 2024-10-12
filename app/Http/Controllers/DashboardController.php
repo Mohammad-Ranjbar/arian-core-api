@@ -25,13 +25,6 @@ class DashboardController extends Controller
             ->where('model_type', ProductionLine::class)
             ->get()->groupBy('model_id');
 
-        $locations = Tracking::query()
-            ->with('model')
-            ->where('created_at', '>=', $startTime)
-            ->where('created_at', '<', $endTime)
-            ->where('model_type', Location::class)
-            ->get()->groupBy('model_id');
-
         $salesTracking = Tracking::query()
             ->with('model')
             ->where('created_at', '>=', $startTime)
@@ -80,22 +73,6 @@ class DashboardController extends Controller
         return response()->json(
             [
                 $linesTracking->map(function ($lineTracking) {
-                    return [
-                        'title' => $lineTracking->first()->model->title,
-                        'type'  => 'table',
-                        'heads' => [
-                            'ورود',
-                            'خروج',
-                        ],
-                        'items' => [
-                            [
-                                $lineTracking->where('type', 'enter')->count(),
-                                $lineTracking->where('type', 'exit')->count(),
-                            ]
-                        ]
-                    ];
-                })->values(),
-                $locations->map(function ($lineTracking) {
                     return [
                         'title' => $lineTracking->first()->model->title,
                         'type'  => 'table',
