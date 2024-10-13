@@ -8,11 +8,16 @@ use App\Models\BillOfLading;
 use App\Models\Car;
 use App\Models\Container;
 use App\Models\Driver;
+use App\Models\GatePermit;
 use App\Models\Job;
 use App\Models\TransitCompany;
+use App\Models\User;
 use App\Models\Vehicle;
+use App\Services\Erp\ErpCreateExitRequest;
+use App\Services\Erp\ErpReturnRequest;
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -76,9 +81,25 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         $this->sendEvent();
 
         $collection->each(function ($row) {
+
             try {
-                $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
+
+
+                //TODO checking by each colmn
+                //create gate permit by cody => check vin in vehicle table and chack in data and vehicle type
+
+                if (!empty($row['VIN']) || !empty($row['container_number'])) {
+                    throw new Exception('vin or container number is empty');
+                }
+                if (!empty($row['VIN'])) {
+
+                    $this->checkingData($row);
+
+                    $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
+                }
+
                 if (!empty($row['container_number'])) {
+                    $this->checkingData($row);
                     $container = Container::query()->where('code', $row['container_number'])->firstOrCreate([
                         'code' => $row['container_number'],
                     ]);
@@ -134,11 +155,47 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                     ]);
 
                     if (!empty($row['VIN'])) {
+                        if ($billOfLading->type === 'bodies') {
+                            if (!GatePermit::query()
+                                    ->where('model_type', Vehicle::class)
+                                    ->where('model_id', $row['VIN'])->exists()) {
+
+                                    $type = $billOfLading->destination_id == 1 ? 'enter' : 'exit';
+                                    $exitType = 1;// by reza => consignment , 1
+                                    $gate = GatePermit::query()->create([
+                                        'model_type'  => Vehicle::class,
+                                        'model_id'    => $item,
+                                        'location_id' => $billOfLading->location_destination_id,
+                                        'owner_id'    => Auth::id(),
+                                        'owner_type'  => User::class,
+                                        'type'        => $type,
+                                        'exit_type'   => $exitType
+                                    ]);
+
+                                    if ($type == 'exit') {
+                                        $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
+                                            $gate->location->getAttribute('code'));
+
+                                        if ($response['status'] !== 'ok') {
+                                            throw new Exception($response['message']);
+                                        }
+                                    } else {
+                                        $response = ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
+
+                                        if ($response['status'] !== 'ok') {
+                                            throw new Exception($response['message']);
+                                        }
+                                    }
+                            }
+                        }
+
                         DB::table('bill_of_lading_item')->insert([
                             'model_id' => $row['VIN'],
                             'model_type' => Vehicle::class,
                             'bill_of_lading_id' => $billOfLading->getAttribute('id'),
                         ]);
+
+
                     }
                     if (!empty($row['container_number'])) {
                         DB::table('bill_of_lading_item')->insert([
@@ -196,6 +253,46 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
             ]
         ]);
 
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function checkingData($row)
+    {
+        if (empty($row['vehicle_title'])) {
+            throw new Exception('vehicle_title is empty');
+        }
+        if (empty($row['number_plates'])) {
+            throw new Exception('number_plates is empty');
+        }
+        if (empty($row['plate_area'])) {
+            throw new Exception('plate_area is empty');
+        }
+        if (empty($row['driver_name'])) {
+            throw new Exception('driver_name is empty');
+        }
+        if (empty($row['driver_mobile'])) {
+            throw new Exception('driver_mobile is empty');
+        }
+        if (empty($row['driver_national_code'])) {
+            throw new Exception('driver_national_code is empty');
+        }
+        if (empty($row['freight_number'])) {
+            throw new Exception('freight_number is empty');
+        }
+        if (empty($row['request_number'])) {
+            throw new Exception('request_number is empty');
+        }
+        if (empty($row['cottage_number'])) {
+            throw new Exception('cottage_number is empty');
+        }
+        if (empty($row['weight'])) {
+            throw new Exception('weight is empty');
+        }
+        if (empty($row['batch'])) {
+            throw new Exception('batch is empty');
+        }
     }
 
     /**
