@@ -325,7 +325,7 @@ class VehicleOverviewController extends Controller
                     'values' => array_map(function ($row) {
                         return [
                             $row['title'],
-                            route('dl-s3',['path' => $row['file']])
+                            '/api/dl-file?path='.$row['file']
                         ];
                     }, $list)
                 ],
