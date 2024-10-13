@@ -42,7 +42,7 @@ class VehicleOverviewController extends Controller
             $copList = [
                 [
                     'file'  => '/api/dl-file?path=cop/lamari/1.pdf',
-                    'title' => 'چراغ پلاک عقب'
+                    'title' => 'فایل جامع طرح انطباق تولید'
                 ]
             ];
         }
