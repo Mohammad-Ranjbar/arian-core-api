@@ -7,11 +7,11 @@ namespace App\Services\Erp;
 class ErpCreateExitRequest {
     public static function createExitRequest(string $vin, string $type, string $locationCode): array
     {
-        dd($locationCode);
-        ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
+
+       $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
             ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode]);
 
-
+        dd($exitRequest);
 
         return   ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
             'vINP' => $vin
