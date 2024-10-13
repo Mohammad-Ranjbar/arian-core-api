@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use App\Models\ProductionLine;
 use App\Models\SaleLocation;
 use App\Models\Tracking;
@@ -16,6 +17,7 @@ class DashboardController extends Controller
     {
         $startTime = Carbon::today();
         $endTime = Carbon::tomorrow();
+
         $linesTracking = Tracking::query()
             ->with('model')
             ->where('created_at', '>=', $startTime)
