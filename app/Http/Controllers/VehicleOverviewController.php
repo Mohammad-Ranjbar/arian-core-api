@@ -30,7 +30,7 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
 
-        $list = [
+        $copList = [
             [
                 'file'  => '/api/dl-file?path=cop/dumper/1.pdf',
                 'title' => 'استحكام صندلي ونگهدارنده هاي آن 6503'
@@ -322,7 +322,7 @@ class VehicleOverviewController extends Controller
                     'title'  => 'COP PLAN',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $list
+                    'values' => $copList
                 ],
                 [
                     'title'  => 'ایرادات کیفی',
