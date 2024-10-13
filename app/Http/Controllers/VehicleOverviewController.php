@@ -349,7 +349,7 @@ class VehicleOverviewController extends Controller
                     'values' => $copList
                 ],
                 [
-                    'title'  => 'آزمون های ثبت شده',
+                    'title'  => 'آزمون های انتهای خط',
                     'type'   => 'table',
                     'heads'  => [],
                     'values' => []
