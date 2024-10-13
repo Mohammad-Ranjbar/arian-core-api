@@ -88,9 +88,9 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                 //TODO checking by each colmn
                 //create gate permit by cody => check vin in vehicle table and chack in data and vehicle type
 
-                if (!empty($row['VIN']) || !empty($row['container_number'])) {
-                    throw new Exception('vin or container number is empty');
-                }
+//                if (empty($row['VIN']) || empty($row['container_number'])) {
+//                    throw new Exception('vin or container number is empty');
+//                }
                 if (!empty($row['VIN'])) {
 
                     $this->checkingData($row);
