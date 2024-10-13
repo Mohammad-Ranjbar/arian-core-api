@@ -30,6 +30,12 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
 
+        $qrLinks = [
+            [
+                'file'  => 'https://qr.arian-dev.ir/',
+                'title' => 'دریافت اطلاعات و مشخصات فنی'
+            ]
+        ];
         $copList = [];
 
         if (str_contains(strtolower($vehicle->getAttribute('data')['Model_No']), 'lamari')) {
@@ -265,6 +271,12 @@ class VehicleOverviewController extends Controller
 
         return response()->json([
             'items' => array_values(array_filter(array_merge([
+                [
+                    'title'  => 'اطلاعات و مشخصات',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $qrLinks
+                ],
                 [
                     'title'  => 'رهگیری محصول',
                     'type'   => 'table',
