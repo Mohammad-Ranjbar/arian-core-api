@@ -32,7 +32,7 @@ class VehicleOverviewController extends Controller
 
         $copList = [];
 
-        if (str_contains(strtolower($vehicle->getAttribute('data')->Model_No), 'dumper')) {
+        if (str_contains(strtolower($vehicle->getAttribute('data')['Model_No']), 'dumper')) {
             $copList = [
                 [
                     'file'  => '/api/dl-file?path=cop/dumper/1.pdf',
