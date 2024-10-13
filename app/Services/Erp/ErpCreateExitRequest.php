@@ -4,7 +4,12 @@
 namespace App\Services\Erp;
 
 
+use Exception;
+
 class ErpCreateExitRequest {
+    /**
+     * @throws Exception
+     */
     public static function createExitRequest(string $vin, string $type, string $locationCode): array
     {
 

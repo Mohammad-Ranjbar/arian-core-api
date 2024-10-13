@@ -205,6 +205,10 @@ class BillOfLadingController extends CrudController
 
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function store(Request $request)
     {
         if (!isset($this->repository)) {
