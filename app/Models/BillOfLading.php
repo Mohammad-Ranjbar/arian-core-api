@@ -155,7 +155,7 @@ class BillOfLading extends Model
                 if ($this->containers()->count()) {
                     return 'containers';
                 }
-                if ($this->vehicles()->whereNull('vehicles.engine_no')->count()) {
+                if ($this->vehicles()->whereNull('vehicles.engine_no')->orWhere('vehicles.engine_no','')->count()) {
                     return 'bodies';
                 }
                 if ($this->vehicles()->whereNotNull('vehicles.engine_no')->count()) {
