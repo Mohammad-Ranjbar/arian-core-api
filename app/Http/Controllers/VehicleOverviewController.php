@@ -32,6 +32,14 @@ class VehicleOverviewController extends Controller
 
         $copList = [];
 
+        if (str_contains(strtolower($vehicle->getAttribute('data')['Model_No']), 'lamari')) {
+            $copList = [
+                [
+                    'file'  => '/api/dl-file?path=cop/lamari/1.pdf',
+                    'title' => 'چراغ پلاک عقب'
+                ]
+            ];
+        }
         if (str_contains(strtolower($vehicle->getAttribute('data')['Model_No']), 'dumper')) {
             $copList = [
                 [
