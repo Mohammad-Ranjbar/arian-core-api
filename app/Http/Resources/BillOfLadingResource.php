@@ -45,7 +45,7 @@ class BillOfLadingResource extends JsonResource
                         'code' => $item->vin,
                         'destination' => GatePermit::withTrashed()
                             ->where('model_id',$item->vin)
-                            ->where('created_at','<=',$item->created_at)
+                            ->where('created_at','<=',$this->resource->created_at)
                             ->latest()
                             ->first()?->location->title ?? ''
                     ];
