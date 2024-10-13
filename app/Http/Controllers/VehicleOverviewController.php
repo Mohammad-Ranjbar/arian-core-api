@@ -212,7 +212,7 @@ class VehicleOverviewController extends Controller
                             : '-',
                     ],
                     [
-                        'تاریخ سند',
+                        'تاریخ چاپ سند',
                         $vehicle->getAttribute('data')['Platting_Date'] ?
                             jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString()
                             : '-',
