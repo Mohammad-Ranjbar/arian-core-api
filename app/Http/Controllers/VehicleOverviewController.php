@@ -320,7 +320,7 @@ class VehicleOverviewController extends Controller
                 ],
                 [
                     'title'  => 'COP PLAN',
-                    'type'   => 'table',
+                    'type'   => 'download-list',
                     'heads'  => [],
                     'values' => array_map(function ($row) {
                         return [
