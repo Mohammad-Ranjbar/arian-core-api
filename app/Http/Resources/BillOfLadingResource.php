@@ -31,7 +31,7 @@ class BillOfLadingResource extends JsonResource
             'created_at' => $this->resource->created_at,
             'locationSource' => new LocationResource($this->resource->locationSource),
             'locationDestination' => new LocationResource($this->resource->locationDestination),
-            'car' => new CarShortResource($this->resource->car),
+            'car' => new CarResource($this->resource->car),
             'type' => $this->resource->type,
             'items' => $this->resource->type === 'containers' ?
                 $this->resource->containers()->get()->map(function ($item) {
