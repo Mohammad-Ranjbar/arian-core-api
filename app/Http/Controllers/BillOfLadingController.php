@@ -320,7 +320,7 @@ class BillOfLadingController extends CrudController
                         continue;
                     }
                     $type = $record->destination_id == 1 ? 'enter' : 'exit';
-                    $exitType = 2;// by reza => consignment , 1
+                    $exitType = 2;// by shaghayegh => consignment , 1
                     $gate = GatePermit::query()->create([
                         'model_type'  => Vehicle::class,
                         'model_id'    => $item,

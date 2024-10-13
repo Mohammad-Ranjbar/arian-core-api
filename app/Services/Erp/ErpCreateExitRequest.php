@@ -11,7 +11,9 @@ class ErpCreateExitRequest {
        $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
             ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode]);
 
-        dd($exitRequest);
+        if ($exitRequest['status'] !== 'ok') {
+            throw new Exception($response['message']);
+        }
 
         return   ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
             'vINP' => $vin
