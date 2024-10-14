@@ -174,6 +174,10 @@ class VehicleFaultController extends Controller
             $where[] = "vehicles.make_code_id in (".implode(',', request()->get('make_code')).")";
         }
 
+        if (!empty(request()->get('intensities'))) {
+            $where[] = "vehicle_incidents.intensity in (".implode(',', (array) request()->get('intensities')).")";
+        }
+
 
         $strWhere = implode(" AND ", $where);
 
