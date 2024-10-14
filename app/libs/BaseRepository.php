@@ -225,7 +225,7 @@ abstract class BaseRepository
         return $this->makeQuery()->where($key, $value);
     }
 
-    public function paginate($perPage, string $orderBy = 'id', string $orderType = 'asc'): mixed
+    public function paginate($perPage, string $orderBy = 'id', string $orderType = 'desc'): mixed
     {
         return $this->makeQuery()->orderBy($orderBy, $orderType)->paginate($perPage);
     }
