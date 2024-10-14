@@ -181,6 +181,13 @@ class VehicleFaultController extends Controller
             $where[] = "vehicle_incidents.intensity in ($l)";
         }
 
+        if (!empty(request()->get('method'))) {
+            $l = collect((array)request()->get('method'))->map(function($item) {
+                return "'{$item}'";
+            })->implode(',');
+            $where[] = "vehicle_incidents.method in ($l)";
+        }
+
 
         $strWhere = implode(" AND ", $where);
 
