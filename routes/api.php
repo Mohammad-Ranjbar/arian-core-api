@@ -77,6 +77,7 @@ Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
+Route::get('dl-file', [DownloadController::class,'s3'])->name('dl-s3');
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/vehicle-shortages',[ShortageController::class,'vehicleShortages'])->name('vehicle-shortages');
