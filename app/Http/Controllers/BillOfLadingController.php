@@ -28,6 +28,7 @@ use Illuminate\Foundation\Bus\PendingClosureDispatch;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -53,6 +54,15 @@ class BillOfLadingController extends CrudController
 
         $this->applyAuthorizeResource();
         $this->setResource(BillOfLadingResource::class);
+    }
+
+    public function index(Request $request): JsonResponse |AnonymousResourceCollection
+    {
+        $perPage = $request->get('per_page', 15);
+        if (isset($this->repository)) {
+            return $this->collect($this->repository->paginate($perPage,'id','desc'));
+        }
+        return $this->responseError('repository not found',400);
     }
 
     public function destroy($id)
