@@ -189,7 +189,7 @@ class VehicleFaultController extends Controller
         }
 
         if (!empty(request()->get('vin_type'))) {
-            $where[] = "vehicle_incidents.method in '".request()->get('vin_type')."'";
+            $where[] = "vehicle_incidents.vin_type in '".request()->get('vin_type')."'";
         }
 
         if (!empty(request()->get('element_id'))) {
