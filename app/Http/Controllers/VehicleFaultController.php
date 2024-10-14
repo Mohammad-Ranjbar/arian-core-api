@@ -274,6 +274,8 @@ class VehicleFaultController extends Controller
             "
             SELECT
                 concat(incidents.title, ' ' ,elements.title) as title,
+                concat(incidents.title, ' ' ,incidents.code) as incident_title,
+                concat(elements.title, ' ' ,elements.code) as element_title,
                 count(vehicle_incidents.incident_id) as `count`
             FROM
                vehicle_incidents
