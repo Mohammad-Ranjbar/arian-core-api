@@ -213,8 +213,9 @@ class VehicleFaultController extends Controller
             ]
         ];
 
-        foreach (['method', 'intensity'] as $column) {
-            $temp = collect(DB::select(/** @lang text */ "
+        if (request()->route()->parameter('type') === 'evaluation') {
+            foreach (['method', 'intensity'] as $column) {
+                $temp = collect(DB::select(/** @lang text */ "
             SELECT
                 DATE($dateField) as `date`,
                 COUNT(*) as count,
@@ -231,18 +232,20 @@ class VehicleFaultController extends Controller
                 DATE($dateField), `$column`
         "));
 
-            foreach ($temp->groupBy($column) as $value => $items) {
-                $x = $items->pluck('count', 'date');
-                $dataSet = [];
-                foreach ($labels as $date) {
-                    $dataSet[$date] = isset($x[$date]) ? $x[$date] : 0;
-                }
+                foreach ($temp->groupBy($column) as $value => $items) {
+                    $x = $items->pluck('count', 'date');
+                    $dataSet = [];
+                    foreach ($labels as $date) {
+                        $dataSet[$date] = isset($x[$date]) ? $x[$date] : 0;
+                    }
 
-                $datasets[] = ['label' => $value, 'data' => array_values($dataSet),];
+                    $datasets[] = ['label' => $value, 'data' => array_values($dataSet),];
+                }
             }
         }
 
-        $sql = /** @lang text */ "
+        $sql = /** @lang text */
+            "
             SELECT
                 concat(incidents.title, ' ' ,elements.title) as title,
                 count(vehicle_incidents.incident_id) as `count`
