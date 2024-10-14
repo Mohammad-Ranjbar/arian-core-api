@@ -158,7 +158,7 @@ class BillOfLading extends Model
 //                if ($this->vehicles()->whereNull('vehicles.engine_no')->orWhere('vehicles.engine_no','')->count()) {
 //                    return 'bodies';
 //                }
-                if ($this->vehicles()->where('data->Item_Type','Painted Body')->orWhere('data->Raw Body','')->count()) {
+                if ($this->vehicles()->where('data->Item_Type','Painted Body')->orWhere('data->Item_Type','Painted Body')->count()) {
                     return 'bodies';
                 }
                 if ($this->vehicles()->where('data->Item_Type','Vehicle')->count()) {
