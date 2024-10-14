@@ -276,6 +276,7 @@ class VehicleFaultController extends Controller
                 concat(incidents.title, ' ' ,elements.title) as title,
                 concat(incidents.title, ' ' ,incidents.code) as incident_title,
                 concat(elements.title, ' ' ,elements.code) as element_title,
+                GROUP_CONCAT(DISTINCT vehicle_incidents.description) as description,
                 count(vehicle_incidents.incident_id) as `count`
             FROM
                vehicle_incidents
