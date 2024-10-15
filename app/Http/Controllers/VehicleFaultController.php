@@ -187,10 +187,13 @@ class VehicleFaultController extends Controller
             })->implode(',');
             $where[] = "vehicle_incidents.method in ($l)";
         }
-
         if (!empty(request()->get('vin_type'))) {
-            $where[] = "vehicle_incidents.vin_type in '".(array)request()->get('vin_type')."'";
+            $l = collect((array)request()->get('vin_type'))->map(function($item) {
+                return "'{$item}'";
+            })->implode(',');
+            $where[] = "vehicle_incidents.vin_type in ($l)";
         }
+
 
         if (!empty(request()->get('element_id'))) {
             $where[] = "vehicle_incidents.element_id in (".implode(',', request()->get('element_id')).")";
