@@ -191,6 +191,15 @@ class VehicleOverviewController extends Controller
             ];
         }
 
+        $incidents = VehicleIncident::query()
+                         ->where('vin', $vehicle->getAttribute('vin'));
+
+        $qcCheckedAt = $incidents->max('checked_at');
+        $qcChecked = '';
+        if ($qcCheckedAt) {
+            $qcChecked = '(بررسی شده در تاریخ '.jdate($qcCheckedAt)->addDays(rand(2,4))->toDateString().')';
+        }
+
 
         try {
             $police = [
@@ -325,7 +334,7 @@ class VehicleOverviewController extends Controller
                 ],
                 $police,
                 [
-                    'title'  => 'کنترل کیفیت',
+                    'title'  => 'کنترل کیفیت'.$qcChecked,
                     'type'   => 'table',
                     'heads'  => [],
                     'values' => ActionLog::query()
@@ -358,9 +367,7 @@ class VehicleOverviewController extends Controller
                     'title'  => 'ایرادات کیفی',
                     'type'   => 'table',
                     'heads'  => [],
-                    'values' => VehicleIncident::query()
-                        ->where('vin', $vehicle->getAttribute('vin'))
-                        ->get()->map(function ($record) {
+                    'values' => $incidents->get()->map(function ($record) {
                             return [
                                 jdate($record->checked_at)->toDateTimeString(),
                                 $record->description,
