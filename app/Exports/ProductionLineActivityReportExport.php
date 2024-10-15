@@ -80,7 +80,7 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
         if (isset($row->stop_at) && isset($row->start_at)){
             $startTime = Carbon::parse($row->stop_at);
             $finishTime = Carbon::parse($row->start_at);
-            $totalDuration = $finishTime->diffInMinutes($startTime);
+            $totalDuration = $finishTime->diff($startTime)->format('%H:%i:%S');
         }
         $row = [
             $row->id,
@@ -99,7 +99,6 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
             jdate($row->created_at),
             $totalDuration,
             $row->productItems()->get()->implode('title', ' , '),
-//            ($row->start_at && $row->stop_at ) ? Carbon::make($row->start_at)->diffInMinutes($row->stop_at) : '',
         ];
 
         $this->eventData['done']++;
