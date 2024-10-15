@@ -14,10 +14,14 @@ class WorkGroupCenterRepository extends BaseRepository
         'create' => [
             'title'              => 'required|string|unique:work_group_centers,title',
             'production_line_id' => 'required|exists:production_lines,id',
+            'on_enter' => 'nullable|boolean',
+            'on_exit' => 'nullable|boolean',
         ],
         'update' => [
             'title'              => 'required|string|unique:work_group_centers,title,',
             'production_line_id' => 'required|exists:production_lines,id',
+            'on_enter' => 'nullable|boolean',
+            'on_exit' => 'nullable|boolean',
         ]
     ];
 

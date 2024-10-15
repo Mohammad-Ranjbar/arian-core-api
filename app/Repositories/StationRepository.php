@@ -46,7 +46,7 @@ class StationRepository extends BaseRepository
     public function getOptions(): array
     {
         $data = $this->model;
-//        $data = $this->get('work_group_center_id');
+
         if (request()->has('station_production_line_id') || request()->get('station_production_line_id')) {
             $data = $this->model->newQuery()->whereHas('workGroupCenter', function ($query) {
                 $query->where('production_line_id', request()->get('station_production_line_id'));
