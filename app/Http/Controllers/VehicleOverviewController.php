@@ -369,7 +369,7 @@ class VehicleOverviewController extends Controller
                     'heads'  => [],
                     'values' => $incidents->get()->map(function ($record) {
                             return [
-                                jdate($record->checked_at)->toDateTimeString(),
+                                jdate($record->checked_at)->toDateString(),
                                 $record->description,
                                 $record->type,
                                 $record->method,
