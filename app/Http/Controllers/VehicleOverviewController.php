@@ -334,7 +334,7 @@ class VehicleOverviewController extends Controller
                 ],
                 $police,
                 [
-                    'title'  => 'کنترل کیفیت'.$qcChecked,
+                    'title'  => 'کنترل کیفیت',
                     'type'   => 'table',
                     'heads'  => [],
                     'values' => ActionLog::query()
@@ -364,7 +364,7 @@ class VehicleOverviewController extends Controller
                     'values' => []
                 ],
                 [
-                    'title'  => 'ایرادات کیفی',
+                    'title'  => 'ایرادات کیفی '.$qcChecked,
                     'type'   => 'table',
                     'heads'  => [],
                     'values' => $incidents->get()->map(function ($record) {
