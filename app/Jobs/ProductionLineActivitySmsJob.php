@@ -28,6 +28,8 @@ class ProductionLineActivitySmsJob implements ShouldQueue
     public function handle(): void
     {
         $productionLineActivity = ProductionLineActivity::query()->find($this->id);
+        logger($productionLineActivity);
+        logger($this->id);
 
         $phones1 = $productionLineActivity->productionLine->users()->get()->pluck('mobile')->all();
         $phones2 = $productionLineActivity->stopReason
