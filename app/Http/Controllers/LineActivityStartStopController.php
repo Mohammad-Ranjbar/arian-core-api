@@ -27,6 +27,7 @@ class LineActivityStartStopController extends Controller
     ): JsonResponse|ProductionLineActivityResource
     {
         $validatedData = $request->validated();
+
         if ($productionLine->isStop()) {
             return $this->responseError('can not stop the line');
         }
