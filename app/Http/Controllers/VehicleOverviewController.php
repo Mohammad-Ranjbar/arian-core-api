@@ -197,7 +197,7 @@ class VehicleOverviewController extends Controller
         $qcCheckedAt = $incidents->max('checked_at');
         $qcChecked = '';
         if ($qcCheckedAt) {
-            $qcChecked = '(بررسی شده در تاریخ '.jdate($qcCheckedAt)->addDays(3)->toDateString().')';
+            $qcChecked = '(بررسی شده در تاریخ '.jdate($qcCheckedAt)->addDays(3)->toDateString().') ';
         }
 
 
