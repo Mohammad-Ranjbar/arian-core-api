@@ -71,7 +71,7 @@ class LineActivityStartStopController extends Controller
         ]);
         if ($validatedData['notify']) {
             $productionLine->update(['notify_on_start' => true]);
-            ProductionLineActivitySmsJob::dispatch($productionLine->getAttribute('id'));
+            ProductionLineActivitySmsJob::dispatch($activity->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
         return new ProductionLineActivityResource($activity);
