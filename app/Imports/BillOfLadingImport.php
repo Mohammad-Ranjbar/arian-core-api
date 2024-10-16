@@ -91,11 +91,9 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 //                if (empty($row['VIN']) || empty($row['container_number'])) {
 //                    throw new Exception('vin or container number is empty');
 //                }
+                $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
                 if (!empty($row['VIN'])) {
-
                     $this->checkingData($row);
-
-                    $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
                 }
 
                 if (!empty($row['container_number'])) {
