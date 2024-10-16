@@ -14,6 +14,7 @@ use App\Models\ActionLog;
 use App\Models\BillOfLading;
 use App\Models\GatePermit;
 use App\Models\Job;
+use App\Models\Location;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\ActionLogRepository;
@@ -314,7 +315,16 @@ class BillOfLadingController extends CrudController
 
             $record->vehicles()->sync($data['items']);
         }
-        if ($data['type'] === 'bodies') {
+        $exitId = Location::query()->where('code', 'V00545')->first();
+        $enterId = Location::query()->where('code', 'LMRIL0005')->first();
+        $type = null;
+        if ($record->destination_id == $exitId->id){
+            $type = 'exit';
+        }elseif ($record->destination_id == $enterId->id){
+            $type = 'enter';
+        }
+
+        if ($data['type'] === 'bodies' && $type) {
             if (GatePermit::query()
                     ->where('model_type', Vehicle::class)
                     ->whereIn('model_id', $data['items'])->count() < count($data['items'])) {
@@ -325,8 +335,9 @@ class BillOfLadingController extends CrudController
                         ->where('model_id', $item)->exists()) {
                         continue;
                     }
-                    $type = $record->destination_id == 1 ? 'enter' : 'exit';
+
                     $exitType = 2;// by shaghayegh => consignment , 1
+
                     $gate = GatePermit::query()->create([
                         'model_type'  => Vehicle::class,
                         'model_id'    => $item,
