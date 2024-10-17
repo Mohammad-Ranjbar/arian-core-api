@@ -191,8 +191,179 @@ class VehicleOverviewController extends Controller
             ];
         }
 
+
+        if (str_contains(strtolower($vehicle->getAttribute('data')['Model_No']), 'lorry')) {
+            $copList = [
+                [
+                    'title' => 'استحكام صندلي ونگهدارنده هاي آن  6503',
+                    'file'  => '/api/dl-file?path=cop/lorry/1.pdf'
+                ],
+                [
+                    'title' => 'برجستگيهاي بيروني كابين',
+                    'file'  => '/api/dl-file?path=cop/lorry/2.pdf'
+                ],
+                [
+                    'title' => 'تجهيزات ثبت جاده اي براي خودرو.',
+                    'file'  => '/api/dl-file?path=cop/lorry/3.pdf'
+                ],
+                [
+                    'title' => 'تجهیزات فرمان',
+                    'file'  => '/api/dl-file?path=cop/lorry/4.pdf'
+                ],
+                [
+                    'title' => 'تراز صدا',
+                    'file'  => '/api/dl-file?path=cop/lorry/5.pdf'
+                ],
+                [
+                    'title' => 'ترمز اضطراری پیشرفته',
+                    'file'  => '/api/dl-file?path=cop/lorry/6.pdf'
+                ],
+                [
+                    'title' => 'توان موتور',
+                    'file'  => '/api/dl-file?path=cop/lorry/7.pdf'
+                ],
+                [
+                    'title' => 'تکیه گاه',
+                    'file'  => '/api/dl-file?path=cop/lorry/8.pdf'
+                ],
+                [
+                    'title' => 'جرم و ابعاد1.',
+                    'file'  => '/api/dl-file?path=cop/lorry/9.pdf'
+                ],
+                [
+                    'title' => 'حفاظ عرضي زير شاسي جلو',
+                    'file'  => '/api/dl-file?path=cop/lorry/10.pdf'
+                ],
+                [
+                    'title' => 'حفاظت از خودرو در برابر استفاده غیر مجاز..',
+                    'file'  => '/api/dl-file?path=cop/lorry/11.pdf'
+                ],
+                [
+                    'title' => 'حفاظت از سرنشینان کابین وسیله نقلیه تجاری',
+                    'file'  => '/api/dl-file?path=cop/lorry/12.pdf'
+                ],
+                [
+                    'title' => 'دسترسی به وسیله نقلیه و قدرت مانور..',
+                    'file'  => '/api/dl-file?path=cop/lorry/13.pdf'
+                ],
+                [
+                    'title' => 'سازگاری الکترومغناطیسی',
+                    'file'  => '/api/dl-file?path=cop/lorry/14.pdf'
+                ],
+                [
+                    'title' => 'سیستم ترمز وسایل نقلیه.',
+                    'file'  => '/api/dl-file?path=cop/lorry/15.pdf'
+                ],
+                [
+                    'title' => 'سیستم ممانعت از پاشش',
+                    'file'  => '/api/dl-file?path=cop/lorry/16.pdf'
+                ],
+                [
+                    'title' => 'سیستم هشدار انحراف از مسیر',
+                    'file'  => '/api/dl-file?path=cop/lorry/17.pdf'
+                ],
+                [
+                    'title' => 'سیستم گرمایش.',
+                    'file'  => '/api/dl-file?path=cop/lorry/18.pdf'
+                ],
+                [
+                    'title' => 'شب نما.',
+                    'file'  => '/api/dl-file?path=cop/lorry/19.pdf'
+                ],
+                [
+                    'title' => 'شيشه هاي ايمني.',
+                    'file'  => '/api/dl-file?path=cop/lorry/20.pdf'
+                ],
+                [
+                    'title' => 'قلاب بكسل بند.',
+                    'file'  => '/api/dl-file?path=cop/lorry/21.pdf'
+                ],
+                [
+                    'title' => 'كنترلها ، خبردهنده ها ، نشانگرها..',
+                    'file'  => '/api/dl-file?path=cop/lorry/22.pdf'
+                ],
+                [
+                    'title' => 'محدود كننده سرعت',
+                    'file'  => '/api/dl-file?path=cop/lorry/23.pdf'
+                ],
+                [
+                    'title' => 'مخازن سوخت مايع',
+                    'file'  => '/api/dl-file?path=cop/lorry/24.pdf'
+                ],
+                [
+                    'title' => 'موقعيت نصب پلاك.',
+                    'file'  => '/api/dl-file?path=cop/lorry/25.pdf'
+                ],
+                [
+                    'title' => 'نصب تایر',
+                    'file'  => '/api/dl-file?path=cop/lorry/26.pdf'
+                ],
+                [
+                    'title' => 'نصب وسايل روشنايي و علامت دهنده هاي نوري.',
+                    'file'  => '/api/dl-file?path=cop/lorry/27.pdf'
+                ],
+                [
+                    'title' => 'وسايل هشداردهنده شنيداري.',
+                    'file'  => '/api/dl-file?path=cop/lorry/28.pdf'
+                ],
+                [
+                    'title' => 'وسایل دید غیر مستقیم و نصب آنها.',
+                    'file'  => '/api/dl-file?path=cop/lorry/29.pdf'
+                ],
+                [
+                    'title' => 'وسایل سرعت سنج',
+                    'file'  => '/api/dl-file?path=cop/lorry/30.pdf'
+                ],
+                [
+                    'title' => 'پلاك شناسايي (Plates).',
+                    'file'  => '/api/dl-file?path=cop/lorry/31.pdf'
+                ],
+                [
+                    'title' => 'چراغ دنده عقب',
+                    'file'  => '/api/dl-file?path=cop/lorry/32.pdf'
+                ],
+                [
+                    'title' => 'چراغ رانندگي در روز',
+                    'file'  => '/api/dl-file?path=cop/lorry/33.pdf'
+                ],
+                [
+                    'title' => 'چراغ راهنما.',
+                    'file'  => '/api/dl-file?path=cop/lorry/34.pdf'
+                ],
+                [
+                    'title' => 'چراغ مه شکن جلو',
+                    'file'  => '/api/dl-file?path=cop/lorry/35.pdf'
+                ],
+                [
+                    'title' => 'چراغ مه شکن عقب',
+                    'file'  => '/api/dl-file?path=cop/lorry/36.pdf'
+                ],
+                [
+                    'title' => 'چراغ نشانگر جانبی.',
+                    'file'  => '/api/dl-file?path=cop/lorry/37.pdf'
+                ],
+                [
+                    'title' => 'چراغ هاي موقعیت جلو و عقب ، ترمز و منتهی الیه..',
+                    'file'  => '/api/dl-file?path=cop/lorry/38.pdf'
+                ],
+                [
+                    'title' => 'چراغ های جلوی وسایل نقلیه موتوری',
+                    'file'  => '/api/dl-file?path=cop/lorry/39.pdf'
+                ],
+                [
+                    'title' => 'چراغ پلاك عقب.',
+                    'file'  => '/api/dl-file?path=cop/lorry/40.pdf'
+                ],
+                [
+                    'title' => 'کمربندهای ایمنی و سیستمهای نگهدارنده',
+                    'file'  => '/api/dl-file?path=cop/lorry/41.pdf'
+
+                ]
+            ];
+        }
+
         $incidents = VehicleIncident::query()
-                         ->where('vin', $vehicle->getAttribute('vin'));
+            ->where('vin', $vehicle->getAttribute('vin'));
 
         $qcCheckedAt = $incidents->max('checked_at');
         $qcChecked = '';
@@ -368,17 +539,17 @@ class VehicleOverviewController extends Controller
                     'type'   => 'table',
                     'heads'  => [],
                     'values' => $incidents->get()->map(function ($record) {
-                            return [
-                                jdate($record->checked_at)->toDateString(),
-                                $record->description,
-                                $record->type,
-                                $record->method,
-                                $record->intensity,
-                                $record->user->name,
-                                $record->element->title.' ('.$record->element->code.')',
-                                $record->incident->title.' ('.$record->element->code.')'
-                            ];
-                        })->all()
+                        return [
+                            jdate($record->checked_at)->toDateString(),
+                            $record->description,
+                            $record->type,
+                            $record->method,
+                            $record->intensity,
+                            $record->user->name,
+                            $record->element->title.' ('.$record->element->code.')',
+                            $record->incident->title.' ('.$record->element->code.')'
+                        ];
+                    })->all()
                 ],
                 [
                     'title'  => 'بلوکه',

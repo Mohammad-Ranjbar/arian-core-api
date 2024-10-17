@@ -46,6 +46,7 @@ use App\Http\Controllers\SaleCompanyController;
 use App\Http\Controllers\SaleInvoicesController;
 use App\Http\Controllers\SaleLocationController;
 use App\Http\Controllers\SalonController;
+use App\Http\Controllers\SendSmsGatewayController;
 use App\Http\Controllers\ShortageController;
 use App\Http\Controllers\SmsServiceController;
 use App\Http\Controllers\StationController;
@@ -66,6 +67,8 @@ use App\Http\Controllers\WorkGroupCenterController;
 use Illuminate\Support\Facades\Route;
 
 
+Route::post('sms-gateway', SendSmsGatewayController::class);
+
 Route::get('/block-history/{vehicle}', BlockHistoryController::class);
 Route::any('/', function () {
     return response()->json(['version' => app()->version(), 'env' => app()->environment()]);
@@ -79,10 +82,10 @@ Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
-Route::get('dl-file', [DownloadController::class,'s3'])->name('dl-s3');
+Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/vehicle-shortages',[ShortageController::class,'vehicleShortages'])->name('vehicle-shortages');
+    Route::get('/vehicle-shortages', [ShortageController::class, 'vehicleShortages'])->name('vehicle-shortages');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/synchronous', [SynchronousController::class, 'index'])->name('index.synchronous');
