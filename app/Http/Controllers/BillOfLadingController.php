@@ -29,7 +29,6 @@ use Illuminate\Foundation\Bus\PendingClosureDispatch;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -318,9 +317,9 @@ class BillOfLadingController extends CrudController
         $exitId = Location::query()->where('code', 'V00545')->first();
         $enterId = Location::query()->where('code', 'LMRIL0005')->first();
         $type = null;
-        if ($record->destination_id == $exitId->id){
+        if ($record->destination_id == $exitId->getAttribute('id')){
             $type = 'exit';
-        }elseif ($record->destination_id == $enterId->id){
+        }elseif ($record->destination_id == $enterId->getAttribute('id')){
             $type = 'enter';
         }
 
