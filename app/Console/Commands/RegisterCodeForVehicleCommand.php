@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\GeneralProductItem;
+use App\Models\Vehicle;
+use Illuminate\Console\Command;
+
+class RegisterCodeForVehicleCommand extends Command
+{
+
+    protected $signature = 'register:code';
+
+
+    protected $description = 'Command description';
+
+
+    public function handle()
+    {
+        $vehicles = [
+            'N5RL42DA5RP016320'
+        ];
+
+        foreach ($vehicles as $vehicle) {
+            $carModelId = Vehicle::query()->where('vin', $vehicle)->first()->car_model_id;
+            dd($carModelId);
+            $generalProductItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($carModelId) {
+                return $q->where('car_model_id', $carModelId);
+            })->get()->pluck('id')->toArray();
+
+            dd($generalProductItems);
+        }
+    }
+}
