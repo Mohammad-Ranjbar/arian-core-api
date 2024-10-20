@@ -363,6 +363,7 @@ class BillOfLadingController extends CrudController
                     }
                 }
             }
+            dd('this place');
             $record->vehicles()->sync($data['items']);
         }
 
