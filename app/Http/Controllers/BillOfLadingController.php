@@ -314,6 +314,8 @@ class BillOfLadingController extends CrudController
 
             $record->vehicles()->sync($data['items']);
         }
+
+
         $exitId = Location::query()->where('code', 'V00545')->first();
         $enterId = Location::query()->where('code', 'LMRIL0005')->first();
         $type = null;
@@ -322,7 +324,7 @@ class BillOfLadingController extends CrudController
         }elseif ($record->destination_id == $enterId->getAttribute('id')){
             $type = 'enter';
         }
-
+        dd($type,$data['type']);
         if ($data['type'] === 'bodies' && $type) {
             if (GatePermit::query()
                     ->where('model_type', Vehicle::class)
@@ -363,7 +365,6 @@ class BillOfLadingController extends CrudController
                     }
                 }
             }
-            dd('this place');
             $record->vehicles()->sync($data['items']);
         }
 
