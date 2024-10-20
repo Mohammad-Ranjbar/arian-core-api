@@ -319,9 +319,9 @@ class BillOfLadingController extends CrudController
         $exitId = Location::query()->where('code', 'V00545')->first();
         $enterId = Location::query()->where('code', 'LMRIL0005')->first();
         $type = null;
-        if ($record->destination_id == $exitId->getAttribute('id')){
+        if ($record->location_destination_id == $exitId->getAttribute('id')){
             $type = 'exit';
-        }elseif ($record->destination_id == $enterId->getAttribute('id')){
+        }elseif ($record->location_destination_id == $enterId->getAttribute('id')){
             $type = 'enter';
         }
         dd($type,$data['type']);
