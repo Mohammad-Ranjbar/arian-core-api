@@ -23,7 +23,7 @@ class RegisterCodeForVehicleCommand extends Command
 
         foreach ($vehicles as $vehicle) {
             $carModelId = Vehicle::query()->where('vin', $vehicle)->first()->car_model_id;
-            dd($carModelId);
+
             $generalProductItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($carModelId) {
                 return $q->where('car_model_id', $carModelId);
             })->get()->pluck('id')->toArray();
