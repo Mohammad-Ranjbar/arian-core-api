@@ -42,15 +42,16 @@ class BillOfLadingController extends CrudController
     /**
      * @var bool
      */
-    protected bool  $appendUserId    = true;
+    protected bool $appendUserId = true;
     protected array $appendStoreData = ['status' => 'new'];
 
 
     public function __construct(
         public readonly BillOfLadingRepository $repository,
-        private readonly SmsService $smsService,
-        private readonly ActionLogRepository $actionLogRepository,
-    ) {
+        private readonly SmsService            $smsService,
+        private readonly ActionLogRepository   $actionLogRepository,
+    )
+    {
 
         $this->applyAuthorizeResource();
         $this->setResource(BillOfLadingResource::class);
@@ -81,9 +82,10 @@ class BillOfLadingController extends CrudController
      */
     public function changeStatus(
         BillOfLading $billOfLading,
-        string $status
-    ): BillOfLadingResource|JsonResponse {
-        $this->authorize('bill-of-lading.change-status.'.$status);
+        string       $status
+    ): BillOfLadingResource|JsonResponse
+    {
+        $this->authorize('bill-of-lading.change-status.' . $status);
 
         if (!$this->checkCanChangeStatus($billOfLading, $status)) {
             return $this->responseError('The selected status is available in registered statuses');
@@ -125,7 +127,8 @@ class BillOfLadingController extends CrudController
     }
 
     public function notice(BillOfLading $billOfLading
-    ): bool|PendingDispatch|PendingClosureDispatch {
+    ): bool|PendingDispatch|PendingClosureDispatch
+    {
         return $this->smsService->send($billOfLading->getAttribute('car')->driver->phone, 'driver-enter-notify');
     }
 
@@ -133,14 +136,14 @@ class BillOfLadingController extends CrudController
     {
         $headers = BillOfLading::HEAD_VEHICLE;
         $export = new TemplateExport($headers);
-        return Excel::download($export, $this->repository->model->getTable().'-template-for-vehicle'.time().'.xlsx');
+        return Excel::download($export, $this->repository->model->getTable() . '-template-for-vehicle' . time() . '.xlsx');
     }
 
     public function getTemplateBillOfLadingForContainer(): BinaryFileResponse
     {
         $headers = BillOfLading::HEAD_CONTAINER;
         $export = new TemplateExport($headers);
-        return Excel::download($export, $this->repository->model->getTable().'-template-for-container'.time().'.xlsx');
+        return Excel::download($export, $this->repository->model->getTable() . '-template-for-container' . time() . '.xlsx');
     }
 
     public function importBillOfLading(ImportBillOfLadingRequest $request): JsonResponse
@@ -149,19 +152,19 @@ class BillOfLadingController extends CrudController
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
         $validatedData['type_bill_of_lading'] = $validatedData['type'];
-        $validatedData['type'] = 'import-'.$this->repository->model->getTable();
+        $validatedData['type'] = 'import-' . $this->repository->model->getTable();
         $validatedData['data'] = [
-            'file'                    => $validatedData['file'],
-            'location_source_id'      => $validatedData['location_source_id'],
+            'file' => $validatedData['file'],
+            'location_source_id' => $validatedData['location_source_id'],
             'location_destination_id' => $validatedData['location_destination_id'],
-            'type'                    => $validatedData['type_bill_of_lading'],
+            'type' => $validatedData['type_bill_of_lading'],
         ];
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'import job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
@@ -179,8 +182,8 @@ class BillOfLadingController extends CrudController
 
         return response()->json([
             'message' => 'export job created',
-            'data'    => [
-                'uuid'         => $job->getAttribute('uuid'),
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
@@ -255,7 +258,7 @@ class BillOfLadingController extends CrudController
     {
         if (request()->get('type') === 'containers') {
             return [
-                'code'    => [
+                'code' => [
                     'required',
                     'string',
                     'max:255', // Adjust as needed
@@ -269,11 +272,11 @@ class BillOfLadingController extends CrudController
         }
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
-                'code'    => [
+                'code' => [
                     'required',
                     'string',
                     'max:255', // Adjust as needed
-                    Rule::unique('bill_of_ladings')->where(function ($query)  {
+                    Rule::unique('bill_of_ladings')->where(function ($query) {
                         return $query->where('location_source_id', request()->get('location_source_id'))
                             ->where('location_destination_id', request()->get('location_destination_id'));
                     }),
@@ -315,58 +318,60 @@ class BillOfLadingController extends CrudController
             $record->vehicles()->sync($data['items']);
         }
 
+        if ($data['type'] === 'bodies') {
+            $exitId = Location::query()->where('code', 'V00545')->first();
+            $enterId = Location::query()->where('code', 'LMRIL0005')->first();
+            $type = null;
+            if ($record->location_destination_id == $exitId->getAttribute('id')) {
+                $type = 'exit';
+            } elseif ($record->location_destination_id == $enterId->getAttribute('id')) {
+                $type = 'enter';
+            }
 
-        $exitId = Location::query()->where('code', 'V00545')->first();
-        $enterId = Location::query()->where('code', 'LMRIL0005')->first();
-        $type = null;
-        if ($record->location_destination_id == $exitId->getAttribute('id')){
-            $type = 'exit';
-        }elseif ($record->location_destination_id == $enterId->getAttribute('id')){
-            $type = 'enter';
-        }
-        dd($type,$data['type']);
-        if ($data['type'] === 'bodies' && $type) {
-            if (GatePermit::query()
-                    ->where('model_type', Vehicle::class)
-                    ->whereIn('model_id', $data['items'])->count() < count($data['items'])) {
-
-                foreach ($data['items'] as $item) {
-                    if (GatePermit::query()
+            if ($type) {
+                if (GatePermit::query()
                         ->where('model_type', Vehicle::class)
-                        ->where('model_id', $item)->exists()) {
-                        continue;
-                    }
+                        ->whereIn('model_id', $data['items'])->count() < count($data['items'])) {
 
-                    $exitType = 2;// by shaghayegh => consignment , 1
-
-                    $gate = GatePermit::query()->create([
-                        'model_type'  => Vehicle::class,
-                        'model_id'    => $item,
-                        'location_id' => $record->location_destination_id,
-                        'owner_id'    => Auth::id(),
-                        'owner_type'  => User::class,
-                        'type'        => $type,
-                        'exit_type'   => $exitType
-                    ]);
-
-                    if ($type == 'exit') {
-                        $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
-                            $gate->location->getAttribute('code'));
-
-                        if ($response['status'] !== 'ok') {
-                            throw new Exception($response['message']);
+                    foreach ($data['items'] as $item) {
+                        if (GatePermit::query()
+                            ->where('model_type', Vehicle::class)
+                            ->where('model_id', $item)->exists()) {
+                            continue;
                         }
-                    } else {
-                        $response = ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
 
-                        if ($response['status'] !== 'ok') {
-                            throw new Exception($response['message']);
+                        $exitType = 2;// by shaghayegh => consignment , 1
+
+                        $gate = GatePermit::query()->create([
+                            'model_type' => Vehicle::class,
+                            'model_id' => $item,
+                            'location_id' => $record->location_destination_id,
+                            'owner_id' => Auth::id(),
+                            'owner_type' => User::class,
+                            'type' => $type,
+                            'exit_type' => $exitType
+                        ]);
+
+                        if ($type == 'exit') {
+                            $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
+                                $gate->location->getAttribute('code'));
+
+                            if ($response['status'] !== 'ok') {
+                                throw new Exception($response['message']);
+                            }
+                        } else {
+                            $response = ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
+
+                            if ($response['status'] !== 'ok') {
+                                throw new Exception($response['message']);
+                            }
                         }
                     }
                 }
             }
             $record->vehicles()->sync($data['items']);
         }
+
 
         $action = $record->wasRecentlyCreated ? 'new' : 'edit';
 
