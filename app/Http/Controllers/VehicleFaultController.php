@@ -194,6 +194,15 @@ class VehicleFaultController extends Controller
             $where[] = "vehicle_incidents.vin_type in ($l)";
         }
 
+        if (!empty(request()->get('custom_location_id'))) {
+            $customLocationID = request()->get('custom_location_id');
+            $where[] = "vehicle_incidents.custom_location_id = $customLocationID ";
+        }
+
+        if (!empty(request()->get('custom_location_type'))) {
+            $customLocationType = request()->get('custom_location_type');
+            $where[] = "vehicle_incidents.custom_location_type = $customLocationType ";
+        }
 
         if (!empty(request()->get('element_id'))) {
             $where[] = "vehicle_incidents.element_id in (".implode(',', request()->get('element_id')).")";
