@@ -52,6 +52,21 @@ class VehicleOverviewController extends Controller
             ],
         ];
 
+        $incomingControlList = [
+            [
+                'file'  => '/api/dl-file?path=incoming-control/JAC-Incoming-Control.zip',
+                'title' => 'JAC'
+            ],
+            [
+                'file'  => '/api/dl-file?path=incoming-control/Lamari-Incoming-Control.zip',
+                'title' => 'LAMARI'
+            ],
+            [
+                'file'  => '/api/dl-file?path=incoming-control/Lorry-Dumper-Incoming-Control.zip',
+                'title' => 'LORRY & DUMPER'
+            ],
+        ];
+
         $incidents = VehicleIncident::query()
             ->where('vin', $vehicle->getAttribute('vin'));
 
@@ -217,6 +232,12 @@ class VehicleOverviewController extends Controller
                     'type'   => 'download-list',
                     'heads'  => [],
                     'values' => $copList
+                ],
+                [
+                    'title'  => 'کنترل اقلام ورودی',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $incomingControlList
                 ],
 //                [
 //                    'title'  => 'آزمون های انتهای خط',
