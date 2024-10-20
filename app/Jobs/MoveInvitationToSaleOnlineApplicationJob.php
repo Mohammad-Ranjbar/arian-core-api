@@ -51,10 +51,13 @@ class MoveInvitationToSaleOnlineApplicationJob implements ShouldQueue
 
 
 
-                if ($company->getAttribute('id') == 3) {
+                $today = Carbon::today();
+                if (Carbon::make($data->Due_Date)->greaterThan($today)){
                     $expireDate = Carbon::make($data->Due_Date);
-                }else{
+                }elseif(Carbon::make($data->Due_Date)->addDays(15)->greaterThan($today)){
                     $expireDate = Carbon::make($data->Due_Date)->addDays(15);
+                }else{
+                    $expireDate = Carbon::today()->addDays(15);
                 }
 
                 $sendData = [
