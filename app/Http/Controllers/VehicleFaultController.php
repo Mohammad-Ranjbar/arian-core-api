@@ -201,15 +201,16 @@ class VehicleFaultController extends Controller
             $customLocationID = request()->get('custom_location_id');
             $where[] = "vehicle_incidents.custom_location_id = $customLocationID ";
         }
-        //TODO CHeck by meysam
         if (!empty(request()->get('custom_location_type'))) {
-            $location =true;
+            $location = null;
             if(request()->route()->parameter('type') == 'evaluation') {
                 $location = Location::class;
             }elseif (request()->route()->parameter('type') == 'qc'){
                 $location =   Station::class ;
             }
-            $where[] = "vehicle_incidents.custom_location_type = ".$location;
+            if ($location) {
+                $where[] = "vehicle_incidents.custom_location_type = '".$location."'";
+            }
         }
 
         if (!empty(request()->get('element_id'))) {
