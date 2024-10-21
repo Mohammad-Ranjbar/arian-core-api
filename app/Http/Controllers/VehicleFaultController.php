@@ -10,6 +10,8 @@ use App\Http\Resources\VehicleIncidentResource;
 use App\Jobs\ExportJob;
 use App\Models\IncidentSource;
 use App\Models\Job;
+use App\Models\Location;
+use App\Models\Station;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
 use App\Repositories\IncidentSourceRepository;
@@ -200,8 +202,13 @@ class VehicleFaultController extends Controller
         }
 
         if (!empty(request()->get('custom_location_type'))) {
-            $customLocationType = request()->get('custom_location_type');
-            $where[] = "vehicle_incidents.custom_location_type = $customLocationType ";
+            $location =true;
+            if(request()->route()->parameter('type') == 'evaluation') {
+                $location = Location::class;
+            }elseif (request()->route()->parameter('type') == 'qc'){
+                $location =   Station::class ;
+            }
+            $where[] = "vehicle_incidents.custom_location_type = $location";
         }
 
         if (!empty(request()->get('element_id'))) {
