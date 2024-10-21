@@ -21,8 +21,8 @@ class FaultReportExcelRequest extends FormRequest
             'to' => 'required|date',
             'make_code' => 'required|array',
             'make_code.*' => 'required|exists:make_codes,id',
-            'car_model' => 'required|array',
-            'car_model.*' => 'required|exists:car_models,id',
+            'car_model' => 'nullable|array',
+            'car_model.*' => 'nullable|exists:car_models,id',
             'type' => 'required|in:qc,evaluation',
             'user_id' => 'nullable',
             'method' => 'nullable',
@@ -31,6 +31,8 @@ class FaultReportExcelRequest extends FormRequest
             'incident_id.*' => 'exists:incidents,id',
             'element_id' => 'array',
             'element_id.*' => 'exists:elements,id',
+            'custom_location_type' => 'nullable|in:location,station',
+            'custom_location_id' => 'nullable',
         ];
     }
 

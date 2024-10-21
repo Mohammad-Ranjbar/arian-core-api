@@ -10,6 +10,8 @@ use App\Http\Resources\VehicleIncidentResource;
 use App\Jobs\ExportJob;
 use App\Models\IncidentSource;
 use App\Models\Job;
+use App\Models\Location;
+use App\Models\Station;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
 use App\Repositories\IncidentSourceRepository;
@@ -168,8 +170,9 @@ class VehicleFaultController extends Controller
             $where[] = "vehicle_incidents.checked_at BETWEEN '$fromDate' AND '$toDate'";
             $dateField = 'vehicle_incidents.checked_at';
         }
-
-        $where[] = "vehicles.car_model_id in (".implode(',', request()->get('car_model')).")";
+        if (!empty(request()->get('car_model'))) {
+            $where[] = "vehicles.car_model_id in (" . implode(',', request()->get('car_model')) . ")";
+        }
         if (!empty(request()->get('make_code'))) {
             $where[] = "vehicles.make_code_id in (".implode(',', request()->get('make_code')).")";
         }
@@ -194,6 +197,21 @@ class VehicleFaultController extends Controller
             $where[] = "vehicle_incidents.vin_type in ($l)";
         }
 
+        if (!empty(request()->get('custom_location_id'))) {
+            $customLocationID = request()->get('custom_location_id');
+            $where[] = "vehicle_incidents.custom_location_id = $customLocationID ";
+        }
+        if (!empty(request()->get('custom_location_type'))) {
+            $location = null;
+            if(request()->route()->parameter('type') == 'evaluation') {
+                $location = Location::class;
+            }elseif (request()->route()->parameter('type') == 'qc'){
+                $location =   Station::class ;
+            }
+            if ($location) {
+                $where[] = "vehicle_incidents.custom_location_type = '".$location."'";
+            }
+        }
 
         if (!empty(request()->get('element_id'))) {
             $where[] = "vehicle_incidents.element_id in (".implode(',', request()->get('element_id')).")";
