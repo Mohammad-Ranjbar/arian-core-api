@@ -200,7 +200,7 @@ class VehicleFaultController extends Controller
             $customLocationID = request()->get('custom_location_id');
             $where[] = "vehicle_incidents.custom_location_id = $customLocationID ";
         }
-
+        //TODO CHeck by meysam
         if (!empty(request()->get('custom_location_type'))) {
             $location =true;
             if(request()->route()->parameter('type') == 'evaluation') {
