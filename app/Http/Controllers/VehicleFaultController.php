@@ -170,8 +170,9 @@ class VehicleFaultController extends Controller
             $where[] = "vehicle_incidents.checked_at BETWEEN '$fromDate' AND '$toDate'";
             $dateField = 'vehicle_incidents.checked_at';
         }
-
-        $where[] = "vehicles.car_model_id in (".implode(',', request()->get('car_model')).")";
+        if (!empty(request()->get('car_model'))) {
+            $where[] = "vehicles.car_model_id in (" . implode(',', request()->get('car_model')) . ")";
+        }
         if (!empty(request()->get('make_code'))) {
             $where[] = "vehicles.make_code_id in (".implode(',', request()->get('make_code')).")";
         }
