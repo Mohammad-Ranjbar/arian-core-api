@@ -31,7 +31,7 @@ class FaultReportExcelRequest extends FormRequest
             'incident_id.*' => 'exists:incidents,id',
             'element_id' => 'array',
             'element_id.*' => 'exists:elements,id',
-            'custom_location_type' => 'nullable|in:App\Models\Location,App\Models\Station',
+            'custom_location_type' => 'nullable|in:location,station',
             'custom_location_id' => 'nullable',
         ];
     }
