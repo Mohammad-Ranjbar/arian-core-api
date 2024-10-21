@@ -208,7 +208,7 @@ class VehicleFaultController extends Controller
             }elseif (request()->route()->parameter('type') == 'qc'){
                 $location =   Station::class ;
             }
-            $where[] = "vehicle_incidents.custom_location_type = $location";
+            $where[] = "vehicle_incidents.custom_location_type = ".$location;
         }
 
         if (!empty(request()->get('element_id'))) {
