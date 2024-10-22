@@ -171,27 +171,27 @@ class VehicleFaultController extends Controller
             $dateField = 'vehicle_incidents.checked_at';
         }
         if (!empty(request()->get('car_model'))) {
-            $where[] = "vehicles.car_model_id in (" . implode(',', request()->get('car_model')) . ")";
+            $where[] = "vehicles.car_model_id in (".implode(',', request()->get('car_model')).")";
         }
         if (!empty(request()->get('make_code'))) {
             $where[] = "vehicles.make_code_id in (".implode(',', request()->get('make_code')).")";
         }
 
         if (!empty(request()->get('intensities'))) {
-            $l = collect((array)request()->get('intensities'))->map(function($item) {
+            $l = collect((array) request()->get('intensities'))->map(function ($item) {
                 return "'{$item}'";
             })->implode(',');
             $where[] = "vehicle_incidents.intensity in ($l)";
         }
 
         if (!empty(request()->get('method'))) {
-            $l = collect((array)request()->get('method'))->map(function($item) {
+            $l = collect((array) request()->get('method'))->map(function ($item) {
                 return "'{$item}'";
             })->implode(',');
             $where[] = "vehicle_incidents.method in ($l)";
         }
         if (!empty(request()->get('vin_type'))) {
-            $l = collect((array)request()->get('vin_type'))->map(function($item) {
+            $l = collect((array) request()->get('vin_type'))->map(function ($item) {
                 return "'{$item}'";
             })->implode(',');
             $where[] = "vehicle_incidents.vin_type in ($l)";
@@ -203,10 +203,10 @@ class VehicleFaultController extends Controller
         }
         if (!empty(request()->get('custom_location_type'))) {
             $location = null;
-            if(request()->route()->parameter('type') == 'evaluation') {
+            if (request()->route()->parameter('type') == 'evaluation') {
                 $location = Location::class;
-            }elseif (request()->route()->parameter('type') == 'qc'){
-                $location =   Station::class ;
+            } elseif (request()->route()->parameter('type') == 'qc') {
+                $location = Station::class;
             }
             if ($location) {
                 $where[] = "vehicle_incidents.custom_location_type = '".addslashes($location)."'";
@@ -227,7 +227,7 @@ class VehicleFaultController extends Controller
         $result = collect(DB::select(/** @lang text */ "
             SELECT
                 DATE($dateField) as date,
-                count(distinct vehicle_incidents.vin) as vehicles,
+                count(distinct vehicle_incidents.vin, 2) as vehicles,
                 COUNT(*) as incidents,
                 TRUNCATE(COUNT(*) / count(distinct vehicle_incidents.vin), 2) as dpuoff
             FROM
@@ -324,10 +324,12 @@ class VehicleFaultController extends Controller
         $list = collect(DB::select($sql));
 
         return response()->json([
-            'dpu_off'  => $result->avg('dpuoff'),
-            'vehicles' => $result->sum('vehicles'),
-            'list'     => $list->all(),
-            'chart'    => [
+            'avg_dpu_off' => $result->avg('dpuoff'),
+            'dpu_off'     => $result->sum('vehicles') > 0 ? number_format($result->sum('incidents') / $result->sum('vehicles') , 2): 0,
+            'vehicles'    => $result->sum('vehicles'),
+            'incidents'   => $result->sum('incidents'),
+            'list'        => $list->all(),
+            'chart'       => [
                 'labels'   => $labels,
                 'datasets' => $datasets
             ]
