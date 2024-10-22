@@ -209,7 +209,7 @@ class VehicleFaultController extends Controller
                 $location = Station::class;
             }
             if ($location) {
-                $where[] = "vehicle_incidents.custom_location_type = '".$location."'";
+                $where[] = "vehicle_incidents.custom_location_type = '".addslashes($location)."'";
             }
         }
 
