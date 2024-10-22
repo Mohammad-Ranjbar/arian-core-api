@@ -325,7 +325,7 @@ class VehicleFaultController extends Controller
 
         return response()->json([
             'avg_dpu_off' => $result->avg('dpuoff'),
-            'dpu_off'     => $result->sum('incidents') /$result->sum('vehicles'),
+            'dpu_off'     => 0,// $result->sum('incidents') / $result->sum('vehicles'),
             'vehicles'    => $result->sum('vehicles'),
             'incidents'   => $result->sum('incidents'),
             'list'        => $list->all(),
