@@ -309,10 +309,12 @@ class BillOfLadingController extends CrudController
             $record->containers()->update(['on_shipping' => true]);
         }
         if ($data['type'] === 'vehicles') {
-            if (GatePermit::query()
-                    ->where('model_type', Vehicle::class)
-                    ->whereIn('model_id', $data['items'])->count() != count($data['items'])) {
-                throw new Exception('Please add gate permits to create bill of ladings');
+            foreach ($data['items'] as $vin) {
+                if (!GatePermit::query()
+                        ->where('model_type', Vehicle::class)
+                        ->where('model_id', $vin)->exists()) {
+                    throw new Exception('Please add gate permit for vin '.$vin.' create bill of ladings');
+                }
             }
 
             $record->vehicles()->sync($data['items']);
