@@ -238,8 +238,7 @@ class VehicleFaultController extends Controller
                 vehicle_incidents.vin = vehicles.vin
             WHERE
                 $strWhere
-            GROUP BY
-                DATE($dateField)
+            
        "));
 
 
