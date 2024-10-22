@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\libs\BaseRepository;
+use App\Models\Location;
+use App\Models\Station;
 use App\Models\VehicleIncident;
 
 class VehicleIncidentRepository extends BaseRepository
@@ -37,7 +39,14 @@ class VehicleIncidentRepository extends BaseRepository
             $query = $query->where('custom_location_id',  $data['custom_location_id']);
         }
         if (!empty($data['custom_location_type'])) {
-            $query = $query->where('custom_location_type',  $data['custom_location_type']);
+            $location = true;
+            if ($data['custom_location_type'] == 'location'){
+                $location = Location::class;
+            }
+            if ($data['custom_location_type'] == 'station'){
+                $location = Station::class;
+            }
+            $query = $query->where('custom_location_type',  $location);
         }
         if (!empty($data['incident_id'])) {
             $query = $query->whereIn('incident_id',  $data['incident_id']);
