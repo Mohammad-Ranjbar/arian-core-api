@@ -65,6 +65,10 @@ class VehicleOverviewController extends Controller
                 'file'  => '/api/dl-file?path=incoming-control/Lorry-Dumper-Incoming-Control.zip',
                 'title' => 'LORRY & DUMPER'
             ],
+            [
+                'file'  => '/api/dl-file?path=incoming-control/Shacman-Incoming-Control.zip',
+                'title' => 'Shacman'
+            ],
         ];
 
         $incidents = VehicleIncident::query()
