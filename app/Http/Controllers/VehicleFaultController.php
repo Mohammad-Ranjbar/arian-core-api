@@ -199,7 +199,11 @@ class VehicleFaultController extends Controller
 
         if (!empty(request()->get('custom_location_id'))) {
             $customLocationID = request()->get('custom_location_id');
-            $where[] = "vehicle_incidents.custom_location_id in $customLocationID ";
+
+            $l = collect((array) request()->get('custom_location_id'))->map(function ($item) {
+                return "'{$item}'";
+            })->implode(',');
+            $where[] = "vehicle_incidents.custom_location_id in ($l)";
         }
         if (!empty(request()->get('custom_location_type'))) {
             $location = null;
