@@ -56,7 +56,7 @@ class BlockItemController extends Controller
             $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'],'id');
             $blockType = $blockReason->getAttribute('block_type');
 
-          $response =  ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicle', [
+          $response =  ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicleByType', [
                 'barcodeInfoP' => $vehicle->vin,
                 'blockTypeP' => $blockType,
             ]);
