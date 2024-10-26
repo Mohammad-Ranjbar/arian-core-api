@@ -36,7 +36,7 @@ class VehicleIncidentRepository extends BaseRepository
             $query = $query->where('method',  $data['method']);
         }
         if (!empty($data['custom_location_id'])) {
-            $query = $query->where('custom_location_id',  $data['custom_location_id']);
+            $query = $query->whereIn('custom_location_id',  $data['custom_location_id']);
         }
         if (!empty($data['custom_location_type'])) {
             $location = true;

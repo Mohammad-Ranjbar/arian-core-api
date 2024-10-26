@@ -32,7 +32,7 @@ class FaultReportExcelRequest extends FormRequest
             'element_id' => 'array',
             'element_id.*' => 'exists:elements,id',
             'custom_location_type' => 'nullable|in:location,station',
-            'custom_location_id' => 'nullable',
+            'custom_location_id' => 'nullable|array',
         ];
     }
 
