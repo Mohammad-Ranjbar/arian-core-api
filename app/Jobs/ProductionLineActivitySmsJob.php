@@ -81,9 +81,7 @@ class ProductionLineActivitySmsJob implements ShouldQueue
 
 
         foreach ($phones as $phone) {
-            $result = SmsService::sendSms($phone, implode("\n", $content));
-            logger($phones);
-            logger($result);
+            SmsService::sendSms($phone, implode("\n", $content));
         }
     }
 }
