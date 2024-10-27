@@ -18,7 +18,7 @@ class LocationResource extends JsonResource
             'id'         => $this->resource->id,
             'title'      => $this->resource->title,
             'code'       => $this->resource->code,
-            'attributes' => $this->resource->attributes()->get()->pluck('value', 'attribute'),
+            'attributes' => (object)$this->resource->attributes()->get()->pluck('value', 'attribute'),
         ];
     }
 }
