@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendGateToErpJob;
 use App\Models\GatePermit;
 use App\Models\Location;
 use App\Models\Vehicle;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 class GatePermitExitController extends Controller
 {
     /**
-     * @param Vehicle $vehicle
+     * @param  Vehicle  $vehicle
      * @return JsonResponse
      * @throws AuthorizationException
      */
@@ -26,27 +27,14 @@ class GatePermitExitController extends Controller
             $permit = GatePermit::query()->where('model_type', Vehicle::class)->where('model_id',
                 $vehicle->getAttribute('vin'))->latest()->firstOrFail();
 
-            /*
-             *
-             * // TODO RUN as job
-            if ($permit->getAttribute('type') == 'exit') {
-                $response = $this->exit($vehicle->getAttribute('vin'));
-            } elseif ($permit->getAttribute('type') == 'enter') {
-                $response = $this->enter($vehicle->getAttribute('vin'));
-            }
-
-
-            if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'], 400);
-            }
-
-            */
-            $vehicle->tracking()->create([
+            $record = $vehicle->tracking()->create([
                 'model_type' => Location::class,
-                'model_id' => 1,
-                'type' => $permit->getAttribute('type'),
-                'user_id' => Auth::id()
+                'model_id'   => 1,
+                'type'       => $permit->getAttribute('type'),
+                'user_id'    => Auth::id()
             ]);
+
+            dispatch(new SendGateToErpJob($record->id));
 
             $permit->delete();
 
@@ -60,21 +48,4 @@ class GatePermitExitController extends Controller
 
     }
 
-    private function enter(string $vin): array
-    {
-        return ErpWsdlClient::run(config('erp.approve'), 'ApproveReturn',
-            ['vINP' => $vin]);
-
-    }
-
-    /**
-     * @param string $vin
-     * @return array
-     */
-    private function exit(string $vin): array
-    {
-        return ErpWsdlClient::run(config('erp.gate'), 'ApproveExit',
-            ['barcodeInfoP' => $vin]);
-
-    }
 }
