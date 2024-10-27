@@ -27,7 +27,7 @@ class SendUnblockToErpJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $vehicle = Vehicle::query()->where('vin',$this->vin);
+        $vehicle = Vehicle::query()->where('vin',$this->vin)->first();
         $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
         if (!$exists) {
             $response = ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', ['barcodeInfoP' => $vehicle->vin]);
