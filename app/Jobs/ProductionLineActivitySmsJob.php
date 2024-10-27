@@ -36,7 +36,7 @@ class ProductionLineActivitySmsJob implements ShouldQueue
             ->get()
             ->pluck('mobile')
             ->all();
-        $phones =implode(',', array_unique(array_merge($phones1, $phones2)));
+        $phones = array_unique(array_merge($phones1, $phones2));
 
         $started = $productionLineActivity->getAttribute('logs')
             ->where('action', 'start')
@@ -80,8 +80,10 @@ class ProductionLineActivitySmsJob implements ShouldQueue
         }
 
 
-        $result = SmsService::sendSms($phones, implode("\n", $content));
-        logger($phones);
-        logger($result);
+        foreach ($phones as $phone) {
+            $result = SmsService::sendSms($phone, implode("\n", $content));
+            logger($phones);
+            logger($result);
+        }
     }
 }
