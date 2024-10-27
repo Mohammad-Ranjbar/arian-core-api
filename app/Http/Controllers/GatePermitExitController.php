@@ -26,6 +26,9 @@ class GatePermitExitController extends Controller
             $permit = GatePermit::query()->where('model_type', Vehicle::class)->where('model_id',
                 $vehicle->getAttribute('vin'))->latest()->firstOrFail();
 
+            /*
+             *
+             * // TODO RUN as job
             if ($permit->getAttribute('type') == 'exit') {
                 $response = $this->exit($vehicle->getAttribute('vin'));
             } elseif ($permit->getAttribute('type') == 'enter') {
@@ -37,6 +40,7 @@ class GatePermitExitController extends Controller
                 return $this->responseError($response['message'], 400);
             }
 
+            */
             $vehicle->tracking()->create([
                 'model_type' => Location::class,
                 'model_id' => 1,
