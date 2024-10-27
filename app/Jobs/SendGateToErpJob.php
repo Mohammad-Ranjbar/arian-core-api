@@ -40,6 +40,7 @@ class SendGateToErpJob implements ShouldQueue
                 "status"  => "error",
                 "message" => $response['message']
             ]);
+            dispatch(new SendGateToErpJob($this->id));
         }else{
             $this->update($record, [
                 "status"  => "ok"
@@ -48,10 +49,7 @@ class SendGateToErpJob implements ShouldQueue
 
     }
 
-    /**
-     * @param  string  $vin
-     * @return array
-     */
+
     private function exit(string $vin): array
     {
         return ErpWsdlClient::run(config('erp.gate'), 'ApproveExit',
@@ -66,9 +64,7 @@ class SendGateToErpJob implements ShouldQueue
 
     }
 
-    /**
-     * @return void
-     */
+
     public function failed(): void
     {
         $record = Tracking::query()->find($this->id);
@@ -76,6 +72,7 @@ class SendGateToErpJob implements ShouldQueue
             "status"  => "error",
             "message" => "cant received response from ERP."
         ]);
+        dispatch(new SendGateToErpJob($this->id));
     }
 
     private function update($record, $result): void
