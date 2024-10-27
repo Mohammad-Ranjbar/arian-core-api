@@ -80,6 +80,8 @@ class ProductionLineActivitySmsJob implements ShouldQueue
         }
 
 
-        SmsService::sendSms($phones, implode("\n", $content));
+        $result = SmsService::sendSms($phones, implode("\n", $content));
+        logger($phones);
+        logger($result);
     }
 }
