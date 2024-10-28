@@ -47,7 +47,7 @@ class GatePermitController extends CrudController
      */
     public function store(Request $request): mixed
     {
-        $validatedData = $request->validate($this->repository->getCreateRules());
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),$this->customStoreRules()));
         try {
             DB::beginTransaction();
             $validatedData['model_type'] = Vehicle::class;
