@@ -40,9 +40,10 @@ class GatePermitRepository extends BaseRepository
     public function customStoreRules(): array
     {
         return [
-            'vin' => ['required','string','exists:vehicles,vin', Rule::unique('gate_permits','model_id')->where(function ($query) {
-                return $query->whereNull('deleted_at');
-            })
+            'vin' => ['required',
+                'string',
+                'exists:vehicles,vin',
+                Rule::unique('gate_permits','model_id')->whereNull('deleted_at')
             ],
         ];
     }
