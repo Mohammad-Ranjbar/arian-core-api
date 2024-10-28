@@ -30,7 +30,7 @@ class ProductionTestResultResource extends JsonResource
             'urls' => $urls,
             'vehicle' => new VehicleResource($this->resource->vehicle),
             'user' => new UserResource($this->resource->user),
-            'productionTest' => new ProductionTestResource($this->resource->production_test),
+            'productionTest' => new ProductionTestResource($this->resource->productionTest),
             'created_at' => $this->resource->created_at,
         ];
     }
