@@ -9,6 +9,7 @@ use App\Http\Requests\JobRequest;
 use App\Http\Resources\BlockItemResource;
 use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
+use App\Jobs\SendUnblockToErpJob;
 use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\BlockItemRepository;
@@ -85,13 +86,7 @@ class BlockItemController extends Controller
             $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
             $item->update($data);
 
-            $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
-            if (!$exists) {
-               $response = ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', ['barcodeInfoP' => $vehicle->vin]);
-                if ($response['status'] !== 'ok') {
-                    return $this->responseError($response['message'], 400);
-                }
-            }
+            dispatch(new SendUnblockToErpJob($vehicle->vin));
 
             return new BlockItemResource($item);
 

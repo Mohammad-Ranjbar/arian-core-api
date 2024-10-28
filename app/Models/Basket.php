@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 
 class Basket extends Model
@@ -32,6 +33,8 @@ class Basket extends Model
     {
         static::addGlobalScope('new', function (Builder $builder) {
             $builder->where('status', 'new');
+            // TODO check it
+            $builder->where('user_id', Auth::id());
         });
     }
 
