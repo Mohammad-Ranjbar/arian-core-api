@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,7 +17,8 @@ class ProductionTestResultResource extends JsonResource
     {
         $urls = [];
         foreach ((array)json_decode($this->resource->files) as $file){
-            $urls[] = route('dl',['path' => $file]);
+            $data = File::query()->where('uuid', $file)->first();
+            $urls[] = route('dl',['path' => $data->path]);
         }
         return [
             'id'    => $this->resource->id,
