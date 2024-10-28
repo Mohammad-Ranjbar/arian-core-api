@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\libs\BaseRepository;
 use App\Models\GatePermit;
-use Illuminate\Validation\Rule;
 
 class GatePermitRepository extends BaseRepository
 {
@@ -37,15 +36,6 @@ class GatePermitRepository extends BaseRepository
         $this->model = $model;
     }
 
-    public function customStoreRules(): array
-    {
-        return [
-            'vin' => ['required',
-                'string',
-                'exists:vehicles,vin',
-                Rule::unique('gate_permits','model_id')->whereNull('deleted_at')
-            ],
-        ];
-    }
+
 
 }

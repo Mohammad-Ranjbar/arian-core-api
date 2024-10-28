@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class GatePermitController extends CrudController
 {
@@ -26,6 +27,17 @@ class GatePermitController extends CrudController
     {
         $this->applyAuthorizeResource();
         $this->setResource(GatePermitResource::class);
+    }
+
+    public function customStoreRules(): array
+    {
+        return [
+            'vin' => ['required',
+                'string',
+                'exists:vehicles,vin',
+                Rule::unique('gate_permits','model_id')->whereNull('deleted_at')
+            ],
+        ];
     }
 
 
