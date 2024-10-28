@@ -15,7 +15,7 @@ class ProductionTestResultResource extends JsonResource
     public function toArray(Request $request): array
     {
         $urls = [];
-        foreach ($this->resource->files as $file){
+        foreach ((array)json_decode($this->resource->files) as $file){
             $urls[] = route('dl',['path' => $file]);
         }
         return [
