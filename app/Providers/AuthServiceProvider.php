@@ -17,6 +17,7 @@ use App\Models\File;
 use App\Models\GatePermit;
 use App\Models\GeneralProductItem;
 use App\Models\Incident;
+use App\Models\IncidentCategory;
 use App\Models\Inspection;
 use App\Models\Inventory;
 use App\Models\Location;
@@ -92,6 +93,7 @@ class AuthServiceProvider extends ServiceProvider
         ProductionTest::class => CrudPolicy::class,
         ProductionTestResult::class => CrudPolicy::class,
         ShortageItem::class => CrudPolicy::class,
+        IncidentCategory::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
