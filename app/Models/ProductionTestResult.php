@@ -14,7 +14,7 @@ class ProductionTestResult extends Model
         'production_test_id',
         'user_id'
     ];
-    protected $casts = ['files' => 'json'];
+    protected $casts = ['files' => 'array'];
 
     public function user(): BelongsTo
     {
