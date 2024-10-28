@@ -18,6 +18,7 @@ class ProductionTestResource extends JsonResource
             'id'    => $this->resource->id,
             'title' => $this->resource->title,
             'carModels' => CarModelResource::collection($this->resource->carModels),
+            'created_at' => $this->resource->created_at,
         ];
     }
 }
