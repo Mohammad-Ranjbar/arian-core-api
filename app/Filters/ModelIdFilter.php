@@ -21,7 +21,7 @@ class ModelIdFilter
         if (!request()->has('model_id') || !request()->get('model_id')) {
             return $next($request);
         }
-        return $next($request)->where('model_id', request()->input('model_id'));
+        return $next($request)->where('model_id', 'LIKE','%'.request()->input('model_id').'%');
     }
 
 }
