@@ -14,6 +14,10 @@ class ProductionTestResultResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $urls = [];
+        foreach ($this->resource->files as $file){
+            $urls[] = route('dl',['path' => $file]);
+        }
         return [
             'id'    => $this->resource->id,
             'vin' => $this->resource->vin,
@@ -21,6 +25,7 @@ class ProductionTestResultResource extends JsonResource
             'production_test_id' => $this->resource->production_test_id,
             'description' => $this->resource->description,
             'files' => $this->resource->files,
+            'urls' => $urls,
             'vehicle' => new VehicleResource($this->resource->vehicle),
             'user' => new UserResource($this->resource->user),
             'productionTest' => new ProductionTestResource($this->resource->production_test),
