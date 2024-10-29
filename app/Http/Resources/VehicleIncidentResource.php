@@ -9,29 +9,31 @@ class VehicleIncidentResource extends JsonResource
 {
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray(Request $request): array
     {
         return [
-            'id'                     => (int) $this->resource->id,
-            'type'                   => $this->resource->type,
-            'intensity'              => $this->resource->intensity,
-            'method'                 => $this->resource->method,
-            'description'            => $this->resource->description,
-            'user_id'                => (int) $this->resource->user_id,
-            'production_tracking_id' => (int) $this->resource->production_tracking_id,
-            'element_id'             => (int) $this->resource->element_id,
-            'incident_id'            => (int) $this->resource->incident_id,
-            'vin'                    => $this->resource->vin,
-            'checked_at'             => $this->resource->checked_at,
-            'vehicle'                => new VehicleResource($this->resource->vehicle),
-            'user'                   => new UserShortResource($this->resource->user),
-            'incident'               => new IncidentResource($this->resource->incident),
-            'element'                => new ElementResource($this->resource->element),
-            'productionTracking'     => new ProductionLineResource($this->resource->productionTracking),
-            'created_at'             => $this->resource->created_at,
+            'id' => (int)$this->resource->id,
+            'type' => $this->resource->type,
+            'intensity' => $this->resource->intensity,
+            'method' => $this->resource->method,
+            'description' => $this->resource->description,
+            'user_id' => (int)$this->resource->user_id,
+            'incident_category_id' => (int)$this->resource->incident_category_id,
+            'incidentCategory' => new IncidentCategoryResource($this->resource->incidentCategory),
+            'production_tracking_id' => (int)$this->resource->production_tracking_id,
+            'element_id' => (int)$this->resource->element_id,
+            'incident_id' => (int)$this->resource->incident_id,
+            'vin' => $this->resource->vin,
+            'checked_at' => $this->resource->checked_at,
+            'vehicle' => new VehicleResource($this->resource->vehicle),
+            'user' => new UserShortResource($this->resource->user),
+            'incident' => new IncidentResource($this->resource->incident),
+            'element' => new ElementResource($this->resource->element),
+            'productionTracking' => new ProductionLineResource($this->resource->productionTracking),
+            'created_at' => $this->resource->created_at,
         ];
     }
 }

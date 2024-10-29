@@ -13,7 +13,7 @@ class VehicleFaultRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('vehicles.faults.'.$this->route()->parameter('type').'.submit');
+        return $this->user()->can('vehicles.faults.' . $this->route()->parameter('type') . '.submit');
     }
 
     /**
@@ -22,18 +22,19 @@ class VehicleFaultRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'intensity'                     => 'required_if:type,evaluation',
-            'method'                        => 'required_if:type,evaluation',
-            'description'                   => 'nullable',
-            'user_id'                       => 'nullable',
-            'vin'                           => 'nullable',
-            'checked_at'                    => 'nullable|date|date_format:Y-m-d H:i:s|before:tomorrow',
-            'element_id'                    => 'required|exists:elements,id',
-            'incident_id'                   => 'required|exists:incidents,id',
-            'type'                          => 'nullable',
-            'location'                      => 'required',
+            'intensity' => 'required_if:type,evaluation',
+            'method' => 'required_if:type,evaluation',
+            'description' => 'nullable',
+            'user_id' => 'nullable',
+            'vin' => 'nullable',
+            'checked_at' => 'nullable|date|date_format:Y-m-d H:i:s|before:tomorrow',
+            'element_id' => 'required|exists:elements,id',
+            'incident_id' => 'required|exists:incidents,id',
+            'type' => 'nullable',
+            'location' => 'required',
             'location.custom_location_type' => 'required',
-            'location.custom_location_id'   => 'required',
+            'location.custom_location_id' => 'required',
+            'incident_category_id' => 'nullable|exists:incident_categories,id',
 
         ];
     }
@@ -45,7 +46,7 @@ class VehicleFaultRequest extends FormRequest
     {
         $this->merge([
             'type' => $this->route()->parameter('type'),
-            'vin'  => $this->route()->parameter('vehicle')->vin, 'user_id' => Auth::id(),
+            'vin' => $this->route()->parameter('vehicle')->vin, 'user_id' => Auth::id(),
         ]);
     }
 }
