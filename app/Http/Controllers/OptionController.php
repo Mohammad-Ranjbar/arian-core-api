@@ -9,6 +9,7 @@ use App\Repositories\ContainerRepository;
 use App\Repositories\DriverRepository;
 use App\Repositories\ElementRepository;
 use App\Repositories\ErpProductItemRepository;
+use App\Repositories\IncidentCategoryRepository;
 use App\Repositories\IncidentRepository;
 use App\Repositories\LocationRepository;
 use App\Repositories\MakeCodeRepository;
@@ -72,6 +73,7 @@ class OptionController extends Controller
             'sale-locations' => SaleLocationRepository::class,
             'product-items' => ErpProductItemRepository::class,
             'production-tests' => ProductionTestRepository::class,
+            'incident-categories' => IncidentCategoryRepository::class,
             default => false,
         };
     }
