@@ -17,7 +17,7 @@ class GatePermitResource extends JsonResource
             'id'          => $this->resource->id,
             'type'        => $this->resource->type,
             'location_id' => $this->resource->location_id,
-            'location'    => $this->resource->location,
+            'location'    => new LocationResource($this->resource->location),
             'model_type'  => $this->resource->model?->getTable() ?? 'unknown',
             'model_id'    => $this->resource->model->id ? $this->resource->model->id : $this->resource->model->vin,
             'model'       => $this->resource->model,
