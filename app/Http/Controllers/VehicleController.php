@@ -202,7 +202,7 @@ class VehicleController extends CrudController
     {
         try {
             $data = $this->actionLogRepository
-                ->where('action', ActionLog::UPDATED_QC_STATUS)->paginate(request()->per_page);
+                ->where('action', ActionLog::UPDATED_QC_STATUS)->latest()->paginate(request()->per_page);
 
             return VehicleQcResource::collection($data);
         } catch (Exception $exception) {
