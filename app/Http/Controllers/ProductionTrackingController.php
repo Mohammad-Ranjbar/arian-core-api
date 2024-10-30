@@ -61,10 +61,8 @@ class ProductionTrackingController extends Controller
     }
 
 
-    /**
-     * @throws Exception
-     */
-    public function update(Tracking $tracking): TrackingResource
+
+    public function update(Tracking $tracking): TrackingResource|JsonResponse
     {
         $tracking->update(['data' => null, 'user_id' => auth()->id()]);
 
@@ -76,7 +74,12 @@ class ProductionTrackingController extends Controller
                 ->where($type, true)
                 ->where('model_id', $tracking->getAttribute('model_id'))
                 ->exists()) {
-            $modelTrackingService->sendToErp($tracking);
+            try {
+                $modelTrackingService->sendToErp($tracking);
+            }catch (Exception $exception){
+                return $this->responseError($exception->getMessage(), 400);
+            }
+
         }
 
 
