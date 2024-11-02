@@ -105,13 +105,13 @@ class ProductionLineTrackingService extends BaseTrackingService
             $params['withOutput'] = 'true';
         }
         $method = 'PostProduction_OnlyBIN';
-        $shortages = ShortageItem::query()->where('vin', $record->vin)
-            ->where('status', 'pending')->with('erpProductItem')->get();
-        if ($count = $shortages->count()) {
-            $method = 'PostProduction_OnlyBIN_Shortage';
-            $params['lackItemNo'] = $shortages->implode('erpProductItem.reference',',');
-            $params['numberFractionalItems'] = $count;
-        }
+//        $shortages = ShortageItem::query()->where('vin', $record->vin)
+//            ->where('status', 'pending')->with('erpProductItem')->get();
+//        if ($count = $shortages->count()) {
+//            $method = 'PostProduction_OnlyBIN_Shortage';
+//            $params['lackItemNo'] = $shortages->implode('erpProductItem.reference',',');
+//            $params['numberFractionalItems'] = $count;
+//        }
 
         $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
         if ($response['status'] !== 'ok') {
