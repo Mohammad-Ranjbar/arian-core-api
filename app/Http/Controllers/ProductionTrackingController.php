@@ -13,18 +13,18 @@ use App\Models\SendErp;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Services\TrackingService\TrackingServiceFactory;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Exception;
 use Illuminate\Support\Facades\DB;
 
 class ProductionTrackingController extends Controller
 {
 
     /**
-     * @param TrackingRequest $request
-     * @param Vehicle $vehicle
+     * @param  TrackingRequest  $request
+     * @param  Vehicle  $vehicle
      * @return JsonResponse|VehicleResource
      * @throws AuthorizationException
      */
@@ -32,12 +32,12 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
-           DB::beginTransaction();
+            DB::beginTransaction();
             if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
-                $this->authorize('production-tracking.' . $validatedData['model_type'] . '.enter');
+                $this->authorize('production-tracking.'.$validatedData['model_type'].'.enter');
             }
             if ($validatedData['type'] === 'exit' && $validatedData['model_type']) {
-                $this->authorize('production-tracking.' . $validatedData['model_type'] . '.exit');
+                $this->authorize('production-tracking.'.$validatedData['model_type'].'.exit');
             }
 
             $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
@@ -61,11 +61,8 @@ class ProductionTrackingController extends Controller
     }
 
 
-
     public function update(Tracking $tracking): TrackingResource|JsonResponse
     {
-        $tracking->update(['data' => null, 'user_id' => auth()->id()]);
-
         $modelTrackingService = TrackingServiceFactory::getInstance($tracking->getAttribute('model')->getTable());
         $type = $tracking->getAttribute('type') === 'enter' ? 'on_enter' : 'on_exit';
 
@@ -74,9 +71,13 @@ class ProductionTrackingController extends Controller
                 ->where($type, true)
                 ->where('model_id', $tracking->getAttribute('model_id'))
                 ->exists()) {
+            DB::beginTransaction();
+            $tracking->update(['data' => null, 'user_id' => auth()->id()]);
             try {
                 $modelTrackingService->sendToErp($tracking);
-            }catch (Exception $exception){
+                DB::commit();
+            } catch (Exception $exception) {
+                DB::rollBack();
                 return $this->responseError($exception->getMessage(), 400);
             }
 
@@ -99,8 +100,8 @@ class ProductionTrackingController extends Controller
 
         return response()->json([
             'message' => 'export job created',
-            'data' => [
-                'uuid' => $job->getAttribute('uuid'),
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
@@ -121,8 +122,8 @@ class ProductionTrackingController extends Controller
 
         return response()->json([
             'message' => 'export job created',
-            'data' => [
-                'uuid' => $job->getAttribute('uuid'),
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
