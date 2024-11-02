@@ -108,15 +108,15 @@ class VehicleController extends CrudController
     {
         try {
             $validatedData = $request->validated();
-//            if (in_array($validatedData['qc_status'],[24, 84, 85])){
-//                $generalItems = GeneralProductItem::query()->whereHas('carModels',function ($q)use($vehicle){
-//                    $q->where('id',$vehicle->getAttribute('car_model_id'));
-//                });
-//                if( Barcode::query()->where('vin',$vehicle->vin)->whereIn('general_product_item_id',$generalItems->pluck('id'))->count()
-//                    < $generalItems->count()){
-//                    return $this->responseError('all barcode not submitted yet', 400);
-//                }
-//            }
+            if (in_array($validatedData['qc_status'],[24, 84, 85])){
+                $generalItems = GeneralProductItem::query()->whereHas('carModels',function ($q)use($vehicle){
+                    $q->where('id',$vehicle->getAttribute('car_model_id'));
+                });
+                if( Barcode::query()->where('vin',$vehicle->vin)->whereIn('general_product_item_id',$generalItems->pluck('id'))->count()
+                    < $generalItems->count()){
+                    return $this->responseError('all barcode not submitted yet', 400);
+                }
+            }
             $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
 
             if ($response['status'] !== 'ok') {
