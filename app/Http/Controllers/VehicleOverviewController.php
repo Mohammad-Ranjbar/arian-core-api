@@ -64,19 +64,19 @@ class VehicleOverviewController extends Controller
         $incomingControlList = [
             [
                 'file'  => '/api/dl-file?path=incoming-control/JAC-Incoming-Control.zip',
-                'title' => 'JAC'
+                'title' => 'جک'
             ],
             [
                 'file'  => '/api/dl-file?path=incoming-control/Lamari-Incoming-Control.zip',
-                'title' => 'LAMARI'
+                'title' => 'لاماری'
             ],
             [
                 'file'  => '/api/dl-file?path=incoming-control/Lorry-Dumper-Incoming-Control.zip',
-                'title' => 'LORRY & DUMPER'
+                'title' => 'لاری و دامپر'
             ],
             [
                 'file'  => '/api/dl-file?path=incoming-control/Shacman-Incoming-Control.zip',
-                'title' => 'Shacman'
+                'title' => 'کشنده'
             ],
         ];
 
