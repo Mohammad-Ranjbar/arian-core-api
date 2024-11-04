@@ -36,11 +36,6 @@ class VehicleOverviewController extends Controller
                 'file'  => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
             ],
-            [
-                'file'  => '/api/dl-file?path=torque-reports/torque-report.zip',
-                'title' => 'گزارش گشتاور سنجی'
-            ],
-
         ];
 
         $copList = [
@@ -175,10 +170,23 @@ class VehicleOverviewController extends Controller
         return response()->json([
             'items' => array_values(array_filter(array_merge([
                 [
-                    'title'  => 'اطلاعات و مشخصات',
+                    'title'  => 'فهرست قطعات ورودی - (BOM)',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => array_values($components->map(function ($item) {
+                        return [
+                            $item->productItem?->title,
+                            $item->productItem?->description,
+                            $item->productItem?->reference,
+                            $item->Quantity
+                        ];
+                    })->all())
+                ],
+                [
+                    'title'  => 'کنترل اقلام ورودی',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $qrLinks
+                    'values' => $incomingControlList
                 ],
                 [
                     'title'  => 'بارکد قطعات',
@@ -199,10 +207,47 @@ class VehicleOverviewController extends Controller
                     })->all()
                 ],
                 [
-                    'title'  => 'کنترل اقلام ورودی',
+                    'title'  => 'کنترل حین تولید',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $incomingControlList
+                    'values' => [
+                        [
+                            'file'  => '/api/dl-file?path=torque-reports/torque-report.zip',
+                            'title' => 'گزارش گشتاور سنجی'
+                        ],
+                    ]
+                ],
+                [
+                    'title'  => 'ایرادات کیفی '.$qcChecked,
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => $incidents->get()->map(function ($record) {
+                        return [
+                            jdate($record->checked_at)->toDateString(),
+                            $record->description,
+                            $record->type,
+                            $record->method,
+                            $record->intensity,
+                            $record->user->name,
+                            $record->element->title.' ('.$record->element->code.')',
+                            $record->incident->title.' ('.$record->element->code.')'
+                        ];
+                    })->all()
+                ],
+                [
+                    'title'  => 'آزمون های انتهای خط',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => ProductionTestResult::query()->where('vin', $vehicle->vin)->get()->map(function ($record) {
+                        return [
+                            $record->productionTest->title,
+                            $record->user->name,
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-',
+                            $record->description
+                        ];
+                    })->all()
                 ],
                 [
                     'title'  => 'کنترل کیفیت',
@@ -222,15 +267,29 @@ class VehicleOverviewController extends Controller
                             ];
                         })->all()
                 ],
-                $police,
                 [
-                    'title'  => 'COP PLAN',
-                    'type'   => 'download-list',
+                    'title'  => 'بلوکه',
+                    'type'   => 'table',
                     'heads'  => [],
-                    'values' => $copList
+                    'values' => BlockItem::query()
+                        ->where('vin', $vehicle->getAttribute('vin'))
+                        ->get()->map(function ($record) {
+                            return [
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-'
+                                ,
+                                $record->description,
+                                $record->blockReason?->title,
+                                $record->blockedBy->name,
+                                ($record->unblockedBy) ? "رفع شده" : '--',
+                                ($record->unblockedBy) ? jdate($record->unblocked_at)->toDateTimeString() : '--'
+                            ];
+                        })->all()
                 ],
+
                 [
-                    'title'  => 'رهگیری محصول',
+                    'title'  => 'رهگیری محصول - تاریخ تولید',
                     'type'   => 'table',
                     'heads'  => [
                         'ثبت شده توسط',
@@ -257,59 +316,6 @@ class VehicleOverviewController extends Controller
                         ];
                     })->all()))
                 ],
-
-                [
-                    'title'  => 'آزمون های انتهای خط',
-                    'type'   => 'table',
-                    'heads'  => [],
-                    'values' => ProductionTestResult::query()->where('vin', $vehicle->vin)->get()->map(function ($record) {
-                        return [
-                            $record->productionTest->title,
-                            $record->user->name,
-                            $record->created_at ?
-                                jdate($record->created_at)->toDateTimeString()
-                                : '-',
-                            $record->description
-                        ];
-                    })->all()
-                ],
-                [
-                    'title'  => 'ایرادات کیفی '.$qcChecked,
-                    'type'   => 'table',
-                    'heads'  => [],
-                    'values' => $incidents->get()->map(function ($record) {
-                        return [
-                            jdate($record->checked_at)->toDateString(),
-                            $record->description,
-                            $record->type,
-                            $record->method,
-                            $record->intensity,
-                            $record->user->name,
-                            $record->element->title.' ('.$record->element->code.')',
-                            $record->incident->title.' ('.$record->element->code.')'
-                        ];
-                    })->all()
-                ],
-                [
-                    'title'  => 'بلوکه',
-                    'type'   => 'table',
-                    'heads'  => [],
-                    'values' => BlockItem::query()
-                        ->where('vin', $vehicle->getAttribute('vin'))
-                        ->get()->map(function ($record) {
-                            return [
-                                $record->created_at ?
-                                    jdate($record->created_at)->toDateTimeString()
-                                    : '-'
-                                ,
-                                $record->description,
-                                $record->blockReason?->title,
-                                $record->blockedBy->name,
-                                ($record->unblockedBy) ? "رفع شده" : '--',
-                                ($record->unblockedBy) ? jdate($record->unblocked_at)->toDateTimeString() : '--'
-                            ];
-                        })->all()
-                ],
                 [
                     'title'  => 'حمل و نقل',
                     'type'   => 'table',
@@ -329,18 +335,18 @@ class VehicleOverviewController extends Controller
                         })->all()
                 ],
                 [
-                    'title'  => 'اقلام مصرفی (BOM)',
-                    'type'   => 'table',
+                    'title'  => 'طرح انطباق تولید',
+                    'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => array_values($components->map(function ($item) {
-                        return [
-                            $item->productItem?->title,
-                            $item->productItem?->description,
-                            $item->productItem?->reference,
-                            $item->Quantity
-                        ];
-                    })->all())
-                ]
+                    'values' => $copList
+                ],
+                $police,
+                [
+                    'title'  => 'ویژگی های فنی و عمومی محصول',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $qrLinks
+                ],
             ], $services)))
         ]);
     }
