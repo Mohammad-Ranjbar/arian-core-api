@@ -175,6 +175,55 @@ class VehicleOverviewController extends Controller
                     'values' => $qrLinks
                 ],
                 [
+                    'title'  => 'بارکد قطعات',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => Barcode::query()->where('vin', $vehicle->getAttribute('vin'))->get()->map(function (
+                        $record
+                    ) {
+                        return [
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-'
+                            ,
+                            $record->code,
+                            $record->user->name,
+                            $record->erpProductItem?->title,
+                        ];
+                    })->all()
+                ],
+                [
+                    'title'  => 'کنترل اقلام ورودی',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $incomingControlList
+                ],
+                [
+                    'title'  => 'کنترل کیفیت',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => ActionLog::query()
+                        ->where('model_id', $vehicle->getAttribute('vin'))
+                        ->where('action', 'update_qc_status')
+                        ->get()->map(function ($record) {
+                            return [
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-'
+                                ,
+                                $record->user->name,
+                                (string) $record->data,
+                            ];
+                        })->all()
+                ],
+                $police,
+                [
+                    'title'  => 'COP PLAN',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $copList
+                ],
+                [
                     'title'  => 'رهگیری محصول',
                     'type'   => 'table',
                     'heads'  => [
@@ -202,55 +251,7 @@ class VehicleOverviewController extends Controller
                         ];
                     })->all()))
                 ],
-                [
-                    'title'  => 'بارکد قطعات',
-                    'type'   => 'table',
-                    'heads'  => [],
-                    'values' => Barcode::query()->where('vin', $vehicle->getAttribute('vin'))->get()->map(function (
-                        $record
-                    ) {
-                        return [
-                            $record->created_at ?
-                                jdate($record->created_at)->toDateTimeString()
-                                : '-'
-                            ,
-                            $record->code,
-                            $record->user->name,
-                            $record->erpProductItem?->title,
-                        ];
-                    })->all()
-                ],
-                $police,
-                [
-                    'title'  => 'کنترل کیفیت',
-                    'type'   => 'table',
-                    'heads'  => [],
-                    'values' => ActionLog::query()
-                        ->where('model_id', $vehicle->getAttribute('vin'))
-                        ->where('action', 'update_qc_status')
-                        ->get()->map(function ($record) {
-                            return [
-                                $record->created_at ?
-                                    jdate($record->created_at)->toDateTimeString()
-                                    : '-'
-                                ,
-                                $record->user->name,
-                                (string) $record->data,
-                            ];
-                        })->all()
-                ],
-                [
-                    'title'  => 'COP PLAN',
-                    'type'   => 'download-list',
-                    'heads'  => [],
-                    'values' => $copList
-                ],
-                [
-                    'title'  => 'کنترل اقلام ورودی',
-                    'type'   => 'download-list',
-                    'heads'  => [],
-                    'values' => $incomingControlList
-                ],
+
 //                [
 //                    'title'  => 'آزمون های انتهای خط',
 //                    'type'   => 'table',
