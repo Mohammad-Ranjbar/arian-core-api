@@ -16,7 +16,6 @@ class SendTrackingToErpJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
     /**
      * @param $id
      * @param $url
@@ -44,8 +43,6 @@ class SendTrackingToErpJob implements ShouldQueue
      */
     private function update($record, $result): void
     {
-
-        logger($record,$result);
         $record->update(['data' => $result]);
         $data = Tracking::query()->find($this->id);
         TrackingEvent::dispatch(new TrackingResource($data));
@@ -60,7 +57,6 @@ class SendTrackingToErpJob implements ShouldQueue
         $this->update($record, [
             "status" => "error",
             "message" => "cant received response from ERP."
-
         ]);
     }
 }
