@@ -10,6 +10,7 @@ use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ErpProductItem;
 use App\Models\Location;
 use App\Models\ProductionLine;
+use App\Models\ProductionTestResult;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
 use App\Services\Erp\ErpGetVehicleComponent;
@@ -252,12 +253,21 @@ class VehicleOverviewController extends Controller
                     })->all()))
                 ],
 
-//                [
-//                    'title'  => 'آزمون های انتهای خط',
-//                    'type'   => 'table',
-//                    'heads'  => [],
-//                    'values' => []
-//                ],
+                [
+                    'title'  => 'آزمون های انتهای خط',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => ProductionTestResult::query()->where('vin', $vehicle->vin)->get()->map(function ($record) {
+                        return [
+                            $record->productionTest->title,
+                            $record->user->name,
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-',
+                            $record->description
+                        ];
+                    })->all()
+                ],
                 [
                     'title'  => 'ایرادات کیفی '.$qcChecked,
                     'type'   => 'table',
