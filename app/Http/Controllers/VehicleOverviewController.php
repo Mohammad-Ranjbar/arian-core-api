@@ -62,7 +62,7 @@ class VehicleOverviewController extends Controller
             ],
             [
                 'file'  => '/api/dl-file?path=cop/X5000-COP-PLAN.pdf',
-                'title' => 'فایل جامع طرح انطباق تولید X5000'
+                'title' => 'فایل جامع طرح انطباق تولید کشنده'
             ],
         ];
 
