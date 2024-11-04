@@ -35,7 +35,12 @@ class VehicleOverviewController extends Controller
             [
                 'file'  => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
-            ]
+            ],
+            [
+                'file'  => '/api/dl-file?path=torque-reports/torque-report.zip',
+                'title' => 'گزارش گشتاور سنجی'
+            ],
+
         ];
 
         $copList = [
