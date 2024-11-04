@@ -320,57 +320,8 @@ class BillOfLadingController extends CrudController
             $record->vehicles()->sync($data['items']);
         }
 
-        if ($data['type'] === 'bodies') {
-            $exitId = Location::query()->where('code', 'V00545')->first();
-            $enterId = Location::query()->where('code', 'LMRIL0005')->first();
-            $type = null;
-            if ($record->location_destination_id == $exitId->getAttribute('id')) {
-                $type = 'exit';
-            } elseif ($record->location_destination_id == $enterId->getAttribute('id')) {
-                $type = 'enter';
-            }
-
-            if ($type) {
-                if (GatePermit::query()
-                        ->where('model_type', Vehicle::class)
-                        ->whereIn('model_id', $data['items'])->count() < count($data['items'])) {
-
-                    foreach ($data['items'] as $item) {
-                        if (GatePermit::query()
-                            ->where('model_type', Vehicle::class)
-                            ->where('model_id', $item)->exists()) {
-                            continue;
-                        }
-
-                        $exitType = 2;// by shaghayegh => consignment , 1
-
-                        $gate = GatePermit::query()->create([
-                            'model_type' => Vehicle::class,
-                            'model_id' => $item,
-                            'location_id' => $record->location_destination_id,
-                            'owner_id' => Auth::id(),
-                            'owner_type' => User::class,
-                            'type' => $type,
-                            'exit_type' => $exitType
-                        ]);
-
-                        if ($type == 'exit') {
-                            $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
-                                $gate->location->getAttribute('code'));
-
-                            if ($response['status'] !== 'ok') {
-                                throw new Exception($response['message']);
-                            }
-                        } else {
-                            $response = ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
-
-                            if ($response['status'] !== 'ok') {
-                                throw new Exception($response['message']);
-                            }
-                        }
-                    }
-                }
-            }
+        if ($data['type'] == 'bodies') {
+            $record->createAutoGatePermit($data['items']);
             $record->vehicles()->sync($data['items']);
         }
 

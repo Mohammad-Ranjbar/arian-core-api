@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\Erp\ErpCreateExitRequest;
+use App\Services\Erp\ErpReturnRequest;
+use Exception;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class BillOfLading extends Model
 {
@@ -197,6 +201,67 @@ class BillOfLading extends Model
         }
 
         return $query->get();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function createAutoGatePermit($items): void
+    {
+        $exitIds = Location::query()->whereHas('attributes', function ($q){
+            $q->where('attribute','autoExitPermit')->where('value','true');
+        })->get()->pluck('id')->all();
+        $enterIds = Location::query()->whereHas('attributes', function ($q){
+            $q->where('attribute','autoEnterPermit')->where('value','true');
+        })->get()->pluck('id')->all();
+        $type = null;
+        if (in_array($this->location_source_id,$exitIds)) {
+            $type = 'exit';
+        } elseif (in_array($this->location_destination_id,$enterIds)) {
+            $type = 'enter';
+        }
+
+        if ($type) {
+            if (GatePermit::query()
+                    ->where('model_type', Vehicle::class)
+                    ->whereIn('model_id', $items)->count() < count($items)) {
+
+                foreach ($items as $vin) {
+                    if (GatePermit::query()
+                        ->where('model_type', Vehicle::class)
+                        ->where('model_id', $vin)->exists()) {
+                        continue;
+                    }
+
+                    $exitType = 2;// by shaghayegh => consignment , 1
+
+                    $gate = GatePermit::query()->create([
+                        'model_type' => Vehicle::class,
+                        'model_id' => $vin,
+                        'location_id' => $this->location_destination_id,
+                        'owner_id' => Auth::id(),
+                        'owner_type' => User::class,
+                        'type' => $type,
+                        'exit_type' => $exitType
+                    ]);
+
+                    if ($type == 'exit') {
+                        $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
+                            $gate->location->getAttribute('code'));
+
+                        if ($response['status'] !== 'ok') {
+                            throw new Exception($response['message']);
+                        }
+                    } else {
+                        $response = ErpReturnRequest::returnRequest($vin, $gate->location->getAttribute('code'));
+
+                        if ($response['status'] !== 'ok') {
+                            throw new Exception($response['message']);
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

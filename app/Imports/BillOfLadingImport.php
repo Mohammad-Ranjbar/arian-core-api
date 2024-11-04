@@ -91,6 +91,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 //                if (empty($row['VIN']) || empty($row['container_number'])) {
 //                    throw new Exception('vin or container number is empty');
 //                }
+                /** @var BillOfLading $billOfLading */
                 $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
                 if (!empty($row['VIN'])) {
                     $this->checkingData($row);
@@ -152,39 +153,6 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                     ]);
 
                     if (!empty($row['VIN'])) {
-                        if ($billOfLading->type === 'bodies') {
-                            if (!GatePermit::query()
-                                    ->where('model_type', Vehicle::class)
-                                    ->where('model_id', $row['VIN'])->exists()) {
-
-                                    $type = $billOfLading->destination_id == 1 ? 'enter' : 'exit';
-                                    $exitType = 1;// by reza => consignment , 1
-                                    $gate = GatePermit::query()->create([
-                                        'model_type'  => Vehicle::class,
-                                        'model_id'    => $item,
-                                        'location_id' => $billOfLading->location_destination_id,
-                                        'owner_id'    => Auth::id(),
-                                        'owner_type'  => User::class,
-                                        'type'        => $type,
-                                        'exit_type'   => $exitType
-                                    ]);
-
-                                    if ($type == 'exit') {
-                                        $response = ErpCreateExitRequest::createExitRequest($item, $exitType,
-                                            $gate->location->getAttribute('code'));
-
-                                        if ($response['status'] !== 'ok') {
-                                            throw new Exception($response['message']);
-                                        }
-                                    } else {
-                                        $response = ErpReturnRequest::returnRequest($item, $gate->location->getAttribute('code'));
-
-                                        if ($response['status'] !== 'ok') {
-                                            throw new Exception($response['message']);
-                                        }
-                                    }
-                            }
-                        }
 
                         DB::table('bill_of_lading_item')->insert([
                             'model_id' => $row['VIN'],
@@ -192,6 +160,11 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                             'bill_of_lading_id' => $billOfLading->getAttribute('id'),
                         ]);
 
+
+
+                        if ($billOfLading->type == 'bodies'){
+                            $billOfLading->createAutoGatePermit([$row['VIN']]);
+                        }
 
                     }
                     if (!empty($row['container_number'])) {
@@ -202,16 +175,23 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                         ]);
                     }
 
+
+
                     $this->data['success']++;
 
                     $row['result'] = 'imported';
-                } else {
+                }
+                else {
                     if (!empty($row['VIN'])) {
                         DB::table('bill_of_lading_item')->insert([
                             'model_id' => $row['VIN'],
                             'model_type' => Vehicle::class,
                             'bill_of_lading_id' => $billOfLading->getAttribute('id'),
                         ]);
+
+                        if ($billOfLading->type == 'bodies'){
+                            $billOfLading->createAutoGatePermit([$row['VIN']]);
+                        }
 
                     }
                     if (!empty($row['container_number'])) {
@@ -222,10 +202,11 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                         ]);
                     }
                 }
+
+
             } catch (Exception $exception) {
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
-                logger($exception->getMessage());
             }
 
 
