@@ -49,7 +49,7 @@ class VehicleOverviewController extends Controller
                 'title' => 'فایل جامع طرح انطباق تولید لاماری'
             ],
             [
-                'file'  => '/api/dl-file?path=cop/dumper.zip',
+                'file'  => '/api/dl-file?path=cop/jac.zip',
                 'title' => 'فایل جامع طرح انطباق تولید جک'
             ],
             [
