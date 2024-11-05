@@ -83,8 +83,7 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
             jdate($row->created_at),
             $row->description,
             $row->customLocation->title,
-            $row->incidentCategory->title,
-
+            $row->incidentCategory?->title ?? '',
         ];
         $this->eventData['done']++;
         $this->eventData['success']++;
