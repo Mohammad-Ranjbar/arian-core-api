@@ -51,6 +51,9 @@ class VehicleIncidentRepository extends BaseRepository
         if (!empty($data['incident_id'])) {
             $query = $query->whereIn('incident_id',  $data['incident_id']);
         }
+        if (!empty($data['incident_category_id'])) {
+            $query = $query->where('incident_category_id',  $data['incident_category_id']);
+        }
         if (!empty($data['element_id'])) {
             $query = $query->whereIn('element_id',  $data['element_id']);
         }

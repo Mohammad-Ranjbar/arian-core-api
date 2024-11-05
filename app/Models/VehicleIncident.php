@@ -28,7 +28,7 @@ class VehicleIncident extends Model
      * @param array $data
      * @return LengthAwarePaginator|Builder[]|Collection
      */
-    public static function getReportData(array $data)
+    public static function getReportData(array $data): Collection|LengthAwarePaginator|array
     {
         $query = self::query();
         if (!empty($data['from'])) {
@@ -36,6 +36,9 @@ class VehicleIncident extends Model
         }
         if (!empty($data['to'])) {
             $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['incident_category_id'])) {
+            $query = $query->where('incident_category_id', $data['incident_category_id']);
         }
 
         if (!empty($data['paginate'])) {

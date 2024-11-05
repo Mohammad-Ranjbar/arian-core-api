@@ -52,6 +52,7 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
             "زمان",
             "توضیحات",
             "لوکیشن",
+            "دسته بندی ایراد",
         ];
     }
 
@@ -82,6 +83,7 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
             jdate($row->created_at),
             $row->description,
             $row->customLocation->title,
+            $row->incidentCategory->title,
 
         ];
         $this->eventData['done']++;
