@@ -173,6 +173,9 @@ class VehicleFaultController extends Controller
         if (!empty(request()->get('car_model'))) {
             $where[] = "vehicles.car_model_id in (".implode(',', request()->get('car_model')).")";
         }
+        if (!empty(request()->get('incident_category_id'))) {
+            $where[] = "vehicle_incidents.incident_category_id = ". request()->get('incident_category_id');
+        }
         if (!empty(request()->get('make_code'))) {
             $where[] = "vehicles.make_code_id in (".implode(',', request()->get('make_code')).")";
         }
