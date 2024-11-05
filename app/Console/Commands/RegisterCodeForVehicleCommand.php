@@ -18,9 +18,9 @@ class RegisterCodeForVehicleCommand extends Command
 
     public function handle(): void
     {
-$vehicles = [
-    'N5RL42DA5RP016419'
-];
+//$vehicles = [
+//    'N5RL42DA5RP016419'
+//];
 //        $vehicles = [
 //            "N5RL42DA5RP016523",
 //            "N5RL42DA5RP017690",
