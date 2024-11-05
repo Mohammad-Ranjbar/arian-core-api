@@ -268,6 +268,18 @@ class VehicleOverviewController extends Controller
                         })->all()
                 ],
                 [
+                    'title'  => 'اطلاعات PDI',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => [
+                        [
+                            $vehicle->data['PDI_Result'],
+                            $vehicle->data['PDI_Result_Description'],
+                            $vehicle->data['PDI_Result_Description_2'],
+                        ]
+                    ]
+                ],
+                [
                     'title'  => 'بلوکه',
                     'type'   => 'table',
                     'heads'  => [],
