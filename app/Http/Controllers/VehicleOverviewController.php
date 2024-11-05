@@ -275,9 +275,8 @@ class VehicleOverviewController extends Controller
                     'values' => [
                         [
                             $vehicle->data['PDI_Result'],
-                            $vehicle->data['PDI_Result_Description'],
-                            $vehicle->data['PDI_Result_Description_2'],
-                            (is_numeric(strpos($vehicle->data['PDI_Result'],'Y'))) ?
+                            $vehicle->data['PDI_Result_Description'].' '.$vehicle->data['PDI_Result_Description_2'],
+                            (is_numeric(strpos($vehicle->data['PDI_Result'],'Y')) or is_numeric(strpos($vehicle->data['PDI_Result'],'G'))) ?
                                 ($r =$vehicle->tracking()->where('model_type', SaleLocation::class)->latest()->first()) ?
                                     jdate($r->created_at)->toDateTimeString()
                                     :''
