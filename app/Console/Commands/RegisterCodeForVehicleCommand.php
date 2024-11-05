@@ -18,6 +18,36 @@ class RegisterCodeForVehicleCommand extends Command
 
     public function handle(): void
     {
+
+        $vehicles = [
+            "N5RL42DA5RP016523",
+            "N5RL42DA5RP017690",
+            "N5RL42DA5RP016499",
+            "N5RL42DA5RP016581",
+            "N5RL42DA5RP017691",
+            "N5RL42DA5RP016534",
+            "N5RL42DA5RP016533",
+            "N5RL42DA5RP016482",
+            "N5RL42DA5RP016546",
+            "N5RL42DA5RP016483",
+            "N5RL42DA5RP200519",
+            "N5RL42DA5RP016525",
+            "N5RL42DA5RP016489",
+            "N5RL42DA5RP016623",
+            "N5RL42DA5RP200687",
+            "N5RL42DA5RP017692",
+            "N5RL42DA5RP016510",
+            "N5RL42DA5RP016586",
+            "N5RL42DA5RP016514",
+            "N5RL42DA5RP017715",
+            "N5RL42DA5RP016564",
+            "N5RL42DA5RP017727",
+            "N5RL42DA5RP017724",
+            "N5RL42DA5RP017728",
+            "N5RL42DA5RP017722",
+            "N5RL42DA5RP017726",
+            "N5RL42DA5RP016599"
+        ];
 //        $vehicles = [
 //            "N5RL42DA5RP016176",
 //            "N5RL42DA5RP015557",
