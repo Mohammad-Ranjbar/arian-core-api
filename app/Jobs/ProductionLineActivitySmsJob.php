@@ -64,19 +64,19 @@ class ProductionLineActivitySmsJob implements ShouldQueue
             if ($v = $diff->s) {
                 $arrDiff[] = $v.' ثانیه';
             }
-            $content[] = 'رفع توقف خط';
+            $content[] = 'رفع توقف:';
             $content[] = $productionLineActivity->getAttribute('productionLine')->title;
-            $content[] = 'مدت زمان توقف';
+            $content[] = 'مدت زمان توقف:';
             $content[] = implode(' و ', $arrDiff);
-            $content[] = 'زمان موثر';
+            $content[] = 'زمان موثر:';
             $content[] = $productionLineActivity->getAttribute('effective_time');
         } else {
-            $content[] = 'توقف خط';
+            $content[] = 'توقف:';
             $content[] = $productionLineActivity->getAttribute('productionLine')->title;
-            $content[] = 'به دلیل';
-            $content[] = $productionLineActivity->getAttribute('stopReason')->fact->title;
-            $content[] = 'عامل توقف';
+            $content[] = 'به دلیل:';
             $content[] = $productionLineActivity->getAttribute('stopReason')->title;
+            $content[] = 'عامل توقف:';
+            $content[] = $productionLineActivity->getAttribute('stopReason')->fact->title;
         }
 
 
