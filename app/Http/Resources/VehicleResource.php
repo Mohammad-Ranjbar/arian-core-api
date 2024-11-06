@@ -14,6 +14,11 @@ class VehicleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $location = '';
+        $latestLocation = $this->resource->tracking()->latest()->first();
+        if ($latestLocation){
+            $location = $latestLocation->model->title;
+        }
         return [
             'vin' => $this->resource->vin,
             'color_code' => $this->resource->color_code,
@@ -39,6 +44,7 @@ class VehicleResource extends JsonResource
             'info' => $this->resource->data,
             'shortage_count' => $this->resource->shortageItems->count(),
             'shortage_done_count' => $this->resource->shortageItems->where('status','done')->count(),
+            'latest_location' => $location
         ];
     }
 }
