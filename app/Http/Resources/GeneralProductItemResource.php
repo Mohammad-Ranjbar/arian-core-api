@@ -21,6 +21,7 @@ class GeneralProductItemResource extends JsonResource
             'carModels' => CarModelResource::collection($this->resource->carModels),
             'height' => $this->resource->height,
             'priority' => $this->resource->priority,
+            'type' => $this->resource->type,
         ];
     }
 }
