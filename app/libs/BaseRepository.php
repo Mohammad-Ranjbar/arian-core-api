@@ -29,6 +29,7 @@ use App\Filters\MobileFilter;
 use App\Filters\ModelIdFilter;
 use App\Filters\NameFilter;
 use App\Filters\NationalCodeFilter;
+use App\Filters\OwnerFilter;
 use App\Filters\PhoneFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\ProductionOrderNumberFilter;
@@ -124,6 +125,7 @@ abstract class BaseRepository
         SectionFilter::class,
         TrackingFilter::class,
         AllShortageDoneFilter::class,
+        OwnerFilter::class
     ];
     public array $searchTerms = [
         'title'
