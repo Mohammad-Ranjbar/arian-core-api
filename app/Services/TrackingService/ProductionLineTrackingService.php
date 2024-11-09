@@ -113,14 +113,14 @@ class ProductionLineTrackingService extends BaseTrackingService
 //            $params['numberFractionalItems'] = $count;
 //        }
 
-        $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
+//        $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
+//
+//        if ($response['status'] != 'ok') {
+//
+//            throw new Exception($response['message']);
+//        }
 
-        if ($response['status'] != 'ok') {
-
-            throw new Exception($response['message']);
-        }
-
-//        dispatch(new SendTrackingToErpJob($record->id, config('erp.post_production'), $method,
-//            $params));
+        dispatch(new SendTrackingToErpJob($record->id, config('erp.post_production'), $method,
+            $params));
     }
 }
