@@ -35,6 +35,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationVehicleController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\OptionController;
+use App\Http\Controllers\PalletTypeController;
 use App\Http\Controllers\PendingInvoiceController;
 use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
@@ -323,6 +324,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'synchronous-type' => SynchronousTypeController::class,
         'production-tests' => ProductionTestController::class,
         'incident-categories' => IncidentCategoryController::class,
+        'pallet-types' => PalletTypeController::class
     ]);
 
     /*

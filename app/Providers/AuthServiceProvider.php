@@ -23,6 +23,7 @@ use App\Models\Inventory;
 use App\Models\Location;
 use App\Models\LocationAttribute;
 use App\Models\MakeCode;
+use App\Models\PalletType;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\ProductionTest;
@@ -94,6 +95,7 @@ class AuthServiceProvider extends ServiceProvider
         ProductionTestResult::class => CrudPolicy::class,
         ShortageItem::class => CrudPolicy::class,
         IncidentCategory::class=>CrudPolicy::class,
+        PalletType::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
