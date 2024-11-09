@@ -16,13 +16,13 @@ class GeneralProductItemRepository extends BaseRepository
             'carModels' => 'nullable|array|exists:car_models,id',
             'height' => 'required|integer|between:1,2',
             'priority' => 'required|integer',
-            'type' => 'required|string|in:engine,body',
+            'type' => 'required|string',
         ], 'update' => [
             'title' => 'required|string|max:255',
             'carModels' => 'nullable|array|exists:car_models,id',
             'height' => 'required|integer|between:1,2',
             'priority' => 'required|integer',
-            'type' => 'required|string|in:engine,body',
+            'type' => 'required|string',
         ]
     ];
 
