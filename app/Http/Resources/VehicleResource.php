@@ -17,7 +17,7 @@ class VehicleResource extends JsonResource
         $location = '';
         $latestLocation = $this->resource->tracking()->latest()->first();
         if ($latestLocation){
-            $location = $latestLocation->model?->title ?? '--';
+            $location = $latestLocation->model?->title ?? 'unknown last location';
         }
         return [
             'vin' => $this->resource->vin,
