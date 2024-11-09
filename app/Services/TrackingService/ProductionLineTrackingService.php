@@ -114,6 +114,7 @@ class ProductionLineTrackingService extends BaseTrackingService
 //        }
 
         $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
+        dd($response);
         if ($response['status'] !== 'ok') {
 
             throw new Exception($response['message']);
