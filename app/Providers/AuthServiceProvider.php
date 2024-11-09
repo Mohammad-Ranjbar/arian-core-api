@@ -23,6 +23,7 @@ use App\Models\Inventory;
 use App\Models\Location;
 use App\Models\LocationAttribute;
 use App\Models\MakeCode;
+use App\Models\Pallet;
 use App\Models\PalletType;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
@@ -96,6 +97,7 @@ class AuthServiceProvider extends ServiceProvider
         ShortageItem::class => CrudPolicy::class,
         IncidentCategory::class=>CrudPolicy::class,
         PalletType::class=>CrudPolicy::class,
+        Pallet::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 

@@ -16,7 +16,8 @@ class PalletTypeResource extends JsonResource
     {
         return [
             'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'title' => $this->resource->title,
+            'created_at' => $this->resource->created_at,
         ];
     }
 }
