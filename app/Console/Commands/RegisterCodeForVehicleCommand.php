@@ -20,12 +20,12 @@ class RegisterCodeForVehicleCommand extends Command
     {
 
 
-        $vehicles = [
-            'N5RL42DA5RP016550',
-            'N5RL42DA5RP017689',
-            'N5RL42DA5RP016475',
-            'N5RL42DA5RP016605',
-        ];
+//        $vehicles = [
+//            'N5RL42DA5RP016550',
+//            'N5RL42DA5RP017689',
+//            'N5RL42DA5RP016475',
+//            'N5RL42DA5RP016605',
+//        ];
 //        $vehicles = [
 //            "N5RL42DA5RP016523",
 //            "N5RL42DA5RP017690",
