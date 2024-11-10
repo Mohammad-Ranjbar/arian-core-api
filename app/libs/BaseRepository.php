@@ -34,6 +34,7 @@ use App\Filters\PalletTypeIdFilter;
 use App\Filters\PhoneFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\ProductionOrderNumberFilter;
+use App\Filters\ProductionTestIdFilter;
 use App\Filters\QcCarModelFilter;
 use App\Filters\QcMakeCodeFilter;
 use App\Filters\RolesFilter;
@@ -128,6 +129,7 @@ abstract class BaseRepository
         AllShortageDoneFilter::class,
         OwnerFilter::class,
         PalletTypeIdFilter::class,
+        ProductionTestIdFilter::class,
     ];
     public array $searchTerms = [
         'title'
