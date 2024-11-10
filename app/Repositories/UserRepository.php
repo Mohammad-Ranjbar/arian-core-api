@@ -56,4 +56,14 @@ class UserRepository extends BaseRepository
         }
     }
 
+    public function getOptions(): array
+    {
+        return $this->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->name . ' - ' . $item->mobile,
+            ];
+        })->all();
+    }
+
 }
