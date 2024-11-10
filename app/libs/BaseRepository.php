@@ -54,6 +54,7 @@ use App\Filters\UnblockedAtFilter;
 use App\Filters\UnblockedAtFromFilter;
 use App\Filters\UnblockedAtToFilter;
 use App\Filters\UserAccessToResourceFilter;
+use App\Filters\UserIdFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Exception;
@@ -130,6 +131,7 @@ abstract class BaseRepository
         OwnerFilter::class,
         PalletTypeIdFilter::class,
         ProductionTestIdFilter::class,
+        UserIdFilter::class
     ];
     public array $searchTerms = [
         'title'
