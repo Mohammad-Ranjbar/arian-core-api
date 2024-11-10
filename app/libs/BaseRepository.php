@@ -8,6 +8,7 @@ use App\Filters\BillOfLadingDriverNationalCodeFilter;
 use App\Filters\BlockByFilter;
 use App\Filters\BlockItemMakeCodeIdFilter;
 use App\Filters\BlockReasonIdFilter;
+use App\Filters\BolTypeFilter;
 use App\Filters\CarFilter;
 use App\Filters\CarModelIdFilter;
 use App\Filters\CarModelIdsFilter;
@@ -34,6 +35,7 @@ use App\Filters\PalletTypeIdFilter;
 use App\Filters\PhoneFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Filters\ProductionOrderNumberFilter;
+use App\Filters\ProductionTestIdFilter;
 use App\Filters\QcCarModelFilter;
 use App\Filters\QcMakeCodeFilter;
 use App\Filters\RolesFilter;
@@ -44,6 +46,7 @@ use App\Filters\StationProductionLineIdFilter;
 use App\Filters\SynchronousNumberFilter;
 use App\Filters\SynchronousProductionLineIdFilter;
 use App\Filters\SynchronousTitleFilter;
+use App\Filters\TestCarModelIdsFilter;
 use App\Filters\TitleFilter;
 use App\Filters\TrackingFilter;
 use App\Filters\TransitCompanyIdFilter;
@@ -53,6 +56,7 @@ use App\Filters\UnblockedAtFilter;
 use App\Filters\UnblockedAtFromFilter;
 use App\Filters\UnblockedAtToFilter;
 use App\Filters\UserAccessToResourceFilter;
+use App\Filters\UserIdFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Exception;
@@ -128,6 +132,10 @@ abstract class BaseRepository
         AllShortageDoneFilter::class,
         OwnerFilter::class,
         PalletTypeIdFilter::class,
+        ProductionTestIdFilter::class,
+        UserIdFilter::class,
+        TestCarModelIdsFilter::class,
+        BolTypeFilter::class,
     ];
     public array $searchTerms = [
         'title'
