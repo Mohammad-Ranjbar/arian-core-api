@@ -18,10 +18,10 @@ class BolTypeFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('Bol_type') || !request()->get('Bol_type')) {
+        if (!request()->has('bol_type') || !request()->get('bol_type')) {
             return $next($request);
         }
-        return $next($request)->filterByType(request()->input('Bol_type'));
+        return $next($request)->filterByType(request()->input('bol_type'));
     }
 
 }
