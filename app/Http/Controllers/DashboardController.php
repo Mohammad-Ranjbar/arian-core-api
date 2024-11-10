@@ -96,7 +96,7 @@ GROUP BY
 
         return response()->json(
             [
-                [
+               [ [
                     'title' => 'درب ورود و خروج',
                     'type' => 'table',
                     'heads' => [
@@ -111,7 +111,7 @@ GROUP BY
                             $row->count
                         ];
                     })
-                ],
+                ]],
                 $linesTracking->map(function ($lineTracking) {
                     return [
                         'title' => $lineTracking->first()->model->title,
