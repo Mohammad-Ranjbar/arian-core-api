@@ -76,7 +76,7 @@ class GatePermitReportExport implements FromCollection, WithMapping, WithHeading
             $row->model_id,
             $type,
             $row->location?->title ?? 'نامشخص',
-            $row->owner->getTable,
+            $row->owner?->getTable,
             $row->owner?->name ?? 'نامشخص',
             $row->exit_type == 2 ? 'امانی' : 'قطعی',
             jdate($row->created_at)->format('Y-m-d'),
