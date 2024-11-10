@@ -286,6 +286,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sale-invoices', SaleInvoicesController::class)->only('index');
 
 
+    Route::post('/add-pallet',[PalletController::class, 'addPallet'])->name('add-pallet');
+    Route::post('/transfer-pallet',[PalletController::class, 'transferPallet'])->name('transfer-pallet');
+    Route::get('/pallets/{pallet}/locations',[PalletController::class, 'getPalletLocations'])->name('pallet-locations');
     Route::get('list-sale-locations',
         [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
 

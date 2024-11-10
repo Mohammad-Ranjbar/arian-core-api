@@ -33,6 +33,11 @@ class Location extends Model
         return $this->belongsToMany(User::class);
     }
 
+    public function palletTransactions(): HasMany
+    {
+        return $this->hasMany(PalletTransaction::class);
+    }
+
     /**
      * @return Attribute
      */
