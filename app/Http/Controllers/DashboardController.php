@@ -105,7 +105,11 @@ GROUP BY
                         'تعداد',
                     ],
                     'items' => $gateTracking->map(function ($row) {
-                        return $row->values();
+                        return [
+                            $row->title,
+                            $row->type,
+                            $row->count
+                        ];
                     })
                 ],
                 $linesTracking->map(function ($lineTracking) {
