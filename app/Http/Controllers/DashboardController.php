@@ -104,7 +104,9 @@ GROUP BY
                         'نوع',
                         'تعداد',
                     ],
-                    'items' => $gateTracking->toArray()
+                    'items' => $gateTracking->map(function ($row) {
+                        return array_values($row);
+                    })
                 ],
                 $linesTracking->map(function ($lineTracking) {
                     return [
