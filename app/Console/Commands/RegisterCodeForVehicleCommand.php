@@ -20,22 +20,22 @@ class RegisterCodeForVehicleCommand extends Command
     {
 
 
-        $vehicles = [
-            'N5RL42DA5RP017833',
-            'N5RL42DA5RP017858',
-            'N5RL42DA5RP016436',
-            'N5RL42DA5RP017861',
-            'N5RL42DA5RP017837',
-            'N5RL42DA5RP017848',
-            'N5RL42DA5RP017623',
-            'N5RL42DA5RP017693',
-            'N5RL42DA5RP017855',
-            'N5RL42DA5RP017702',
-            'N5RL42DA5RP009821',
-            'N5RL42DA5RP017683',
-            'N5RL42DA5RP016501',
-
-        ];
+//        $vehicles = [
+//            'N5RL42DA5RP017833',
+//            'N5RL42DA5RP017858',
+//            'N5RL42DA5RP016436',
+//            'N5RL42DA5RP017861',
+//            'N5RL42DA5RP017837',
+//            'N5RL42DA5RP017848',
+//            'N5RL42DA5RP017623',
+//            'N5RL42DA5RP017693',
+//            'N5RL42DA5RP017855',
+//            'N5RL42DA5RP017702',
+//            'N5RL42DA5RP009821',
+//            'N5RL42DA5RP017683',
+//            'N5RL42DA5RP016501',
+//
+//        ];
 
         foreach ($vehicles as $vehicle) {
             $carModelId = Vehicle::query()->where('vin', $vehicle)->first()->car_model_id;
