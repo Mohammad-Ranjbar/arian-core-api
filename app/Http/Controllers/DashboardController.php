@@ -107,7 +107,7 @@ GROUP BY
                     'items' => $gateTracking->map(function ($row) {
                         return [
                             $row->title,
-                            $row->type,
+                            $row->type == 'enter' ? 'ورود' : 'خروج',
                             $row->count
                         ];
                     })
