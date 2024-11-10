@@ -70,8 +70,42 @@ class DashboardController extends Controller
         }
 
 
+        $sql = "
+SELECT
+    car_models.title,
+    production_tracking.type,
+    COUNT(*) as count
+FROM
+    `production_tracking`
+    LEFT JOIN
+        vehicles 
+    ON 
+        production_tracking.vin = vehicles.vin
+    LEFT JOIN 
+        car_models
+    ON 
+        vehicles.car_model_id = car_models.id
+WHERE
+    production_tracking.`model_type` = ? and 
+    production_tracking.created_at >= ? and 
+    production_tracking.created_at < ?
+GROUP BY 
+    car_models.title, production_tracking.type  
+        ";
+        $gateTracking = collect(DB::select($sql, [Location::class, $startTime, $endTime]));
+
         return response()->json(
             [
+                [
+                    'title' => 'درب ورود و خروج',
+                    'type' => 'table',
+                    'heads' => [
+                        'عنوان',
+                        'نوع',
+                        'تعداد',
+                    ],
+                    'items' => $gateTracking->toArray()
+                ],
                 $linesTracking->map(function ($lineTracking) {
                     return [
                         'title' => $lineTracking->first()->model->title,
