@@ -39,7 +39,6 @@ class BolTypeFilter
             ->when(request()->get('bol_type') === 'vehicles', function ($query) {
                 $query->having('vehicle_count', '>', 0);
             });
-//        return $next($request)->filterByType(request()->input('bol_type'));
     }
 
 }
