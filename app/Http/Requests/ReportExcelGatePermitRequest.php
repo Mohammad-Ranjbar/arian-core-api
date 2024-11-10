@@ -6,23 +6,26 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ReportExcelGatePermitRequest extends FormRequest
 {
+
     /**
-     * Determine if the user is authorized to make this request.
+     * @return bool
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return string[]
      */
     public function rules(): array
     {
         return [
-            //
+            'location_id' => 'exists:locations,id',
+            'type' => 'string|in:exit:enter',
+            'exit_type' => 'integer|in:1,2',
+            'from' => 'nullable',
+            'to' => 'nullable',
         ];
     }
 }
