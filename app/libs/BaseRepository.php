@@ -45,6 +45,7 @@ use App\Filters\StationProductionLineIdFilter;
 use App\Filters\SynchronousNumberFilter;
 use App\Filters\SynchronousProductionLineIdFilter;
 use App\Filters\SynchronousTitleFilter;
+use App\Filters\TestCarModelIdsFilter;
 use App\Filters\TitleFilter;
 use App\Filters\TrackingFilter;
 use App\Filters\TransitCompanyIdFilter;
@@ -131,7 +132,8 @@ abstract class BaseRepository
         OwnerFilter::class,
         PalletTypeIdFilter::class,
         ProductionTestIdFilter::class,
-        UserIdFilter::class
+        UserIdFilter::class,
+        TestCarModelIdsFilter::class,
     ];
     public array $searchTerms = [
         'title'
