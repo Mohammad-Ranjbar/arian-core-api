@@ -25,6 +25,7 @@ use App\Repositories\StopFactRepository;
 use App\Repositories\StopReasonRepository;
 use App\Repositories\StopTypeRepository;
 use App\Repositories\TransitCompanyRepository;
+use App\Repositories\UserRepository;
 use App\Repositories\WorkGroupCenterRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
@@ -76,6 +77,7 @@ class OptionController extends Controller
             'production-tests' => ProductionTestRepository::class,
             'incident-categories' => IncidentCategoryRepository::class,
             'pallet-types' => PalletTypeRepository::class,
+            'users' => UserRepository::class,
             default => false,
         };
     }
