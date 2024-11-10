@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReportExcelGatePermitRequest;
 use App\Http\Resources\GatePermitResource;
+use App\Jobs\ExportJob;
 use App\Models\GatePermit;
+use App\Models\Job;
 use App\Models\Location;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -87,6 +90,24 @@ class GatePermitController extends CrudController
     }
 
 
+    public function reportExcel(ReportExcelGatePermitRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $validatedData['type'] = 'export-gate-permits';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = $request->validated();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
 
 
 

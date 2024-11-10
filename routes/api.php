@@ -280,6 +280,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-bill-of-ladings',
         [BillOfLadingController::class, 'reportExcel'])->name('report-excel-bill-of-ladings');
 
+
+    Route::get('/report-excel-gate-permits',
+        [GatePermitController::class, 'reportExcel'])->name('report-excel-gate-permits');
     Route::apiResource('sale-invoices', SaleInvoicesController::class)->only('index');
 
 
