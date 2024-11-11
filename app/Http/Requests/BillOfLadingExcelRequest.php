@@ -4,10 +4,11 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BillOfLAdingExcelRequest extends FormRequest
+class BillOfLadingExcelRequest extends FormRequest
 {
+
     /**
-     * Determine if the user is authorized to make this request.
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -15,6 +16,9 @@ class BillOfLAdingExcelRequest extends FormRequest
     }
 
 
+    /**
+     * @return string[]
+     */
     public function rules(): array
     {
         return [
