@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -38,7 +37,7 @@ class BillOfLading extends Model
         'batch',
         'description',
     ];
-    const HEAD_VEHICLE   = [
+    const HEAD_VEHICLE = [
         'VIN',
         'shipping_company',
         'vehicle_title',
@@ -61,8 +60,59 @@ class BillOfLading extends Model
     protected $fillable = [
         'user_id', 'location_source_id', 'location_destination_id', 'code', 'request_no',
         'status', 'priority', 'cottage',
-        'weight', 'batch', 'description', 'car_id','created_at'
+        'weight', 'batch', 'description', 'car_id', 'created_at'
     ];
+
+    public static function scopeFilterByType(Builder $query, string $type)
+    {
+        return $query->selectRaw("*,
+        CASE
+            WHEN EXISTS (SELECT 1 FROM containers WHERE containers.model_id = your_models.id) THEN 'containers'
+            WHEN EXISTS (SELECT 1 FROM vehicles WHERE vehicles.model_id = your_models.id AND (data->'Item_Type' = 'Painted Body' OR data->'Item_Type' = 'Raw Body')) THEN 'bodies'
+            WHEN EXISTS (SELECT 1 FROM vehicles WHERE vehicles.model_id = your_models.id AND data->'Item_Type' = 'Vehicle') THEN 'vehicles'
+            ELSE NULL
+        END AS type")
+            ->having('type', $type);
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
+    public static function getReportData($data)
+    {
+        $query = self::query();
+
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['type'])) {
+            $query = $query->withCount([
+                'containers', // Count related containers
+                'vehicles as painted_body_count' => function ($query) {
+                    $query->whereIn('data->Item_Type', ['Painted Body', 'Raw Body']);
+                },
+                'vehicles as vehicle_count' => function ($query) {
+                    $query->where('data->Item_Type', 'Vehicle');
+                },
+            ])
+                ->when(request()->get('type') === 'containers', function ($query) {
+                    $query->having('containers_count', '>', 0);
+                })
+                ->when(request()->get('type') === 'bodies', function ($query) {
+                    $query->having('painted_body_count', '>', 0);
+                })
+                ->when(request()->get('type') === 'vehicles', function ($query) {
+                    $query->having('vehicle_count', '>', 0);
+                });
+        }
+
+
+        return $query->get();
+    }
 
     /**
      * @return BelongsTo
@@ -113,150 +163,20 @@ class BillOfLading extends Model
     }
 
     /**
-     * @return Attribute
-     */
-    protected function action(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => match ($this->getAttribute('status')) {
-                'new' => [
-                    [
-                        'action'     => 'temporary_receipt',
-                        'permission' => 'bill-of-lading.change-status.temporary_receipt',
-                        'url'        => '/bill-of-lading/'.$this->getAttribute('id').'/change-status/temporary_receipt',
-                    ]
-                ],
-                'temporary_receipt' => [
-                    [
-                        'action'     => 'enter',
-                        'permission' => 'bill-of-lading.change-status.enter',
-                        'url'        => '/bill-of-lading/'.$this->getAttribute('id').'/change-status/enter',
-                    ],
-                    [
-                        'action'     => 'notice',
-                        'permission' => 'bill-of-lading.notice',
-                        'url'        => '/bill-of-lading/'.$this->getAttribute('id').'/notice',
-                    ]
-                ],
-                'enter' => [
-                    [
-                        'action'     => 'discharge',
-                        'permission' => 'bill-of-lading.change-status.discharge',
-                        'url'        => url('/api/bill-of-lading/'.$this->getAttribute('id').'/change-status/discharge'),
-
-                    ]
-                ],
-                default => []
-            },
-        );
-    }
-
-    public static function scopeFilterByType(Builder $query, string $type)
-    {
-        return $query->selectRaw("*,
-        CASE
-            WHEN EXISTS (SELECT 1 FROM containers WHERE containers.model_id = your_models.id) THEN 'containers'
-            WHEN EXISTS (SELECT 1 FROM vehicles WHERE vehicles.model_id = your_models.id AND (data->'Item_Type' = 'Painted Body' OR data->'Item_Type' = 'Raw Body')) THEN 'bodies'
-            WHEN EXISTS (SELECT 1 FROM vehicles WHERE vehicles.model_id = your_models.id AND data->'Item_Type' = 'Vehicle') THEN 'vehicles'
-            ELSE NULL
-        END AS type")
-            ->having('type', $type);
-    }
-
-    /**
-     * @return Attribute
-     */
-    protected function type(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                if ($this->containers()->count()) {
-                    return 'containers';
-                }
-                if ($this->vehicles()->where(function($q){
-                    $q->where('data->Item_Type','Painted Body')->orWhere('data->Item_Type','Raw Body');
-                })->count()) {
-                    return 'bodies';
-                }
-                if ($this->vehicles()->where('data->Item_Type','Vehicle')->count()) {
-                    return 'vehicles';
-                }
-            }
-        );
-    }
-
-    public function containers(): MorphToMany
-    {
-        return $this->morphedByMany(
-            Container::class,
-            'model',
-            'bill_of_lading_item'
-        );
-    }
-
-    public function vehicles(): MorphToMany
-    {
-        return $this->morphedByMany(
-            Vehicle::class,
-            'model',
-            'bill_of_lading_item'
-        );
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
-     */
-    public static function getReportData($data)
-    {
-        $query = self::query();
-
-        if (!empty($data['from'])) {
-            $query = $query->where('created_at', '>=', $data['from']);
-        }
-        if (!empty($data['to'])) {
-            $query = $query->where('created_at', '<=', $data['to']);
-        }
-           if (!empty($data['type'])) {
-            $query = $query->withCount([
-                'containers', // Count related containers
-                'vehicles as painted_body_count' => function ($query) {
-                    $query->whereIn('data->Item_Type', ['Painted Body', 'Raw Body']);
-                },
-                'vehicles as vehicle_count' => function ($query) {
-                    $query->where('data->Item_Type', 'Vehicle');
-                },
-            ])
-                ->when(request()->get('type') === 'containers', function ($query) {
-                    $query->having('containers_count', '>', 0);
-                })
-                ->when(request()->get('type') === 'bodies', function ($query) {
-                    $query->having('painted_body_count', '>', 0);
-                })
-                ->when(request()->get('type') === 'vehicles', function ($query) {
-                    $query->having('vehicle_count', '>', 0);
-                });;
-        }
-
-
-        return $query->get();
-    }
-
-    /**
      * @throws Exception
      */
     public function createAutoGatePermit($items): void
     {
-        $exitIds = Location::query()->whereHas('attributes', function ($q){
-            $q->where('attribute','autoExitPermit')->where('value','true');
+        $exitIds = Location::query()->whereHas('attributes', function ($q) {
+            $q->where('attribute', 'autoExitPermit')->where('value', 'true');
         })->get()->pluck('id')->all();
-        $enterIds = Location::query()->whereHas('attributes', function ($q){
-            $q->where('attribute','autoEnterPermit')->where('value','true');
+        $enterIds = Location::query()->whereHas('attributes', function ($q) {
+            $q->where('attribute', 'autoEnterPermit')->where('value', 'true');
         })->get()->pluck('id')->all();
         $type = null;
-        if (in_array($this->location_source_id,$exitIds)) {
+        if (in_array($this->location_source_id, $exitIds)) {
             $type = 'exit';
-        } elseif (in_array($this->location_destination_id,$enterIds)) {
+        } elseif (in_array($this->location_destination_id, $enterIds)) {
             $type = 'enter';
         }
 
@@ -301,6 +221,85 @@ class BillOfLading extends Model
                 }
             }
         }
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function action(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => match ($this->getAttribute('status')) {
+                'new' => [
+                    [
+                        'action' => 'temporary_receipt',
+                        'permission' => 'bill-of-lading.change-status.temporary_receipt',
+                        'url' => '/bill-of-lading/' . $this->getAttribute('id') . '/change-status/temporary_receipt',
+                    ]
+                ],
+                'temporary_receipt' => [
+                    [
+                        'action' => 'enter',
+                        'permission' => 'bill-of-lading.change-status.enter',
+                        'url' => '/bill-of-lading/' . $this->getAttribute('id') . '/change-status/enter',
+                    ],
+                    [
+                        'action' => 'notice',
+                        'permission' => 'bill-of-lading.notice',
+                        'url' => '/bill-of-lading/' . $this->getAttribute('id') . '/notice',
+                    ]
+                ],
+                'enter' => [
+                    [
+                        'action' => 'discharge',
+                        'permission' => 'bill-of-lading.change-status.discharge',
+                        'url' => url('/api/bill-of-lading/' . $this->getAttribute('id') . '/change-status/discharge'),
+
+                    ]
+                ],
+                default => []
+            },
+        );
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function type(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if ($this->containers()->count()) {
+                    return 'containers';
+                }
+                if ($this->vehicles()->where(function ($q) {
+                    $q->where('data->Item_Type', 'Painted Body')->orWhere('data->Item_Type', 'Raw Body');
+                })->count()) {
+                    return 'bodies';
+                }
+                if ($this->vehicles()->where('data->Item_Type', 'Vehicle')->count()) {
+                    return 'vehicles';
+                }
+            }
+        );
+    }
+
+    public function containers(): MorphToMany
+    {
+        return $this->morphedByMany(
+            Container::class,
+            'model',
+            'bill_of_lading_item'
+        );
+    }
+
+    public function vehicles(): MorphToMany
+    {
+        return $this->morphedByMany(
+            Vehicle::class,
+            'model',
+            'bill_of_lading_item'
+        );
     }
 
 }
