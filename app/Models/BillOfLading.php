@@ -63,17 +63,6 @@ class BillOfLading extends Model
         'weight', 'batch', 'description', 'car_id', 'created_at'
     ];
 
-    public static function scopeFilterByType(Builder $query, string $type)
-    {
-        return $query->selectRaw("*,
-        CASE
-            WHEN EXISTS (SELECT 1 FROM containers WHERE containers.model_id = your_models.id) THEN 'containers'
-            WHEN EXISTS (SELECT 1 FROM vehicles WHERE vehicles.model_id = your_models.id AND (data->'Item_Type' = 'Painted Body' OR data->'Item_Type' = 'Raw Body')) THEN 'bodies'
-            WHEN EXISTS (SELECT 1 FROM vehicles WHERE vehicles.model_id = your_models.id AND data->'Item_Type' = 'Vehicle') THEN 'vehicles'
-            ELSE NULL
-        END AS type")
-            ->having('type', $type);
-    }
 
     /**
      * @throws NotFoundExceptionInterface
@@ -174,9 +163,9 @@ class BillOfLading extends Model
             $q->where('attribute', 'autoEnterPermit')->where('value', 'true');
         })->get()->pluck('id')->all();
         $type = null;
-        if (in_array($this->location_source_id, $exitIds)) {
+        if (in_array($this->getAttribute('location_source_id'), $exitIds)) {
             $type = 'exit';
-        } elseif (in_array($this->location_destination_id, $enterIds)) {
+        } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
             $type = 'enter';
         }
 
@@ -197,7 +186,7 @@ class BillOfLading extends Model
                     $gate = GatePermit::query()->create([
                         'model_type' => Vehicle::class,
                         'model_id' => $vin,
-                        'location_id' => $this->location_destination_id,
+                        'location_id' => $this->getAttribute('location_destination_id'),
                         'owner_id' => Auth::id(),
                         'owner_type' => User::class,
                         'type' => $type,
@@ -206,13 +195,13 @@ class BillOfLading extends Model
 
                     if ($type == 'exit') {
                         $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
-                            $gate->location->getAttribute('code'));
+                            $gate->getAttribute('location')->code);
 
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }
                     } else {
-                        $response = ErpReturnRequest::returnRequest($vin, $gate->location->getAttribute('code'));
+                        $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code);
 
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
@@ -280,6 +269,7 @@ class BillOfLading extends Model
                 if ($this->vehicles()->where('data->Item_Type', 'Vehicle')->count()) {
                     return 'vehicles';
                 }
+                return 'unknown';
             }
         );
     }
