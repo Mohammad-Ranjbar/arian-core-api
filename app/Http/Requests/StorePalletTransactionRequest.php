@@ -18,6 +18,14 @@ class StorePalletTransactionRequest extends FormRequest
             'pallet_id' => 'required|exists:pallets,id',
             'location_id' => 'required|exists:locations,id',
             'qty' => 'required|integer|min:1',
+            'user_id' => 'nullable'
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        return $this->merge([
+            'user_id' => $this->user()->id
+        ]);
     }
 }
