@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TemplateExport;
+use App\Http\Requests\BillOfLAdingExcelRequest;
 use App\Http\Requests\ImportBillOfLadingRequest;
 use App\Http\Requests\ReturnContainerRequest;
 use App\Http\Requests\SetPriorityRequest;
@@ -170,7 +171,7 @@ class BillOfLadingController extends CrudController
         ]);
     }
 
-    public function reportExcel(TrackingReportExcelRequest $request): JsonResponse
+    public function reportExcel(BillOfLAdingExcelRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
         $validatedData['type'] = 'export-bill-of-ladings';
