@@ -40,23 +40,23 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
     public function headings(): array
     {
         return [
-            'VIN/Container',
-            'shipping_company',
-            'vehicle_title',
-//            'number_plates',
-//            'plate_area',
-            'driver_name',
-            'driver_mobile',
-            'driver_national_code',
-            'freight_number',
-            'request_number',
-            'cottage_number',
-            'weight',
-            'batch',
-            'description',
-            'created_at',
-            'deliver_date',
-            'discharge_date',
+            'شرکت ترابری',
+            'نام راننده',
+            'موبایل راننده',
+            'کد ملی راننده',
+            'شماره بارنامه',
+            'آیتم های بارنامه',
+            'شماره بچ',
+            'شماره درخواست',
+            'شماره کوتاژ',
+            'وزن',
+            'توضیحات',
+            'تاریخ ایجاد',
+            'ساعت ایجاد',
+            'تاریخ ورود',
+            'ساعت ورود',
+            'تاریخ تخلیه',
+            'ساعت تخلیه',
         ];
     }
 
@@ -77,21 +77,23 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
         $deliverDate = $row->actionLogs()->where('action', 'temporary_receipt')->first();
         $dischargeDate = $row->actionLogs()->where('action', 'discharge')->first();
         $row = [
-            $row->vehicles()->get()->implode('vin', ',') . $row->containers()->get()->implode('code', ','),
             $row->car->transitCompany->title,
-            $row->car->title,
             $row->car->driver->name,
             $row->car->driver->phone,
             $row->car->driver->national_code,
             $row->code,
+            $row->vehicles()->get()->implode('vin', ',') . $row->containers()->get()->implode('code', ','),
+            $row->batch,
             $row->request_no,
             $row->cottage,
             $row->weight,
-            $row->batch,
             $row->description,
-            jdate($row->created_at),
-            $deliverDate ? jdate($deliverDate->created_at) : '',
-            $dischargeDate ? jdate($dischargeDate->created_at) : '',
+            jdate($row->created_at)->format('Y-m-d'),
+            jdate($row->created_at)->format('H:i:s'),
+            $deliverDate ? jdate($deliverDate->created_at)->format('Y-m-d') : '',
+            $deliverDate ? jdate($deliverDate->created_at)->format('H:i:s') : '',
+            $dischargeDate ? jdate($dischargeDate->created_at)->format('Y-m-d') : '',
+            $dischargeDate ? jdate($dischargeDate->created_at)->format('H:i:s') : '',
         ];
         $this->eventData['done']++;
         $this->eventData['success']++;
