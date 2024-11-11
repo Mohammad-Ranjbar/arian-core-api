@@ -60,8 +60,10 @@ use App\Filters\UserIdFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
 use Psr\Container\ContainerExceptionInterface;
@@ -195,6 +197,10 @@ abstract class BaseRepository
     }
 
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function makeQuery(): mixed
     {
         $data = $this->model;
@@ -212,7 +218,7 @@ abstract class BaseRepository
     }
 
 
-    public function make($data, string $parameter = 'reference')
+    public function make($data, string $parameter = 'reference'): LogManager|Model|\Illuminate\Foundation\Application|Builder|Application|null
     {
         try {
             return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
@@ -232,11 +238,19 @@ abstract class BaseRepository
         return $this->model->newQuery()->where($parameter, $value)->firstOrFail();
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function where($key, $value)
     {
         return $this->makeQuery()->where($key, $value);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function paginate($perPage, string $orderBy = 'id', string $orderType = 'desc'): mixed
     {
         return $this->makeQuery()->orderBy($orderBy, $orderType)->paginate($perPage);
