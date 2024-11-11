@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class BillOfLading extends Model
 {
@@ -201,7 +203,11 @@ class BillOfLading extends Model
         );
     }
 
-    public static function getReportData( $data)
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
+    public static function getReportData($data)
     {
         $query = self::query();
 
@@ -211,6 +217,27 @@ class BillOfLading extends Model
         if (!empty($data['to'])) {
             $query = $query->where('created_at', '<=', $data['to']);
         }
+           if (!empty($data['type'])) {
+            $query = $query->withCount([
+                'containers', // Count related containers
+                'vehicles as painted_body_count' => function ($query) {
+                    $query->whereIn('data->Item_Type', ['Painted Body', 'Raw Body']);
+                },
+                'vehicles as vehicle_count' => function ($query) {
+                    $query->where('data->Item_Type', 'Vehicle');
+                },
+            ])
+                ->when(request()->get('type') === 'containers', function ($query) {
+                    $query->having('containers_count', '>', 0);
+                })
+                ->when(request()->get('type') === 'bodies', function ($query) {
+                    $query->having('painted_body_count', '>', 0);
+                })
+                ->when(request()->get('type') === 'vehicles', function ($query) {
+                    $query->having('vehicle_count', '>', 0);
+                });;
+        }
+
 
         return $query->get();
     }
