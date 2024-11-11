@@ -36,6 +36,26 @@ class GatePermitRepository extends BaseRepository
         $this->model = $model;
     }
 
+    public function getReportData(array $data)
+    {
+        $query = $this->model::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['type'])) {
+            $query = $query->where('type',  $data['type']);
+        }
+        if (!empty($data['location_id'])) {
+            $query = $query->where('location_id',  $data['location_id']);
+        }
+        if (!empty($data['exit_type'])) {
+            $query = $query->where('exit_type',  $data['exit_type']);
+        }
 
+        return $query->get();
+    }
 
 }
