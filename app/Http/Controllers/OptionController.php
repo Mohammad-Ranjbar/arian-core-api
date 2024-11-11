@@ -13,6 +13,7 @@ use App\Repositories\IncidentCategoryRepository;
 use App\Repositories\IncidentRepository;
 use App\Repositories\LocationRepository;
 use App\Repositories\MakeCodeRepository;
+use App\Repositories\PalletRepository;
 use App\Repositories\PalletTypeRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProductionLineRepository;
@@ -77,6 +78,7 @@ class OptionController extends Controller
             'production-tests' => ProductionTestRepository::class,
             'incident-categories' => IncidentCategoryRepository::class,
             'pallet-types' => PalletTypeRepository::class,
+            'pallets' => PalletRepository::class,
             'users' => UserRepository::class,
             default => false,
         };
