@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PalletTransactionResource;
 use App\Models\PalletTransaction;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PalletTransactionController extends Controller
 {
 
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
-        return response()->json(PalletTransactionResource::collection(PalletTransaction::query()->latest()->get()));
+        return PalletTransactionResource::collection(PalletTransaction::query()->latest()->paginate());
     }
-
 
 
     public function store(Request $request)
