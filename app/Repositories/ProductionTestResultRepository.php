@@ -31,5 +31,27 @@ class ProductionTestResultRepository extends BaseRepository
     {
         $this->model = $model;
     }
+    public function getReportData(array $data)
+    {
+        $query = $this->model::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['production_test_id'])) {
+            $query = $query->where('production_test_id',  $data['production_test_id']);
+        }
+        if (!empty($data['user_id'])) {
+            $query = $query->where('user_id',  $data['user_id']);
+        }
+        if (!empty($data['vin'])) {
+            $query = $query->where('vin', $data['vin']);
+        }
+
+        return $query->get();
+    }
+
 
 }

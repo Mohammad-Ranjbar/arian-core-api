@@ -13,10 +13,11 @@ class ExporterServiceFactory
     /**
      * @throws Exception
      */
-    public static function getInstance($job): ExportProductionLineActivityService|ExportTrackingService|ExportVehicleQcService|ExportIncidentsService|ExportBarcodeService|ExportBlockItemsService|ExportGatePermitsService|ExportFaultService|ExportBillOfLadingsService|ExportShortageService
+    public static function getInstance($job)
     {
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
+            'export-production-test-results' => new ExportProductionTestResultService($job),
             'export-tracking', 'export-tracking-sale-location' => new ExportTrackingService($job),
             'export-vehicle-qc' => new ExportVehicleQcService($job),
             'export-bill-of-ladings' => new ExportBillOfLadingsService($job),
