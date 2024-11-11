@@ -29,7 +29,7 @@ class PalletTransactionController extends Controller
         //
     }
 
-    public function destroy(PalletTransaction $palletTransaction)
+    public function destroy(PalletTransaction $palletTransaction): \Illuminate\Http\JsonResponse
     {
         $palletTransaction->delete();
         return response()->json([
