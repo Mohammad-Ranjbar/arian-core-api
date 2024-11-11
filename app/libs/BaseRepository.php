@@ -218,7 +218,7 @@ abstract class BaseRepository
     }
 
 
-    public function make($data, string $parameter = 'reference'): LogManager|Model|\Illuminate\Foundation\Application|Builder|Application|null
+    public function make($data, string $parameter = 'reference')
     {
         try {
             return $this->model->query()->firstOrCreate([$parameter => $data[$parameter]], $data);
