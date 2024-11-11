@@ -22,7 +22,7 @@ class BillOfLadingExcelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'nullable|in:vehicle,container,body',
+            'type' => 'nullable|in:vehicles,containers,bodies',
             'from' => 'date|nullable',
             'to' => 'date|nullable',
         ];
