@@ -57,6 +57,7 @@ class PalletController extends CrudController
             'pallet_id' => $validatedData['pallet_id'],
             'location_id' => $validatedData['to_location_id'],
             'qty' => $validatedData['qty'],
+            'user_id' => $validatedData['user_id'],
         ]);
 
         return response()->json([
