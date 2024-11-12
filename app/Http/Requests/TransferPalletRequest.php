@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class TransferPalletRequest extends FormRequest
 {
@@ -33,7 +34,7 @@ class TransferPalletRequest extends FormRequest
     public function prepareForValidation()
     {
         return $this->merge([
-            'user_id' => $this->user()->id
+            'user_id' => Auth::id()
         ]);
     }
 }
