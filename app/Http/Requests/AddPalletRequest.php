@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class AddPalletRequest extends FormRequest
 {
@@ -32,7 +33,7 @@ class AddPalletRequest extends FormRequest
     public function prepareForValidation()
     {
         return $this->merge([
-            'user_id' => $this->user()->id
+            'user_id' => Auth::id()
         ]);
     }
 }
