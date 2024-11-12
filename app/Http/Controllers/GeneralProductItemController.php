@@ -35,7 +35,9 @@ class GeneralProductItemController extends CrudController
         $this->authorize('general-product-items.vehicle');
         $carModelId = $vehicle->getAttribute('car_model_id');
 
-        $items = $this->repository->model->newQuery()->whereHas('carModels', function ($query) use ($carModelId) {
+        $items = $this->repository->model->newQuery()
+            ->where('type',request()->get('type'))
+            ->whereHas('carModels', function ($query) use ($carModelId) {
             $query->where('car_model_id', $carModelId);
         })->orderBy('priority')->get();
 
