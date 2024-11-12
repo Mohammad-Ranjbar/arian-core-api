@@ -17,6 +17,7 @@ class PalletTransactionResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'pallet_id' => $this->resource->pallet_id,
+            'pallet' => new PalletResource($this->resource->pallet),
             'location_id' => $this->resource->location_id,
             'qty' => $this->resource->qty,
             'created_at' => $this->resource->created_at,
