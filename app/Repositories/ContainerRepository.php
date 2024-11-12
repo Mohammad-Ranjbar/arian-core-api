@@ -28,5 +28,15 @@ class ContainerRepository extends BaseRepository
             $this->rules['update']['code'] .= request()->route()->parameter('container');
         }
     }
+    public function getOptions(): array
+    {
+        return $this->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->fact ? $item->fact->title . ' - ' . $item->title : $item->title,
+                'on_shipping' => $item->on_shipping,
+            ];
+        })->all();
+    }
 
 }
