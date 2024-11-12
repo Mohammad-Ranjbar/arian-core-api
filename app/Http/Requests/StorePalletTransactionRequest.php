@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class StorePalletTransactionRequest extends FormRequest
 {
@@ -26,7 +25,7 @@ class StorePalletTransactionRequest extends FormRequest
     public function prepareForValidation()
     {
         return $this->merge([
-            'user_id' => Auth::id()
+            'user_id' => $this->user()->id
         ]);
     }
 }
