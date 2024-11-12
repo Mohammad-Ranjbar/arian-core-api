@@ -72,7 +72,7 @@ class SendGateToErpJob implements ShouldQueue
             "status"  => "error",
             "message" => "cant received response from ERP."
         ]);
-        dispatch(new SendGateToErpJob($this->id));
+//        dispatch(new SendGateToErpJob($this->id));
     }
 
     private function update($record, $result): void
