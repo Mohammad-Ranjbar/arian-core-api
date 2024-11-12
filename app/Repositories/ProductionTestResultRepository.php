@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Filters\AccessVehicleFilter;
 use App\libs\BaseRepository;
 use App\Models\ProductionTestResult;
 
@@ -11,7 +12,7 @@ class ProductionTestResultRepository extends BaseRepository
      * @var array|array[]
      */
     protected array $rules = [
-        'create'    => [
+        'create' => [
             'vin' => 'required|exists:vehicles,vin',
             'files' => 'required|json',
             'description' => 'required',
@@ -24,13 +25,19 @@ class ProductionTestResultRepository extends BaseRepository
         ]
     ];
 
-    /**
-     * @param  ProductionTestResult  $model
-     */
     public function __construct(ProductionTestResult $model)
     {
         $this->model = $model;
     }
+
+
+    public function getFilters(): array
+    {
+        $filters = parent::getFilters();
+        $filters[] = AccessVehicleFilter::class;
+        return $filters;
+    }
+
     public function getReportData(array $data)
     {
         $query = $this->model::query();
@@ -41,10 +48,10 @@ class ProductionTestResultRepository extends BaseRepository
             $query = $query->where('created_at', '<=', $data['to']);
         }
         if (!empty($data['production_test_id'])) {
-            $query = $query->where('production_test_id',  $data['production_test_id']);
+            $query = $query->where('production_test_id', $data['production_test_id']);
         }
         if (!empty($data['user_id'])) {
-            $query = $query->where('user_id',  $data['user_id']);
+            $query = $query->where('user_id', $data['user_id']);
         }
         if (!empty($data['vin'])) {
             $query = $query->where('vin', $data['vin']);

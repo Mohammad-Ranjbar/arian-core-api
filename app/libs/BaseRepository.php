@@ -212,9 +212,13 @@ abstract class BaseRepository
             request()->merge(['filterAccessUser' => Auth::id()]);
         }
 
-        return Pipeline::send($data)->through($this->filters)->thenReturn();
+        return Pipeline::send($data)->through($this->getFilters())->thenReturn();
     }
 
+    public function getFilters(): array
+    {
+        return $this->filters;
+    }
 
     public function make($data, string $parameter = 'reference')
     {
