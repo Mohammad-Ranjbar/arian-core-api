@@ -16,7 +16,8 @@ class PalletTransaction extends Model
     protected $fillable = [
         'pallet_id',
         'location_id',
-        'qty'
+        'qty',
+        'user_id'
     ];
 
     /**
