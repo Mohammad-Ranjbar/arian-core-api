@@ -87,7 +87,7 @@ class VehicleOverviewController extends Controller
         $qcCheckedAt = $incidents->max('checked_at');
         $qcChecked = '';
         if ($qcCheckedAt) {
-            $qcChecked = '(بررسی شده در تاریخ '.jdate($qcCheckedAt)->addDays(3)->toDateString().') ';
+            $qcChecked = '(تاریخ بررسی و رفع ایراد '.jdate($qcCheckedAt)->addDays(3)->toDateString().') ';
         }
 
 
@@ -219,7 +219,7 @@ class VehicleOverviewController extends Controller
                     ]
                 ],
                 [
-                    'title'  => 'ایرادات کیفی '.$qcChecked,
+                    'title'  => 'ایرادات کیفی حین تولید و کنترل نهایی محصول '.$qcChecked,
                     'type'   => 'table',
                     'heads'  => [],
                     'values' => $incidents->get()->map(function ($record) {
