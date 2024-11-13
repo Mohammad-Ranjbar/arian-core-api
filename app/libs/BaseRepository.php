@@ -38,6 +38,7 @@ use App\Filters\ProductionOrderNumberFilter;
 use App\Filters\ProductionTestIdFilter;
 use App\Filters\QcCarModelFilter;
 use App\Filters\QcMakeCodeFilter;
+use App\Filters\QtyFilter;
 use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\SearchQByFilter;
@@ -136,6 +137,7 @@ abstract class BaseRepository
         UserIdFilter::class,
         TestCarModelIdsFilter::class,
         BolTypeFilter::class,
+        QtyFilter::class
     ];
     public array $searchTerms = [
         'title'
