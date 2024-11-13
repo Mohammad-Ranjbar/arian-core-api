@@ -22,7 +22,8 @@ class ReportExcelGatePermitRequest extends FormRequest
     {
         return [
             'location_id' => 'exists:locations,id',
-            'type' => 'string|in:exit,enter',
+            'types' => 'nullable|array',
+            'types.*' => 'in:exit,enter',
             'exit_type' => 'integer|in:1,2',
             'from' => 'nullable',
             'to' => 'nullable',
