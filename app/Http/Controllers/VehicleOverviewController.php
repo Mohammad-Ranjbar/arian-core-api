@@ -87,7 +87,7 @@ class VehicleOverviewController extends Controller
         $qcCheckedAt = $incidents->max('checked_at');
         $qcChecked = '';
         if ($qcCheckedAt) {
-            $qcChecked = '(بررسی شده در تاریخ '.jdate($qcCheckedAt)->addDays(3)->toDateString().') ';
+            $qcChecked = '(تاریخ بررسی و رفع ایراد '.jdate($qcCheckedAt)->addDays(3)->toDateString().') ';
         }
 
 
@@ -219,7 +219,7 @@ class VehicleOverviewController extends Controller
                     ]
                 ],
                 [
-                    'title'  => 'ایرادات کیفی '.$qcChecked,
+                    'title'  => 'ایرادات کیفی حین تولید و کنترل نهایی محصول '.$qcChecked,
                     'type'   => 'table',
                     'heads'  => [],
                     'values' => $incidents->get()->map(function ($record) {
@@ -278,12 +278,14 @@ class VehicleOverviewController extends Controller
                             $vehicle->data['PDI_Result_Description'].' '.$vehicle->data['PDI_Result_Description_2'],
                             (is_numeric(strpos($vehicle->data['PDI_Result'],'Y')) or is_numeric(strpos($vehicle->data['PDI_Result'],'G'))) ?
                                 ($r =$vehicle->tracking()->where('model_type', SaleLocation::class)->latest()->first()) ?
-                                    jdate($r->created_at)->toDateTimeString()
+                                    'تاریخ بررسی و رفع ایراد: '.
+                                    jdate($r->created_at)->toDateString()
                                     :''
                                 : ''
                         ]
                     ]
                 ],
+              /*
                 [
                     'title'  => 'بلوکه',
                     'type'   => 'table',
@@ -304,7 +306,7 @@ class VehicleOverviewController extends Controller
                             ];
                         })->all()
                 ],
-
+*/
                 [
                     'title'  => 'رهگیری محصول - تاریخ تولید',
                     'type'   => 'table',
@@ -337,22 +339,29 @@ class VehicleOverviewController extends Controller
                     'title'  => 'حمل و نقل',
                     'type'   => 'table',
                     'heads'  => [],
-                    'values' => BillOfLadingItem::query()
+                    'values' => array_values(array_filter(BillOfLadingItem::query()
                         ->where('model_id', $vehicle->getAttribute('vin'))
-                        ->whereDoesntHave('billOfLading', function ($q) {
-                            $q->where('location_source_id', 4);
-                            $q->orWhere('location_destination_id', 4);
-                        })
+//                        ->whereDoesntHave('billOfLading', function ($q) {
+//                            $q->where('location_source_id', 4);
+//                            $q->orWhere('location_destination_id', 4);
+//                        })
                         ->get()->map(function ($record) {
+                            if(
+                            $record->billOfLading->locationSource->id === 4 or
+                            $record->billOfLading->locationDestination->id === 4
+                            ){
+                                return null;
+                            }
                             return [
                                 jdate($record->billOfLading->created_at)->toDateTimeString(),
                                 $record->billOfLading->locationSource->title,
                                 $record->billOfLading->locationDestination->title
                             ];
                         })->all()
+                    ))
                 ],
                 [
-                    'title'  => 'طرح انطباق تولید',
+                    'title'  => 'آرشیو فنی محصولات',
                     'type'   => 'download-list',
                     'heads'  => [],
                     'values' => $copList
