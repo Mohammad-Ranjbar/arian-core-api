@@ -20,6 +20,7 @@ use App\Filters\DriverIdFilter;
 use App\Filters\ElementIdFilter;
 use App\Filters\EmailFilter;
 use App\Filters\EngineBarcodeFilter;
+use App\Filters\ExitTypesFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
 use App\Filters\IntensityFilter;
@@ -137,7 +138,8 @@ abstract class BaseRepository
         UserIdFilter::class,
         TestCarModelIdsFilter::class,
         BolTypeFilter::class,
-        QtyFilter::class
+        QtyFilter::class,
+        ExitTypesFilter::class
     ];
     public array $searchTerms = [
         'title'
