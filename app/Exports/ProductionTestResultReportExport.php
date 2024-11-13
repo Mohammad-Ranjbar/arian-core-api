@@ -44,8 +44,8 @@ class ProductionTestResultReportExport implements FromCollection, WithMapping, W
             "کاربر",
             "تست",
             "توضیحات",
-            "ساعت ایجاد",
             "تاریخ ایجاد",
+            "ساعت ایجاد",
 
         ];
     }
