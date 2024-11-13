@@ -4,6 +4,7 @@ namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
 use App\Exports\BlockItemReportExport;
+use App\Exports\ProductionTestResultReportExport;
 use App\Repositories\BlockItemRepository;
 use App\Repositories\ProductionTestResultRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -40,7 +41,7 @@ class ExportProductionTestResultService extends BaseExporterService
 
         $fileName = 'blockItemExport-'.Str::uuid().'.xlsx';
         $path = '/public/exports/'.$fileName;
-        Excel::store(new BlockItemReportExport($rows, $eventData), $path);
+        Excel::store(new ProductionTestResultReportExport($rows, $eventData), $path);
         return $fileName;
 
     }
