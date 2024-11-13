@@ -16,8 +16,8 @@ class DashboardController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        if (in_array(Auth::id(),  [])) {
-            return response()->json([119,108]);
+        if (in_array(Auth::id(),  [119,108])) {
+            return response()->json([]);
         }
         $startTime = Carbon::today();
         $endTime = Carbon::tomorrow();
