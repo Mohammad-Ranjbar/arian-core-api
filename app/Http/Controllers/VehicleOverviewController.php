@@ -285,6 +285,7 @@ class VehicleOverviewController extends Controller
                         ]
                     ]
                 ],
+              /*
                 [
                     'title'  => 'بلوکه',
                     'type'   => 'table',
@@ -305,7 +306,7 @@ class VehicleOverviewController extends Controller
                             ];
                         })->all()
                 ],
-
+*/
                 [
                     'title'  => 'رهگیری محصول - تاریخ تولید',
                     'type'   => 'table',
