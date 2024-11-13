@@ -19,9 +19,9 @@ class RegisterCodeForVehicleCommand extends Command
     public function handle(): void
     {
 
-        $vehicles = [
-            "N5RL42DA5RP200220",
-        ];
+//        $vehicles = [
+//            "N5RL42DA5RP200220",
+//        ];
 
         foreach ($vehicles as $vehicle) {
             $carModelId = Vehicle::query()->where('vin', $vehicle)->first()->car_model_id;
