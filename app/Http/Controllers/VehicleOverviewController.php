@@ -339,19 +339,26 @@ class VehicleOverviewController extends Controller
                     'title'  => 'حمل و نقل',
                     'type'   => 'table',
                     'heads'  => [],
-                    'values' => BillOfLadingItem::query()
+                    'values' => array_values(array_filter(BillOfLadingItem::query()
                         ->where('model_id', $vehicle->getAttribute('vin'))
 //                        ->whereDoesntHave('billOfLading', function ($q) {
 //                            $q->where('location_source_id', 4);
 //                            $q->orWhere('location_destination_id', 4);
 //                        })
                         ->get()->map(function ($record) {
+                            if(
+                            $record->billOfLading->locationSource->id === 4 or
+                            $record->billOfLading->locationDestination->id === 4
+                            ){
+                                return null;
+                            }
                             return [
                                 jdate($record->billOfLading->created_at)->toDateTimeString(),
                                 $record->billOfLading->locationSource->title,
                                 $record->billOfLading->locationDestination->title
                             ];
                         })->all()
+                    ))
                 ],
                 [
                     'title'  => 'آرشیو فنی محصولات',
