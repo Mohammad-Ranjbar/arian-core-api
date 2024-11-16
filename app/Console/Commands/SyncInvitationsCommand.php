@@ -62,7 +62,7 @@ class SyncInvitationsCommand extends Command
                 dispatch(new MoveInvitationToSaleOnlineApplicationJob([
                     'path'       => $path,
                     'reference'  => $reference,
-                    'company_id' => $company->id
+                    'company_id' => $company->getAttribute('id')
                 ]));
 
                 fclose($content);
@@ -74,7 +74,7 @@ class SyncInvitationsCommand extends Command
         }
     }
 
-    private function syncContract(SaleCompany $company)
+    private function syncContract(SaleCompany $company): void
     {
 
         try {
@@ -94,7 +94,7 @@ class SyncInvitationsCommand extends Command
                 dispatch(new MoveContractToSaleOnlineApplicationJob([
                     'path'       => $path,
                     'reference'  => $reference,
-                    'company_id' => $company->id
+                    'company_id' => $company->getAttribute('id')
                 ]));
 
                 fclose($content);

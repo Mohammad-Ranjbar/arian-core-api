@@ -4,16 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\Barcode;
 use Illuminate\Console\Command;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TestExportCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:test-export-command';
 
     public $handle;

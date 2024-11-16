@@ -8,17 +8,10 @@ use Illuminate\Support\Facades\Http;
 
 class CheckCustomerFinanceCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:check-customer-finance-command';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): void
     {
         SaleInvoice::query()->where('payment_status','paid')
             ->where('erp_status','!=', 'transferred')

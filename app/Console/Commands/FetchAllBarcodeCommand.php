@@ -11,19 +11,13 @@ use Illuminate\Support\Facades\Http;
 
 class FetchAllBarcodeCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:fetch-all-barcode-command';
 
-    /**
-     * @return void
-     */
+
     public function handle(): void
     {
-        $url = 'http://172.16.0.52/api/barcode-list';
+//        $url = 'http://172.16.0.52/api/barcode-list';
 
         while ($url) {
             $res = Http::get($url)->json();

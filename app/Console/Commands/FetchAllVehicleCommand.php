@@ -10,14 +10,9 @@ use Illuminate\Support\Facades\Http;
 
 class FetchAllVehicleCommand extends Command
 {
-    /**
-     * @var string
-     */
+
     protected $signature = 'app:fetch-all-vehicle-command';
 
-    /**
-     * @param VehicleController $controller
-     */
     public function __construct(private readonly VehicleController $controller)
     {
         parent::__construct();
@@ -28,7 +23,7 @@ class FetchAllVehicleCommand extends Command
      */
     public function handle(): void
     {
-        $response = Http::get('http://172.16.0.52/api/vehicles')->collect();
+//        $response = Http::get('http://172.16.0.52/api/vehicles')->collect();
 
         $bar = $this->output->createProgressBar(count($response));
         $bar->start();

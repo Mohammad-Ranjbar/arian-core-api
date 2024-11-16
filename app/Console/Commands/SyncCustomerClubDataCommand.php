@@ -12,16 +12,9 @@ use Illuminate\Support\Facades\Http;
 
 class SyncCustomerClubDataCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:sync-customer-club-data-command';
 
-    /**
-     * @param  ErpOdataClient  $client
-     */
     public function __construct(private readonly ErpOdataClient $client)
     {
         parent::__construct();

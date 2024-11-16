@@ -10,19 +10,13 @@ use Illuminate\Support\Facades\Http;
 
 class FetchAllBlockCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:fetch-all-block-command';
 
-    /**
-     * @return void
-     */
+
     public function handle(): void
     {
-        $url = 'http://172.16.0.52/api/blocks?page=5';
+//        $url = 'http://172.16.0.52/api/blocks?page=5';
 
         while ($url) {
             $res = Http::get($url)->json();

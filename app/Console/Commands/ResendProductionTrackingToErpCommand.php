@@ -12,7 +12,7 @@ class ResendProductionTrackingToErpCommand extends Command
     protected $signature = 'app:resend-production-tracking-to-erp-command';
 
 
-    public function handle()
+    public function handle(): int
     {
         $records = Tracking::query()->whereNull('data')->get();
         if ($records->isEmpty()) {
@@ -26,5 +26,7 @@ class ResendProductionTrackingToErpCommand extends Command
             $bar->advance();
         });
         $bar->finish();
+
+        return 0;
     }
 }

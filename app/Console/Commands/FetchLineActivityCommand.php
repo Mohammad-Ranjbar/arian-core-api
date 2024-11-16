@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Http;
 class FetchLineActivityCommand extends Command
 {
 
-    /**
-     * @var string
-     */
     protected $signature = 'app:fetch-line-activity-command';
 
 
@@ -25,7 +22,7 @@ class FetchLineActivityCommand extends Command
         $bar = $this->output->createProgressBar();
         do {
             $this->info('page - '.$page);
-            $url = 'http://172.16.0.52/api/in-out-histories?page='.$page;
+//            $url = 'http://172.16.0.52/api/in-out-histories?page='.$page;
             $res = Http::get($url)->json();
             $bar->clear();
             $bar->start(count($res));

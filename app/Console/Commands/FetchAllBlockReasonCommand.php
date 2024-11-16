@@ -8,18 +8,13 @@ use Illuminate\Support\Facades\Http;
 
 class FetchAllBlockReasonCommand extends Command
 {
-    /**
-     * @var string
-     */
+
     protected $signature = 'app:fetch-all-block-reason-command';
 
 
-    /**
-     * @return void
-     */
     public function handle(): void
     {
-        $url = 'http://172.16.0.52/api/reasons-list';
+//        $url = 'http://172.16.0.52/api/reasons-list';
 
         while ($url) {
             $res = Http::get($url)->json();

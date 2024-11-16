@@ -9,21 +9,10 @@ use Illuminate\Console\Command;
 class SyncMakeCodeIdToCarModelCommand extends Command
 {
 
-    /**
-     * @var string
-     */
     protected $signature = 'app:sync-make-code-id-to-car-model-command';
 
-
-    /**
-     * @var string
-     */
     protected $description = 'Command description';
 
-
-    /**
-     * @return void
-     */
     public function handle():void
     {
         $carModels = CarModel::query()->whereNull('make_code_id')->get();
