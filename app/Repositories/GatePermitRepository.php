@@ -48,8 +48,8 @@ class GatePermitRepository extends BaseRepository
         if (!empty($data['types'])) {
             $query = $query->whereIn('type',  $data['types']);
         }
-        if (!empty($data['location_id'])) {
-            $query = $query->where('location_id',  $data['location_id']);
+        if (!empty($data['location_ids'])) {
+            $query = $query->whereIn('location_id',  $data['location_ids']);
         }
         if (!empty($data['exit_types'])) {
             $query = $query->whereIn('exit_types',  $data['exit_types']);
