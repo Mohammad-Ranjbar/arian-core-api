@@ -40,7 +40,7 @@ class SendGateToErpJob implements ShouldQueue
                 "status"  => "error",
                 "message" => $response['message']
             ]);
-            dispatch(new SendGateToErpJob($this->id));
+//            dispatch(new SendGateToErpJob($this->id));
         }else{
             $this->update($record, [
                 "status"  => "ok"
