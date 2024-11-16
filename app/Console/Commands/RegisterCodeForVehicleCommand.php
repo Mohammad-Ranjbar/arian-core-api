@@ -21,12 +21,12 @@ class RegisterCodeForVehicleCommand extends Command
 
 
 
-        $vehicles = [
-            "N5RL42DA5RP200435",
-            "N5RL42DA5RP200309",
-            "N5RL42DA5RP200137",
-            "N5RL42DA5RP200644",
-        ];
+//        $vehicles = [
+//            "N5RL42DA5RP200435",
+//            "N5RL42DA5RP200309",
+//            "N5RL42DA5RP200137",
+//            "N5RL42DA5RP200644",
+//        ];
 
         foreach ($vehicles as $vehicle) {
             $carModelId = Vehicle::query()->where('vin', $vehicle)->first()->car_model_id;
