@@ -88,7 +88,6 @@ class DisplayBoardController extends Controller
             ];
         });
 
-        $temp = [];
         if(env('APP_ENV') != 'production') {
             $result->push([
                 'type'     => 'image-board',

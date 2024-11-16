@@ -5,11 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Resources\VehicleResource;
 use App\Models\Vehicle;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DeliverVehicleToCustomerController extends Controller
 {
-    public function get(Request $request,Vehicle $vehicle)
+    public function set(Request $request, Vehicle $vehicle): bool
+    {
+
+        return $vehicle->update([
+            'files' => $request->get('files'),
+            'delivered_customer_at' => Carbon::now()
+        ]);
+    }
+
+    public function get(Vehicle $vehicle): JsonResponse
     {
         $information = [
             'vehicle' => new VehicleResource($vehicle),
@@ -42,14 +52,5 @@ class DeliverVehicleToCustomerController extends Controller
         ];
 
         return response()->json($information);
-    }
-
-    public function set(Request $request, Vehicle $vehicle)
-    {
-
-      return  $vehicle->update([
-            'files' => $request->get('files'),
-            'delivered_customer_at' => Carbon::now()
-        ]);
     }
 }
