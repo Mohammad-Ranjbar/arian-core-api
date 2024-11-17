@@ -9,6 +9,7 @@ use App\Repositories\ContainerRepository;
 use App\Repositories\DriverRepository;
 use App\Repositories\ElementRepository;
 use App\Repositories\ErpProductItemRepository;
+use App\Repositories\ErpServiceItemRepository;
 use App\Repositories\IncidentCategoryRepository;
 use App\Repositories\IncidentRepository;
 use App\Repositories\LocationRepository;
@@ -75,11 +76,13 @@ class OptionController extends Controller
             'drivers' => DriverRepository::class,
             'sale-locations' => SaleLocationRepository::class,
             'product-items' => ErpProductItemRepository::class,
+            'service-items' => ErpServiceItemRepository::class,
             'production-tests' => ProductionTestRepository::class,
             'incident-categories' => IncidentCategoryRepository::class,
             'pallet-types' => PalletTypeRepository::class,
             'pallets' => PalletRepository::class,
             'users' => UserRepository::class,
+
             default => false,
         };
     }
