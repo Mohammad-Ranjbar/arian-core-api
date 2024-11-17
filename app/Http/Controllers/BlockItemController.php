@@ -29,20 +29,21 @@ use Symfony\Component\HttpFoundation\Response;
 class BlockItemController extends Controller
 {
 
-    public function __construct(public readonly BlockItemRepository $repository,public readonly BlockReasonRepository $reasonRepository)
+    public function __construct(public readonly BlockItemRepository $repository, public readonly BlockReasonRepository $reasonRepository)
     {
     }
 
     /**
-     * @param  Request  $request
-     * @param  Vehicle  $vehicle
+     * @param Request $request
+     * @param Vehicle $vehicle
      * @return JsonResponse|AnonymousResourceCollection
      * @throws AuthorizationException
      */
     public function index(
         Request $request,
         Vehicle $vehicle
-    ): JsonResponse|AnonymousResourceCollection {
+    ): JsonResponse|AnonymousResourceCollection
+    {
         $this->authorize('block-items.index');
         $perPage = $request->get('per_page', 15);
         return BlockItemResource::collection($vehicle->blockItems()->latest()->paginate($perPage));
@@ -51,19 +52,18 @@ class BlockItemController extends Controller
 
     public function store(BlockItemStoreRequest $request, Vehicle $vehicle): JsonResponse|BlockItemResource
     {
-
         try {
             $validatedData = $request->validated();
-            $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'],'id');
-            $blockType = $blockReason->getAttribute('block_type');
+//            $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
+//            $blockType = $blockReason->getAttribute('block_type');
 
-          $response =  ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicleByType', [
-                'barcodeInfoP' => $vehicle->vin,
-                'blockTypeP' => $blockType,
-            ]);
-            if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'], 400);
-            }
+//            $response = ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicleByType', [
+//                'barcodeInfoP' => $vehicle->vin,
+//                'blockTypeP' => $blockType,
+//            ]);
+//            if ($response['status'] !== 'ok') {
+//                return $this->responseError($response['message'], 400);
+//            }
             return new BlockItemResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
@@ -71,7 +71,7 @@ class BlockItemController extends Controller
     }
 
     /**
-     * @param  Vehicle  $vehicle
+     * @param Vehicle $vehicle
      * @param $id
      * @return BlockItemResource|JsonResponse
      */
@@ -105,14 +105,14 @@ class BlockItemController extends Controller
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'export job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
     }
 
     /**
-     * @param  JobRequest  $request
+     * @param JobRequest $request
      * @return JsonResponse
      */
     public function importUnblockItems(JobRequest $request): JsonResponse
@@ -122,14 +122,14 @@ class BlockItemController extends Controller
         }
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
-        $validatedData['type'] = 'import-un'.$this->repository->model->getTable();
+        $validatedData['type'] = 'import-un' . $this->repository->model->getTable();
         $validatedData['data'] = ['file' => $validatedData['file']];
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
         $data = [
             'message' => 'import job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ];
@@ -137,7 +137,7 @@ class BlockItemController extends Controller
     }
 
     /**
-     * @param  ImportBlockRequest  $request
+     * @param ImportBlockRequest $request
      * @return JsonResponse
      */
     public function importBlockItems(ImportBlockRequest $request): JsonResponse
@@ -145,14 +145,14 @@ class BlockItemController extends Controller
 
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
-        $validatedData['type'] = 'import-'.$this->repository->model->getTable();
+        $validatedData['type'] = 'import-' . $this->repository->model->getTable();
         $validatedData['data'] = $validatedData;
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
         return new JsonResponse(data: [
             'message' => 'import job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ], status: Response::HTTP_OK);
@@ -165,6 +165,6 @@ class BlockItemController extends Controller
         }
         $headers = ['id'];
         $export = new TemplateExport($headers);
-        return Excel::download($export, 'un'.$this->repository->model->getTable().'-template.xlsx');
+        return Excel::download($export, 'un' . $this->repository->model->getTable() . '-template.xlsx');
     }
 }
