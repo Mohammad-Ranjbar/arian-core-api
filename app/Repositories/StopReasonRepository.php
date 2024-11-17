@@ -34,7 +34,8 @@ class StopReasonRepository extends BaseRepository
             return [
                 'id' => $item->id,
                 'title' => $item->fact ? $item->fact->title . ' - ' . $item->title : $item->title,
-                'has_product_items' => (boolean)$item->has_options
+                'has_product_items' => $item->has_options == 'product-items',
+                'has_service_items' => $item->has_options == 'service-items',
             ];
         })->all();
     }
