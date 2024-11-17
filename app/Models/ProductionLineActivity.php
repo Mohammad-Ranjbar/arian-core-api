@@ -117,4 +117,10 @@ class ProductionLineActivity extends Model
         return $this->belongsToMany(ErpProductItem::class, 'erp_product_item_production_line_activity',
             'production_line_activity_id', 'erp_product_item_id');
     }
+
+    public function serviceItems(): BelongsToMany
+    {
+        return $this->belongsToMany(ErpServiceItem::class, 'erp_service_item_production_line_activity',
+            'production_line_activity_id', 'erp_service_item_id');
+    }
 }
