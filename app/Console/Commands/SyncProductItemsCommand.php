@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\SyncProductItem;
+use App\Models\ErpProductItem;
 use App\Services\Erp\ErpOdataClient;
 use Illuminate\Console\Command;
 
@@ -39,7 +39,9 @@ class SyncProductItemsCommand extends Command
                         'description'   => $row->Description_2,
                         'type'          => $row->Engin ? 'engine' : $row->Item_Type,
                     ];
-                    dispatch(new SyncProductItem($data));
+
+                    ErpProductItem::query()->where('reference', $data['reference'])
+                        ->firstOrCreate($data);
                     $bar->advance();
                 }
                 $bar->finish();
