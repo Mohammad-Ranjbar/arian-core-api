@@ -34,4 +34,9 @@ class GatePermit extends Model
         return $this->belongsTo(Location::class);
     }
 
+    public function owner(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
 }
