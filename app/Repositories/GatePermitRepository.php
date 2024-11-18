@@ -38,7 +38,7 @@ class GatePermitRepository extends BaseRepository
 
     public function getReportData(array $data)
     {
-        $query = $this->model::query();
+        $query = $this->model::withTrashed();
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
