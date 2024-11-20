@@ -18,9 +18,10 @@ class GeneralProductItemController extends CrudController
 
     public function carModelItems(string $carModelId): JsonResponse
     {
-        $items = $this->repository->model->newQuery()->with('carModels')->whereHas('carModels', function ($query) use ($carModelId) {
-            $query->where('car_model_id', $carModelId);
-        })->get();
+        $items = $this->repository->model->newQuery()->with('carModels')->whereHas('carModels',
+            function ($query) use ($carModelId) {
+                $query->where('car_model_id', $carModelId);
+            })->get();
 
         return new JsonResponse(
             data: GeneralProductItemResource::collection($items),
@@ -36,10 +37,12 @@ class GeneralProductItemController extends CrudController
         $carModelId = $vehicle->getAttribute('car_model_id');
 
         $items = $this->repository->model->newQuery()
-            ->where('type',request()->get('type'))
+            ->when(request()->get('type'), function ($q) {
+                $q->where('type', request()->get('type'));
+            })
             ->whereHas('carModels', function ($query) use ($carModelId) {
-            $query->where('car_model_id', $carModelId);
-        })->orderBy('priority')->get();
+                $query->where('car_model_id', $carModelId);
+            })->orderBy('priority')->get();
 
         return new JsonResponse(
             data: GeneralProductItemResource::collection($items),
