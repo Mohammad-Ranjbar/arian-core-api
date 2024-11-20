@@ -21,6 +21,7 @@ class PalletResource extends JsonResource
             'pallet_type_id' => $this->resource->pallet_type_id,
             'palletType' => new PalletTypeResource($this->resource->palletType),
             'created_at' => $this->resource->created_at,
+            'total' => $this->resource->transactions->sum('qty')
         ];
     }
 }
