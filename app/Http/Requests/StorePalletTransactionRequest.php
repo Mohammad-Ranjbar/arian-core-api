@@ -18,14 +18,17 @@ class StorePalletTransactionRequest extends FormRequest
         return [
             'pallet_id' => 'required|exists:pallets,id',
             'location_id' => 'required|exists:locations,id',
-            'qty' => 'required|integer|min:1',
-            'user_id' => 'nullable'
+            'qty' => 'required|integer',
+            'user_id' => 'nullable',
+            'description' => 'nullable',
         ];
     }
 
     public function prepareForValidation()
     {
+        $type = $this->get('qty') < 0 ? 'decrease' : 'increase';
         return $this->merge([
+            'type' => $type,
             'user_id' => Auth::id()
         ]);
     }

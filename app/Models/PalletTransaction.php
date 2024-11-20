@@ -17,7 +17,9 @@ class PalletTransaction extends Model
         'pallet_id',
         'location_id',
         'qty',
-        'user_id'
+        'user_id',
+        'type',
+        'description'
     ];
 
     /**

@@ -51,12 +51,15 @@ class PalletController extends CrudController
             'pallet_id' => $validatedData['pallet_id'],
             'location_id' => $validatedData['from_location_id'],
             'qty' => $validatedData['qty'] * -1,
+            'type' => 'transfer',
             'user_id' => $validatedData['user_id'],
+            'description' => $validatedData['description'],
         ]);
         PalletTransaction::query()->create([
             'pallet_id' => $validatedData['pallet_id'],
             'location_id' => $validatedData['to_location_id'],
             'qty' => $validatedData['qty'],
+            'type' => 'transfer',
             'user_id' => $validatedData['user_id'],
         ]);
 
