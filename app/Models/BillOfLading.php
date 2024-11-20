@@ -292,4 +292,9 @@ class BillOfLading extends Model
         );
     }
 
+    public function canReturn(): bool
+    {
+        return $this->actionLogs()->where('action','discharge')->exists();
+    }
+
 }

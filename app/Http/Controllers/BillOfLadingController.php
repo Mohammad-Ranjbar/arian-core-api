@@ -187,8 +187,14 @@ class BillOfLadingController extends CrudController
 
     public function returnContainer(BillOfLading $billOfLading, ReturnContainerRequest $request): JsonResponse
     {
+        $validatedData = $request->validated();
+        if (!$billOfLading->canReturn()){
+          return response()->json([
+              'message' => 'کاتینر هنوز تخلیه نشده است'
+          ]);
+        }
         try {
-            $validatedData = $request->validated();
+
             $validatedData['user_id'] = Auth::id();
             $validatedData['model_type'] = BillOfLading::class;
             $validatedData['model_id'] = $billOfLading->getAttribute('id');

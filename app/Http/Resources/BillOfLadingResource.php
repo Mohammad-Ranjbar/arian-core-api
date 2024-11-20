@@ -52,7 +52,8 @@ class BillOfLadingResource extends JsonResource
                     ];
                 }),
             'actionLogs' => ActionLogResource::collection($this->resource->actionLogs),
-            'actions' => $this->resource->action
+            'actions' => $this->resource->action,
+            'can_return' => $this->resource->canReturn()
         ];
     }
 }
