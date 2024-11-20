@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pallet extends Model
 {
@@ -25,5 +26,10 @@ class Pallet extends Model
     public function palletType(): BelongsTo
     {
         return $this->belongsTo(PalletType::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(PalletTransaction::class);
     }
 }
