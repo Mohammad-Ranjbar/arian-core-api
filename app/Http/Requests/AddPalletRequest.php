@@ -25,7 +25,7 @@ class AddPalletRequest extends FormRequest
         return [
             'pallet_id' => 'required|integer|exists:pallets,id',
             'location_id' => 'required|integer|exists:locations,id',
-            'qty' => 'required|integer|min:1',
+            'qty' => 'required|integer',
             'user_id' => 'nullable'
         ];
     }
