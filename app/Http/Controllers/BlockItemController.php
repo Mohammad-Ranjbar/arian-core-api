@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ErpJobEvent;
 use App\Exports\TemplateExport;
 use App\Http\Requests\BlockItemStoreRequest;
 use App\Http\Requests\ImportBlockRequest;
@@ -9,12 +10,12 @@ use App\Http\Requests\JobRequest;
 use App\Http\Resources\BlockItemResource;
 use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
-use App\Jobs\SendUnblockToErpJob;
+use App\Models\BlockItem;
+use App\Models\ErpJob;
 use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\BlockItemRepository;
 use App\Repositories\BlockReasonRepository;
-use App\Services\Erp\ErpWsdlClient;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -54,17 +55,27 @@ class BlockItemController extends Controller
     {
         try {
             $validatedData = $request->validated();
-//            $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
-//            $blockType = $blockReason->getAttribute('block_type');
+            $record = $this->repository->store($validatedData);
+            $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
 
-//            $response = ErpWsdlClient::run(config('erp.block_unblock'), 'BlockingVehicleByType', [
-//                'barcodeInfoP' => $vehicle->vin,
-//                'blockTypeP' => $blockType,
-//            ]);
-//            if ($response['status'] !== 'ok') {
-//                return $this->responseError($response['message'], 400);
-//            }
-            return new BlockItemResource($this->repository->store($validatedData));
+            $parameters = [
+                'barcodeInfoP' => $record->getAttribute('vin'),
+                'blockTypeP' => $blockReason->getAttribute('block_type'),
+            ];
+            $erpJob = ErpJob::query()->create(
+                [
+                    'queue' => ErpJob::QUEUE_UNIQUE,
+                    'user_id' => $blockItem->getAttribute('blocked_by'),
+                    'method' => 'BlockingVehicleByType',
+                    'url' => config('erp.block_unblock'),
+                    'parameters' => $parameters,
+                    'model_type' => BlockItem::class,
+                    'model_id' => $blockItem->getAttribute('id'),
+                    'section' => 'block-vehicle',
+                ]
+            );
+            ErpJobEvent::dispatch($erpJob);
+            return new BlockItemResource($record);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
@@ -86,7 +97,23 @@ class BlockItemController extends Controller
             $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
             $item->update($data);
 
-            dispatch(new SendUnblockToErpJob($vehicle->vin));
+            $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
+            if (!$exists) {
+
+                $parameters = ['barcodeInfoP' => $vehicle->getAttribute('vin')];
+                $erpJob = ErpJob::query()->create([
+                    'model_id' => $id,
+                    'model_type' => BlockItem::class,
+                    'section' => 'unblock-vehicle',
+                    'user_id' => Auth::id(),
+                    'method' => 'UnblockingVehicle',
+                    'url' => config('erp.block_unblock'),
+                    'parameters' => $parameters,
+                    'queue' => ErpJob::QUEUE_UNIQUE
+                ]);
+                ErpJobEvent::dispatch($erpJob);
+
+            }
 
             return new BlockItemResource($item);
 

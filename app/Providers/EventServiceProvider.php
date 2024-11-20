@@ -3,8 +3,7 @@
 namespace App\Providers;
 
 use App\Events\ErpJobEvent;
-use App\Listeners\SendErpJobUniqueListener;
-use App\Listeners\SendErpJobParalelListener;
+use App\Listeners\SendErpJobListener;
 use App\Models\BlockItem;
 use App\Models\Tracking;
 use App\Models\User;
@@ -26,8 +25,7 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         ErpJobEvent::class => [
-            SendErpJobUniqueListener::class,
-            SendErpJobParalelListener::class
+            SendErpJobListener::class
         ]
     ];
 
@@ -39,7 +37,6 @@ class EventServiceProvider extends ServiceProvider
     {
         User::observe(UserObserver::class);
         Tracking::observe(TrackingObserver::class);
-        BlockItem::observe(BlockItemObserver::class);
     }
 
     /**

@@ -5,10 +5,11 @@ namespace App\Listeners;
 use App\Events\ErpJobEvent;
 use App\Models\ErpJob;
 use App\Services\SendToErpEventService;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 
-class SendErpJobUniqueListener implements ShouldQueue
+class SendErpJobUniqueListener implements ShouldBeUnique
 {
+
 
     public $queue = ErpJob::QUEUE_UNIQUE;
 

@@ -21,7 +21,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
-use App\Http\Controllers\GatePermitExitController;
+use App\Http\Controllers\GatePermitTransferController;
 use App\Http\Controllers\GeneralProductItemController;
 use App\Http\Controllers\IncidentCategoryController;
 use App\Http\Controllers\IncidentController;
@@ -214,7 +214,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');
 
             Route::post('/gate-permit-exit',
-                GatePermitExitController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
+                GatePermitTransferController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
             Route::get('/get-available-sale-locations',
                 [SaleLocationController::class, 'getAvailableSaleLocations'])->name('get-available-sale-locations');
             Route::post('/set-sale-location',

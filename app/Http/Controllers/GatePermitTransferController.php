@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\SendGateToErpJob;
+use App\Events\ErpJobEvent;
+use App\Models\ErpJob;
 use App\Models\GatePermit;
 use App\Models\Location;
 use App\Models\Vehicle;
-use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class GatePermitExitController extends Controller
+class GatePermitTransferController extends Controller
 {
     /**
      * @param  Vehicle  $vehicle
@@ -34,8 +34,32 @@ class GatePermitExitController extends Controller
                 'user_id'    => Auth::id()
             ]);
 
-            dispatch(new SendGateToErpJob($record->id));
 
+            if ($record->getAttribute('type') == 'exit') {
+                $parameters = [
+                    'url' => config('erp.gate'),
+                    'parameters' => ['barcodeInfoP' => $permit->getAttribute('model_id')],
+                    'method' => 'ApproveExit',
+                    'section' => 'gate-permit-exit'
+                ];
+            } elseif ($record->getAttribute('type') == 'enter') {
+                $parameters = [
+                    'url' => config('erp.approve'),
+                    'parameters' =>  ['vINP' => $permit->getAttribute('model_id')],
+                    'method' => 'ApproveReturn',
+                    'section' => 'gate-permit-enter'
+                ];
+            }
+
+            $erpJob = ErpJob::query()->create(
+              array_merge($parameters,  [
+                    'queue' => ErpJob::QUEUE_UNIQUE,
+                    'user_id' => Auth::id(),
+                    'model_type' => GatePermit::class,
+                    'model_id' => $record->getAttribute('id'),
+                ])
+            );
+            ErpJobEvent::dispatch($erpJob);
             $permit->delete();
 
             return new  JsonResponse(
@@ -45,7 +69,6 @@ class GatePermitExitController extends Controller
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 400);
         }
-
     }
 
 }
