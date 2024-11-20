@@ -304,6 +304,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/vehicle/{vehicle}/general-product-items',
         [GeneralProductItemController::class, 'vehicleItems'])->name('general-product-items.vehicle');
 
+    Route::apiResource( 'pallet-transactions' , PalletTransactionController::class)->except('destroy');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -337,7 +338,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'incident-categories' => IncidentCategoryController::class,
         'pallet-types' => PalletTypeController::class,
         'pallets' => PalletController::class,
-        'pallet-transactions' => PalletTransactionController::class,
+
     ]);
 
     /*

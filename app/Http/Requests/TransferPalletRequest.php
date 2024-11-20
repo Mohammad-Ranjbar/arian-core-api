@@ -27,7 +27,8 @@ class TransferPalletRequest extends FormRequest
             'from_location_id' => 'required|exists:locations,id',
             'to_location_id' => 'required|exists:locations,id',
             'qty' => 'required|integer|min:1',
-            'user_id' => 'nullable'
+            'user_id' => 'nullable',
+            'description' => 'nullable|string',
         ];
     }
 
