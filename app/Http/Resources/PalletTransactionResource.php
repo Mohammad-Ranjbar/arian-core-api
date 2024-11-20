@@ -22,6 +22,8 @@ class PalletTransactionResource extends JsonResource
             'location' => new LocationResource($this->resource->location),
             'user' => new UserResource($this->resource->user),
             'qty' => $this->resource->qty,
+            'type' => $this->resource->type,
+            'description' => $this->resource->description,
             'created_at' => $this->resource->created_at,
         ];
     }
