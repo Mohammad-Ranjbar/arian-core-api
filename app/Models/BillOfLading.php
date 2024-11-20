@@ -294,8 +294,7 @@ class BillOfLading extends Model
 
     public function canReturn(): bool
     {
-        return $this->actionLogs()->where('action','discharge')
-            ->whereNot('action',ActionLog::RETURN_CONTAINER_AT)->exists();
+        return $this->actionLogs()->where('action','discharge')->exists() && ! $this->actionLogs()->where('action',ActionLog::RETURN_CONTAINER_AT)->exists();
     }
 
 }
