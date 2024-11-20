@@ -26,13 +26,16 @@ class AddPalletRequest extends FormRequest
             'pallet_id' => 'required|integer|exists:pallets,id',
             'location_id' => 'required|integer|exists:locations,id',
             'qty' => 'required|integer',
-            'user_id' => 'nullable'
+            'user_id' => 'nullable',
+            'type' => 'nullable'
         ];
     }
 
     public function prepareForValidation()
     {
+        $type = $this->get('qty') < 0 ? 'decrease' : 'increase';
         return $this->merge([
+            'type' => $type,
             'user_id' => Auth::id()
         ]);
     }
