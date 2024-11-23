@@ -61,10 +61,11 @@ class ErpJob extends Model
         ]);
     }
 
-    public function setStatusSuccess(): bool
+    public function setStatusSuccess($response): bool
     {
         return $this->update([
-            'status' => 'success'
+            'status' => 'success',
+            'description' => json_encode($response)
         ]);
     }
 
