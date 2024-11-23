@@ -121,7 +121,7 @@ class ProductionLineTrackingService extends BaseTrackingService
 //            throw new Exception($response['message']);
 //        }
 
-        $erpJob = ErpJob::query()->create([
+        $data = [
             'user_id' => Auth::id(),
             'section' => 'production-line-tracking-' . $record->type,
             'model_id' => $record->id,
@@ -130,7 +130,12 @@ class ProductionLineTrackingService extends BaseTrackingService
             'url' => config('erp.post_production'),
             'parameters' => $params,
             'queue' => ErpJob::QUEUE_UNIQUE
-        ]);
+        ];
+
+        $erpJob = ErpJob::query()->where([
+            'model_id' => $record->id,
+            'model_type' => Tracking::class,
+        ])->firstOrCreate($data);
 
         ErpJobEvent::dispatch($erpJob);
     }
