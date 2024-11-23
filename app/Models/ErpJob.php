@@ -76,6 +76,12 @@ class ErpJob extends Model
         ]);
     }
 
+    public function setEmptyDescription(): void
+    {
+        $this->update([
+            'description' => ''
+        ]);
+    }
     public function incrementTries(): void
     {
         $this->increment('tries');

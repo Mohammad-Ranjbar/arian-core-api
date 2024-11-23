@@ -10,6 +10,7 @@ class SendToErpEventService
     {
         $startAt = microtime(true);
         $event->erpJob->incrementTries();
+        $event->erpJob->setEmptyDescription();
         $response = ErpWsdlClient::run(
             $event->erpJob->getAttribute('url'),
             $event->erpJob->getAttribute('method'),
