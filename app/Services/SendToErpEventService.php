@@ -22,13 +22,13 @@ class SendToErpEventService
             if (method_exists($model, 'failedJob')) {
                 $model->failedJob($response);
             }
+            $event->erpJob->setExecutionTime($startAt, microtime(true));
+            return;
         }
 
         if (method_exists($model, 'successJob')) {
             $model->successJob($response);
         }
-
-
         $event->erpJob->setExecutionTime($startAt, microtime(true));
         $event->erpJob->setStatusSuccess();
     }
