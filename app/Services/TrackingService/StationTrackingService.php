@@ -82,7 +82,7 @@ class StationTrackingService extends BaseTrackingService
             $params['withOutput'] = 'true';
         }
 
-        $erpJob = ErpJob::query()->create([
+        $data = [
             'user_id' => Auth::id(),
             'section' => 'station-tracking-' . $record->type,
             'model_id' => $record->id,
@@ -91,7 +91,16 @@ class StationTrackingService extends BaseTrackingService
             'url' => config('erp.post_production'),
             'parameters' => $params,
             'queue' => ErpJob::QUEUE_UNIQUE
-        ]);
+        ];
+
+
+        $erpJob = ErpJob::query()->where([
+            'model_id' => $record->id,
+            'model_type' => Tracking::class,
+        ])->first();
+        if (empty($erpJob)){
+            $erpJob = ErpJob::query()->create($data);
+        }
 
         ErpJobEvent::dispatch($erpJob);
     }
