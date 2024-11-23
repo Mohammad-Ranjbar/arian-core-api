@@ -107,7 +107,7 @@ class Tracking extends Model
     public function successJob(string $response): void
     {
         $this->update(['data' => $response]);
-
+        $this->refresh();
         TrackingEvent::dispatch(new TrackingResource($this));
     }
 
