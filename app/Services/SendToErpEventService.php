@@ -18,6 +18,7 @@ class SendToErpEventService
         $model = $event->erpJob->model;
         if ($response['status'] !== 'ok') {
             $event->erpJob->setStatusFailed($response['message']);
+
             if (method_exists($model, 'failedJob')) {
                 $model->failedJob($response);
             }
