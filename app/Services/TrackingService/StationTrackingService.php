@@ -5,6 +5,7 @@ namespace App\Services\TrackingService;
 use App\Events\ErpJobEvent;
 use App\Models\ErpJob;
 use App\Models\Station;
+use App\Models\Tracking;
 use Illuminate\Support\Facades\Auth;
 
 class StationTrackingService extends BaseTrackingService
@@ -84,8 +85,8 @@ class StationTrackingService extends BaseTrackingService
         $erpJob = ErpJob::query()->create([
             'user_id' => Auth::id(),
             'section' => 'station-tracking-' . $record->type,
-            'model_id' => $record->model_id,
-            'model_type' => self::MODEL_TYPE,
+            'model_id' => $record->id,
+            'model_type' => Tracking::class,
             'method' => 'PostProduction_OnlyBIN',
             'url' => config('erp.post_production'),
             'parameters' => $params,

@@ -8,6 +8,7 @@ use App\Models\ProductionLine;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
+use App\Models\Tracking;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
@@ -123,8 +124,8 @@ class ProductionLineTrackingService extends BaseTrackingService
         $erpJob = ErpJob::query()->create([
             'user_id' => Auth::id(),
             'section' => 'production-line-tracking-' . $record->type,
-            'model_id' => $record->model_id,
-            'model_type' => self::MODEL_TYPE,
+            'model_id' => $record->id,
+            'model_type' => Tracking::class,
             'method' => $method,
             'url' => config('erp.post_production'),
             'parameters' => $params,
