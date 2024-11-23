@@ -136,7 +136,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             'model_id' => $record->id,
             'model_type' => Tracking::class,
         ])->first();
-        if (!empty($erpJob)){
+        if (empty($erpJob)){
             $erpJob = ErpJob::query()->create($data);
         }
 
