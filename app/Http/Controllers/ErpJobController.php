@@ -21,7 +21,7 @@ class ErpJobController extends Controller
             ->where('status','failed')
             ->with(['user', 'model'])
             ->latest()
-            ->get();
+            ->paginate(request()->get('per_page') ?? '15');
         return ErpJobResource::collection($data);
     }
 
@@ -32,6 +32,11 @@ class ErpJobController extends Controller
     {
         $this->authorize('retry-erp-jobs');
 
+        if ($erpJob->getAttribute('status') !== 'failed') {
+            return response()->json([
+                'message' => 'Job retry is not failed',
+            ]);
+        }
         $erpJob->load(['user', 'model']);
 
         if (empty($erpJob->model)) {
@@ -39,6 +44,9 @@ class ErpJobController extends Controller
                 'message' => 'model entity of job not found'
             ], 422);
         }
+
+        $erpJob->setStatusInProgress();
+
         ErpJobEvent::dispatch($erpJob);
 
         return response()->json([
