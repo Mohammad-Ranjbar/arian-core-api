@@ -25,7 +25,7 @@ class SendToErpEventService
         }
 
         if (method_exists($model, 'successJob')) {
-            $model->successJob($response);
+            $model->successJob($response['message']);
         }
 
 

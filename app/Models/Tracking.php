@@ -104,7 +104,7 @@ class Tracking extends Model
         return $this->morphTo();
     }
 
-    public function successJob($response): void
+    public function successJob(string $response): void
     {
         $this->update(['data' => $response]);
 
