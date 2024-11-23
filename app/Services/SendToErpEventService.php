@@ -20,7 +20,7 @@ class SendToErpEventService
             $event->erpJob->setStatusFailed($response['message']);
 
             if (method_exists($model, 'failedJob')) {
-                $model->failedJob($response);
+                $model->failedJob($response['message']);
             }
         }
 
