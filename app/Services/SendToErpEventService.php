@@ -30,5 +30,6 @@ class SendToErpEventService
 
 
         $event->erpJob->setExecutionTime($startAt, microtime(true));
+        $event->erpJob->setStatusSuccess();
     }
 }

@@ -54,6 +54,13 @@ class ErpJob extends Model
        ]);
     }
 
+    public function setStatusSuccess(): bool
+    {
+        return $this->update([
+            'status' => 'success'
+        ]);
+    }
+
     public function setStatusFailed(string $message): void
     {
         $this->update([

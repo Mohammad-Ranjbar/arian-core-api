@@ -17,7 +17,12 @@ class ErpJobController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('erp-jobs');
-        return ErpJobResource::collection(ErpJob::query()->with(['user', 'model'])->latest()->get());
+        $data = ErpJob::query()
+            ->where('status','failed')
+            ->with(['user', 'model'])
+            ->latest()
+            ->get();
+        return ErpJobResource::collection($data);
     }
 
     /**
@@ -26,6 +31,7 @@ class ErpJobController extends Controller
     public function retry(ErpJob $erpJob): JsonResponse
     {
         $this->authorize('retry-erp-jobs');
+
         $erpJob->load(['user', 'model']);
 
         if (empty($erpJob->model)) {
