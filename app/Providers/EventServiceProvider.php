@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\ErpJobEvent;
+use App\Listeners\SendErpJobListener;
+use App\Models\BlockItem;
 use App\Models\Tracking;
 use App\Models\User;
+use App\Observers\BlockItemObserver;
 use App\Observers\TrackingObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
@@ -20,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        ErpJobEvent::class => [
+            SendErpJobListener::class
+        ]
     ];
 
 

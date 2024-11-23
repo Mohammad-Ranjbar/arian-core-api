@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Services;
+
+use App\Services\Erp\ErpWsdlClient;
+
+class SendToErpEventService
+{
+    public static function send($event): void
+    {
+        $startAt = microtime(true);
+        $event->erpJob->incrementTries();
+        $event->erpJob->setEmptyDescription();
+        $response = ErpWsdlClient::run(
+            $event->erpJob->getAttribute('url'),
+            $event->erpJob->getAttribute('method'),
+            $event->erpJob->getAttribute('parameters')
+        );
+        $model = $event->erpJob->model;
+        if ($response['status'] !== 'ok') {
+            $event->erpJob->setStatusFailed($response['message']);
+
+            if ($model && method_exists($model, 'failedJob')) {
+                $model->failedJob($response);
+            }
+            $event->erpJob->setExecutionTime($startAt, microtime(true));
+            return;
+        }
+
+        if ($model && method_exists($model, 'successJob')) {
+            $model->successJob($response);
+        }
+        $event->erpJob->setExecutionTime($startAt, microtime(true));
+        $event->erpJob->setStatusSuccess($response);
+    }
+}

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ErpJobEvent;
 use App\Http\Resources\BasketResource;
+use App\Models\Basket;
+use App\Models\ErpJob;
 use App\Repositories\BasketRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
@@ -15,7 +18,7 @@ class BasketController extends CrudController
 {
 
     /**
-     * @param  BasketRepository  $repository
+     * @param BasketRepository $repository
      */
     public function __construct(public readonly BasketRepository $repository)
     {
@@ -62,7 +65,7 @@ class BasketController extends CrudController
     }
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @param $id
      * @return JsonResponse|true
      */
@@ -72,19 +75,28 @@ class BasketController extends CrudController
         if ($basket->status != 'new') {
             return $this->responseError('cant update this basket');
         }
-        $response = $this->sendBasketBarcode($basket->code,$request->get('batch'));
+        $this->sendBasketBarcode($basket, $request->get('batch'));
 
-        if ($response['status'] !== 'ok') {
-            return $this->responseError($response['message']);
-        }
+
         $basket->submit();
 
         return true;
     }
 
-    public function sendBasketBarcode($barcode,$batch): array
+    public function sendBasketBarcode(Basket $basket, $batch): void
     {
-        return ErpWsdlClient::run(config('erp.basket'), 'CreateItemReclassJournal', ['barcodeInfoP' => $barcode,
-            'batchNoP' => 'Batch-'.$batch]);
+        $parameters = ['barcodeInfoP' => $basket->getAttribute('code'),
+            'batchNoP' => 'Batch-' . $batch];
+        $erpJob = ErpJob::query()->create([
+            'model_id' => $basket->getAttribute('id'),
+            'model_type' => Basket::class,
+            'section' => 'send-basket',
+            'user_id' => Auth::id(),
+            'method' => 'CreateItemReclassJournal',
+            'url' => config('erp.basket'),
+            'parameters' => $parameters,
+            'queue' => ErpJob::QUEUE_UNIQUE
+        ]);
+        ErpJobEvent::dispatch($erpJob);
     }
 }

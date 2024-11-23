@@ -119,9 +119,6 @@ class GatePermitController extends CrudController
     public function print(GatePermit $gatePermit): JsonResponse
     {
         $this->authorize('gate-permits.print');
-//        ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
-//            'vINP' => $gatePermit->getAttribute('model_id')
-//        ]);
 
         return new JsonResponse(
             data: new GatePermitResource($gatePermit)

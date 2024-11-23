@@ -58,14 +58,14 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default'],
+            'queue' => ['default','unique','paralel'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 9,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 4096,
-            'tries' => 2,
+            'tries' => 1,
             'timeout' => 6000,
             'nice' => 0,
         ],

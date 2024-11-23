@@ -2,14 +2,15 @@
 
 namespace App\Services\TrackingService;
 
-use App\Jobs\SendTrackingToErpJob;
+use App\Events\ErpJobEvent;
+use App\Models\ErpJob;
 use App\Models\ProductionLine;
-use App\Models\ShortageItem;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
-use App\Services\Erp\ErpWsdlClient;
+use App\Models\Tracking;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class ProductionLineTrackingService extends BaseTrackingService
 {
@@ -120,7 +121,25 @@ class ProductionLineTrackingService extends BaseTrackingService
 //            throw new Exception($response['message']);
 //        }
 
-        dispatch(new SendTrackingToErpJob($record->id, config('erp.post_production'), $method,
-            $params));
+        $data = [
+            'user_id' => Auth::id(),
+            'section' => 'production-line-tracking-' . $record->type,
+            'model_id' => $record->id,
+            'model_type' => Tracking::class,
+            'method' => $method,
+            'url' => config('erp.post_production'),
+            'parameters' => $params,
+            'queue' => ErpJob::QUEUE_UNIQUE
+        ];
+
+        $erpJob = ErpJob::query()->where([
+            'model_id' => $record->id,
+            'model_type' => Tracking::class,
+        ])->first();
+        if (empty($erpJob)){
+            $erpJob = ErpJob::query()->create($data);
+        }
+
+        ErpJobEvent::dispatch($erpJob);
     }
 }

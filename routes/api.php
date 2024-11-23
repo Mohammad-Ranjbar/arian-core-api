@@ -19,9 +19,10 @@ use App\Http\Controllers\DisplayBoardController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\ErpJobController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
-use App\Http\Controllers\GatePermitExitController;
+use App\Http\Controllers\GatePermitTransferController;
 use App\Http\Controllers\GeneralProductItemController;
 use App\Http\Controllers\IncidentCategoryController;
 use App\Http\Controllers\IncidentController;
@@ -88,6 +89,10 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware('auth:sanctum')->group(function () {
+
+
+    Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
+    Route::put('/erp-jobs/{erpJob}', [ErpJobController::class, 'retry'])->name('retry-erp-jobs');
 
     Route::get('/vehicle-shortages', [ShortageController::class, 'vehicleShortages'])->name('vehicle-shortages');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
@@ -214,7 +219,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');
 
             Route::post('/gate-permit-exit',
-                GatePermitExitController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
+                GatePermitTransferController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
             Route::get('/get-available-sale-locations',
                 [SaleLocationController::class, 'getAvailableSaleLocations'])->name('get-available-sale-locations');
             Route::post('/set-sale-location',
@@ -290,9 +295,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sale-invoices', SaleInvoicesController::class)->only('index');
 
 
-    Route::post('/add-pallet',[PalletController::class, 'addPallet'])->name('add-pallet');
-    Route::post('/transfer-pallet',[PalletController::class, 'transferPallet'])->name('transfer-pallet');
-    Route::get('/pallets/{pallet}/locations',[PalletController::class, 'getPalletLocations'])->name('pallet-locations');
+    Route::post('/add-pallet', [PalletController::class, 'addPallet'])->name('add-pallet');
+    Route::post('/transfer-pallet', [PalletController::class, 'transferPallet'])->name('transfer-pallet');
+    Route::get('/pallets/{pallet}/locations', [PalletController::class, 'getPalletLocations'])->name('pallet-locations');
     Route::get('list-sale-locations',
         [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
 

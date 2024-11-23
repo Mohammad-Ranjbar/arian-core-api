@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\TrackingEvent;
+use App\Http\Resources\TrackingResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -100,5 +102,19 @@ class Tracking extends Model
     public function model(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function successJob($response): void
+    {
+        $this->update(['data' => $response]);
+        $this->refresh();
+        TrackingEvent::dispatch(new TrackingResource($this));
+    }
+
+    public function failedJob($response): void
+    {
+        $this->update(['data' => $response]);
+
+        TrackingEvent::dispatch(new TrackingResource($this));
     }
 }
