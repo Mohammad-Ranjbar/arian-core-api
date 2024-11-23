@@ -104,14 +104,14 @@ class Tracking extends Model
         return $this->morphTo();
     }
 
-    public function successJob(string $response): void
+    public function successJob($response): void
     {
         $this->update(['data' => $response]);
         $this->refresh();
         TrackingEvent::dispatch(new TrackingResource($this));
     }
 
-    public function failedJob(string $response): void
+    public function failedJob($response): void
     {
         $this->update(['data' => $response]);
 
