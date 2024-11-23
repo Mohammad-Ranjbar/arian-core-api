@@ -65,12 +65,12 @@ class BlockItemController extends Controller
             $erpJob = ErpJob::query()->create(
                 [
                     'queue' => ErpJob::QUEUE_UNIQUE,
-                    'user_id' => $blockItem->getAttribute('blocked_by'),
+                    'user_id' => $record->getAttribute('blocked_by'),
                     'method' => 'BlockingVehicleByType',
                     'url' => config('erp.block_unblock'),
                     'parameters' => $parameters,
                     'model_type' => BlockItem::class,
-                    'model_id' => $blockItem->getAttribute('id'),
+                    'model_id' => $record->getAttribute('id'),
                     'section' => 'block-vehicle',
                 ]
             );
