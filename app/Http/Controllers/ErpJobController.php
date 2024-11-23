@@ -31,7 +31,7 @@ class ErpJobController extends Controller
         if (empty($erpJob->model)) {
             return response()->json([
                 'message' => 'model entity of job not found'
-            ],422);
+            ], 422);
         }
         ErpJobEvent::dispatch($erpJob);
 
