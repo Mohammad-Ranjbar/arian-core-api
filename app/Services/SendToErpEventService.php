@@ -6,31 +6,31 @@ use App\Services\Erp\ErpWsdlClient;
 
 class SendToErpEventService
 {
-    public static function send($event): void
+    public static function send($erpJob): void
     {
         $startAt = microtime(true);
-        $event->erpJob->incrementTries();
-        $event->erpJob->setEmptyDescription();
+        $erpJob->incrementTries();
+        $erpJob->setEmptyDescription();
         $response = ErpWsdlClient::run(
-            $event->erpJob->getAttribute('url'),
-            $event->erpJob->getAttribute('method'),
-            $event->erpJob->getAttribute('parameters')
+            $erpJob->getAttribute('url'),
+            $erpJob->getAttribute('method'),
+            $erpJob->getAttribute('parameters')
         );
-        $model = $event->erpJob->model;
+        $model = $erpJob->model;
         if ($response['status'] !== 'ok') {
-            $event->erpJob->setStatusFailed($response['message']);
+            $erpJob->setStatusFailed($response['message']);
 
             if ($model && method_exists($model, 'failedJob')) {
                 $model->failedJob($response);
             }
-            $event->erpJob->setExecutionTime($startAt, microtime(true));
+            $erpJob->setExecutionTime($startAt, microtime(true));
             return;
         }
 
         if ($model && method_exists($model, 'successJob')) {
             $model->successJob($response);
         }
-        $event->erpJob->setExecutionTime($startAt, microtime(true));
-        $event->erpJob->setStatusSuccess($response);
+        $erpJob->setExecutionTime($startAt, microtime(true));
+        $erpJob->setStatusSuccess($response);
     }
 }

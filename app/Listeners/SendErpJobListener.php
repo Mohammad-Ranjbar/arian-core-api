@@ -3,15 +3,16 @@
 namespace App\Listeners;
 
 use App\Events\ErpJobEvent;
+use App\Jobs\SendToErpParalelJob;
+use App\Jobs\SendToErpUniqueJob;
 use Exception;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendErpJobListener implements ShouldQueue
+class SendErpJobListener
 {
 
     protected $listeners = [
-        'unique' => SendErpJobUniqueListener::class,
-        'parallel' => SendErpJobParalelListener::class,
+        'unique' => SendToErpUniqueJob::class,
+        'parallel' => SendToErpParalelJob::class,
     ];
 
     /**
@@ -19,10 +20,11 @@ class SendErpJobListener implements ShouldQueue
      */
     public function handle(ErpJobEvent $event): void
     {
-        $listenerClass = $this->listeners[$event->erpJob->getAttribute('queue')] ?? null;
+        $jobClass = $this->listeners[$event->erpJob->getAttribute('queue')] ?? null;
 
-        if ($listenerClass) {
-            app($listenerClass)->handle($event);
+        if ($jobClass) {
+            dispatch(new $jobClass($event->erpJob->getAttribute('id')))
+                ->onQueue($event->erpJob->getAttribute('queue'));
         } else {
             logger('not found listener');
         }
