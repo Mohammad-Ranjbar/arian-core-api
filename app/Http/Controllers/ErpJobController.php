@@ -44,11 +44,11 @@ class ErpJobController extends Controller
         }
         $erpJob->load(['user', 'model']);
 
-        if (empty($erpJob->model)) {
-            return response()->json([
-                'message' => 'model entity of job not found'
-            ], 422);
-        }
+//        if (empty($erpJob->model)) {
+//            return response()->json([
+//                'message' => 'model entity of job not found'
+//            ], 422);
+//        }
 
         $erpJob->setStatusInProgress();
 
