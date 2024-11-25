@@ -161,11 +161,8 @@ class AuthController extends Controller
         return $this->makeToken($user);
     }
 
-    /**
-     * @param  Request  $request
-     * @return UserResource
-     */
-    public function checkUserName(Request $request): UserResource
+
+    public function checkUserName(Request $request)
     {
         $validatedData = $request->validate(['username' => 'required']);
         try {
@@ -174,7 +171,11 @@ class AuthController extends Controller
                 ->firstOrFail();
             return new UserResource($user);
         }catch (Exception $exception) {
-            abort('422', 'نام کاربری '.$validatedData['username'].' یافت نشد.');
+            logger($exception);
+            return response()->json([
+                'message' => 'نام کاربری '.$validatedData['username'].' یافت نشد.'
+            ]);
+//            abort('422', 'نام کاربری '.$validatedData['username'].' یافت نشد.');
         }
     }
 
