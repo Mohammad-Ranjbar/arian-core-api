@@ -175,7 +175,7 @@ class AuthController extends Controller
             return response()->json(['data' =>[
                 'message' => 'نام کاربری '.$validatedData['username'].' یافت نشد.'
             ]
-            ],400);
+            ],422);
 //            abort('422', 'نام کاربری '.$validatedData['username'].' یافت نشد.');
         }
     }
