@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\CheckCustomerFinanceCommand;
+use App\Console\Commands\RetryErpJobCommand;
 use App\Console\Commands\SyncInvitationsCommand;
 use App\Console\Commands\SyncProductItemsCommand;
 use App\Console\Commands\SyncServiceItemsCommand;
@@ -22,6 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(SyncServiceItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
         $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();
         $schedule->command(CheckCustomerFinanceCommand::class)->everyTenMinutes()->withoutOverlapping();
+        $schedule->command(RetryErpJobCommand::class)->everyTenMinutes()->withoutOverlapping();
     }
 
 
