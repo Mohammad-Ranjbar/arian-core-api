@@ -10,6 +10,7 @@ use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\ColorMapController;
 use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomLocationController;
@@ -313,7 +314,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/vehicle/{vehicle}/general-product-items',
         [GeneralProductItemController::class, 'vehicleItems'])->name('general-product-items.vehicle');
 
-    Route::apiResource( 'pallet-transactions' , PalletTransactionController::class)->except('destroy');
+    Route::apiResource('pallet-transactions', PalletTransactionController::class)->except('destroy');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -347,6 +348,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'incident-categories' => IncidentCategoryController::class,
         'pallet-types' => PalletTypeController::class,
         'pallets' => PalletController::class,
+        'color-maps' => ColorMapController::class,
 
     ]);
 
