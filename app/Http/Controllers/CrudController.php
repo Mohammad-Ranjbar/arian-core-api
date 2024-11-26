@@ -124,7 +124,10 @@ class CrudController extends Controller
         if (! isset($this->repository)) {
             return $this->responseError('repository not found',400);
         }
-        return $this->repository->destroy($id);
+        if($this->repository->destroy($id)){
+            return response()->json(['message' => 'item deleted!']);
+        }
+        return response()->json(['message' => 'Failed to delete the item'],403);
     }
 
 
