@@ -10,6 +10,7 @@ use App\Models\BlockItem;
 use App\Models\BlockReason;
 use App\Models\Car;
 use App\Models\CarModel;
+use App\Models\ColorMap;
 use App\Models\Container;
 use App\Models\Driver;
 use App\Models\Element;
@@ -95,9 +96,10 @@ class AuthServiceProvider extends ServiceProvider
         ProductionTest::class => CrudPolicy::class,
         ProductionTestResult::class => CrudPolicy::class,
         ShortageItem::class => CrudPolicy::class,
-        IncidentCategory::class=>CrudPolicy::class,
-        PalletType::class=>CrudPolicy::class,
-        Pallet::class=>CrudPolicy::class,
+        IncidentCategory::class => CrudPolicy::class,
+        PalletType::class => CrudPolicy::class,
+        Pallet::class => CrudPolicy::class,
+        ColorMap::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
