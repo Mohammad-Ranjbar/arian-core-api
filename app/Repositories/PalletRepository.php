@@ -30,4 +30,13 @@ class PalletRepository extends BaseRepository
         $this->model = $model;
     }
 
+    public function destroy($id): bool
+    {
+        $model = $this->model->newQuery()->find($id);
+        if ($model->transactions()->count()) {
+            return false;
+        }
+        return $model->delete();
+    }
+
 }

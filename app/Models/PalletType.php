@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PalletType extends Model
 {
@@ -12,4 +13,9 @@ class PalletType extends Model
     protected $fillable = [
         'title'
     ];
+
+    public function pallets(): HasMany
+    {
+        return $this->hasMany(Pallet::class);
+    }
 }
