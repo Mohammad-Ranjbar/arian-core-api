@@ -127,7 +127,7 @@ class CrudController extends Controller
         if($this->repository->destroy($id)){
             return response()->json(['message' => 'item deleted!']);
         }
-        return response()->json(['message' => 'امکان حذف آیتم مورد نظر وجود ندارد.'],403);
+        return response()->json(['message' => 'Failed to delete the item'],403);
     }
 
 
