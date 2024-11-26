@@ -23,11 +23,12 @@ class AddPalletRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pallet_id' => 'required|integer|exists:pallets,id',
+            'pallet_id'   => 'required|integer|exists:pallets,id',
             'location_id' => 'required|integer|exists:locations,id',
-            'qty' => 'required|integer',
-            'user_id' => 'nullable',
-            'type' => 'nullable'
+            'qty'         => 'required|integer',
+            'user_id'     => 'nullable',
+            'type'        => 'nullable',
+            'description' => 'nullable',
         ];
     }
 
@@ -35,7 +36,7 @@ class AddPalletRequest extends FormRequest
     {
         $type = $this->get('qty') < 0 ? 'decrease' : 'increase';
         return $this->merge([
-            'type' => $type,
+            'type'    => $type,
             'user_id' => Auth::id()
         ]);
     }
