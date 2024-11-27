@@ -19,7 +19,12 @@ class CarModelResource extends JsonResource
             'title'              => $this->resource->title,
             'reference'          => $this->resource->reference,
             'production_line_id' => (int) $this->resource->production_line_id,
-            'productionLines'    => $this->resource->productionLines->pluck('id')->all()
+            'productionLines'    => $this->resource->productionLines->pluck('id')->all(),
+            'cabin_serial_chr_1' => $this->resource->cabin_serial_chr_1,
+            'cabin_serial_chr_2' => $this->resource->cabin_serial_chr_2,
+            'year_map_id'         => $this->resource->year_map_id,
+            'yearMap' => YearMapResource::make($this->resource->yearMap),
+            'bodyOptions' => BodyOptionResource::collection($this->resource->bodyOptions),
         ];
     }
 }

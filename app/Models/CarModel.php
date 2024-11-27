@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class CarModel extends Model
@@ -21,6 +22,11 @@ class CarModel extends Model
         'cabin_serial_chr_2',
         'year_map_id',
     ];
+
+    public function yearMap(): BelongsTo
+    {
+        return $this->belongsTo(YearMap::class);
+    }
 
     public function bodyOptions(): BelongsToMany
     {
