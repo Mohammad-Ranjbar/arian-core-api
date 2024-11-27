@@ -1,0 +1,22 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+
+    public function up(): void
+    {
+        Schema::create('body_option_car_model', function (Blueprint $table) {
+            $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('body_option_id')->constrained()->cascadeOnDelete();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('body_option_car_model');
+    }
+};
