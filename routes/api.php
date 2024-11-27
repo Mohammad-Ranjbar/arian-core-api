@@ -70,6 +70,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
 use App\Http\Controllers\WorkGroupCenterController;
+use App\Http\Controllers\YearMapController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -345,6 +346,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'pallet-types' => PalletTypeController::class,
         'pallets' => PalletController::class,
         'color-maps' => ColorMapController::class,
+        'year-maps' => YearMapController::class,
 
     ]);
 
