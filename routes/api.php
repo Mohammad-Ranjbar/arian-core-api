@@ -8,6 +8,7 @@ use App\Http\Controllers\BillOfLadingController;
 use App\Http\Controllers\BlockHistoryController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
+use App\Http\Controllers\BodyOptionController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ColorMapController;
@@ -351,6 +352,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'pallets' => PalletController::class,
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
+        'body-options' => BodyOptionController::class
 
     ]);
 

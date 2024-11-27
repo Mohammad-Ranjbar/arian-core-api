@@ -8,6 +8,7 @@ use App\Models\Basket;
 use App\Models\BillOfLading;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
+use App\Models\BodyOption;
 use App\Models\Car;
 use App\Models\CarModel;
 use App\Models\ColorMap;
@@ -102,7 +103,9 @@ class AuthServiceProvider extends ServiceProvider
         Pallet::class => CrudPolicy::class,
         ColorMap::class => CrudPolicy::class,
         YearMap::class => CrudPolicy::class,
+        BodyOption::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
+
     ];
 
 
