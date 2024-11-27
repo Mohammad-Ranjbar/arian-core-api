@@ -18,7 +18,7 @@ class BodyOptionResource extends JsonResource
             'id'    => $this->resource->id,
             'title' => $this->resource->title,
             'code' => $this->resource->code,
-            'carModels' => CarModelResource::collection($this->resource->carModels),
+            'carModels' => $this->resource->carModels()->select(['id','title'])->get(),
             'created_at' => $this->resource->created_at,
         ];
     }
