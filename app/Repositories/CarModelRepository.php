@@ -12,21 +12,31 @@ class CarModelRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'reference'         => 'required|unique:car_models,reference',
-            'title'             => 'required|string',
-            'productionLines'   => 'required|array',
-            'productionLines.*' => 'required|exists:production_lines,id'
+            'reference' => 'required|unique:car_models,reference',
+            'title' => 'required|string',
+            'cabin_serial_chr_1' => 'nullable|string',
+            'cabin_serial_chr_2' => 'nullable|string',
+            'year_map_id' => 'nullable|exists:year_maps,id',
+            'productionLines' => 'required|array',
+            'productionLines.*' => 'required|exists:production_lines,id',
+            'bodyOptions' => 'nullable|array',
+            'bodyOptions.*' => 'nullable|exists:body_options,id',
         ],
         'update' => [
-            'reference'         => 'required|unique:car_models,reference,',
-            'title'             => 'required|string',
-            'productionLines'   => 'required|array',
-            'productionLines.*' => 'required|exists:production_lines,id'
+            'reference' => 'required|unique:car_models,reference,',
+            'title' => 'required|string',
+            'cabin_serial_chr_1' => 'nullable|string',
+            'cabin_serial_chr_2' => 'nullable|string',
+            'year_map_id' => 'nullable|exists:year_maps,id',
+            'productionLines' => 'required|array',
+            'productionLines.*' => 'required|exists:production_lines,id',
+            'bodyOptions' => 'nullable|array',
+            'bodyOptions.*' => 'nullable|exists:body_options,id',
         ]
     ];
 
     /**
-     * @param  CarModel  $model
+     * @param CarModel $model
      */
     public function __construct(CarModel $model)
     {
@@ -39,7 +49,7 @@ class CarModelRepository extends BaseRepository
     public function getOptions(): array
     {
         return $this->get('id', 'asc', request()->get('limit'))->map(function ($item) {
-            return ['id' => $item->id, 'title' => $item->title,'make_code_id' => $item->make_code_id];
+            return ['id' => $item->id, 'title' => $item->title, 'make_code_id' => $item->make_code_id];
         })->all();
     }
 
