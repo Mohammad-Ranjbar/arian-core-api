@@ -42,8 +42,10 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
                     'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                     'items'  => [
                         [
-                            'order_id'  => trim($data->Online_Contract_ID),
-                            'file_name' => $fileName
+                            'erp_reference' => trim($data->No),
+                            'erp_status'    => trim($data->Status_Code),
+                            'order_id'      => trim($data->Online_Contract_ID),
+                            'file_name'     => $fileName
                         ]
                     ]
                 ];
