@@ -46,6 +46,7 @@ use App\Models\TransitCompany;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
+use App\Models\YearMap;
 use App\Policies\CrudPolicy;
 use App\Policies\VehiclePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -100,6 +101,7 @@ class AuthServiceProvider extends ServiceProvider
         PalletType::class => CrudPolicy::class,
         Pallet::class => CrudPolicy::class,
         ColorMap::class => CrudPolicy::class,
+        YearMap::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
