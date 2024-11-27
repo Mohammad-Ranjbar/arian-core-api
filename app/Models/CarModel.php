@@ -16,8 +16,16 @@ class CarModel extends Model
     protected $fillable = [
         'title',
         'reference',
-        'make_code_id'
+        'make_code_id',
+        'cabin_serial_chr_1',
+        'cabin_serial_chr_2',
+        'year_map_id',
     ];
+
+    public function bodyOptions(): BelongsToMany
+    {
+        return $this->belongsToMany(BodyOption::class);
+    }
 
 
     /**

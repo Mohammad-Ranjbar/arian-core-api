@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\BlockReasonRepository;
+use App\Repositories\BodyOptionRepository;
 use App\Repositories\CarModelRepository;
 use App\Repositories\CarRepository;
+use App\Repositories\ColorMapRepository;
 use App\Repositories\ContainerRepository;
 use App\Repositories\DriverRepository;
 use App\Repositories\ElementRepository;
@@ -29,6 +31,7 @@ use App\Repositories\StopTypeRepository;
 use App\Repositories\TransitCompanyRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\WorkGroupCenterRepository;
+use App\Repositories\YearMapRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 
@@ -82,6 +85,9 @@ class OptionController extends Controller
             'pallet-types' => PalletTypeRepository::class,
             'pallets' => PalletRepository::class,
             'users' => UserRepository::class,
+            'body-options' => BodyOptionRepository::class,
+            'year-maps' => YearMapRepository::class,
+            'color-maps' => ColorMapRepository::class,
 
             default => false,
         };
