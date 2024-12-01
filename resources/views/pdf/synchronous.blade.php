@@ -9,11 +9,11 @@
     <tr>
         <td>
             شماره سنکرون
-
+            {{$number}}
         </td>
         <td>
             عنوان سنکرون
-
+            {{$title}}
         </td>
         <td>
             <img src="{{$barcode}}" alt=""/>
