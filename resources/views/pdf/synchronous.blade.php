@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <title>Synchronous</title>
 </head>
-<body>
+<body dir="rtl">
 <table style="width: 100%">
     <tr>
         <td>
@@ -20,7 +20,7 @@
         </td>
     </tr>
 </table>
-<br />
+<br/>
 
 
 <table style="width: 100%">

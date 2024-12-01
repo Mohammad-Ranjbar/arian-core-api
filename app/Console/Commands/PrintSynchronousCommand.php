@@ -45,6 +45,7 @@ class PrintSynchronousCommand extends Command
                 ];
             })->all()
         ])->render();
+        $mpdf->SetDirectionality('rtl');
         $mpdf->WriteHTML($content);
         //$data = $mpdf->Output('synchronous.pdf', 'I');
         $data = $mpdf->Output(storage_path('app/synchronous.pdf'), 'F');
