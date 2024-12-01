@@ -3,6 +3,7 @@
 namespace App\Services\TrackingService;
 
 use App\Events\ErpJobEvent;
+use App\Jobs\PrintSynchronousJob;
 use App\Models\ErpJob;
 use App\Models\ProductionLine;
 use App\Models\Synchronous;
@@ -49,15 +50,16 @@ class ProductionLineTrackingService extends BaseTrackingService
                         ->where('synchronous_type_id', $synchronousType->id)->max('counter') + 1;
                 $synchronous = Synchronous::query()->create([
                     'synchronous_type_id' => $synchronousType->id,
-                    'counter' => $counter,
-                    'capacity' => $synchronousType->qty,
+                    'counter'             => $counter,
+                    'capacity'            => $synchronousType->qty,
                 ]);
             }
             SynchronousItem::query()->create([
                 'synchronous_id' => $synchronous->getAttribute('id'),
-                'vin' => $vin
+                'vin'            => $vin
             ]);
             $synchronous->decrement('capacity');
+            dispatch(new PrintSynchronousJob($synchronous->id));
         }
 
     }
@@ -96,10 +98,10 @@ class ProductionLineTrackingService extends BaseTrackingService
     public function sendToErp($record): void
     {
         $params = [
-            'vINL' => $record->vin,
-            'wCGroup' => '',
+            'vINL'         => $record->vin,
+            'wCGroup'      => '',
             'withTracking' => 'false',
-            'withOutput' => 'true',//change to true => shaghayegh
+            'withOutput'   => 'true',//change to true => shaghayegh
         ];
 
         if ($record->type == 'exit') {
@@ -122,21 +124,21 @@ class ProductionLineTrackingService extends BaseTrackingService
 //        }
 
         $data = [
-            'user_id' => Auth::id(),
-            'section' => 'production-line-tracking-' . $record->type,
-            'model_id' => $record->id,
+            'user_id'    => Auth::id(),
+            'section'    => 'production-line-tracking-'.$record->type,
+            'model_id'   => $record->id,
             'model_type' => Tracking::class,
-            'method' => $method,
-            'url' => config('erp.post_production'),
+            'method'     => $method,
+            'url'        => config('erp.post_production'),
             'parameters' => $params,
-            'queue' => ErpJob::QUEUE_UNIQUE
+            'queue'      => ErpJob::QUEUE_UNIQUE
         ];
 
         $erpJob = ErpJob::query()->where([
-            'model_id' => $record->id,
+            'model_id'   => $record->id,
             'model_type' => Tracking::class,
         ])->first();
-        if (empty($erpJob)){
+        if (empty($erpJob)) {
             $erpJob = ErpJob::query()->create($data);
         }
 

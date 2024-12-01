@@ -18,48 +18,5 @@ class PrintSynchronousCommand extends Command
     public function handle()
     {
 
-        /** @var Synchronous $synchronous */
-        $synchronous = Synchronous::query()->find(1233);
-        $mpdf = new Mpdf([
-            'mode'         => 'utf-8',
-            'tempDir'      => storage_path('app/mpdf_temp'),
-            'default_font' => 'xbriyaz',
-            'orientation'  => 'L'
-        ]);
-        $generator = new BarcodeGeneratorPNG();
-        $barcode = $generator->getBarcode($synchronous->id, $generator::TYPE_CODE_128);
-        $barcodeImage = base64_encode($barcode);
-        $barcodeSrc = 'data:image/png;base64,'.$barcodeImage;
-        $content = view('pdf.synchronous', [
-            'barcode' => $barcodeSrc,
-            'number' => $synchronous->getAttribute('number'),
-            'title' => $synchronous->synchronousType->title,
-            'items' => $synchronous->SynchronousItems()->get()->map(function ($item) {
-                return [
-                    $item->vehicle->vin,
-                    $item->vehicle->carModel->title,
-                    $item->vehicle->makeCode->title,
-                    $item->vehicle->color_code,
-                    jdate($item->created_at)->toDateString(),
-                    jdate($item->created_at)->toTimeString()
-                ];
-            })->all()
-        ])->render();
-        $mpdf->SetDirectionality('rtl');
-        $mpdf->WriteHTML($content);
-        $path = storage_path('synchronous-'.$synchronous->id.'.pdf');
-        $mpdf->Output($path, 'F');
-
-        $socket = fsockopen($synchronous->synchronousType->printer_ip, 9100);
-        if (!$socket) {
-            die("Unable to connect to printer");
-        }
-
-        $pdf = file_get_contents($path);
-
-        fwrite($socket, $pdf);
-        fclose($socket);
-
-        $this->info('Finish');
     }
 }
