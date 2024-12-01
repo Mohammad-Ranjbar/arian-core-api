@@ -47,8 +47,16 @@ class PrintSynchronousCommand extends Command
         ])->render();
         $mpdf->SetDirectionality('rtl');
         $mpdf->WriteHTML($content);
-        //$data = $mpdf->Output('synchronous.pdf', 'I');
-        $data = $mpdf->Output(storage_path('app/synchronous.pdf'), 'F');
+        $pdf = $mpdf->Output('synchronous.pdf', 'I');
 
+        $socket = fsockopen($synchronous->synchronousType->printer_ip, 9100);
+        if (!$socket) {
+            die("Unable to connect to printer");
+        }
+
+        fwrite($socket, $pdf);
+        fclose($socket);
+
+        $this->info('Finish');
     }
 }
