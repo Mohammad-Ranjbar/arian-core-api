@@ -32,15 +32,16 @@ class PrintSynchronousCommand extends Command
         $barcodeSrc = 'data:image/png;base64,'.$barcodeImage;
         $content = view('pdf.synchronous', [
             'barcode' => $barcodeSrc,
-            'number' => '',
-            'title' => '',
+            'number' => $synchronous->getAttribute('number'),
+            'title' => $synchronous->synchronousType->title,
             'items' => $synchronous->SynchronousItems()->get()->map(function ($item) {
                 return [
                     $item->vehicle->vin,
                     $item->vehicle->carModel->title,
                     $item->vehicle->makeCode->title,
                     $item->vehicle->color_code,
-                    $item->created_at
+                    jdate($item->created_at)->toDateString(),
+                    jdate($item->created_at)->toTimeString()
                 ];
             })->all()
         ])->render();
