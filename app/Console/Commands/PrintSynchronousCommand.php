@@ -45,7 +45,8 @@ class PrintSynchronousCommand extends Command
             })->all()
         ])->render();
         $mpdf->WriteHTML($content);
-        $data = $mpdf->Output('synchronous.pdf', 'I');
-        Storage::put('synchronous.pdf',$data);
+        //$data = $mpdf->Output('synchronous.pdf', 'I');
+        $data = $mpdf->Output(storage_path('app/synchronous.pdf'), 'F');
+
     }
 }
