@@ -18,6 +18,8 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "maatwebsite/excel": "^3.1",
         "morilog/jalali": "^3.4",
+        "mpdf/mpdf": "^8.2",
+        "picqer/php-barcode-generator": "^3.2",
         "pion/laravel-chunk-upload": "^1.5",
         "predis/predis": "^2.2",
         "sentry/sentry-laravel": "^4.1",
