@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Mpdf\Mpdf;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 
-class PrintSynchronousJob // implements ShouldQueue
+class PrintSynchronousJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
