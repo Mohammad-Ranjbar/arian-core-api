@@ -35,6 +35,7 @@ class PrintSynchronousJob implements ShouldQueue
         }
         $mpdf = new Mpdf([
             'mode'         => 'utf-8',
+            'format'       => 'A5',
             'tempDir'      => storage_path('app/mpdf_temp'),
             'default_font' => 'xbriyaz',
             'orientation'  => 'L'
@@ -45,9 +46,9 @@ class PrintSynchronousJob implements ShouldQueue
         $barcodeSrc = 'data:image/png;base64,'.$barcodeImage;
         $content = view('pdf.synchronous', [
             'barcode' => $barcodeSrc,
-            'number' => $synchronous->getAttribute('number'),
-            'title' => $synchronous->synchronousType->title,
-            'items' => $synchronous->SynchronousItems()->get()->map(function ($item) {
+            'number'  => $synchronous->getAttribute('number'),
+            'title'   => $synchronous->synchronousType->title,
+            'items'   => $synchronous->SynchronousItems()->get()->map(function ($item) {
                 return [
                     $item->vehicle->vin,
                     $item->vehicle->carModel->title,
