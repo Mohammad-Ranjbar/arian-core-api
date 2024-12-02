@@ -26,17 +26,4 @@ class PalletTypeRepository extends BaseRepository
         $this->model = $model;
     }
 
-    /**
-     * @param $id
-     * @return bool
-     */
-    public function destroy($id): bool
-    {
-        $model = $this->model->newQuery()->find($id);
-        if ($model->pallets()->count()) {
-            return false;
-        }
-        return $model->delete();
-    }
-
 }

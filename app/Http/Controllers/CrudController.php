@@ -119,7 +119,7 @@ class CrudController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         if (! isset($this->repository)) {
             return $this->responseError('repository not found',400);
@@ -127,7 +127,7 @@ class CrudController extends Controller
         if($this->repository->destroy($id)){
             return response()->json(['message' => 'item deleted!']);
         }
-        return response()->json(['message' => 'امکان حذف آیتم مورد نظر وجود ندارد.'],403);
+        return $this->responseError( 'امکان حذف آیتم مورد نظر وجود ندارد.');
     }
 
 
