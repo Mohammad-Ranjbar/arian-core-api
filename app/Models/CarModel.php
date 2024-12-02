@@ -20,7 +20,6 @@ class CarModel extends Model
         'make_code_id',
         'cabin_serial_chr_1',
         'cabin_serial_chr_2',
-        'year_map_id',
     ];
 
     public function yearMap(): BelongsTo

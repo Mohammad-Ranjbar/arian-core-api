@@ -9,6 +9,7 @@ use App\Http\Controllers\BlockHistoryController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\BodyOptionController;
+use App\Http\Controllers\CabinNumberController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ColorMapController;
@@ -218,6 +219,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+
+            Route::post(  'generate-cabin-numbers' , [CabinNumberController::class,'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update']);
 
             Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
@@ -317,6 +320,9 @@ Route::middleware('auth:sanctum')->group(function () {
         [GeneralProductItemController::class, 'vehicleItems'])->name('general-product-items.vehicle');
 
     Route::apiResource('pallet-transactions', PalletTransactionController::class)->except('destroy');
+
+    Route::get(  'cabin-numbers' , [CabinNumberController::class,'index'])->name('cabin-numbers.index');
+
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -352,8 +358,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'pallets' => PalletController::class,
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
-        'body-options' => BodyOptionController::class
-
+        'body-options' => BodyOptionController::class,
     ]);
 
     /*

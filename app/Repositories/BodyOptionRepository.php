@@ -32,4 +32,15 @@ class BodyOptionRepository extends BaseRepository
         $this->model = $model;
     }
 
+
+    public function getOptions(): array
+    {
+        return $this->get()->map(function ($item) {
+            return [
+                'id' => $item->code,
+                'title' => $item->title .'-' . $item->code,
+
+            ];
+        })->all();
+    }
 }

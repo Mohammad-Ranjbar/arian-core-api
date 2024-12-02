@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::table('car_models', function (Blueprint $table) {
             $table->string('cabin_serial_chr_1')->nullable()->after('id');
             $table->string('cabin_serial_chr_2')->nullable()->after('id');
-            $table->foreignId('year_map_id')->nullable()->after('id')->constrained()->nullOnDelete();
         });
     }
 
