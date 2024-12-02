@@ -119,7 +119,7 @@ class CrudController extends Controller
         }
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy($id)
     {
         if (! isset($this->repository)) {
             return $this->responseError('repository not found',400);
