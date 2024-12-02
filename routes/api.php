@@ -8,8 +8,10 @@ use App\Http\Controllers\BillOfLadingController;
 use App\Http\Controllers\BlockHistoryController;
 use App\Http\Controllers\BlockItemController;
 use App\Http\Controllers\BlockReasonController;
+use App\Http\Controllers\BodyOptionController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\ColorMapController;
 use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomLocationController;
@@ -69,6 +71,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
 use App\Http\Controllers\WorkGroupCenterController;
+use App\Http\Controllers\YearMapController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -313,7 +316,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/vehicle/{vehicle}/general-product-items',
         [GeneralProductItemController::class, 'vehicleItems'])->name('general-product-items.vehicle');
 
-    Route::apiResource( 'pallet-transactions' , PalletTransactionController::class)->except('destroy');
+    Route::apiResource('pallet-transactions', PalletTransactionController::class)->except('destroy');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -347,6 +350,9 @@ Route::middleware('auth:sanctum')->group(function () {
         'incident-categories' => IncidentCategoryController::class,
         'pallet-types' => PalletTypeController::class,
         'pallets' => PalletController::class,
+        'color-maps' => ColorMapController::class,
+        'year-maps' => YearMapController::class,
+        'body-options' => BodyOptionController::class
 
     ]);
 

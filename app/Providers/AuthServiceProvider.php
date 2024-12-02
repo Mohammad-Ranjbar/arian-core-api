@@ -8,8 +8,10 @@ use App\Models\Basket;
 use App\Models\BillOfLading;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
+use App\Models\BodyOption;
 use App\Models\Car;
 use App\Models\CarModel;
+use App\Models\ColorMap;
 use App\Models\Container;
 use App\Models\Driver;
 use App\Models\Element;
@@ -45,6 +47,7 @@ use App\Models\TransitCompany;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
+use App\Models\YearMap;
 use App\Policies\CrudPolicy;
 use App\Policies\VehiclePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -95,10 +98,14 @@ class AuthServiceProvider extends ServiceProvider
         ProductionTest::class => CrudPolicy::class,
         ProductionTestResult::class => CrudPolicy::class,
         ShortageItem::class => CrudPolicy::class,
-        IncidentCategory::class=>CrudPolicy::class,
-        PalletType::class=>CrudPolicy::class,
-        Pallet::class=>CrudPolicy::class,
+        IncidentCategory::class => CrudPolicy::class,
+        PalletType::class => CrudPolicy::class,
+        Pallet::class => CrudPolicy::class,
+        ColorMap::class => CrudPolicy::class,
+        YearMap::class => CrudPolicy::class,
+        BodyOption::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
+
     ];
 
 
