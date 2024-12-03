@@ -70,7 +70,11 @@ class BillOfLadingController extends CrudController
         }
 
         $model->actionLogs()->delete();
-        return $model->forceDelete();
+        $model->forceDelete();
+
+        return response()->json([
+            'message' => 'حذف با موفقیت انجام گردید'
+        ]);
     }
 
     /**
