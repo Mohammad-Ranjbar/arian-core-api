@@ -35,6 +35,9 @@ class CabinNumberController extends CrudController
         if (empty($colorMap)) {
             return $this->responseError('Color code not exists in color map');
         }
+        if (empty($colorMap->code)) {
+            return $this->responseError('please first register code for this color map');
+        }
 
         if (empty($vehicle->carModel->getAttribute('cabin_serial_chr_1'))){
             return $this->responseError('please update your car model');

@@ -14,6 +14,7 @@ use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\ActionLogRepository;
 use App\Repositories\CarModelRepository;
+use App\Repositories\ColorMapRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpGetVehicle;
@@ -32,19 +33,14 @@ use Symfony\Component\HttpFoundation\Response;
 class VehicleController extends CrudController
 {
 
-    /**
-     * @param MakeCodeRepository $makeCodeRepository
-     * @param CarModelRepository $carModelRepository
-     * @param VehicleRepository $vehicleRepository
-     * @param ErpGetVehicle $erpGetVehicle
-     * @param ActionLogRepository $actionLogRepository
-     */
+
     public function __construct(
         private readonly MakeCodeRepository  $makeCodeRepository,
         private readonly CarModelRepository  $carModelRepository,
         private readonly VehicleRepository   $vehicleRepository,
         private readonly ErpGetVehicle       $erpGetVehicle,
-        private readonly ActionLogRepository $actionLogRepository
+        private readonly ActionLogRepository $actionLogRepository,
+        private readonly ColorMapRepository $colorMapRepository
     )
     {
 
@@ -81,6 +77,18 @@ class VehicleController extends CrudController
         $vehicleData = $this->erpGetVehicle->get($vin);
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
+
+
+        if (!empty($colorMapCode = $vehicleData['data']->Color_Code)) {
+            $colorMapData = [
+                'title' => $colorMapCode,
+                'color_code' => $colorMapCode,
+            ];
+           $this->colorMapRepository->make($colorMapData,'color_code');
+        }
+
+
+
         $carModel->update(['make_code_id' => $makeCode->getAttribute('id')]);
         $data = [
             'data' => $vehicleData['data'],

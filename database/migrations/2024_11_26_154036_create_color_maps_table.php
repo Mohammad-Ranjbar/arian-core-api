@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('color_maps', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('code');
+            $table->string('code')->nullable();
             $table->string('color_code');
             $table->unique(['code', 'title']);
             $table->timestamps();

@@ -87,10 +87,10 @@ class VehicleFaultController extends Controller
 
     }
 
+
     /**
-     * @param  Vehicle  $vehicle
-     * @param $type
-     * @return JsonResponse|AnonymousResourceCollection
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws AuthorizationException
      */
     public function index(Vehicle $vehicle, $type): JsonResponse|AnonymousResourceCollection
@@ -138,7 +138,8 @@ class VehicleFaultController extends Controller
 
 
     /**
-     * @return JsonResponse|AnonymousResourceCollection
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function listIncidentSource(): JsonResponse|AnonymousResourceCollection
     {
@@ -183,29 +184,28 @@ class VehicleFaultController extends Controller
 
         if (!empty(request()->get('intensities'))) {
             $l = collect((array) request()->get('intensities'))->map(function ($item) {
-                return "'{$item}'";
+                return "'$item'";
             })->implode(',');
             $where[] = "vehicle_incidents.intensity in ($l)";
         }
 
         if (!empty(request()->get('method'))) {
             $l = collect((array) request()->get('method'))->map(function ($item) {
-                return "'{$item}'";
+                return "'$item'";
             })->implode(',');
             $where[] = "vehicle_incidents.method in ($l)";
         }
         if (!empty(request()->get('vin_type'))) {
             $l = collect((array) request()->get('vin_type'))->map(function ($item) {
-                return "'{$item}'";
+                return "'$item'";
             })->implode(',');
             $where[] = "vehicle_incidents.vin_type in ($l)";
         }
 
         if (!empty(request()->get('custom_location_id'))) {
-            $customLocationID = request()->get('custom_location_id');
 
             $l = collect((array) request()->get('custom_location_id'))->map(function ($item) {
-                return "'{$item}'";
+                return "'$item'";
             })->implode(',');
             $where[] = "vehicle_incidents.custom_location_id in ($l)";
         }
