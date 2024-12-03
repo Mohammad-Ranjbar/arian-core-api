@@ -220,7 +220,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
 
-            Route::post(  'generate-cabin-numbers' , [CabinNumberController::class,'generate'])->name('generate.cabin-numbers');
+            Route::post(  '/generate-cabin-numbers' , [CabinNumberController::class,'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update']);
 
             Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
@@ -321,7 +321,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('pallet-transactions', PalletTransactionController::class)->except('destroy');
 
-    Route::get(  'cabin-numbers' , [CabinNumberController::class,'index'])->name('cabin-numbers.index');
+    Route::apiResource(  'cabin-numbers' , CabinNumberController::class)->only(['index','show']);
 
     Route::apiResources([
         'roles' => RoleController::class,

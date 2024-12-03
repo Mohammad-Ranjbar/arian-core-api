@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,5 +40,18 @@ class CabinNumber extends Model
     public function carModel(): BelongsTo
     {
         return $this->belongsTo(CarModel::class);
+    }
+
+    public function cabinNumber(): Attribute
+    {
+        return  Attribute::make(
+            get: fn () => 'R'.$this->getAttribute('serial_1_chr').
+                $this->getAttribute('body_option_chr').
+                $this->getAttribute('color_chr').
+                $this->getAttribute('serial_2_chr').
+                $this->getAttribute('year_chr').
+                str_pad($this->getAttribute('counter'), 4, '0', STR_PAD_LEFT)
+            ,
+        );
     }
 }

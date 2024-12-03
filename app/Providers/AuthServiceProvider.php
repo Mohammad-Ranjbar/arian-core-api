@@ -9,6 +9,7 @@ use App\Models\BillOfLading;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
 use App\Models\BodyOption;
+use App\Models\CabinNumber;
 use App\Models\Car;
 use App\Models\CarModel;
 use App\Models\ColorMap;
@@ -104,6 +105,7 @@ class AuthServiceProvider extends ServiceProvider
         ColorMap::class => CrudPolicy::class,
         YearMap::class => CrudPolicy::class,
         BodyOption::class=>CrudPolicy::class,
+        CabinNumber::class=> CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];
