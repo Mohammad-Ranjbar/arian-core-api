@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('year_maps', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('year')->unique();
-            $table->string('chr');
+            $table->string('chr')->nullable();
             $table->timestamps();
         });
     }

@@ -22,11 +22,6 @@ class CarModel extends Model
         'cabin_serial_chr_2',
     ];
 
-    public function yearMap(): BelongsTo
-    {
-        return $this->belongsTo(YearMap::class);
-    }
-
     public function bodyOptions(): BelongsToMany
     {
         return $this->belongsToMany(BodyOption::class);

@@ -17,6 +17,7 @@ use App\Repositories\CarModelRepository;
 use App\Repositories\ColorMapRepository;
 use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
+use App\Repositories\YearMapRepository;
 use App\Services\Erp\ErpGetVehicle;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
@@ -40,7 +41,8 @@ class VehicleController extends CrudController
         private readonly VehicleRepository   $vehicleRepository,
         private readonly ErpGetVehicle       $erpGetVehicle,
         private readonly ActionLogRepository $actionLogRepository,
-        private readonly ColorMapRepository $colorMapRepository
+        private readonly ColorMapRepository $colorMapRepository,
+        private readonly YearMapRepository $yearMapRepository,
     )
     {
 
@@ -87,7 +89,12 @@ class VehicleController extends CrudController
            $this->colorMapRepository->make($colorMapData,'color_code');
         }
 
-
+        if (!empty($vehicleData['data']->Model_Year)) {
+            $yearMap = [
+                'year' => $vehicleData['data']->Model_Year,
+            ];
+            $this->yearMapRepository->make($yearMap,'year');
+        }
 
         $carModel->update(['make_code_id' => $makeCode->getAttribute('id')]);
         $data = [

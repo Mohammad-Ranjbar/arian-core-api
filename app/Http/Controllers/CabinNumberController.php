@@ -56,7 +56,7 @@ class CabinNumberController extends CrudController
         $validatedData['color_chr'] = $colorMap->getAttribute('code');
 
         $validatedData['color_code'] = $colorMap->getAttribute('code');
-        $validatedData['year_chr'] = $vehicle->getAttribute('data')['Item_Type'];
+        $validatedData['year_chr'] = $vehicle->getAttribute('data')['Model_Year'];
         $validatedData['counter'] = $counter;
 
         return CabinNumberResource::make($this->repository->store($validatedData));
