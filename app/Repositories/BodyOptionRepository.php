@@ -37,7 +37,8 @@ class BodyOptionRepository extends BaseRepository
     {
         return $this->get()->map(function ($item) {
             return [
-                'id' => $item->code,
+                'id' => $item->id,
+                'code' => $item->code,
                 'title' => $item->title .'-' . $item->code,
 
             ];
