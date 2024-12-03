@@ -323,6 +323,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource(  'cabin-numbers' , CabinNumberController::class)->only(['index','show']);
 
+    Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
+
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,

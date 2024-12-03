@@ -28,6 +28,7 @@ class ExporterServiceFactory
             'export-incidents' => new ExportIncidentsService($job),
             'export-production-line-activities' => new ExportProductionLineActivityService($job),
             'export-shortages' => new ExportShortageService($job),
+            'export-cabin-numbers' => new ExportCabinNumberService($job),
             default => throw  new Exception('Invalid input for type: ' . $job->type . 'by user id:' . Auth::id()),
         };
     }

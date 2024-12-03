@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\GenerateCabinNumberRequest;
+use App\Http\Requests\TrackingReportExcelRequest;
 use App\Http\Resources\CabinNumberResource;
+use App\Jobs\ExportJob;
 use App\Models\CabinNumber;
 use App\Models\ColorMap;
+use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\CabinNumberRepository;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CabinNumberController extends CrudController
 {
@@ -70,4 +76,25 @@ class CabinNumberController extends CrudController
         return $this->responseError('repository not found',400);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
+    public function reportExcel(Request $request): JsonResponse
+    {
+        $this->authorize('export-cabin-numbers');
+        $validatedData['type'] = 'export-cabin-numbers';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = $request->all();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
 }
