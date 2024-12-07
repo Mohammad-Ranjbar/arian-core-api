@@ -26,8 +26,8 @@ class StopLineRequest extends FormRequest
             'stop_type_id' => 'required|exists:stop_types,id',
             'description' => 'required',
             'note' => 'nullable',
-            'start_at' => 'nullable|date_format:"Y-m-d H:i:s"',
-            'stop_at' => 'nullable|date_format:"Y-m-d H:i:s"',
+            'start_at' => 'nullable|date_format:"Y-m-d H:i:s"|after:today',
+            'stop_at' => 'nullable|date_format:"Y-m-d H:i:s"|after:today',
             'notify' => 'required|boolean',
             'productItems' => 'nullable|array|exists:erp_product_items,id',
             'effective_time' => 'nullable'
