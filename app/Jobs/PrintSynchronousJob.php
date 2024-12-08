@@ -35,7 +35,7 @@ class PrintSynchronousJob implements ShouldQueue
         }
         $mpdf = new Mpdf([
             'mode'         => 'utf-8',
-            'format'       => 'A5',
+            'format'       => 'A4',
             'tempDir'      => storage_path('app/mpdf_temp'),
             'default_font' => 'xbriyaz',
             'orientation'  => 'L'
