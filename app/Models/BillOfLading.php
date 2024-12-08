@@ -300,7 +300,7 @@ class BillOfLading extends Model
 
     public function statusTime(string $status)
     {
-        return $this->actionLogs()->where($status)->first()?->getAttribute('created_at') ?? false;
+        return $this->actionLogs()->where('action',$status)->first()?->getAttribute('created_at') ?? false;
     }
 
 }
