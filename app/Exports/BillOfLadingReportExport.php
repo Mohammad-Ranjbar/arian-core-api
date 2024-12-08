@@ -89,6 +89,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
         $diffEnterAndTemporaryReceipt =   $enterDate && $TemporaryReceiptDate ? $enterDate->diff($TemporaryReceiptDate)->format('H:i') : '';
         $diffEnterAndReturnContainer =   $enterDate && $returnContainerDate ? $enterDate->diff($returnContainerDate)->format('H:i') : '';
         if ($diffEnterAndTemporaryReceipt && $diffEnterAndReturnContainer){
+            logger($diffEnterAndTemporaryReceipt && $diffEnterAndReturnContainer);
             $carbonTime1 = Carbon::createFromFormat('H:i', $diffEnterAndReturnContainer);
             $carbonTime2 = Carbon::createFromFormat('H:i', $diffEnterAndTemporaryReceipt);
             $totalMinutes = $carbonTime1->diffInMinutes($carbonTime1->copy()->startOfDay()) + $carbonTime2->diffInMinutes($carbonTime2->copy()->startOfDay());
