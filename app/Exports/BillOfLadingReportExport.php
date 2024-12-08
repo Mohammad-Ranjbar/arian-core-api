@@ -88,7 +88,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
         $returnContainerDate = $row->statusTime('return_container');
         $diffEnterAndTemporaryReceipt =   $enterDate && $TemporaryReceiptDate ? $enterDate->diff($TemporaryReceiptDate)->format('H:i') : '';
         $diffEnterAndReturnContainer =   $enterDate && $returnContainerDate ? $enterDate->diff($returnContainerDate)->format('H:i') : '';
-        logger($diffEnterAndTemporaryReceipt, $diffEnterAndReturnContainer);
+        logger($diffEnterAndTemporaryReceipt);
         dd('ok');
         if ($diffEnterAndTemporaryReceipt && $diffEnterAndReturnContainer){
             logger($diffEnterAndTemporaryReceipt && $diffEnterAndReturnContainer);
