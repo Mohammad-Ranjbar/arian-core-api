@@ -11,7 +11,7 @@ class ErpJob extends Model
 {
 
     const string QUEUE_UNIQUE = 'unique';
-    const string QUEUE_PARALEL  = 'paralel';
+    const string QUEUE_  = 'parallel';
 
     const string BLOCK_ITEM = 'block-item';
 
