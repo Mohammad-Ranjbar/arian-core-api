@@ -55,8 +55,12 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             'ساعت ایجاد',
             'تاریخ ورود',
             'ساعت ورود',
+            'تاریخ رسید موقت',
+            'ساعت رسید موقت',
             'تاریخ تخلیه',
             'ساعت تخلیه',
+            'تاریخ بازگشت کانتینر',
+            'ساعت بازگشت کانتینر',
         ];
     }
 
@@ -74,8 +78,12 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
      */
     public function map($row): array
     {
-        $deliverDate = $row->actionLogs()->where('action', 'temporary_receipt')->first();
-        $dischargeDate = $row->actionLogs()->where('action', 'discharge')->first();
+//        $deliverDate = $row->actionLogs()->where('action', 'temporary_receipt')->first();
+        $TemporaryReceiptDate = $row->statusTime('temporary_receipt');
+//        $dischargeDate = $row->actionLogs()->where('action', 'discharge')->first();
+        $enterDate = $row->statusTime('enter');
+        $dischargeDate = $row->statusTime('discharge');
+        $returnContainerDate = $row->statusTime('return_container');
         $row = [
             $row->car->transitCompany->title,
             $row->car->driver->name,
@@ -90,10 +98,15 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             $row->description,
             jdate($row->created_at)->format('Y-m-d'),
             jdate($row->created_at)->format('H:i:s'),
-            $deliverDate ? jdate($deliverDate->created_at)->format('Y-m-d') : '',
-            $deliverDate ? jdate($deliverDate->created_at)->format('H:i:s') : '',
+            $enterDate ? jdate($enterDate->created_at)->format('Y-m-d') : '',
+            $enterDate ? jdate($enterDate->created_at)->format('H:i:s') : '',
+            $TemporaryReceiptDate ? jdate($TemporaryReceiptDate->created_at)->format('Y-m-d') : '',
+            $TemporaryReceiptDate ? jdate($TemporaryReceiptDate->created_at)->format('H:i:s') : '',
             $dischargeDate ? jdate($dischargeDate->created_at)->format('Y-m-d') : '',
             $dischargeDate ? jdate($dischargeDate->created_at)->format('H:i:s') : '',
+            $returnContainerDate ? jdate($returnContainerDate->created_at)->format('Y-m-d') : '',
+            $returnContainerDate ? jdate($returnContainerDate->created_at)->format('H:i:s') : '',
+
         ];
         $this->eventData['done']++;
         $this->eventData['success']++;

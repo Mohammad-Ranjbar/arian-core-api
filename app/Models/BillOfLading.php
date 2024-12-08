@@ -297,4 +297,15 @@ class BillOfLading extends Model
         return $this->actionLogs()->where('action','discharge')->exists() && ! $this->actionLogs()->where('action',ActionLog::RETURN_CONTAINER_AT)->exists();
     }
 
+
+    public function statusTime(string $status): Attribute
+    {
+        return Attribute::make(
+            get: function () use ($status){
+                $this->actionLogs()->where($status)->first()?->getAttribute('created_at') ?? false;
+            }
+        );
+    }
+
+
 }
