@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use App\Events\JobProcessEvent;
-use Carbon\Carbon;
+use App\Services\TimeService;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -86,21 +86,12 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
         $enterDate = $row->statusTime('enter');
         $dischargeDate = $row->statusTime('discharge');
         $returnContainerDate = $row->statusTime('return_container');
+        $diffEnterAndTemporaryReceipt = $enterDate && $TemporaryReceiptDate ? TimeService::getDiffTwoTime($enterDate, $TemporaryReceiptDate) : '';
+        $diffEnterAndReturnContainer = $enterDate && $returnContainerDate ? TimeService::getDiffTwoTime($enterDate, $returnContainerDate) : '';
 
-
-        $diffEnterAndTemporaryReceipt =   $enterDate && $TemporaryReceiptDate ? $enterDate->diff($TemporaryReceiptDate)->format('%H:%I') : '';
-        $diffEnterAndReturnContainer =   $enterDate && $returnContainerDate ? $enterDate->diff($returnContainerDate)->format('%H:%I') : '';
-
-        if (!empty($diffEnterAndTemporaryReceipt) && !empty($diffEnterAndReturnContainer)){
-
-            $carbonTime1 = Carbon::createFromFormat('H:i', $diffEnterAndReturnContainer);
-            $carbonTime2 = Carbon::createFromFormat('H:i', $diffEnterAndTemporaryReceipt);
-            $totalMinutes = $carbonTime1->diffInMinutes($carbonTime1->copy()->startOfDay()) + $carbonTime2->diffInMinutes($carbonTime2->copy()->startOfDay());
-            $totalHours = intdiv($totalMinutes, 60);
-            $remainingMinutes = $totalMinutes % 60;
-
-            $result = sprintf('%02d:%02d', $totalHours, $remainingMinutes);
-        }else{
+        if (!empty($diffEnterAndTemporaryReceipt) && !empty($diffEnterAndReturnContainer)) {
+            $result = TimeService::getSumTwoTime($diffEnterAndReturnContainer, $diffEnterAndTemporaryReceipt);
+        } else {
             $result = '';
         }
         $row = [
