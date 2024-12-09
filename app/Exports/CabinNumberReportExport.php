@@ -41,6 +41,10 @@ class CabinNumberReportExport implements FromCollection, WithMapping, WithHeadin
     {
         return [
             'شماره کابین',
+            'عنوان رنگ',
+            'سال تولید',
+            'آپشن',
+            'مدل ماشین',
             'استفاده شده',
             'کاربر',
             'زمان ایجاد',
@@ -64,6 +68,10 @@ class CabinNumberReportExport implements FromCollection, WithMapping, WithHeadin
     {
         $row = [
             $row->cabinNumber,
+            $row->colorTitle,
+            $row->yearTitle,
+            $row->optionTitle,
+            $row->carModel->title,
             $row->used ? 'استفاده شده' : 'استفده نشده',
             $row->user->name,
             jdate($row->created_at),

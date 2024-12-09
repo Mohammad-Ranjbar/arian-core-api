@@ -66,4 +66,29 @@ class CabinNumber extends Model
         }
         return $query->get();
     }
+
+
+    public function colorTitle(): Attribute
+    {
+        return new Attribute(
+            get: fn () => ColorMap::query()->where('code',$this->getAttribute('color_chr'))
+                ->first()?->getAttribute('title') ?? '-',
+        );
+    }
+
+    public function yearTitle(): Attribute
+    {
+        return new Attribute(
+            get: fn () => YearMap::query()->where('chr',$this->getAttribute('year_chr'))
+                ->first()?->getAttribute('year') ?? '-',
+        );
+    }
+
+    public function optionTitle(): Attribute
+    {
+        return new Attribute(
+            get: fn () => BodyOption::query()->where('code',$this->getAttribute('body_option_chr'))
+                ->first()?->getAttribute('title') ?? '-',
+        );
+    }
 }
