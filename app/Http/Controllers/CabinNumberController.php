@@ -10,6 +10,7 @@ use App\Models\CabinNumber;
 use App\Models\ColorMap;
 use App\Models\Job;
 use App\Models\Vehicle;
+use App\Models\YearMap;
 use App\Repositories\CabinNumberRepository;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -37,6 +38,14 @@ class CabinNumberController extends CrudController
         if (empty($vehicle->getAttribute('data')['Color_Code'])) {
             return $this->responseError('Color code not exists in vehicle');
         }
+        $yearMap = YearMap::query()->where('code', $vehicle->getAttribute('data')['Model_Year'])->first();
+        if (empty($yearMap)) {
+            return $this->responseError('Year code not exists in year map');
+        }
+        if (empty($yearMap->code)) {
+            return $this->responseError('please first register code for this year map');
+        }
+
         $colorMap = ColorMap::query()->where('color_code', $vehicle->getAttribute('data')['Color_Code'])->first();
         if (empty($colorMap)) {
             return $this->responseError('Color code not exists in color map');
@@ -51,8 +60,10 @@ class CabinNumberController extends CrudController
         if (empty($vehicle->carModel->getAttribute('cabin_serial_chr_2'))){
             return $this->responseError('please update your car model');
         }
-        $counter = CabinNumber::query()->where('car_model_id', $vehicle->getAttribute('car_model_id'))
-                ->where('year_chr', $vehicle->getAttribute('data')['Item_Type'])->max('counter') + 1;
+        $counter = CabinNumber::query()
+                ->where('car_model_id', $vehicle->getAttribute('car_model_id'))
+                ->where('year_chr', $yearMap->code)->max('counter');
+
         $validatedData['car_model_id'] = $vehicle->getAttribute('car_model_id');
         $validatedData['user_id'] = auth()->id();
         $validatedData['serial_1_chr'] = $vehicle->carModel->getAttribute('cabin_serial_chr_1');
@@ -60,10 +71,8 @@ class CabinNumberController extends CrudController
 
 
         $validatedData['color_chr'] = $colorMap->getAttribute('code');
-
-        $validatedData['color_code'] = $colorMap->getAttribute('code');
-        $validatedData['year_chr'] = $vehicle->getAttribute('data')['Model_Year'];
-        $validatedData['counter'] = $counter;
+        $validatedData['year_chr'] = $yearMap->getAttribute('code');
+        $validatedData['counter'] = $counter+1;
 
         return CabinNumberResource::make($this->repository->store($validatedData));
     }
