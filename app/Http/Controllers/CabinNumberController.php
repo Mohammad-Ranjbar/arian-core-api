@@ -62,7 +62,7 @@ class CabinNumberController extends CrudController
         }
         $counter = CabinNumber::query()
                 ->where('car_model_id', $vehicle->getAttribute('car_model_id'))
-                ->where('year_chr', $yearMap->code)->max('counter');
+                ->where('year_chr', $yearMap->chr)->max('counter');
 
         $validatedData['car_model_id'] = $vehicle->getAttribute('car_model_id');
         $validatedData['user_id'] = auth()->id();
