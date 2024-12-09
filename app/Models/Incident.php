@@ -14,7 +14,6 @@ class Incident extends Model
         'title',
         'title_en',
         'code',
-        'weight'
     ];
     /**
      * @var string[]
@@ -23,6 +22,7 @@ class Incident extends Model
         'title',
         'title_en',
         'code',
+        'weight'
     ];
 
     public function getHeadings(): array
