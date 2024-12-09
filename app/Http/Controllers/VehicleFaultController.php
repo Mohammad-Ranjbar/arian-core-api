@@ -226,6 +226,14 @@ class VehicleFaultController extends Controller
             $where[] = "vehicle_incidents.element_id in (".implode(',', request()->get('element_id')).")";
         }
 
+        if (!empty(request()->get('production_type'))) {
+
+            $l = collect((array) request()->get('production_type'))->map(function ($item) {
+                return "'$item'";
+            })->implode(',');
+            $where[] = "vehicle_incidents.production_type in ($l)";
+        }
+
         if (!empty(request()->get('incident_id'))) {
             $where[] = "vehicle_incidents.incident_id in (".implode(',', request()->get('incident_id')).")";
         }
