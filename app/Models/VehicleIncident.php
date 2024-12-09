@@ -20,7 +20,7 @@ class VehicleIncident extends Model
      * @var string[]
      */
     protected $fillable = [
-        'type', 'intensity', 'method', 'description', 'user_id', 'production_tracking_id', 'element_id', 'incident_id',
+        'type', 'intensity', 'method', 'description', 'user_id', 'production_tracking_id', 'element_id', 'incident_id','production_type',
         'vin', 'checked_at', 'custom_location_type', 'custom_location_id', 'created_at', 'checked_at', 'vin_type', 'incident_category_id'
     ];
 
