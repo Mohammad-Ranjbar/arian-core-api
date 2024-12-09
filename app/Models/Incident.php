@@ -13,7 +13,8 @@ class Incident extends Model
     const  HEADING = [
         'title',
         'title_en',
-        'code'
+        'code',
+        'weight'
     ];
     /**
      * @var string[]

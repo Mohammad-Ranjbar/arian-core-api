@@ -245,14 +245,18 @@ class VehicleFaultController extends Controller
             SELECT
                 DATE($dateField) as date,
                 count(distinct vehicle_incidents.vin, 2) as vehicles,
-                COUNT(*) as incidents,
-                TRUNCATE(COUNT(*) / count(distinct vehicle_incidents.vin), 2) as dpuoff
+                SUM(incidents.weight) as incidents,
+                TRUNCATE(SUM(incidents.weight) / count(distinct vehicle_incidents.vin), 2) as dpuoff
             FROM
                vehicle_incidents
             left join
                 vehicles
             on
                 vehicle_incidents.vin = vehicles.vin
+            left join
+                incidents
+            on
+                incidents.id = vehicle_incidents.incident_id
             WHERE
                 $strWhere
             GROUP BY
@@ -282,7 +286,7 @@ class VehicleFaultController extends Controller
                 $temp = collect(DB::select(/** @lang text */ "
             SELECT
                 DATE($dateField) as `date`,
-                COUNT(*) as count,
+                SUM(incidents.weight) as count,
                 `$column`
             FROM
                 vehicle_incidents
@@ -290,6 +294,10 @@ class VehicleFaultController extends Controller
                 vehicles
             on
                 vehicle_incidents.vin = vehicles.vin
+            left join
+                incidents
+            on
+                incidents.id = vehicle_incidents.incident_id
             WHERE
                 $strWhere
             GROUP BY
