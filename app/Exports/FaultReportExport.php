@@ -53,6 +53,8 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
             "توضیحات",
             "لوکیشن",
             "دسته بندی ایراد",
+            "تولید",
+            "نوع تولید",
         ];
     }
 
@@ -84,6 +86,8 @@ class FaultReportExport implements FromCollection, WithMapping, WithHeadings, Sh
             $row->description,
             $row->customLocation->title,
             $row->incidentCategory?->title ?? '',
+            $row->vin_type,
+            $row->production_type,
         ];
         $this->eventData['done']++;
         $this->eventData['success']++;

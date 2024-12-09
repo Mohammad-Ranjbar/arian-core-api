@@ -77,10 +77,6 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('sms-gateway', SendSmsGatewayController::class);
-Route::get('test-print', function () {
-    dispatch(new \App\Jobs\PrintSynchronousJob(1233));
-    echo "dispatch print";
-});
 
 Route::get('/block-history/{vehicle}', BlockHistoryController::class);
 Route::any('/', function () {

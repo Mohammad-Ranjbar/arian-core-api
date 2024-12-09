@@ -9,7 +9,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 use Picqer\Barcode\BarcodeGeneratorPNG;
+use Picqer\Barcode\Exceptions\UnknownTypeException;
 
 class PrintSynchronousJob implements ShouldQueue
 {
@@ -25,29 +27,31 @@ class PrintSynchronousJob implements ShouldQueue
 
     /**
      * Execute the job.
+     * @throws MpdfException
+     * @throws UnknownTypeException
      */
     public function handle(): void
     {
         /** @var Synchronous $synchronous */
         $synchronous = Synchronous::query()->find($this->id);
-        if ($synchronous->capacity !== 0) {
+        if ($synchronous->getAttribute('capacity') !== 0) {
             return;
         }
         $mpdf = new Mpdf([
             'mode'         => 'utf-8',
-            'format'       => 'A5',
+            'format'       => 'A4',
             'tempDir'      => storage_path('app/mpdf_temp'),
             'default_font' => 'xbriyaz',
             'orientation'  => 'L'
         ]);
         $generator = new BarcodeGeneratorPNG();
-        $barcode = $generator->getBarcode($synchronous->id, $generator::TYPE_CODE_128);
+        $barcode = $generator->getBarcode($synchronous->getAttribute('id'), $generator::TYPE_CODE_128);
         $barcodeImage = base64_encode($barcode);
         $barcodeSrc = 'data:image/png;base64,'.$barcodeImage;
         $content = view('pdf.synchronous', [
             'barcode' => $barcodeSrc,
             'number'  => $synchronous->getAttribute('number'),
-            'title'   => $synchronous->synchronousType->title,
+            'title'   => $synchronous->getAttribute('synchronousType')->title,
             'items'   => $synchronous->SynchronousItems()->get()->map(function ($item) {
                 return [
                     $item->vehicle->vin,
@@ -61,9 +65,9 @@ class PrintSynchronousJob implements ShouldQueue
         ])->render();
         $mpdf->SetDirectionality('rtl');
         $mpdf->WriteHTML($content);
-        $path = storage_path('synchronous-'.$synchronous->id.'.pdf');
+        $path = storage_path('synchronous-'.$synchronous->getAttribute('id').'.pdf');
         $mpdf->Output($path, 'F');
-        $socket = fsockopen($synchronous->synchronousType->printer_ip, 9100);
+        $socket = fsockopen($synchronous->getAttribute('synchronousType')->printer_ip, 9100);
         $pdf = file_get_contents($path);
         fwrite($socket, $pdf);
         fclose($socket);

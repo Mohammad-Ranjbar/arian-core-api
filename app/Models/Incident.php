@@ -13,7 +13,7 @@ class Incident extends Model
     const  HEADING = [
         'title',
         'title_en',
-        'code'
+        'code',
     ];
     /**
      * @var string[]
@@ -22,6 +22,7 @@ class Incident extends Model
         'title',
         'title_en',
         'code',
+        'weight'
     ];
 
     public function getHeadings(): array

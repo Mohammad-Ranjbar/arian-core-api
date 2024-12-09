@@ -80,6 +80,7 @@ class VehicleFaultController extends Controller
                 'car_model_id' => $vehicle->carModel->id,
             ]);
             $validatedData['vin_type'] = $vehicle->getAttribute('data')['Item_Type'];
+            $validatedData['production_type'] = $vehicle->getProductionType();
             return new VehicleIncidentResource($this->repository->store($validatedData));
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
@@ -225,6 +226,14 @@ class VehicleFaultController extends Controller
             $where[] = "vehicle_incidents.element_id in (".implode(',', request()->get('element_id')).")";
         }
 
+        if (!empty(request()->get('production_type'))) {
+
+            $l = collect((array) request()->get('production_type'))->map(function ($item) {
+                return "'$item'";
+            })->implode(',');
+            $where[] = "vehicle_incidents.production_type in ($l)";
+        }
+
         if (!empty(request()->get('incident_id'))) {
             $where[] = "vehicle_incidents.incident_id in (".implode(',', request()->get('incident_id')).")";
         }
@@ -236,14 +245,18 @@ class VehicleFaultController extends Controller
             SELECT
                 DATE($dateField) as date,
                 count(distinct vehicle_incidents.vin, 2) as vehicles,
-                COUNT(*) as incidents,
-                TRUNCATE(COUNT(*) / count(distinct vehicle_incidents.vin), 2) as dpuoff
+                SUM(incidents.weight) as incidents,
+                TRUNCATE(SUM(incidents.weight) / count(distinct vehicle_incidents.vin), 2) as dpuoff
             FROM
                vehicle_incidents
             left join
                 vehicles
             on
                 vehicle_incidents.vin = vehicles.vin
+            left join
+                incidents
+            on
+                incidents.id = vehicle_incidents.incident_id
             WHERE
                 $strWhere
             GROUP BY
@@ -273,7 +286,7 @@ class VehicleFaultController extends Controller
                 $temp = collect(DB::select(/** @lang text */ "
             SELECT
                 DATE($dateField) as `date`,
-                COUNT(*) as count,
+                SUM(incidents.weight) as count,
                 `$column`
             FROM
                 vehicle_incidents
@@ -281,6 +294,10 @@ class VehicleFaultController extends Controller
                 vehicles
             on
                 vehicle_incidents.vin = vehicles.vin
+            left join
+                incidents
+            on
+                incidents.id = vehicle_incidents.incident_id
             WHERE
                 $strWhere
             GROUP BY

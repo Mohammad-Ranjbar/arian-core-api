@@ -60,6 +60,14 @@ class Vehicle extends Model
         'data'
     ];
 
+
+    public function getProductionType(): ?string
+    {
+        if (!isset($this->getAttribute('data')['Is_CKD'])){
+            return null;
+        }
+        return $this->getAttribute('data')['Is_CKD'] ? 'ckd' :'skd' ;
+    }
     public function shortageItems(): HasMany
     {
         return $this->hasMany(ShortageItem::class,'vin');

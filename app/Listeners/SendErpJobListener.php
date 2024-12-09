@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\ErpJobEvent;
-use App\Jobs\SendToErpParalelJob;
+use App\Jobs\SendToErpParallelJob;
 use App\Jobs\SendToErpUniqueJob;
 use Exception;
 
@@ -12,7 +12,7 @@ class SendErpJobListener
 
     protected $listeners = [
         'unique' => SendToErpUniqueJob::class,
-        'parallel' => SendToErpParalelJob::class,
+        'parallel' => SendToErpParallelJob::class,
     ];
 
     /**

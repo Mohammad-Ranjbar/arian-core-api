@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Events\JobProcessEvent;
+use App\Services\TimeService;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -45,18 +46,25 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             'موبایل راننده',
             'کد ملی راننده',
             'شماره بارنامه',
-            'آیتم های بارنامه',
-            'شماره بچ',
+            'container No / Vin',
+            'Batch No',
             'شماره درخواست',
             'شماره کوتاژ',
             'وزن',
             'توضیحات',
             'تاریخ ایجاد',
             'ساعت ایجاد',
+            'تاریخ ورود به پارکینگ',
+            'ساعت ورود به پارکینگ',
             'تاریخ ورود',
             'ساعت ورود',
             'تاریخ تخلیه',
             'ساعت تخلیه',
+            'تاریخ خروج کانتینر',
+            'ساعت خروج کانتینر',
+            'مدت زمان انتظار ورود به کارخانه',
+            'مدت زمان تخلیه و خروج',
+            'کل زمان حضور',
         ];
     }
 
@@ -74,8 +82,18 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
      */
     public function map($row): array
     {
-        $deliverDate = $row->actionLogs()->where('action', 'temporary_receipt')->first();
-        $dischargeDate = $row->actionLogs()->where('action', 'discharge')->first();
+        $TemporaryReceiptDate = $row->statusTime('temporary_receipt');
+        $enterDate = $row->statusTime('enter');
+        $dischargeDate = $row->statusTime('discharge');
+        $returnContainerDate = $row->statusTime('return_container');
+        $diffEnterAndTemporaryReceipt = $enterDate && $TemporaryReceiptDate ? TimeService::getDiffTwoTime($enterDate, $TemporaryReceiptDate) : '';
+        $diffEnterAndReturnContainer = $enterDate && $returnContainerDate ? TimeService::getDiffTwoTime($enterDate, $returnContainerDate) : '';
+
+        if (!empty($diffEnterAndTemporaryReceipt) && !empty($diffEnterAndReturnContainer)) {
+            $result = TimeService::getSumTwoTime($diffEnterAndReturnContainer, $diffEnterAndTemporaryReceipt);
+        } else {
+            $result = '';
+        }
         $row = [
             $row->car->transitCompany->title,
             $row->car->driver->name,
@@ -90,10 +108,18 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             $row->description,
             jdate($row->created_at)->format('Y-m-d'),
             jdate($row->created_at)->format('H:i:s'),
-            $deliverDate ? jdate($deliverDate->created_at)->format('Y-m-d') : '',
-            $deliverDate ? jdate($deliverDate->created_at)->format('H:i:s') : '',
-            $dischargeDate ? jdate($dischargeDate->created_at)->format('Y-m-d') : '',
-            $dischargeDate ? jdate($dischargeDate->created_at)->format('H:i:s') : '',
+            $TemporaryReceiptDate ? jdate($TemporaryReceiptDate)->format('Y-m-d') : '',
+            $TemporaryReceiptDate ? jdate($TemporaryReceiptDate)->format('H:i:s') : '',
+            $enterDate ? jdate($enterDate)->format('Y-m-d') : '',
+            $enterDate ? jdate($enterDate)->format('H:i:s') : '',
+            $dischargeDate ? jdate($dischargeDate)->format('Y-m-d') : '',
+            $dischargeDate ? jdate($dischargeDate)->format('H:i:s') : '',
+            $returnContainerDate ? jdate($returnContainerDate)->format('Y-m-d') : '',
+            $returnContainerDate ? jdate($returnContainerDate)->format('H:i:s') : '',
+            $diffEnterAndTemporaryReceipt,
+            $diffEnterAndReturnContainer,
+            $result
+
         ];
         $this->eventData['done']++;
         $this->eventData['success']++;
