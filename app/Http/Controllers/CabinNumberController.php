@@ -38,20 +38,20 @@ class CabinNumberController extends CrudController
         if (empty($vehicle->getAttribute('data')['Color_Code'])) {
             return $this->responseError('Color code not exists in vehicle');
         }
-        $yearMap = YearMap::query()->where('chr', $vehicle->getAttribute('data')['Model_Year'])->first();
+        $yearMap = YearMap::query()->where('year', $vehicle->getAttribute('data')['Model_Year'])->first();
         if (empty($yearMap)) {
-            return $this->responseError('Year code not exists in year map'.$vehicle->getAttribute('data')['Model_Year']);
+            return $this->responseError('Can not find year:'.$vehicle->getAttribute('data')['Model_Year']);
         }
         if (empty($yearMap->chr)) {
-            return $this->responseError('please first register chr for this year map');
+            return $this->responseError('Update year: '.$vehicle->getAttribute('data')['Model_Year']);
         }
 
         $colorMap = ColorMap::query()->where('color_code', $vehicle->getAttribute('data')['Color_Code'])->first();
         if (empty($colorMap)) {
-            return $this->responseError('Color code not exists in color map');
+            return $this->responseError('Can not find color: '.$vehicle->getAttribute('data')['Color_Code']);
         }
         if (empty($colorMap->code)) {
-            return $this->responseError('please first register code for this color map');
+            return $this->responseError('Update Color: '.$vehicle->getAttribute('data')['Color_Code']);
         }
 
         if (empty($vehicle->carModel->getAttribute('cabin_serial_chr_1'))){
