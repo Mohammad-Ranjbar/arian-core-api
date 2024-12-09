@@ -34,6 +34,8 @@ class FaultReportExcelRequest extends FormRequest
             'custom_location_type' => 'nullable|in:location,station',
             'custom_location_id' => 'nullable|array',
             'incident_category_id' => 'nullable|exists:incident_categories,id',
+            'vin_type' => 'nullable|array',
+            'production_type' => 'nullable|array',
         ];
     }
 
