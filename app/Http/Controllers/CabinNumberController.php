@@ -38,12 +38,12 @@ class CabinNumberController extends CrudController
         if (empty($vehicle->getAttribute('data')['Color_Code'])) {
             return $this->responseError('Color code not exists in vehicle');
         }
-        $yearMap = YearMap::query()->where('code', $vehicle->getAttribute('data')['Model_Year'])->first();
+        $yearMap = YearMap::query()->where('chr', $vehicle->getAttribute('data')['Model_Year'])->first();
         if (empty($yearMap)) {
             return $this->responseError('Year code not exists in year map');
         }
-        if (empty($yearMap->code)) {
-            return $this->responseError('please first register code for this year map');
+        if (empty($yearMap->chr)) {
+            return $this->responseError('please first register chr for this year map');
         }
 
         $colorMap = ColorMap::query()->where('color_code', $vehicle->getAttribute('data')['Color_Code'])->first();
@@ -71,7 +71,7 @@ class CabinNumberController extends CrudController
 
 
         $validatedData['color_chr'] = $colorMap->getAttribute('code');
-        $validatedData['year_chr'] = $yearMap->getAttribute('code');
+        $validatedData['year_chr'] = $yearMap->getAttribute('chr');
         $validatedData['counter'] = $counter+1;
 
         return CabinNumberResource::make($this->repository->store($validatedData));
