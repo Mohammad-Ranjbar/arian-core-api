@@ -40,7 +40,7 @@ class CabinNumberController extends CrudController
         }
         $yearMap = YearMap::query()->where('chr', $vehicle->getAttribute('data')['Model_Year'])->first();
         if (empty($yearMap)) {
-            return $this->responseError('Year code not exists in year map');
+            return $this->responseError('Year code not exists in year map'.$vehicle->getAttribute('data')['Model_Year']);
         }
         if (empty($yearMap->chr)) {
             return $this->responseError('please first register chr for this year map');
