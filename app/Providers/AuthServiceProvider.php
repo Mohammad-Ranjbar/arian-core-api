@@ -46,6 +46,7 @@ use App\Models\StopType;
 use App\Models\SynchronousType;
 use App\Models\TransitCompany;
 use App\Models\User;
+use App\Models\UserGroup;
 use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
 use App\Models\YearMap;
@@ -104,8 +105,9 @@ class AuthServiceProvider extends ServiceProvider
         Pallet::class => CrudPolicy::class,
         ColorMap::class => CrudPolicy::class,
         YearMap::class => CrudPolicy::class,
-        BodyOption::class=>CrudPolicy::class,
-        CabinNumber::class=> CrudPolicy::class,
+        BodyOption::class => CrudPolicy::class,
+        CabinNumber::class => CrudPolicy::class,
+        UserGroup::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];
