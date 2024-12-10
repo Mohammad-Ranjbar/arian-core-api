@@ -171,7 +171,7 @@ abstract class BaseRepository
      */
     public function destroy($id): bool
     {
-        return $this->model->newQuery()->find($id)->delete();
+        return $this->model->newQuery()->findOrFail($id)->delete();
     }
 
     /**

@@ -68,6 +68,7 @@ use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserGroupController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
@@ -357,6 +358,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
         'body-options' => BodyOptionController::class,
+        'user-groups' => UserGroupController::class,
     ]);
 
     /*
