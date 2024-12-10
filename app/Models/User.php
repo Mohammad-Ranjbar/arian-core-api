@@ -104,4 +104,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(SaleCompany::class);
     }
+
+
+    public function userGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(UserGroup::class);
+    }
 }
