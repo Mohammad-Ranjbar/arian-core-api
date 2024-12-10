@@ -30,7 +30,6 @@ class CabinNumberController extends CrudController
     {
         $validatedData = $request->validated();
 
-
         if (!$vehicle->carModel->bodyOptions()->where('code', $validatedData['body_option_chr'])->exists()) {
             return $this->responseError('body option chr in invalid');
         }
@@ -61,7 +60,8 @@ class CabinNumberController extends CrudController
             return $this->responseError('please update your car model');
         }
         $counter = CabinNumber::query()
-                ->where('car_model_id', $vehicle->getAttribute('car_model_id'))
+                ->where('serial_1_chr', $vehicle->carModel->getAttribute('cabin_serial_chr_1'))
+                ->where('serial_2_chr', $vehicle->carModel->getAttribute('cabin_serial_chr_2'))
                 ->where('year_chr', $yearMap->chr)->max('counter');
 
         $validatedData['car_model_id'] = $vehicle->getAttribute('car_model_id');
