@@ -12,6 +12,7 @@ use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
 use App\Models\ActionLog;
 use App\Models\BillOfLading;
+use App\Models\Car;
 use App\Models\GatePermit;
 use App\Models\Job;
 use App\Models\Vehicle;
@@ -311,7 +312,7 @@ class BillOfLadingController extends CrudController
     public function afterSave($record, $data)
     {
         if ($data['type'] === 'containers') {
-            $record->containers()->sync($data['items'],['type' => 'containers']);
+            $record->containers()->syncWithPivotValues($data['items'],['type' => 'containers']);
             $record->containers()->update(['on_shipping' => true]);
         }
         if ($data['type'] === 'vehicles') {
@@ -322,13 +323,12 @@ class BillOfLadingController extends CrudController
                     throw new Exception('Please add gate permit for vin '.$vin.' create bill of ladings');
                 }
             }
-
-            $record->vehicles()->sync($data['items'],['type' => 'vehicles']);
+            $record->vehicles()->syncWithPivotValues($data['items'],['type' => 'vehicles']);
         }
 
         if ($data['type'] == 'bodies') {
             $record->createAutoGatePermit($data['items']);
-            $record->vehicles()->sync($data['items'],['type' => 'bodies']);
+            $record->vehicles()->syncWithPivotValues($data['items'],['type' => 'bodies']);
         }
 
 
