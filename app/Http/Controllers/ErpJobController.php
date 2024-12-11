@@ -24,7 +24,6 @@ class ErpJobController extends Controller
     {
         $this->authorize('erp-jobs');
         $data = ErpJob::query()
-            ->where('status','!=','ignore')
             ->where('status', 'failed')
             ->with(['user', 'model'])
             ->latest()
