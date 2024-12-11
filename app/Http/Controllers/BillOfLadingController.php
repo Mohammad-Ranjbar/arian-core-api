@@ -311,7 +311,7 @@ class BillOfLadingController extends CrudController
     public function afterSave($record, $data)
     {
         if ($data['type'] === 'containers') {
-            $record->containers()->sync($data['items']);
+            $record->containers()->sync($data['items'],['type' => 'containers']);
             $record->containers()->update(['on_shipping' => true]);
         }
         if ($data['type'] === 'vehicles') {
@@ -323,12 +323,12 @@ class BillOfLadingController extends CrudController
                 }
             }
 
-            $record->vehicles()->sync($data['items']);
+            $record->vehicles()->sync($data['items'],['type' => 'vehicles']);
         }
 
         if ($data['type'] == 'bodies') {
             $record->createAutoGatePermit($data['items']);
-            $record->vehicles()->sync($data['items']);
+            $record->vehicles()->sync($data['items'],['type' => 'bodies']);
         }
 
 

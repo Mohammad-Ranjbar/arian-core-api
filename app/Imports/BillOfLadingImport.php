@@ -179,15 +179,18 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                 }
                 else {
                     if (!empty($row['VIN'])) {
+
+                        $itemType = 'vehicles';
+                        if ($billOfLading->type == 'bodies'){
+                            $billOfLading->createAutoGatePermit([$row['VIN']]);
+                            $itemType = 'bodies';
+                        }
                         DB::table('bill_of_lading_item')->insert([
                             'model_id' => $row['VIN'],
                             'model_type' => Vehicle::class,
                             'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                            'type' => $itemType
                         ]);
-
-                        if ($billOfLading->type == 'bodies'){
-                            $billOfLading->createAutoGatePermit([$row['VIN']]);
-                        }
 
                     }
                     if (!empty($row['container_number'])) {
@@ -195,6 +198,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                             'model_id' => $container->getAttribute('id'),
                             'model_type' => Container::class,
                             'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                            'type' => 'containers'
                         ]);
                     }
                 }

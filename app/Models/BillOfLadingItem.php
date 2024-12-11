@@ -10,6 +10,9 @@ class BillOfLadingItem extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
+    protected $fillable = ['type'];
     protected $table = 'bill_of_lading_item';
 
     public function billOfLading(): BelongsTo

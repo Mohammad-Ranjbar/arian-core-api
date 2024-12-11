@@ -79,24 +79,22 @@ class BillOfLading extends Model
             $query = $query->where('created_at', '<=', $data['to']);
         }
         if (!empty($data['type'])) {
-            $query = $query->withCount([
-                'containers', // Count related containers
-                'vehicles as painted_body_count' => function ($query) {
-                    $query->whereIn('data->Item_Type', ['Painted Body', 'Raw Body']);
-                },
-                'vehicles as vehicle_count' => function ($query) {
-                    $query->where('data->Item_Type', 'Vehicle');
-                },
-            ])
-                ->when(request()->get('type') === 'containers', function ($query) {
-                    $query->having('containers_count', '>', 0);
-                })
-                ->when(request()->get('type') === 'bodies', function ($query) {
-                    $query->having('painted_body_count', '>', 0);
-                })
-                ->when(request()->get('type') === 'vehicles', function ($query) {
-                    $query->having('vehicle_count', '>', 0);
+            if ($data['type'] == 'containers') {
+                $query = $query->whereHas('containers',function ($q){
+                    $q->wherePivot('type','containers');
                 });
+            }
+            if ($data['type'] == 'vehicles') {
+                $query = $query->whereHas('vehicles',function ($q){
+                    $q->wherePivot('type','vehicles');
+                });
+            }
+            if ($data['type'] == 'bodies') {
+                $query = $query->whereHas('vehicles',function ($q){
+                    $q->wherePivot('type','bodies');
+                });
+            }
+
         }
 
 
@@ -258,15 +256,13 @@ class BillOfLading extends Model
     {
         return Attribute::make(
             get: function () {
-                if ($this->containers()->count()) {
+                if ($this->containers()->wherePivot('type','containers')->count()) {
                     return 'containers';
                 }
-                if ($this->vehicles()->where(function ($q) {
-                    $q->where('data->Item_Type', 'Painted Body')->orWhere('data->Item_Type', 'Raw Body');
-                })->count()) {
+                if ($this->vehicles()->wherePivot('type','bodies')->count()) {
                     return 'bodies';
                 }
-                if ($this->vehicles()->where('data->Item_Type', 'Vehicle')->count()) {
+                if ($this->vehicles()->wherePivot('type','vehicles')->count()) {
                     return 'vehicles';
                 }
                 return 'unknown';
@@ -279,8 +275,7 @@ class BillOfLading extends Model
         return $this->morphedByMany(
             Container::class,
             'model',
-            'bill_of_lading_item'
-        );
+            'bill_of_lading_item')->withPivot(['type']);
     }
 
     public function vehicles(): MorphToMany
@@ -289,7 +284,7 @@ class BillOfLading extends Model
             Vehicle::class,
             'model',
             'bill_of_lading_item'
-        );
+        )->withPivot(['type']);
     }
 
     public function canReturn(): bool
