@@ -81,17 +81,17 @@ class BillOfLading extends Model
         if (!empty($data['type'])) {
             if ($data['type'] == 'containers') {
                 $query = $query->whereHas('containers',function ($q){
-                    $q->wherePivot('type','containers');
+                    $q->where('type','containers');
                 });
             }
             if ($data['type'] == 'vehicles') {
                 $query = $query->whereHas('vehicles',function ($q){
-                    $q->wherePivot('type','vehicles');
+                    $q->where('type','vehicles');
                 });
             }
             if ($data['type'] == 'bodies') {
                 $query = $query->whereHas('vehicles',function ($q){
-                    $q->wherePivot('type','bodies');
+                    $q->where('type','bodies');
                 });
             }
 
