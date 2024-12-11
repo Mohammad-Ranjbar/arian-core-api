@@ -63,10 +63,7 @@ class Vehicle extends Model
 
     public function getProductionType(): ?string
     {
-        if (!isset($this->getAttribute('data')['Is_CKD'])){
-            return null;
-        }
-        return $this->getAttribute('data')['Is_CKD'] ? 'ckd' :'skd' ;
+        return $this->getAttribute('data')['Manufacturing_Method'] ;
     }
     public function shortageItems(): HasMany
     {
