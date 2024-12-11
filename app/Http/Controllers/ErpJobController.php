@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\ErpJobEvent;
 use App\Http\Resources\ErpJobResource;
 use App\Models\ErpJob;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +24,7 @@ class ErpJobController extends Controller
     {
         $this->authorize('erp-jobs');
         $data = ErpJob::query()
-            ->where('status','failed')
+            ->where('status', 'failed')
             ->with(['user', 'model'])
             ->latest()
             ->paginate(request()->get('per_page') ?? '15');
@@ -57,5 +58,20 @@ class ErpJobController extends Controller
         return response()->json([
             'message' => 'Job retry successfully'
         ]);
+    }
+
+    public function changeStatusToIgnore(ErpJob $erpJob): JsonResponse
+    {
+        try {
+            if ($erpJob->getAttribute('status') == 'failed') {
+                return $this->responseError('Job status is failed', 400);
+            }
+            $erpJob->update(['status' => 'ignore']);
+            return response()->json([
+                'message' => 'Job status successfully ignored',
+            ]);
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage());
+        }
     }
 }
