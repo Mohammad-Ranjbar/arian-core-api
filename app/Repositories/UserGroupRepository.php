@@ -13,10 +13,10 @@ class UserGroupRepository extends BaseRepository
     protected array $rules = [
         'create'    => [
             'title' => 'required|unique:user_groups,title',
-            'setting' => 'nullable|json'
+            'setting' => 'json'
         ], 'update' => [
             'title' => 'required|unique:user_groups,title,',
-            'setting' => 'nullable|json'
+            'setting' => 'json'
         ]
     ];
 
