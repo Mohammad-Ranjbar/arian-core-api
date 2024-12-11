@@ -63,8 +63,8 @@ class ErpJobController extends Controller
     public function changeStatusToIgnore(ErpJob $erpJob): JsonResponse
     {
         try {
-            if ($erpJob->getAttribute('status') == 'failed') {
-                return $this->responseError('Job status is failed', 400);
+            if ($erpJob->getAttribute('status') == 'ignore') {
+                return $this->responseError('Job status is already ignore', 400);
             }
             $erpJob->update(['status' => 'ignore']);
             return response()->json([

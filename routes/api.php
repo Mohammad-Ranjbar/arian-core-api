@@ -299,7 +299,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-bill-of-ladings',
         [BillOfLadingController::class, 'reportExcel'])->name('report-excel-bill-of-ladings');
 
-    Route::patch('/erp-job/{erpJob}/change-status-to-ignore',[ErpJobController::class,'changeStatusToIgnore'])->name('erp-job.change-status');
+    Route::patch('/erp-jobs/{erpJob}/change-status-to-ignore',[ErpJobController::class,'changeStatusToIgnore'])->name('erp-job.change-status');
     Route::get('/report-excel-test-results',
         [ProductionTestResultController::class, 'reportExcel'])->name('report-excel-test-results');
 
