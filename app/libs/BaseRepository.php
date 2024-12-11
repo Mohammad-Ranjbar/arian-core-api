@@ -263,11 +263,8 @@ abstract class BaseRepository
         return $this->makeQuery()->orderBy($orderBy, $orderType)->paginate($perPage);
     }
 
-    /**
-     * @param array $input
-     * @return bool|Builder|Model|int
-     */
-    public function upsert(array $input): Model|Builder|bool|int
+
+    public function upsert(array $input)
     {
         $record = $this->findWhere($input);
         if (!$record) {
