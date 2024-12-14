@@ -29,8 +29,10 @@ class StopLineRequest extends FormRequest
             'start_at' => 'nullable|date_format:"Y-m-d H:i:s"',
             'stop_at' => 'nullable|date_format:"Y-m-d H:i:s"',
             'notify' => 'required|boolean',
-            'productItems' => 'nullable|array|exists:erp_product_items,id',
-            'serviceItems' => 'nullable|array|exists:erp_service_items,id',
+            'productItems' => 'nullable|array',
+            'productItems.*' => 'exists:erp_product_items,id',
+            'serviceItems' => 'nullable|array',
+            'serviceItems.*' => 'exists:erp_service_items,id',
             'effective_time' => 'nullable'
         ];
     }
