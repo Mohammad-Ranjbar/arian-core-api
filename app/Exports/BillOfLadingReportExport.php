@@ -44,6 +44,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             'شرکت ترابری',
             'نام راننده',
             'موبایل راننده',
+            'شماره پلاک',
             'کد ملی راننده',
             'شماره بارنامه',
             'container No / Vin',
@@ -94,10 +95,12 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
         } else {
             $result = '';
         }
+        $plate = json_decode($row->car->plate);
         $row = [
             $row->car->transitCompany->title,
             $row->car->driver->name,
             $row->car->driver->phone,
+            $plate?->number1 . $plate?->char . $plate?->number2 . $plate?->number3,
             $row->car->driver->national_code,
             $row->code,
             $row->vehicles()->get()->implode('vin', ',') . $row->containers()->get()->implode('code', ','),
