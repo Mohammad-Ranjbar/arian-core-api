@@ -9,6 +9,7 @@ use App\Jobs\ProductionLineActivitySmsJob;
 use App\Jobs\ProductionLineActivityTeamsJob;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
+use App\Models\StopReason;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,15 @@ class LineActivityStartStopController extends Controller
             ProductionLineActivitySmsJob::dispatch($activity->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
-        $activity->productItems()->sync($validatedData['productItems']);
+        $stopReason = StopReason::query()->find($validatedData['stop_reason_id']);
+
+        if ($stopReason->getAttribute('has_options') == 'service-items'){
+            $activity->serviceItems()->sync($validatedData['serviceItems']);
+        }
+        if ($stopReason->getAttribute('has_options') == 'product-items'){
+            $activity->productItems()->sync($validatedData['productItems']);
+        }
+
         return new ProductionLineActivityResource($activity);
     }
 
