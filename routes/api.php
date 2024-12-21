@@ -55,6 +55,7 @@ use App\Http\Controllers\SaleInvoicesController;
 use App\Http\Controllers\SaleLocationController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\SendSmsGatewayController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ShortageController;
 use App\Http\Controllers\SmsServiceController;
 use App\Http\Controllers\StationController;
@@ -151,7 +152,6 @@ Route::middleware('auth:sanctum')->group(function () {
         [StopFactController::class, 'removeUser'])->name('stop-fact.remove.user');
 
 
-
     Route::get('/accompanying-item/{accompanyingItem}/car-models',
         [AccompanyingItemController::class, 'carModels'])->name('accompanying-item.carModels');
     Route::post('/accompanying-item/{accompanyingItem}/car-models',
@@ -194,6 +194,14 @@ Route::middleware('auth:sanctum')->group(function () {
         [ProductionLineController::class, 'removeUser'])->name('production-line.remove.user');
 
 
+    Route::get('/setting/{setting}/users',
+        [SettingController::class, 'users'])->name('setting.users');
+    Route::post('/setting/{setting}/users',
+        [SettingController::class, 'assignUsers'])->name('setting.assign.user');
+    Route::delete('/setting/{setting}/users/{user}',
+        [SettingController::class, 'removeUser'])->name('setting.remove.user');
+
+
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
     Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
     Route::post('/elements-imports', [ElementController::class, 'import'])->name('elements.imports');
@@ -218,7 +226,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
 
-            Route::post(  '/generate-cabin-numbers' , [CabinNumberController::class,'generate'])->name('generate.cabin-numbers');
+            Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update']);
 
             Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
@@ -294,7 +302,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-bill-of-ladings',
         [BillOfLadingController::class, 'reportExcel'])->name('report-excel-bill-of-ladings');
 
-    Route::patch('/erp-jobs/{erpJob}/change-status-to-ignore',[ErpJobController::class,'changeStatusToIgnore'])->name('erp-job.change-status');
+    Route::patch('/erp-jobs/{erpJob}/change-status-to-ignore', [ErpJobController::class, 'changeStatusToIgnore'])->name('erp-job.change-status');
     Route::get('/report-excel-test-results',
         [ProductionTestResultController::class, 'reportExcel'])->name('report-excel-test-results');
 
@@ -320,7 +328,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('pallet-transactions', PalletTransactionController::class)->except('destroy');
 
-    Route::apiResource(  'cabin-numbers' , CabinNumberController::class)->only(['index','show']);
+    Route::apiResource('cabin-numbers', CabinNumberController::class)->only(['index', 'show']);
 
     Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
 
@@ -360,6 +368,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
         'body-options' => BodyOptionController::class,
+        'settings' => SettingController::class
     ]);
 
     /*
