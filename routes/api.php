@@ -68,7 +68,6 @@ use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserGroupController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
@@ -151,11 +150,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/stop-fact/{stopFact}/users/{user}',
         [StopFactController::class, 'removeUser'])->name('stop-fact.remove.user');
 
-    Route::get('/user-group/{userGroup}/users', [UserGroupController::class, 'users'])->name('user-group.users');
-    Route::post('/user-group/{userGroup}/users',
-        [UserGroupController::class, 'assignUser'])->name('user-group.assign.user');
-    Route::delete('/user-group/{userGroup}/users/{user}',
-        [UserGroupController::class, 'removeUser'])->name('user-group.remove.user');
+
 
     Route::get('/accompanying-item/{accompanyingItem}/car-models',
         [AccompanyingItemController::class, 'carModels'])->name('accompanying-item.carModels');
@@ -365,7 +360,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
         'body-options' => BodyOptionController::class,
-        'user-groups' => UserGroupController::class,
     ]);
 
     /*
