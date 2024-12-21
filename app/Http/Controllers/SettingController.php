@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddUsersToSettingRequest;
-use App\Http\Resources\ProductionLineResource;
 use App\Http\Resources\SettingResource;
 use App\Http\Resources\UserShortResource;
 use App\Models\Setting;
