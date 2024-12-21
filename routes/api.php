@@ -332,6 +332,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
 
+    Route::apiResource( 'settings' , SettingController::class)->except('store','destroy');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -368,7 +369,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
         'body-options' => BodyOptionController::class,
-        'settings' => SettingController::class
     ]);
 
     /*
