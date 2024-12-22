@@ -77,6 +77,7 @@ class VehicleController extends CrudController
     public function getData(string $vin): Model|Builder
     {
         $vehicleData = $this->erpGetVehicle->get($vin);
+        dd($vehicleData);
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
 
