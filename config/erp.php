@@ -1,7 +1,7 @@
 <?php
 return [
     'vehicles'  => env('ERP_URL_VEHICLES',
-        "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/Vehicle_List_API"),
+        "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company('Pars')/Vehicle_List_API"),
     'items'     => env('ARIAN_URL_ITEMS',
         "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/ItemQuery"),
     'service_items'     => env('ARIAN_URL_SERVICE_ITEMS',
