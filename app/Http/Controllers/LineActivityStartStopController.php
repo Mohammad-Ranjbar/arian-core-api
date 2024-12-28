@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductionLineStartRequest;
 use App\Http\Requests\StopLineRequest;
 use App\Http\Resources\ProductionLineActivityResource;
+use App\Jobs\ProductionLineActivityDelaySmsJob;
 use App\Jobs\ProductionLineActivitySmsJob;
 use App\Jobs\ProductionLineActivityTeamsJob;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
+use App\Models\Setting;
 use App\Models\StopReason;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +45,7 @@ class LineActivityStartStopController extends Controller
             ProductionLineActivitySmsJob::dispatch($activity->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
+        ProductionLineActivityDelaySmsJob::dispatch($activity->getAttribute('id'))->delay(Setting::query()->where('key','notify_with_delay_minute')->first()->getAttribute('value'));
         $stopReason = StopReason::query()->find($validatedData['stop_reason_id']);
 
         if ($stopReason->getAttribute('has_options') == 'service-items'){
