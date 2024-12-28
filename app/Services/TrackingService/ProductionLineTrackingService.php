@@ -109,7 +109,7 @@ class ProductionLineTrackingService extends BaseTrackingService
         if ($record->type == 'exit') {
             $params['withOutput'] = 'true';
         }
-//        $method = 'PostProduction_OnlyBIN';
+        $method = 'PostProduction_OnlyBIN';
         $shortages = ShortageItem::query()->where('vin', $record->vin)
             ->where('status', 'pending')->with('erpProductItem')->get();
         if ($count = $shortages->count()) {
@@ -121,7 +121,6 @@ class ProductionLineTrackingService extends BaseTrackingService
         $response = ErpWsdlClient::run(config('erp.shortage'), $method, $params);
 
         if ($response['status'] != 'ok') {
-
             throw new Exception($response['message']);
         }
 
