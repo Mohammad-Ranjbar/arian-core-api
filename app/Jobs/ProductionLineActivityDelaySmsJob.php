@@ -16,7 +16,7 @@ class ProductionLineActivityDelaySmsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function __construct(private readonly string $id,private $time)
+    public function __construct(private readonly string $id)
     {
 
     }
@@ -31,7 +31,7 @@ class ProductionLineActivityDelaySmsJob implements ShouldQueue
         $started = $productionLineActivity->getAttribute('logs')
             ->where('action', 'start')
             ->first();
-        if ($started && $started->created_at < $this->time){
+        if ($started){
             return;
         }
 
