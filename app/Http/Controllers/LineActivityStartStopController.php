@@ -45,8 +45,8 @@ class LineActivityStartStopController extends Controller
             ProductionLineActivitySmsJob::dispatch($activity->getAttribute('id'));
             ProductionLineActivityTeamsJob::dispatch($activity->getAttribute('id'));
         }
-
-        ProductionLineActivityDelaySmsJob::dispatch($activity->getAttribute('id'))->delay(now()->addMinutes(30));
+        $delay = now()->addMinutes(30);
+        ProductionLineActivityDelaySmsJob::dispatch($activity->getAttribute('id'),$delay)->delay($delay);
         $stopReason = StopReason::query()->find($validatedData['stop_reason_id']);
 
         if ($stopReason->getAttribute('has_options') == 'service-items') {

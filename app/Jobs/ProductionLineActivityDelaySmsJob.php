@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ProductionLineActivity;
 use App\Models\Setting;
 use App\Services\ContentProductionLineActivitySmsService;
 use Illuminate\Bus\Queueable;
@@ -15,7 +16,7 @@ class ProductionLineActivityDelaySmsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function __construct(private readonly string $id)
+    public function __construct(private readonly string $id,private $time)
     {
 
     }
@@ -26,6 +27,14 @@ class ProductionLineActivityDelaySmsJob implements ShouldQueue
         if (empty($phones)) {
             return;
         }
+        $productionLineActivity = ProductionLineActivity::query()->find($id);
+        $started = $productionLineActivity->getAttribute('logs')
+            ->where('action', 'start')
+            ->first();
+        if ($started && $started->created_at < $this->time){
+            return;
+        }
+
         ContentProductionLineActivitySmsService::sendSms($this->id, $phones);
     }
 }
