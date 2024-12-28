@@ -14,7 +14,6 @@ class ProductionLineActivityDelaySmsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $delay = 30;
 
     public function __construct(private readonly string $id)
     {
