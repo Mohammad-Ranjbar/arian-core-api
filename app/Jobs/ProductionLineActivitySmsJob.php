@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ProductionLineActivity;
 use App\Services\ContentProductionLineActivitySmsService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -26,6 +27,7 @@ class ProductionLineActivitySmsJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $productionLineActivity = ProductionLineActivity::query()->find($this->id);
         $phones1 = $productionLineActivity->productionLine->users()->get()->pluck('mobile')->all();
         $phones2 = $productionLineActivity->stopReason
             ->fact
