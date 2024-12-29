@@ -31,7 +31,7 @@ class ProductionLineActivityDelaySmsJob implements ShouldQueue
         $started = $productionLineActivity->getAttribute('logs')
             ->where('action', 'start')
             ->first();
-        if ($started){
+        if (empty($started)){
             return;
         }
 
