@@ -229,7 +229,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update']);
 
-            Route::get('/component-items', ComponentItemController::class)->name('vehicles.component-items');
+            Route::get('/main-component-items', [ComponentItemController::class,'main'])->name('vehicles.component-items');
+            Route::get('/all-component-items', [ComponentItemController::class,'all'])->name('vehicles.component-items');
             Route::get('overview', VehicleOverviewController::class)->name('vehicle.overview');
 
             Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');

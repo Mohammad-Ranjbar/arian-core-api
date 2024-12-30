@@ -57,6 +57,7 @@ class ShortageController extends Controller
                     ->where('vin', $vehicle->getAttribute('vin'))
                     ->where('status', 'pending')
             ],
+            'routing_link_code' => 'nullable|exists:shortage_items,routing_link_code',
         ]);
         try {
             if ($vehicle->tracking()->where('model_type', ProductionLine::class)
@@ -66,7 +67,8 @@ class ShortageController extends Controller
             $shortage = ShortageItem::query()->create([
                 'erp_product_item_id' => $validatedData['erp_product_item_id'],
                 'user_id' => Auth::id(),
-                'vin' => $vehicle->getAttribute('vin')
+                'vin' => $vehicle->getAttribute('vin'),
+                'routing_link_code' => $validatedData['routing_link_code'] ?? null,
             ]);
             return new ShortageItemResource($shortage->fresh());
         } catch (Exception $exception) {

@@ -14,10 +14,15 @@ class ComponentItemController extends Controller
     {
     }
 
+    public function all(Vehicle $vehicle): JsonResponse
+    {
+        return $this->main($vehicle, false);
+    }
+
     /**
      * @throws ValidationException
      */
-    public function __invoke(Vehicle $vehicle): JsonResponse
+    public function main(Vehicle $vehicle, $filter = true): JsonResponse
     {
         $items = collect($this->component->get($vehicle->getAttribute('production_order_number')));
         $items->each(function ($item) {
@@ -27,31 +32,34 @@ class ComponentItemController extends Controller
             }
             $item->productItem = $erpProductItem;
         });
+        if ($filter) {
+            $items = $items
+                ->filter(function ($item) {
+                    return $item->Main_Component;
+                });
+        }
 
-        $items = $items
-            ->filter(function ($item) {
-                return $item->Main_Component;
-            })
-            ->map(function ($item) use ($items) {
-                if (!$item->productItem) {
-                    return [
-                        'id' => 0,
-                        'title' => 'unknown item for ' . $item->Item_No,
-                        'reference' => 'unknown item for ' . $item->Item_No,
-                        'description' => 'unknown item for ' . $item->Item_No,
-                        'related' => []
-                    ];
-                }
+       $items = $items->map(function ($item) use ($items) {
+            if (!$item->productItem) {
                 return [
-                    'id' => $item->productItem->id,
-                    'title' => $item->productItem->title,
-                    'reference' => $item->productItem->reference,
-                    'description' => $item->productItem->description,
-                    'related' => $items->filter(function ($row) use ($item) {
-                        return $row->Related_Component == $item->Item_No && $row->Item_No != $item->Item_No;
-                    })->pluck('productItem.title')
+                    'id' => 0,
+                    'title' => 'unknown item for ' . $item->Item_No,
+                    'reference' => 'unknown item for ' . $item->Item_No,
+                    'description' => 'unknown item for ' . $item->Item_No,
+                    'related' => []
                 ];
-            });
+            }
+            return [
+                'id' => $item->productItem->id,
+                'title' => $item->productItem->title,
+                'reference' => $item->productItem->reference,
+                'description' => $item->productItem->description,
+                'routing_link_code' => $item->Routing_Link_Code	,
+                'related' => $items->filter(function ($row) use ($item) {
+                    return $row->Related_Component == $item->Item_No && $row->Item_No != $item->Item_No;
+                })->pluck('productItem.title')
+            ];
+        });
 
         return response()->json($items->values());
     }
