@@ -37,9 +37,14 @@ class ComponentItemController extends Controller
                 ->filter(function ($item) {
                     return $item->Main_Component;
                 });
+        } else {
+            $items = $items
+                ->filter(function ($item) {
+                    return $item->Remaining_Quantity > 0;
+                });
         }
 
-       $items = $items->map(function ($item) use ($items) {
+        $items = $items->map(function ($item) use ($items) {
             if (!$item->productItem) {
                 return [
                     'id' => 0,
@@ -54,7 +59,7 @@ class ComponentItemController extends Controller
                 'title' => $item->productItem->title,
                 'reference' => $item->productItem->reference,
                 'description' => $item->productItem->description,
-                'routing_link_code' => $item->Routing_Link_Code	,
+                'routing_link_code' => $item->Routing_Link_Code,
                 'related' => $items->filter(function ($row) use ($item) {
                     return $row->Related_Component == $item->Item_No && $row->Item_No != $item->Item_No;
                 })->pluck('productItem.title')
