@@ -42,6 +42,9 @@ class Tracking extends Model
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
+        if (!empty($data['vin'])) {
+            $query = $query->where('vin', $data['vin']);
+        }
         if (!empty($data['to'])) {
             $query = $query->where('created_at', '<=', $data['to']);
         }
