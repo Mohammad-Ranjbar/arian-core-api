@@ -40,7 +40,7 @@ class ComponentItemController extends Controller
         } else {
             $items = $items
                 ->filter(function ($item) {
-                    return $item->Remaining_Quantity > 0;
+                    return $item->Remaining_Quantity > 0 && $item->Main_Component == false;
                 });
         }
 
