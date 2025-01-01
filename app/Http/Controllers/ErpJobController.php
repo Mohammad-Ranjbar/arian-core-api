@@ -23,9 +23,12 @@ class ErpJobController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('erp-jobs');
-        $data = ErpJob::query()
-            ->where('status', 'failed')
-            ->with(['user', 'model'])
+        $data = ErpJob::query();
+
+        $data = request()->has('status') && request()->get('status') == 'ignore' ?
+            $data->where('status','ignore') :
+            $data->where('status', 'failed');
+       $data = $data->with(['user', 'model'])
             ->latest()
             ->paginate(request()->get('per_page') ?? '15');
         return ErpJobResource::collection($data);
