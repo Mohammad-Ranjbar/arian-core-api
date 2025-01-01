@@ -47,20 +47,22 @@ class ComponentItemController extends Controller
         $items = $items->map(function ($item) use ($items) {
             if (!$item->productItem) {
                 return [
-                    'id' => 0,
-                    'title' => 'unknown item for ' . $item->Item_No,
-                    'reference' => 'unknown item for ' . $item->Item_No,
-                    'description' => 'unknown item for ' . $item->Item_No,
-                    'related' => []
+                    'id'          => 0,
+                    'title'       => 'unknown item for '.$item->Item_No,
+                    'reference'   => 'unknown item for '.$item->Item_No,
+                    'description' => 'unknown item for '.$item->Item_No,
+                    'related'     => []
                 ];
             }
             return [
-                'id' => $item->productItem->id,
-                'title' => $item->productItem->title,
-                'reference' => $item->productItem->reference,
-                'description' => $item->productItem->description,
-                'routing_link_code' => $item->Routing_Link_Code,
-                'related' => $items->filter(function ($row) use ($item) {
+                'id'                 => $item->productItem->id,
+                'title'              => $item->productItem->title,
+                'reference'          => $item->productItem->reference,
+                'description'        => $item->productItem->description,
+                'routing_link_code'  => $item->Routing_Link_Code,
+                'quantity'           => $item->Quantity,
+                'remaining_quantity' => $item->Remaining_Quantity,
+                'related'            => $items->filter(function ($row) use ($item) {
                     return $row->Related_Component == $item->Item_No && $row->Item_No != $item->Item_No;
                 })->pluck('productItem.title')
             ];
