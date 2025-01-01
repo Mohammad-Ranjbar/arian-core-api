@@ -13,7 +13,8 @@ class ShortageItem extends Model
         'vin',
         'erp_product_item_id',
         'status',
-        'shortage_items'
+        'shortage_items',
+        'routing_link_code'
     ];
 
     public static function getReportData(array $data)
