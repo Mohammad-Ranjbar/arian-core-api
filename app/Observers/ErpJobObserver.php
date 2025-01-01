@@ -19,7 +19,8 @@ class ErpJobObserver
     {
 
         $users = [
-            'mo.ranjbar@arian-capital.com'
+            'mo.ranjbar@arian-capital.com',
+
         ];
 
         foreach ($users as $userEmail) {

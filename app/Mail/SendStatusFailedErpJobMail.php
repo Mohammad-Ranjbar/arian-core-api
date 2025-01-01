@@ -22,7 +22,7 @@ class SendStatusFailedErpJobMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send Status Failed Erp Job Mail',
+            subject: 'Send Status Failed Erp Job Mail #'.$this->erpJob->getAttribute('id') .' method: '.$this->erpJob->getAttribute('method'),
         );
     }
 
