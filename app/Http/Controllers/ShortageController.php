@@ -53,9 +53,10 @@ class ShortageController extends Controller
             'erp_product_item_id' => [
                 'required',
                 'exists:erp_product_items,id',
-                Rule::unique('shortage_items', 'erp_product_item_id')
-                    ->where('vin', $vehicle->getAttribute('vin'))
-                    ->where('status', 'pending')
+// TODO check unique | routing link code
+//                Rule::unique('shortage_items', 'erp_product_item_id')
+//                    ->where('vin', $vehicle->getAttribute('vin'))
+//                    ->where('status', 'pending')
             ],
             'routing_link_code' => 'nullable',
         ]);
