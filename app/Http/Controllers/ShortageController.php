@@ -57,7 +57,7 @@ class ShortageController extends Controller
                     ->where('vin', $vehicle->getAttribute('vin'))
                     ->where('status', 'pending')
             ],
-            'routing_link_code' => 'nullable|exists:shortage_items,routing_link_code',
+            'routing_link_code' => 'nullable',
         ]);
         try {
             if ($vehicle->tracking()->where('model_type', ProductionLine::class)
