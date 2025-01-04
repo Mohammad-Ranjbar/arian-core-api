@@ -19,7 +19,6 @@ class ErpJobObserver
     {
 
         $users = [
-            'mo.ranjbar@arian-capital.com',
             'r.pourmehr@arian-capital.com',
             'z.saffari@arian-capital.com',
 
