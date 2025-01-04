@@ -21,6 +21,7 @@ class ErpJobObserver
         $users = [
             'r.pourmehr@arian-capital.com',
             'z.saffari@arian-capital.com',
+            'h.yadegari@arian-capital.com'
 
         ];
 
