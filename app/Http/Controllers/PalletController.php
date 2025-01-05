@@ -77,7 +77,6 @@ class PalletController extends CrudController
     public function getPalletLocations(Pallet $pallet): JsonResponse
     {
         $this->authorize('pallet-locations');
-
         $sql = 'SELECT
     SUM(qty) AS qty , locations.title,location_id
 FROM
@@ -86,8 +85,7 @@ FROM
 WHERE
     pallet_id = ?
     GROUP BY pallet_transactions.location_id';
-        return response()->json(DB::select($sql),[$pallet->getAttribute('id')]);
-
+        return response()->json(DB::select($sql, [$pallet->getAttribute('id')]));
     }
 
     /**
