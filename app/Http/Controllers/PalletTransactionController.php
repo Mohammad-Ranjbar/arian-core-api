@@ -14,7 +14,20 @@ class PalletTransactionController extends Controller
 
     public function index(): AnonymousResourceCollection
     {
-        return PalletTransactionResource::collection(PalletTransaction::query()->latest()->paginate());
+        return PalletTransactionResource::collection(
+            PalletTransaction::query()
+                ->latest()
+                ->when(request()->filled('create_at_from'),function ($q){
+                    return $q->where('created_at','>=',request()->get('create_at_from'));
+                })
+                ->when(request()->filled('created_at_to'),function ($q){
+                    return $q->where('created_at','<=',request()->get('created_at_to'));
+                })
+                ->when(request()->filled('qty'),function ($q){
+                    return $q->where('qty',request()->get('qty'));
+                })
+                ->paginate(request()->per_page ?? 15)
+        );
     }
 
 
