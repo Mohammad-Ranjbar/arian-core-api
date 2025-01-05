@@ -8,6 +8,7 @@ use App\Http\Resources\PalletResource;
 use App\Http\Resources\PalletTransactionResource;
 use App\Jobs\ExportJob;
 use App\Models\Job;
+use App\Models\Pallet;
 use App\Models\PalletTransaction;
 use App\Repositories\PalletRepository;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -73,7 +74,7 @@ class PalletController extends CrudController
     /**
      * @throws AuthorizationException
      */
-    public function getPalletLocations(): JsonResponse
+    public function getPalletLocations(Pallet $pallet): JsonResponse
     {
         $this->authorize('pallet-locations');
 
@@ -85,7 +86,7 @@ FROM
 WHERE
     pallet_id = ?
     GROUP BY pallet_transactions.location_id';
-        return response()->json(DB::select($sql));
+        return response()->json(DB::select($sql),[$pallet->getAttribute('id')]);
 
     }
 
