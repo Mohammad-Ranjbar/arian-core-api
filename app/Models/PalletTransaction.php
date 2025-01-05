@@ -45,4 +45,19 @@ class PalletTransaction extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function getReportData(array $data)
+    {
+        $query = self::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['type'])) {
+            $query = $query->where('type',  $data['type']);
+        }
+        return $query->get();
+    }
 }
