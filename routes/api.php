@@ -335,6 +335,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
     Route::get('/report-excel-pallet-transactions', [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
+    Route::get('/report-excel-pallet-stocks', [PalletController::class, 'reportExcelStocks'])->name('export-pallet-stocks');
 
     Route::apiResource( 'settings' , SettingController::class)->except('store','destroy');
     Route::apiResources([

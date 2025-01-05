@@ -89,23 +89,6 @@ WHERE
 
     }
 
-    public function reportExcelStockPallets()
-    {
-        //filter date in pallet transactions
-        $sql = 'SELECT
-    pallets.title AS pallet_title,
-    pallet_types.title AS pallet_type_title,
-    SUM(qty) AS qty , locations.title,location_id
-FROM
-    pallet_transactions
-    LEFT JOIN locations ON pallet_transactions.location_id = locations.id
-    LEFT JOIN pallets ON pallet_transactions.pallet_id = pallets.id
-    LEFT JOIN pallet_types ON pallets.type_id = pallet_types.id
-
-    GROUP BY pallet_transactions.location_id';
-        return response()->json(DB::select($sql));
-    }
-
     /**
      * @throws AuthorizationException
      */
@@ -113,6 +96,28 @@ FROM
     {
         $this->authorize('export-pallet-transactions');
         $validatedData['type'] = 'export-pallet-transactions';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = request()->all();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function reportExcelStocks(): JsonResponse
+    {
+        $this->authorize('export-pallet-stocks');
+        $validatedData['type'] = 'export-pallet-stocks';
         $validatedData['user_id'] = Auth::id();
         $validatedData['data'] = request()->all();
         $job = Job::query()->create($validatedData);
