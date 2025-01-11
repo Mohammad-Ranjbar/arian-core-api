@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 class RegisterCodeForVehicleCommand extends Command
 {
 
-    protected $signature = 'register:code';
+        protected $signature = 'register:code';
 
 
     protected $description = 'Command description';
@@ -20,20 +20,7 @@ class RegisterCodeForVehicleCommand extends Command
     {
 
 //        $vehicles = [
-//            'N5RLAK4B4S2000018',
-//            'N5RLAK4B4S2000019',
-//            'N5RLAK4B4S2000020',
-//            'N5RLAK4B4S2000021',
-//            'N5RLAK4B4S2000022',
-//            'N5RLAK4B4S2000023',
-//            'N5RLAK4B4S2000024',
-//            'N5RLAK4B4S2000025',
-//            'N5RLAK4B4S2000026',
-//            'N5RLAK4B4S2000027',
-//            'N5RLAK4B4S2000028',
-//            'N5RLAK4B4S2000029',
-//            'N5RLAK4B4S2000030',
-//            'N5RLAK4B4S2000031'
+//            "N5RPU3NN5R2602467"
 //        ];
 
 

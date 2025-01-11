@@ -107,7 +107,11 @@ class VehicleController extends CrudController
             'make_code_id' => $makeCode->getAttribute('id'),
             'car_model_id' => $carModel->getAttribute('id'),
         ];
-
+        $this->vehicleRepository->model->newQuery()->where([
+            'production_order_number' => $data['production_order_number'],
+        ])->update([
+            'production_order_number' => null
+        ]);
         return $this->vehicleRepository->make($data);
     }
 

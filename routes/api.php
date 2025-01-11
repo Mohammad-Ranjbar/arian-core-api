@@ -316,6 +316,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/add-pallet', [PalletController::class, 'addPallet'])->name('add-pallet');
     Route::post('/transfer-pallet', [PalletController::class, 'transferPallet'])->name('transfer-pallet');
     Route::get('/pallets/{pallet}/locations', [PalletController::class, 'getPalletLocations'])->name('pallet-locations');
+
+
     Route::get('list-sale-locations',
         [SaleLocationController::class, 'listSaleLocations'])->name('list-sale-locations');
 
@@ -332,6 +334,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('cabin-numbers', CabinNumberController::class)->only(['index', 'show']);
 
     Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
+    Route::get('/report-excel-pallet-transactions', [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
+    Route::get('/report-excel-pallet-stocks', [PalletController::class, 'reportExcelStocks'])->name('export-pallet-stocks');
 
     Route::apiResource( 'settings' , SettingController::class)->except('store','destroy');
     Route::apiResources([
