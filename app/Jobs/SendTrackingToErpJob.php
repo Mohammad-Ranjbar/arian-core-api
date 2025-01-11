@@ -33,6 +33,7 @@ class SendTrackingToErpJob implements ShouldQueue
     public function handle(): void
     {
         $record = Tracking::query()->find($this->id);
+        logger('RUN: #'.$this->id);
         $this->update($record, ErpWsdlClient::run($this->url, $this->method, $this->params));
     }
 
