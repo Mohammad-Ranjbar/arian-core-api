@@ -120,10 +120,6 @@ class ProductionLineTrackingService extends BaseTrackingService
             $params['numberFractionalItems'] = $count;
         }
 
-        if ($response['status'] != 'ok') {
-            throw new Exception($response['message']);
-        }
-
         $data = [
             'user_id'    => Auth::id(),
             'section'    => 'production-line-tracking-'.$record->type,
