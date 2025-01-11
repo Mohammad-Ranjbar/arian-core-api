@@ -16,6 +16,7 @@ class SendToErpUniqueJob implements ShouldQueue,ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $delay = 10;
 
     public function __construct(public readonly string $id)
     {
@@ -24,7 +25,6 @@ class SendToErpUniqueJob implements ShouldQueue,ShouldBeUnique
 
     public function handle(): void
     {
-        logger('RUN: '.$this->id);
         SendToErpEventService::send(ErpJob::query()->find($this->id));
     }
 
