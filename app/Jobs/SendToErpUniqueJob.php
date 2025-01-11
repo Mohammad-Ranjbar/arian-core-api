@@ -24,6 +24,7 @@ class SendToErpUniqueJob implements ShouldQueue,ShouldBeUnique
 
     public function handle(): void
     {
+        logger('RUN: '.$this->id);
         SendToErpEventService::send(ErpJob::query()->find($this->id));
     }
 
