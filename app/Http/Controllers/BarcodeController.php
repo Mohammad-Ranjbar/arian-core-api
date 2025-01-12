@@ -50,7 +50,9 @@ class BarcodeController extends CrudController
         }
 
         $vehicle = Vehicle::query()->find($validatedData['vin']);
+
         if (!empty($validatedData['general_product_item_id'])) {
+            $x = $validatedData['general_product_item_id'] ;
             $generalProductItem = GeneralProductItem::query()->find( $validatedData['general_product_item_id']);
 
             $validatedData['general_product_item_id'] = $generalProductItem->getAttribute('id');
@@ -67,8 +69,11 @@ class BarcodeController extends CrudController
                 return $this->responseError('for this vin and general product item has been registered code',400);
             }
         }
+        else{
+           $x =  time();
+        }
 
-        $submitted = Cache::get('barcode_submitted_' . $validatedData['code']);
+        $submitted = Cache::get('barcode_submitted_' . $validatedData['code'].'_'.$x);
 
         if ($submitted) {
             return new JsonResponse(
@@ -77,7 +82,7 @@ class BarcodeController extends CrudController
             );
         }
 
-        Cache::set('barcode_submitted_' . $validatedData['code'], true, 10);
+        Cache::set('barcode_submitted_' . $validatedData['code'].'_'.$x, true, 10);
 
         try {
             DB::beginTransaction();
