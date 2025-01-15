@@ -86,8 +86,10 @@ class BasketController extends CrudController
 
     public function sendBasketBarcode(Basket $basket, $batch): void
     {
-        $parameters = ['barcodeInfoP' => $basket->getAttribute('code'),
-            'batchNoP' => 'Batch-' . $batch];
+        $parameters = [
+            'barcodeInfoP' => $basket->getAttribute('code'),
+            'batchNoP' => 'Batch-' . $batch
+        ];
         $erpJob = ErpJob::query()->create([
             'model_id' => $basket->getAttribute('id'),
             'model_type' => Basket::class,
