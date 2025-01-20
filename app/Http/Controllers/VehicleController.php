@@ -137,7 +137,7 @@ class VehicleController extends CrudController
                 }
             }
             $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'],$validatedData['type']);
-
+            dd($response);
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
