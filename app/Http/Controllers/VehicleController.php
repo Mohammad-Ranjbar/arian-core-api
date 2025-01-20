@@ -127,7 +127,7 @@ class VehicleController extends CrudController
     {
         try {
             $validatedData = $request->validated();
-            dd($validatedData);
+
             if (in_array($validatedData['qc_status'],[24, 84, 85])){
                 $generalItems = GeneralProductItem::query()->whereHas('carModels',function ($q)use($vehicle){
                     $q->where('id',$vehicle->getAttribute('car_model_id'));
