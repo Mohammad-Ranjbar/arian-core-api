@@ -133,7 +133,7 @@ class VehicleController extends CrudController
                 });
                 if( Barcode::query()->where('vin',$vehicle->vin)->whereIn('general_product_item_id',$generalItems->pluck('id'))->count()
                     < $generalItems->count()){
-                    return $this->responseError('all barcode not submitted yet', 400);
+                    return $this->responseError('All barcodes have not been submitted yet.', 400);
                 }
             }
             $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
