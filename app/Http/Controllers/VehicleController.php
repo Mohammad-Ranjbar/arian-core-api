@@ -136,7 +136,7 @@ class VehicleController extends CrudController
                     return $this->responseError('All barcodes have not been submitted yet.', 400);
                 }
             }
-            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status']);
+            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'],$validatedData['type']);
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
@@ -164,10 +164,10 @@ class VehicleController extends CrudController
      * @param string $qcStatus
      * @return array
      */
-    private function updateStatus(string $vin, string $qcStatus): array
+    private function updateStatus(string $vin, string $qcStatus,string $type): array
     {
         return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts',
-            ['vINP' => $vin, 'qCStatusP' => $qcStatus]);
+            ['vINP' => $vin, 'qCStatusP' => $qcStatus,'itemTypeP' => $type]);
 
     }
 
