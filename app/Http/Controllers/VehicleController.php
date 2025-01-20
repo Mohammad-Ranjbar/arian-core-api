@@ -142,12 +142,15 @@ class VehicleController extends CrudController
                 return $this->responseError($response['message'], 400);
             }
 
+            $data['type'] = $validatedData['type'];
+            $data['qc'] = $validatedData['qc_status'];
+
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
                 'model_id' => $vehicle->getAttribute('vin'),
                 'action' => ActionLog::UPDATED_QC_STATUS,
                 'user_id' => Auth::id(),
-                'data' => $validatedData['qc_status'],
+                'data' => $data,
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
