@@ -327,7 +327,7 @@ class BillOfLadingController extends CrudController
         }
 
         if ($data['type'] == 'bodies') {
-            $record->createAutoGatePermit($data['items']);
+            $record->createAutoGatePermit($data['items'],true);
             $record->vehicles()->syncWithPivotValues($data['items'],['type' => 'bodies']);
         }
 
