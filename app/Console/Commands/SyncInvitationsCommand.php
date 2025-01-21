@@ -94,11 +94,12 @@ class SyncInvitationsCommand extends Command
                 dispatch(new MoveContractToSaleOnlineApplicationJob([
                     'path'       => $path,
                     'reference'  => $reference,
-                    'company_id' => $company->getAttribute('id')
+                    'company_id' => $company->getAttribute('id'),
+                    'shareFile' => $file->getPath()
                 ]));
 
                 fclose($content);
-                $this->share->remove($file->getPath());
+
 
             } catch (Exception $exception) {
                 logger($exception->getMessage());

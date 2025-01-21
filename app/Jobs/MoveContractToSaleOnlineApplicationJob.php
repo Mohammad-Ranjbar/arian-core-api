@@ -3,7 +3,10 @@
 namespace App\Jobs;
 
 use App\Models\SaleCompany;
+use App\Models\User;
+use App\Notifications\UserCreateNotification;
 use App\Services\Erp\ErpOdataClient;
+use App\Services\SMBService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,6 +19,7 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $share;
     /**
      * Create a new job instance.
      */
@@ -29,6 +33,14 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->share = new SMBService(
+            config('erp.share_server'),
+            config('erp.auth')[0],
+            config('erp.auth')[1],
+            config('erp.workgroups'),
+            config('erp.share_folder')
+        );
+
         $fileName = Storage::disk('s3')
             ->putFile('/contracts/'.$this->data['company_id'], Storage::path($this->data['path']));
         if ($fileName) {
@@ -51,7 +63,12 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
                 ];
 
                 Http::post($company->getAttribute('sync_order_url'), $sendData);
+                $this->share->remove($this->data['shareFile']);
                 Storage::delete($this->data['path']);
+            }else{
+               // $user = User::query()->where('mobile', '09102322972')->first();
+                $user = User::query()->where('mobile', '09107606131')->first();
+                $user->notify(new UserCreateNotification($fileName));
             }
 
         }
