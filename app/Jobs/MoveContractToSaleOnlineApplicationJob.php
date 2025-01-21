@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\SaleCompany;
 use App\Models\User;
-use App\Notifications\UserCreateNotification;
+use App\Notifications\ContactNotFoundNotification;
 use App\Services\Erp\ErpOdataClient;
 use App\Services\SMBService;
 use Illuminate\Bus\Queueable;
@@ -68,7 +68,7 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
             }else{
                // $user = User::query()->where('mobile', '09102322972')->first();
                 $user = User::query()->where('mobile', '09107606131')->first();
-                $user->notify(new UserCreateNotification($fileName));
+                $user->notify(new ContactNotFoundNotification($fileName));
             }
 
         }
