@@ -63,14 +63,13 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
                 ];
 
                 Http::post($company->getAttribute('sync_order_url'), $sendData);
-                $this->share->remove($this->data['shareFile']);
                 Storage::delete($this->data['path']);
             }else{
                // $user = User::query()->where('mobile', '09102322972')->first();
                 $user = User::query()->where('mobile', '09107606131')->first();
-                $user->notify(new ContactNotFoundNotification($fileName));
+                $user->notify(new ContactNotFoundNotification($fileName,$this->data['reference']));
             }
-
+            $this->share->remove($this->data['shareFile']);
         }
     }
 }

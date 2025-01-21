@@ -12,7 +12,7 @@ class ContactNotFoundNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(protected string $path)
+    public function __construct(protected string $path,protected string $reference)
     {
 
     }
@@ -36,7 +36,8 @@ class ContactNotFoundNotification extends Notification
                     ->subject('File transfer error')
                     ->greeting(';(')
                     ->line( 'check it')
-                    ->action('Download',URL::to('/dl-file?path='.$this->path));
+                    ->line( $this->reference)
+                    ->action('Download',URL::to('/api/dl-file?path='.$this->path));
 
     }
 
