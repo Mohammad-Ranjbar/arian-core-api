@@ -20,6 +20,7 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $share;
+
     /**
      * Create a new job instance.
      */
@@ -64,10 +65,9 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
 
                 Http::post($company->getAttribute('sync_order_url'), $sendData);
                 Storage::delete($this->data['path']);
-            }else{
-               // $user = User::query()->where('mobile', '09102322972')->first();
-                $user = User::query()->where('mobile', '09107606131')->first();
-                $user->notify(new ContactNotFoundNotification($fileName,$this->data['reference']));
+            } else {
+                $user = User::query()->where('mobile', '09102322972')->first();
+                $user->notify(new ContactNotFoundNotification($fileName, $this->data['reference']));
             }
             $this->share->remove($this->data['shareFile']);
         }
