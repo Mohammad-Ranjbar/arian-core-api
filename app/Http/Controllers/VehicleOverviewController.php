@@ -155,34 +155,42 @@ class VehicleOverviewController extends Controller
 
         }
 
-        $components = collect($this->component->get($vehicle->getAttribute('production_order_number')))->filter(function (
-            $item
-        ) {
-            return $item->Quantity > 0;
-        });
-        $components->each(function ($item) {
-            $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
-            if (empty($erpProductItem)) {
-                $erpProductItem = $this->component->getItem($item->Item_No);
-            }
-            $item->productItem = $erpProductItem;
-        });
+
+        try {
+            $components = collect($this->component->get($vehicle->getAttribute('production_order_number')))->filter(function (
+                $item
+            ) {
+                return $item->Quantity > 0;
+            });
+            $components->each(function ($item) {
+                $erpProductItem = ErpProductItem::query()->where('reference', $item->Item_No)->first();
+                if (empty($erpProductItem)) {
+                    $erpProductItem = $this->component->getItem($item->Item_No);
+                }
+                $item->productItem = $erpProductItem;
+            });
+
+            $componentItems = [
+                'title'  => 'فهرست قطعات ورودی - (BOM)',
+                'type'   => 'table',
+                'heads'  => [],
+                'values' => array_values($components->map(function ($item) {
+                    return [
+                        $item->productItem?->title,
+                        $item->productItem?->description,
+                        $item->productItem?->reference,
+                        $item->Quantity
+                    ];
+                })->all())
+            ];
+        }catch (Exception $exception) {
+            $componentItems = null;
+        }
+
 
         return response()->json([
             'items' => array_values(array_filter(array_merge([
-                [
-                    'title'  => 'فهرست قطعات ورودی - (BOM)',
-                    'type'   => 'table',
-                    'heads'  => [],
-                    'values' => array_values($components->map(function ($item) {
-                        return [
-                            $item->productItem?->title,
-                            $item->productItem?->description,
-                            $item->productItem?->reference,
-                            $item->Quantity
-                        ];
-                    })->all())
-                ],
+                $componentItems,
                 [
                     'title'  => 'کنترل اقلام ورودی',
                     'type'   => 'download-list',
