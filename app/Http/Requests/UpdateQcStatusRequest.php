@@ -22,7 +22,7 @@ class UpdateQcStatusRequest extends FormRequest
         return [
             'qc_status'      => 'required|string',
             'qc_description' => 'nullable',
-            'type' => 'required|string|in:0,1,2'
+            'type' => 'required|string'
         ];
     }
 }
