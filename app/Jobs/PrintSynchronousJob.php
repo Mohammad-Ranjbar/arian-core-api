@@ -55,6 +55,7 @@ class PrintSynchronousJob implements ShouldQueue
             'items'   => $synchronous->SynchronousItems()->get()->map(function ($item) {
                 return [
                     $item->vehicle->vin,
+                    $item->vehicle->getProductionType(),
                     $item->vehicle->carModel->title,
                     $item->vehicle->makeCode->title,
                     $item->vehicle->color_code,
