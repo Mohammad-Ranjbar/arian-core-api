@@ -55,26 +55,7 @@ class BlockItemController extends Controller
     {
         try {
             $validatedData = $request->validated();
-            $record = $this->repository->store($validatedData);
-            $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
-
-            $parameters = [
-                'barcodeInfoP' => $record->getAttribute('vin'),
-                'blockTypeP' => $blockReason->getAttribute('block_type'),
-            ];
-            $erpJob = ErpJob::query()->create(
-                [
-                    'queue' => ErpJob::QUEUE_UNIQUE,
-                    'user_id' => $record->getAttribute('blocked_by'),
-                    'method' => 'BlockingVehicleByType',
-                    'url' => config('erp.block_unblock'),
-                    'parameters' => $parameters,
-                    'model_type' => BlockItem::class,
-                    'model_id' => $record->getAttribute('id'),
-                    'section' => 'block-vehicle',
-                ]
-            );
-            ErpJobEvent::dispatch($erpJob);
+            $record = $this->createBlock($validatedData);
             return new BlockItemResource($record);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
@@ -193,5 +174,35 @@ class BlockItemController extends Controller
         $headers = ['id'];
         $export = new TemplateExport($headers);
         return Excel::download($export, 'un' . $this->repository->model->getTable() . '-template.xlsx');
+    }
+
+    /**
+     * @param mixed $validatedData
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function createBlock(mixed $validatedData): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Contracts\Foundation\Application|\Illuminate\Database\Eloquent\Builder|\Illuminate\Http\Response|\Illuminate\Foundation\Application|\Illuminate\Database\Eloquent\Model
+    {
+        $record = $this->repository->store($validatedData);
+
+        $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
+
+        $parameters = [
+            'barcodeInfoP' => $record->getAttribute('vin'),
+            'blockTypeP' => $blockReason->getAttribute('block_type'),
+        ];
+        $erpJob = ErpJob::query()->create(
+            [
+                'queue' => ErpJob::QUEUE_UNIQUE,
+                'user_id' => $record->getAttribute('blocked_by'),
+                'method' => 'BlockingVehicleByType',
+                'url' => config('erp.block_unblock'),
+                'parameters' => $parameters,
+                'model_type' => BlockItem::class,
+                'model_id' => $record->getAttribute('id'),
+                'section' => 'block-vehicle',
+            ]
+        );
+        ErpJobEvent::dispatch($erpJob);
+        return $record;
     }
 }
