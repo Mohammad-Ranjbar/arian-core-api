@@ -33,7 +33,7 @@ class ProductionTrackingController extends Controller
         $validatedData = $request->validated();
         try {
             if ($validatedData['type'] == 'exit' && !Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists()){
-                return $this->responseError('لطفا ابتدا ثبت ورود را انجام دهید زهرا سادات عزیز');
+                return $this->responseError('لطفا ابتدا ثبت ورود را انجام دهید');
             }
             Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists();
             DB::beginTransaction();
