@@ -56,6 +56,7 @@ class VehicleController extends CrudController
      */
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
+
         $vehicle = $this->getData($vin);
 
         if (Gate::allows('access', $vehicle)) {
