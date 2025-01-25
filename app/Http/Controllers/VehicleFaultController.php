@@ -264,6 +264,24 @@ class VehicleFaultController extends Controller
        "));
 
 
+        $vehicleCount = collect(DB::select(/** @lang text */ "        
+            SELECT 
+                count(DISTINCT vehicle_incidents.vin) as vehicleCount
+            FROM
+               vehicle_incidents
+            left join
+                vehicles
+            on
+                vehicle_incidents.vin = vehicles.vin
+            left join
+                incidents
+            on
+                incidents.id = vehicle_incidents.incident_id
+            WHERE
+                $strWhere
+       "))->sum('vehicleCount');
+
+
         $labels = $result->pluck('date')->all();
 
         $datasets = [
@@ -350,8 +368,8 @@ class VehicleFaultController extends Controller
 
         return response()->json([
             'avg_dpu_off' => $result->avg('dpuoff'),
-            'dpu_off'     => $result->sum('vehicles') > 0 ? number_format($result->sum('incidents') / $result->sum('vehicles') , 2): 0,
-            'vehicles'    => $result->sum('vehicles'),
+            'dpu_off'     => $vehicleCount > 0 ? number_format($result->sum('incidents') / $vehicleCount , 2): 0,
+            'vehicles'    => $vehicleCount,
             'incidents'   => $result->sum('incidents'),
             'list'        => $list->all(),
             'chart'       => [
