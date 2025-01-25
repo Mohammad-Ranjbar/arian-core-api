@@ -32,6 +32,10 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
+            if ($validatedData['type'] == 'exit' && !Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists()){
+                return $this->responseError('please first enter the Vin');
+            }
+            Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists();
             DB::beginTransaction();
             if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
                 $this->authorize('production-tracking.'.$validatedData['model_type'].'.enter');
