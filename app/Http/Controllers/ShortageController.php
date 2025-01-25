@@ -40,7 +40,13 @@ class ShortageController extends Controller
     {
         $this->authorize('shortages.index');
         $perPage = request()->get('per_page', 15);
-        return ShortageItemResource::collection($vehicle->shortageItems()->paginate($perPage));
+        $data = $vehicle->shortageItems();
+        if (request()->has('has-routing-link') && request()->get('has-routing-link')=='yes') {
+            $data = $data->whereNotNull('routing_link_code');
+        }elseif (request()->has('has-routing-link') && request()->get('has-routing-link')=='no'){
+            $data = $data->whereNull('routing_link_code');
+        }
+        return ShortageItemResource::collection($data->paginate($perPage));
     }
 
     /**
