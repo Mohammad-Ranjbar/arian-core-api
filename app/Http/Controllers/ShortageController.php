@@ -10,6 +10,7 @@ use App\Models\ActionLog;
 use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\ShortageItem;
+use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpWsdlClient;
@@ -55,6 +56,11 @@ class ShortageController extends Controller
     public function store(Vehicle $vehicle, Request $request): ShortageItemResource|JsonResponse
     {
         $this->authorize('shortages.store');
+
+
+        if (!Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists()){
+            return $this->responseError('برای ثبت کسری ابتدا ورود به خط برای vin مورد نظر را وارد نمایید');
+        }
         $validatedData = $request->validate([
             'erp_product_item_id' => [
                 'required',
