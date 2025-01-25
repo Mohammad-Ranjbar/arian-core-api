@@ -20,13 +20,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class GatePermitController extends CrudController
 {
     /**
      * @param GatePermitRepository $repository
      */
-    public function __construct(public readonly GatePermitRepository $repository)
+    public function __construct(public readonly GatePermitRepository $repository,public VehicleController $vehicleController)
     {
         $this->applyAuthorizeResource();
         $this->setResource(GatePermitResource::class);
@@ -110,16 +111,20 @@ class GatePermitController extends CrudController
     }
 
 
-
     /**
      * @param GatePermit $gatePermit
      * @return JsonResponse
      * @throws AuthorizationException
+     * @throws ValidationException
      */
     public function print(GatePermit $gatePermit): JsonResponse
     {
         $this->authorize('gate-permits.print');
-
+        try {
+            $this->vehicleController->getData($gatePermit->getAttribute('model_id'));
+        }catch (Exception $exception){
+            logger($exception->getMessage());
+        }
         return new JsonResponse(
             data: new GatePermitResource($gatePermit)
         );
