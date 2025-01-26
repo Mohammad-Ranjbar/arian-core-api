@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Events\ErpJobEvent;
 use App\Http\Resources\BasketResource;
-use App\Jobs\SmsJob;
 use App\Models\Basket;
 use App\Models\ErpJob;
 use App\Repositories\BasketRepository;
@@ -101,7 +100,7 @@ class BasketController extends CrudController
             'queue' => ErpJob::QUEUE_UNIQUE
         ]);
 
-
+        sleep(5);
             ErpJobEvent::dispatch($erpJob);
 
     }
