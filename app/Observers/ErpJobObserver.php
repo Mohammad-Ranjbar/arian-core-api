@@ -17,16 +17,17 @@ class ErpJobObserver
 
     protected function notifyUsers($erpJob): void
     {
+        if (app()->environment('production')) {
+            $users = [
+                'r.pourmehr@arian-capital.com',
+                'z.saffari@arian-capital.com',
+                'h.yadegari@arian-capital.com'
 
-        $users = [
-            'r.pourmehr@arian-capital.com',
-            'z.saffari@arian-capital.com',
-            'h.yadegari@arian-capital.com'
+            ];
 
-        ];
-
-        foreach ($users as $userEmail) {
-            Mail::to($userEmail)->send(new SendStatusFailedErpJobMail($erpJob));
+            foreach ($users as $userEmail) {
+                Mail::to($userEmail)->send(new SendStatusFailedErpJobMail($erpJob));
+            }
         }
     }
 
