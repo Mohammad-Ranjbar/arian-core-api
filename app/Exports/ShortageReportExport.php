@@ -71,7 +71,7 @@ class ShortageReportExport implements FromCollection, WithMapping, WithHeadings,
             $row->status,
             $row->actionLog?->user->name ?? '',
             $row->actionLog? jdate($row->actionLog->created_at) : '',
-            empty($row->routing_link_code) ? 'گروهی': 'تکی'
+            empty($row->routing_link_code) ? 'قطعه اصلی': 'قطعه منفرد'
         ];
 
         $this->eventData['done']++;
