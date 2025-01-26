@@ -75,7 +75,7 @@ class ShortageController extends Controller
         try {
             if ($vehicle->tracking()->where('model_type', ProductionLine::class)
                 ->where('type', 'exit')->whereIn('model_id', [2, 3, 4, 5])->exists()) {
-                return $this->responseError('cant register shortage for vehicle');
+                return $this->responseError('ابتدا خروج خودرو را ثبت نمایید');
             }
             $shortage = ShortageItem::query()->create([
                 'erp_product_item_id' => $validatedData['erp_product_item_id'],
