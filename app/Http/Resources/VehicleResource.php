@@ -29,6 +29,7 @@ class VehicleResource extends JsonResource
             'grade_description' => $this->resource->grade_description,
             'qc_description' => $this->resource->qc_description,
             'qc_status' => $this->resource->qc_status,
+            'production_type' => $this->resource->getProductionType(),
             'is_block' => $this->resource->blockItems()->whereNull('unblocked_at')->exists(),
             'makeCode' => [
                 'id' => (int)$this->resource->makeCode->id,
