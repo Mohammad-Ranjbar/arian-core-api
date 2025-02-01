@@ -45,5 +45,5 @@ return [
     ],
     'workgroups'       => env('LDAP_WORKGROUP', 'arian-motors.com'),
     'share_server'     => env('SHARE_SERVER', '172.16.0.4'),
-    'share_folder'     => env('SHARE_FOLDER', 'Holding\ERP-Link\Sales Documents')
+    'share_folder'     => env('SHARE_FOLDER', 'Holding/ERP-Link/Sales Documents')
 ];
