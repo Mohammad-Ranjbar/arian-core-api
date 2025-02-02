@@ -2,9 +2,11 @@
 
 namespace App\Imports;
 
+use App\Events\ErpJobEvent;
 use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\BlockItem;
+use App\Models\ErpJob;
 use App\Models\Job;
 use Exception;
 use Illuminate\Support\Collection;
@@ -47,7 +49,22 @@ class UnblockItemImport implements ToCollection, WithStartRow
 
             try {
                 $blockItem = BlockItem::query()->where('id', $row[0])->first();
-                if ($blockItem) {
+                if (!empty($blockItem) && $blockItem->getAttribute('unblocked_at') == null) {
+
+                    $parameters = ['barcodeInfoP' => $blockItem->getAttribute('vin')];
+                    $erpJob = ErpJob::query()->create([
+                        'model_id' => $blockItem->getAttribute('id'),
+                        'model_type' => BlockItem::class,
+                        'section' => 'unblock-vehicle',
+                        'user_id' => $this->data['user_id'],
+                        'method' => 'UnblockingVehicle',
+                        'url' => config('erp.block_unblock'),
+                        'parameters' => $parameters,
+                        'queue' => ErpJob::QUEUE_UNIQUE
+                    ]);
+                    ErpJobEvent::dispatch($erpJob);
+
+
                     $blockItem->update([
                         'unblocked_at' => now(),
                         'unblocked_by' => Auth::id(),
@@ -62,7 +79,6 @@ class UnblockItemImport implements ToCollection, WithStartRow
             } catch (Exception $exception) {
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
-                logger($exception->getMessage());
             }
 
             $this->data['done']++;
