@@ -13,7 +13,6 @@ use App\Models\TransitCompany;
 use App\Models\Vehicle;
 use Exception;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -25,7 +24,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 {
 
-
+    public $billOfLadingList=[];
     public function __construct(public $data, private $locationSourceID = null, private $locationDestinationID = null, private $userId = null, private string $type = '')
     {
 
@@ -79,14 +78,6 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         $collection->each(function ($row) {
 
             try {
-
-
-                //TODO checking by each colmn
-                //create gate permit by cody => check vin in vehicle table and chack in data and vehicle type
-
-//                if (empty($row['VIN']) || empty($row['container_number'])) {
-//                    throw new Exception('vin or container number is empty');
-//                }
                 /** @var BillOfLading $billOfLading */
                 $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
                 if (!empty($row['VIN'])) {
@@ -158,8 +149,8 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
 
 
-                        if ($billOfLading->type == 'bodies'){
-                            $billOfLading->createAutoGatePermit([$row['VIN']]);
+                        if ($billOfLading->getAttribute('type') == 'bodies'){
+                            $this->addVin($billOfLading,$row['VIN']);
                         }
 
                     }
@@ -182,7 +173,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
                         $itemType = 'vehicles';
                         if ($billOfLading->type == 'bodies'){
-                            $billOfLading->createAutoGatePermit([$row['VIN']]);
+                            $this->addVin($billOfLading,$row['VIN']);
                             $itemType = 'bodies';
                         }
                         DB::table('bill_of_lading_item')->insert([
@@ -215,6 +206,11 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
 
         });
+
+        foreach ($this->billOfLadingList as $row) {
+            $row['billOfLading']->createAutoGatePermit($row['vin'], true);
+        }
+
         $uuid = Str::uuid();
         if ($this->type === 'vehicles' || $this->type === 'bodies') {
             $headers = BillOfLading::HEAD_VEHICLE;
@@ -236,7 +232,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
     /**
      * @throws Exception
      */
-    public function checkingData($row)
+    public function checkingData($row): void
     {
         if (empty($row['vehicle_title'])) {
             throw new Exception('vehicle_title is empty');
@@ -279,5 +275,17 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
     public function sendEvent(): void
     {
         event(new JobProcessEvent($this->data));
+    }
+
+    private function addVin(BillOfLading $billOfLading,string $vin)
+    {
+        if (!isset($this->billOfLadingList[$billOfLading->id])) {
+            $this->billOfLadingList[$billOfLading->id] = [
+                'vin' => [],
+                'billOfLading' => $billOfLading
+            ];
+        }
+        $this->billOfLadingList[$billOfLading->id]['vin'] [] = $vin;
+
     }
 }

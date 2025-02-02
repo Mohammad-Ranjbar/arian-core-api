@@ -227,7 +227,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
 
             Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
-            Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update']);
+            Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update','destroy']);
 
             Route::get('/main-component-items', [ComponentItemController::class,'main'])->name('vehicles.main-component-items');
             Route::get('/all-component-items', [ComponentItemController::class,'all'])->name('vehicles.all-component-items');

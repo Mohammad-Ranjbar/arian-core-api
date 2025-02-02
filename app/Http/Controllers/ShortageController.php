@@ -10,6 +10,7 @@ use App\Models\ActionLog;
 use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\ShortageItem;
+use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Repositories\VehicleRepository;
 use App\Services\Erp\ErpWsdlClient;
@@ -40,30 +41,44 @@ class ShortageController extends Controller
     {
         $this->authorize('shortages.index');
         $perPage = request()->get('per_page', 15);
-        return ShortageItemResource::collection($vehicle->shortageItems()->paginate($perPage));
+        $data = $vehicle->shortageItems();
+        if (request()->has('has-routing-link') && request()->get('has-routing-link') == 'yes') {
+            $data = $data->whereNotNull('routing_link_code');
+        } elseif (request()->has('has-routing-link') && request()->get('has-routing-link') == 'no') {
+            $data = $data->whereNull('routing_link_code');
+        }
+        return ShortageItemResource::collection($data->paginate($perPage));
     }
 
+
     /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws AuthorizationException
      */
     public function store(Vehicle $vehicle, Request $request): ShortageItemResource|JsonResponse
     {
         $this->authorize('shortages.store');
+
+
+        if (!Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists()) {
+            return $this->responseError('برای ثبت کسری ابتدا ورود به خط برای vin مورد نظر را وارد نمایید');
+        }
         $validatedData = $request->validate([
             'erp_product_item_id' => [
                 'required',
                 'exists:erp_product_items,id',
-// TODO check unique | routing link code
-//                Rule::unique('shortage_items', 'erp_product_item_id')
-//                    ->where('vin', $vehicle->getAttribute('vin'))
-//                    ->where('status', 'pending')
+
+                Rule::unique('shortage_items', 'erp_product_item_id')
+                    ->where('vin', $vehicle->getAttribute('vin'))
+                    ->where('routing_link_code', request()->get('routing_link_code'))
             ],
             'routing_link_code' => 'nullable',
         ]);
         try {
             if ($vehicle->tracking()->where('model_type', ProductionLine::class)
                 ->where('type', 'exit')->whereIn('model_id', [2, 3, 4, 5])->exists()) {
-                return $this->responseError('cant register shortage for vehicle');
+                return $this->responseError('ابتدا خروج خودرو را ثبت نمایید');
             }
             $shortage = ShortageItem::query()->create([
                 'erp_product_item_id' => $validatedData['erp_product_item_id'],
@@ -159,5 +174,20 @@ class ShortageController extends Controller
         return new JsonResponse(
             data: VehicleResource::collection($vehicles)
         );
+    }
+
+    public function destroy(Vehicle $vehicle, ShortageItem $shortage): JsonResponse
+    {
+        try {
+            if ($shortage->getAttribute('status') == 'pending' && !Tracking::query()->where('vin', $vehicle->getAttribute('vin'))->where('type', 'exit')->exists()) {
+                $shortage->delete();
+                return response()->json([
+                    'message' => 'کسری با موفقیت حذف گردید'
+                ]);
+            }
+            return $this->responseError('امکان حذف کسری نیست');
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage());
+        }
     }
 }

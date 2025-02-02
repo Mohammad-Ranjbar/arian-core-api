@@ -152,7 +152,7 @@ class BillOfLading extends Model
     /**
      * @throws Exception
      */
-    public function createAutoGatePermit($items): void
+    public function createAutoGatePermit($items , $batch = false): void
     {
         $exitIds = Location::query()->whereHas('attributes', function ($q) {
             $q->where('attribute', 'autoExitPermit')->where('value', 'true');
@@ -192,15 +192,33 @@ class BillOfLading extends Model
                     ]);
 
                     if ($type == 'exit') {
-                        $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
-                            $gate->getAttribute('location')->code);
+                        if (!$batch){
+                            $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
+                                $gate->getAttribute('location')->code);
+                            if ($response['status'] !== 'ok') {
+                                throw new Exception($response['message']);
+                            }
+                        }
 
+                    } else {
+                        if (!$batch){
+                            $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code);
+                            if ($response['status'] !== 'ok') {
+                                throw new Exception($response['message']);
+                            }
+                        }
+                    }
+                }
+
+                if ($batch){
+                    if ($type == 'enter'){
+                        $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code);
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }
-                    } else {
-                        $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code);
-
+                    }elseif($type == 'exit'){
+                        $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
+                            $gate->getAttribute('location')->code);
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }

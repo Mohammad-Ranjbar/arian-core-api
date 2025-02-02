@@ -32,6 +32,7 @@ class ComponentItemController extends Controller
             }
             $item->productItem = $erpProductItem;
         });
+        $all = $items;
         if ($filter) {
             $items = $items
                 ->filter(function ($item) {
@@ -44,7 +45,7 @@ class ComponentItemController extends Controller
                 });
         }
 
-        $items = $items->map(function ($item) use ($items) {
+        $items = $items->map(function ($item) use ($items,$all) {
             if (!$item->productItem) {
                 return [
                     'id'          => 0,
@@ -54,6 +55,7 @@ class ComponentItemController extends Controller
                     'related'     => []
                 ];
             }
+
             return [
                 'id'                 => $item->productItem->id,
                 'title'              => $item->productItem->title,
@@ -62,7 +64,7 @@ class ComponentItemController extends Controller
                 'routing_link_code'  => $item->Routing_Link_Code,
                 'quantity'           => $item->Quantity,
                 'remaining_quantity' => $item->Remaining_Quantity,
-                'related'            => $items->filter(function ($row) use ($item) {
+                'related'            => $all->filter(function ($row) use ($item) {
                     return $row->Related_Component == $item->Item_No && $row->Item_No != $item->Item_No;
                 })->pluck('productItem.title')
             ];

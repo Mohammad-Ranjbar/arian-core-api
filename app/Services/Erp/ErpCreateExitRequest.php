@@ -25,4 +25,24 @@ class ErpCreateExitRequest {
         ]);
 
     }
+
+    /**
+     * @throws Exception
+     */
+    public static function createBatchExitRequest(array $vin, string $type, string $locationCode): array
+    {
+        $vins = implode(',',$vin);
+        $count = count($vin);
+        $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'GroupExitRequest',
+            ['vINArrayP' => $vins, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'numberVINP' => $count]);
+
+        if ($exitRequest['status'] !== 'ok') {
+            throw new Exception($exitRequest['message']);
+        }
+
+        return   ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
+            'vINP' => $vin
+        ]);
+
+    }
 }
