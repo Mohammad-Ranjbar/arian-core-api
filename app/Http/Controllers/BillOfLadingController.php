@@ -12,7 +12,6 @@ use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
 use App\Models\ActionLog;
 use App\Models\BillOfLading;
-use App\Models\Car;
 use App\Models\GatePermit;
 use App\Models\Job;
 use App\Models\Vehicle;
@@ -55,7 +54,7 @@ class BillOfLadingController extends CrudController
     }
 
 
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         $model = $this->repository->show($id);
         if ($model->status != 'new') {
@@ -193,10 +192,10 @@ class BillOfLadingController extends CrudController
     public function returnContainer(BillOfLading $billOfLading, ReturnContainerRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
-        if (!$billOfLading->canReturn()){
-          return response()->json([
-              'message' => 'کاتینر هنوز تخلیه نشده است'
-          ]);
+        if (!$billOfLading->canReturn()) {
+            return response()->json([
+                'message' => 'کاتینر هنوز تخلیه نشده است'
+            ]);
         }
         try {
 
@@ -245,6 +244,15 @@ class BillOfLadingController extends CrudController
         }
         try {
             DB::beginTransaction();
+            if ($validatedData['type'] == 'bodies') {
+                foreach ($validatedData['items'] as $vin) {
+                    $body = Vehicle::query()->where('vin', $vin)->first();
+                    if (empty($body->getAttribute('qc_status'))) {
+                        $message = ' لطفا کد کیفیت '.$body.' وارد شود ';
+                        throw new Exception($message);
+                    }
+                }
+            }
             $saveItem = $this->repository->store($validatedData);
             $saveItem = $this->afterSave($saveItem, $validatedData);
             $data = new $this->resource($saveItem);
@@ -312,23 +320,23 @@ class BillOfLadingController extends CrudController
     public function afterSave($record, $data)
     {
         if ($data['type'] === 'containers') {
-            $record->containers()->syncWithPivotValues($data['items'],['type' => 'containers']);
+            $record->containers()->syncWithPivotValues($data['items'], ['type' => 'containers']);
             $record->containers()->update(['on_shipping' => true]);
         }
         if ($data['type'] === 'vehicles') {
             foreach ($data['items'] as $vin) {
                 if (!GatePermit::query()
-                        ->where('model_type', Vehicle::class)
-                        ->where('model_id', $vin)->exists()) {
-                    throw new Exception('Please add gate permit for vin '.$vin.' create bill of ladings');
+                    ->where('model_type', Vehicle::class)
+                    ->where('model_id', $vin)->exists()) {
+                    throw new Exception('Please add gate permit for vin ' . $vin . ' create bill of ladings');
                 }
             }
-            $record->vehicles()->syncWithPivotValues($data['items'],['type' => 'vehicles']);
+            $record->vehicles()->syncWithPivotValues($data['items'], ['type' => 'vehicles']);
         }
 
         if ($data['type'] == 'bodies') {
             $record->createAutoGatePermit($data['items']);
-            $record->vehicles()->syncWithPivotValues($data['items'],['type' => 'bodies']);
+            $record->vehicles()->syncWithPivotValues($data['items'], ['type' => 'bodies']);
         }
 
 
