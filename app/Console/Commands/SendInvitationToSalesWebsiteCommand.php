@@ -27,10 +27,15 @@ class SendInvitationToSalesWebsiteCommand extends Command
         $erpOdataClient = app()->make(ErpOdataClient::class);
         $list = SaleInvoice::query()
             ->where('payment_status', 'pending')
-            ->where('created_at', '>', $today)->get();
+            ->where('created_at', '>', $today)
+            ->get();
         $progress = $this->output->createProgressBar($list->count());
         $progress->start();
-        foreach ($list as $row) {
+        foreach ($list as $key=>$row) {
+            if ($key < 118) {
+                $progress->advance();
+                continue;
+            }
             $url = $row->saleCompany->getAttribute('erp_url');
             $url .= '?$filter=No eq \''.$row->reference.'\'';
             $data = $erpOdataClient->getOne($url);
