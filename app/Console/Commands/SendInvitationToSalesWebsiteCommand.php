@@ -22,6 +22,7 @@ class SendInvitationToSalesWebsiteCommand extends Command
 
     public function handle()
     {
+        ini_set('max_execution_time', 10000);
         $today = Carbon::today();
         $erpOdataClient = app()->make(ErpOdataClient::class);
         $list = SaleInvoice::query()
