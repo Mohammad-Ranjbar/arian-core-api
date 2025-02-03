@@ -24,7 +24,7 @@ class SendInvitationToSalesWebsiteCommand extends Command
     {
         $today = Carbon::today();
         $erpOdataClient = app()->make(ErpOdataClient::class);
-        $list = SaleInvoice::query()->where('create_at', '>', $today)->get();
+        $list = SaleInvoice::query()->where('created_at', '>', $today)->get();
         $progress = $this->output->createProgressBar($list->count());
         $progress->start();
         foreach ($list as $row) {
