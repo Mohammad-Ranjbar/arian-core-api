@@ -28,7 +28,7 @@ class TestEmailCommand extends Command
      */
     public function handle()
     {
-        $user = User::query()->find(1);
+        $user = User::query()->find(9);
         $user->notify(new TestNotification());
     }
 }

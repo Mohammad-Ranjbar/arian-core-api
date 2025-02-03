@@ -26,6 +26,7 @@ class ErpJobObserver
             ];
 
             foreach ($users as $userEmail) {
+                sleep(15);
                 Mail::to($userEmail)->send(new SendStatusFailedErpJobMail($erpJob));
             }
         }
