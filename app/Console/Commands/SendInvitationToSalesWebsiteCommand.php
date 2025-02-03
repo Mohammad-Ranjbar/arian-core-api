@@ -32,7 +32,7 @@ class SendInvitationToSalesWebsiteCommand extends Command
         $progress = $this->output->createProgressBar($list->count());
         $progress->start();
         foreach ($list as $key=>$row) {
-            if ($key < 232) {
+            if ($key < 280) {
                 $progress->advance();
                 continue;
             }
