@@ -28,7 +28,6 @@ class SendInvitationToSalesWebsiteCommand extends Command
         $progress = $this->output->createProgressBar($list->count());
         $progress->start();
         foreach ($list as $row) {
-            dd($row);
             $url = $row->saleCompany->getAttribute('erp_url');
             $url .= '?$filter=No eq \''.$this->data['reference'].'\'';
             $data = $erpOdataClient->getOne($url);
@@ -50,6 +49,7 @@ class SendInvitationToSalesWebsiteCommand extends Command
                 'secret'      => md5(trim($data->Online_Contract_ID).$data->Net_To_Pay_when_issued.'xyz'),
                 'file_name'   => $row->data['file']
             ];
+            dd($sendData);
 
             Http::post($row->saleCompany->getAttribute('site_url'), $sendData);
 
