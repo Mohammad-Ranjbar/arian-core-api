@@ -24,7 +24,9 @@ class SendInvitationToSalesWebsiteCommand extends Command
     {
         $today = Carbon::today();
         $erpOdataClient = app()->make(ErpOdataClient::class);
-        $list = SaleInvoice::query()->where('created_at', '>', $today)->get();
+        $list = SaleInvoice::query()
+            ->where('payment_status', 'pending')
+            ->where('created_at', '>', $today)->get();
         $progress = $this->output->createProgressBar($list->count());
         $progress->start();
         foreach ($list as $row) {
@@ -49,9 +51,9 @@ class SendInvitationToSalesWebsiteCommand extends Command
                 'secret'      => md5(trim($data->Online_Contract_ID).$data->Net_To_Pay_when_issued.'xyz'),
                 'file_name'   => $row->data['file']
             ];
-            dd($sendData);
 
-            Http::post($row->saleCompany->getAttribute('site_url'), $sendData);
+            $response = Http::post($row->saleCompany->getAttribute('site_url'), $sendData);
+            $this->output->info(print_r($response->json(), 1));
 
             $progress->advance();
         }
