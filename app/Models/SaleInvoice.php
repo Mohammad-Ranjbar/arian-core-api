@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SaleInvoice extends Model
 {
@@ -20,7 +21,12 @@ class SaleInvoice extends Model
         'type',
         'value'
     ];
-    protected $casts = [
+    protected $casts    = [
         'data' => 'json'
     ];
+
+    public function saleCompany(): BelongsTo
+    {
+        return $this->belongsTo(SaleCompany::class);
+    }
 }
