@@ -29,7 +29,7 @@ class SendInvitationToSalesWebsiteCommand extends Command
         $progress->start();
         foreach ($list as $row) {
             $url = $row->saleCompany->getAttribute('erp_url');
-            $url .= '?$filter=No eq \''.$this->data['reference'].'\'';
+            $url .= '?$filter=No eq \''.$row->reference.'\'';
             $data = $erpOdataClient->getOne($url);
 
             if (Carbon::make($data->Due_Date)->greaterThan($today)){
