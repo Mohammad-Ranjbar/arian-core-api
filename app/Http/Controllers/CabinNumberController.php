@@ -64,6 +64,11 @@ class CabinNumberController extends CrudController
                 ->where('serial_2_chr', $vehicle->carModel->getAttribute('cabin_serial_chr_2'))
                 ->where('year_chr', $yearMap->chr)->max('counter');
 
+        if ($counter == 0){
+            $r = $vehicle->carModel->getAttribute('cabin_serial_chr_1').$vehicle->carModel->getAttribute('cabin_serial_chr_2').$yearMap->chr;
+            $counter = config('cabin_number.'.$r,0);
+        }
+
         $validatedData['car_model_id'] = $vehicle->getAttribute('car_model_id');
         $validatedData['user_id'] = auth()->id();
         $validatedData['serial_1_chr'] = $vehicle->carModel->getAttribute('cabin_serial_chr_1');

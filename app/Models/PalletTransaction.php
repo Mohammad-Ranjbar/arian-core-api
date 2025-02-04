@@ -36,6 +36,15 @@ class PalletTransaction extends Model
         if (!empty($data['type'])) {
             $query = $query->where('type', $data['type']);
         }
+        if (!empty($data['pallet_id'])) {
+            $query = $query->where('pallet_id', $data['pallet_id']);
+        }
+        if (!empty($data['location_id'])) {
+            $query = $query->where('location_id', $data['location_id']);
+        }
+        if (!empty($data['qty'])) {
+            $query = $query->where('qty', $data['qty']);
+        }
         return $query->get();
     }
 
