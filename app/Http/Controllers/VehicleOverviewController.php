@@ -99,20 +99,25 @@ class VehicleOverviewController extends Controller
                 'values' => [
                     [
                         'تاریخ بررسی پلیس',
-                        $vehicle->getAttribute('data')['Police_Inspection_Date'] ?
+                        ($vehicle->getAttribute('data')['Police_Inspection_Date'] and
+                            $vehicle->getAttribute('data')['Police_Inspection_Date'] != '0001-01-01T00:00:00Z') ?
                             jdate($vehicle->getAttribute('data')['Police_Inspection_Date'])->toDateString()
                             : '-'
                         ,
                     ],
                     [
                         'تاریخ شماره گذاری',
-                        $vehicle->getAttribute('data')['Platting_Date'] ?
+                        ($vehicle->getAttribute('data')['Platting_Date'] and
+                            $vehicle->getAttribute('data')['Platting_Date'] != '0001-01-01T00:00:00Z')
+                            ?
                             jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString()
                             : '-',
                     ],
                     [
                         'تاریخ چاپ سند',
-                        $vehicle->getAttribute('data')['Platting_Date'] ?
+                        ($vehicle->getAttribute('data')['Platting_Date'] and
+                            $vehicle->getAttribute('data')['Platting_Date'] != '0001-01-01T00:00:00Z')
+                            ?
                             jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString()
                             : '-',
                     ],
