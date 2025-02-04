@@ -120,6 +120,7 @@ class VehicleOverviewController extends Controller
             ];
         } catch (Exception $exception) {
             $police = null;
+            logger($vehicle->getAttribute('data'));
             logger()->error($exception);
         }
         $result = DWVehicleServiceHistoryTree::query()
