@@ -72,6 +72,10 @@ class VehicleOverviewController extends Controller
                 'title' => 'لاماری'
             ],
             [
+                'file'  => '/api/dl-file?path=incoming-control/Lamaco-Incoming-Control.zip',
+                'title' => 'لاماکو'
+            ],
+            [
                 'file'  => '/api/dl-file?path=incoming-control/Lorry-Dumper-Incoming-Control.zip',
                 'title' => 'لاری و دامپر'
             ],
