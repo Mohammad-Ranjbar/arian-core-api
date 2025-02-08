@@ -20,8 +20,8 @@ class RegisterCodeForVehicleCommand extends Command
     {
 
         $vehicles = [
-            "N5RSU7SN5R2902155",
-"N5RSU7SN5R2902164",
+//            "N5RSU7SN5R2902155",
+//"N5RSU7SN5R2902164",
 "N5RSU7SN5R2602487"
         ];
 
