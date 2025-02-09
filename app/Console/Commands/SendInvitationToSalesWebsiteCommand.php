@@ -28,7 +28,6 @@ class SendInvitationToSalesWebsiteCommand extends Command
         $list = SaleInvoice::query()
             ->where('reference', 'CNIV07551')
             ->where('payment_status', 'pending')
-            ->where('created_at', '>', $today)
             ->get();
         $progress = $this->output->createProgressBar($list->count());
         $progress->start();
