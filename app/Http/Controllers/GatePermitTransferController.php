@@ -26,7 +26,6 @@ class GatePermitTransferController extends Controller
         try {
             $permit = GatePermit::query()->where('model_type', Vehicle::class)->where('model_id',
                 $vehicle->getAttribute('vin'))->latest()->firstOrFail();
-            dd($permit->model);
             $record = $vehicle->tracking()->create([
                 'model_type' => Location::class,
                 'model_id'   => 1,
@@ -38,7 +37,7 @@ class GatePermitTransferController extends Controller
             if ($record->getAttribute('type') == 'exit') {
                 $parameters = [
                     'url' => config('erp.gate'),
-                    'parameters' => ['barcodeInfoP' => $permit->getAttribute('model_id')],
+                    'parameters' => ['barcodeInfoP' => $permit->getAttribute('model_id'),'itemTypeP' => $permit->getAttribute('item_type')],
                     'method' => 'ApproveExit',
                     'section' => 'gate-permit-exit'
                 ];
