@@ -248,7 +248,7 @@ class BillOfLadingController extends CrudController
                 foreach ($validatedData['items'] as $vin) {
                     $body = Vehicle::query()->where('vin', $vin)->first();
                     if (empty($body->getAttribute('qc_status'))) {
-                        $message = ' لطفا کد کیفیت '.$body.' وارد شود ';
+                        $message = ' لطفا کد کیفیت '.$body->getAttribute('vin').' وارد شود ';
                         throw new Exception($message);
                     }
                 }
