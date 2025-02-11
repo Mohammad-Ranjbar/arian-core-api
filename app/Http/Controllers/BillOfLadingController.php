@@ -240,6 +240,7 @@ class BillOfLadingController extends CrudController
             ],
         ]);
         $validatedData = array_merge($validatedData, $this->appendStoreData);
+        dd($validatedData);
         if ($this->appendUserId) {
             $validatedData['user_id'] = Auth::id();
         }
@@ -288,6 +289,7 @@ class BillOfLadingController extends CrudController
         }
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
+                'item_type' => 'required_if:type,bodies|in:0,1,2',
                 'code' => [
                     'item_type' => 'required_if:type,bodies|in:0,1,2',
                     'required',
