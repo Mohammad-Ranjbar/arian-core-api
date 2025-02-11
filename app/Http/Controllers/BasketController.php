@@ -100,7 +100,6 @@ class BasketController extends CrudController
             'queue' => ErpJob::QUEUE_UNIQUE
         ]);
 
-        sleep(5);
             ErpJobEvent::dispatch($erpJob);
 
     }
