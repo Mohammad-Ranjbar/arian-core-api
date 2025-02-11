@@ -288,6 +288,7 @@ class BillOfLadingController extends CrudController
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
                 'code' => [
+                    'item_type' => 'required_if:type,bodies|in:0,1,2',
                     'required',
                     'string',
                     'max:255', // Adjust as needed
@@ -304,7 +305,7 @@ class BillOfLadingController extends CrudController
             'code' => [
                 'required',
                 'string',
-                'max:255', // Adjust as needed
+                'max:255',
                 Rule::unique('bill_of_ladings')->where(function ($query) {
                     return $query->where('location_source_id', request()->get('location_source_id'))
                         ->where('location_destination_id', request()->get('location_destination_id'));
@@ -335,7 +336,7 @@ class BillOfLadingController extends CrudController
         }
 
         if ($data['type'] == 'bodies') {
-            $record->createAutoGatePermit($data['items']);
+            $record->createAutoGatePermit($data['items'],$data['item_type'],true);
             $record->vehicles()->syncWithPivotValues($data['items'], ['type' => 'bodies']);
         }
 

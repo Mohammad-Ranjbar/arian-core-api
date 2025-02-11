@@ -152,7 +152,7 @@ class BillOfLading extends Model
     /**
      * @throws Exception
      */
-    public function createAutoGatePermit($items , $batch = false): void
+    public function createAutoGatePermit($items,$itemType , $batch = false): void
     {
         $exitIds = Location::query()->whereHas('attributes', function ($q) {
             $q->where('attribute', 'autoExitPermit')->where('value', 'true');
@@ -218,7 +218,7 @@ class BillOfLading extends Model
                         }
                     }elseif($type == 'exit'){
                         $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
-                            $gate->getAttribute('location')->code);
+                            $gate->getAttribute('location')->code,$itemType);
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }

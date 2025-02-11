@@ -29,12 +29,12 @@ class ErpCreateExitRequest {
     /**
      * @throws Exception
      */
-    public static function createBatchExitRequest(array $vin, string $type, string $locationCode): array
+    public static function createBatchExitRequest(array $vin, string $type, string $locationCode,$itemType): array
     {
         $vins = implode(',',$vin);
         $count = count($vin);
         $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'GroupExitRequest',
-            ['vINArrayP' => $vins, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'numberVINP' => $count]);
+            ['vINArrayP' => $vins, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'numberVINP' => $count,'itemTypeP' => $itemType]);
 
         if ($exitRequest['status'] !== 'ok') {
             throw new Exception($exitRequest['message']);
