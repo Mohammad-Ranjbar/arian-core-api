@@ -217,6 +217,7 @@ class BillOfLading extends Model
                             throw new Exception($response['message']);
                         }
                     }elseif($type == 'exit'){
+                        dd($itemType);
                         $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
                             $gate->getAttribute('location')->code,$itemType);
                         if ($response['status'] !== 'ok') {
