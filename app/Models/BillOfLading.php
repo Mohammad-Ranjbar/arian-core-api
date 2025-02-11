@@ -188,7 +188,8 @@ class BillOfLading extends Model
                         'owner_id' => Auth::id(),
                         'owner_type' => User::class,
                         'type' => $type,
-                        'exit_type' => $exitType
+                        'exit_type' => $exitType,
+                        'item_type' => $itemType,
                     ]);
 
                     if ($type == 'exit') {
