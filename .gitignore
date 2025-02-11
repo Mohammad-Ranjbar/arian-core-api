@@ -21,3 +21,5 @@ rr
 .rr.yaml
 /data/*
 .DS_Store
+
+/storage/*
