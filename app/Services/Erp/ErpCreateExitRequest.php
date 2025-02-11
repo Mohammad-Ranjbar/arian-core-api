@@ -49,7 +49,7 @@ class ErpCreateExitRequest {
             }
         }
         return [
-            'response' => 'ok'
+            'status' => 'ok'
         ];
 
 
