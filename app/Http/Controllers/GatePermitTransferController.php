@@ -44,7 +44,7 @@ class GatePermitTransferController extends Controller
             } elseif ($record->getAttribute('type') == 'enter') {
                 $parameters = [
                     'url' => config('erp.approve'),
-                    'parameters' =>  ['vINP' => $permit->getAttribute('model_id')],
+                    'parameters' =>  ['vINP' => $permit->getAttribute('model_id'),'itemTypeP' => $permit->getAttribute('item_type')],
                     'method' => 'ApproveReturn',
                     'section' => 'gate-permit-enter'
                 ];
