@@ -26,7 +26,7 @@ class GatePermitTransferController extends Controller
         try {
             $permit = GatePermit::query()->where('model_type', Vehicle::class)->where('model_id',
                 $vehicle->getAttribute('vin'))->latest()->firstOrFail();
-
+            dd($permit->model);
             $record = $vehicle->tracking()->create([
                 'model_type' => Location::class,
                 'model_id'   => 1,
