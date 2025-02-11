@@ -41,7 +41,8 @@ class ErpCreateExitRequest {
         }
         foreach ($vin as $vehicle){
           $res =  ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
-                'vINP' => $vehicle
+                'vINP' => $vehicle,
+                'typeOfExitP' => $itemType
             ]);
             if ($res['status'] !== 'ok') {
                 throw new Exception($res['message']);
