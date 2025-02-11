@@ -228,6 +228,7 @@ class BillOfLadingController extends CrudController
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),
             $this->customStoreRules()));
         $request->validate([
+            'item_type' => 'required_if:type,bodies|in:0,1,2',
             'code' => [
                 'required',
                 'string',
