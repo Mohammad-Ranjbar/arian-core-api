@@ -31,6 +31,7 @@ class ErpCreateExitRequest {
      */
     public static function createBatchExitRequest(array $vin, string $type, string $locationCode,$itemType): array
     {
+        dd('sssss',$itemType);
         $vins = implode(',',$vin);
         $count = count($vin);
         $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'GroupExitRequest',
