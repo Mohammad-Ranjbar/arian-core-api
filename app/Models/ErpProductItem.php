@@ -24,6 +24,7 @@ class ErpProductItem extends Model
         'title',
         'description',
         'type',
+        'related_to'
     ];
     /**
      * @var string[]
@@ -46,5 +47,10 @@ class ErpProductItem extends Model
     public function productionLineActivities(): BelongsToMany
     {
         return $this->belongsToMany(ProductionLineActivity::class);
+    }
+
+    public function related(): HasMany
+    {
+        return $this->hasMany(self::class,'related_to');
     }
 }
