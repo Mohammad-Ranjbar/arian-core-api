@@ -19,6 +19,7 @@ class ExporterServiceFactory
             'export-block-items' => new ExportBlockItemsService($job),
             'export-production-test-results' => new ExportProductionTestResultService($job),
             'export-tracking', 'export-tracking-sale-location' => new ExportTrackingService($job),
+            'export-tracking-exit-door' => new ExportTrackingExitDoorService($job),
             'export-vehicle-qc' => new ExportVehicleQcService($job),
             'export-bill-of-ladings' => new ExportBillOfLadingsService($job),
             'export-gate-permits' => new ExportGatePermitsService($job),

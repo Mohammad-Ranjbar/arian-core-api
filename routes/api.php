@@ -299,6 +299,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-tracking',
         [ProductionTrackingController::class, 'reportExcel'])->name('report-excel-tracking');
 
+    Route::get('/report-excel-tracking-exit-door',
+        [ProductionTrackingController::class, 'reportExcelExitDoor'])->name('report-excel-tracking-exit-door');
+
     Route::get('/report-excel-tracking-sale-locations',
         [ProductionTrackingController::class, 'reportExcelSaleLocation'])->name('report-excel-tracking-sale-locations');
 
