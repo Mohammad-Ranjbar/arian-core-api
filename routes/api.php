@@ -237,6 +237,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::post('/gate-permit-exit',
                 GatePermitTransferController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
+
+
             Route::get('/get-available-sale-locations',
                 [SaleLocationController::class, 'getAvailableSaleLocations'])->name('get-available-sale-locations');
             Route::post('/set-sale-location',
