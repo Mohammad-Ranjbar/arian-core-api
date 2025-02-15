@@ -221,13 +221,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
-
+    Route::post('/torque-test',[ScrewController::class,'vehicleTorqueTest'])->name('vehicles.torque-test');
     Route::post('/report-shortages', [ShortageController::class, 'reportShortages'])->name('report-shortages');
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
             Route::get('/screws',[ScrewController::class,'listScrewsForVin'])->name('vehicles.screws');
-
             Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update', 'destroy']);
 

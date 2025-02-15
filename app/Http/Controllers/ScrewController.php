@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreVehicleTorqueRequest;
 use App\Http\Resources\ScrewResource;
+use App\Http\Resources\VehicleTorqueTestResource;
 use App\Models\Vehicle;
+use App\Models\VehicleTorqueTest;
 use App\Repositories\ScrewRepository;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
+use Illuminate\Http\JsonResponse;
 
 class ScrewController extends CrudController
 {
@@ -18,19 +19,26 @@ class ScrewController extends CrudController
         $this->setResource(ScrewResource::class);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function listScrewsForVin(Vehicle $vehicle): AnonymousResourceCollection
+
+    public function listScrewsForVin(Vehicle $vehicle): JsonResponse
     {
         $carModelId = $vehicle->carModel->id;
 
         $data = $this->repository->model->newQuery()->whereHas('carModels', function ($q) use ($carModelId) {
             $q->where('id', $carModelId);
-        })->get();
+        })->select('id', 'title')->get();
 
-        return ScrewResource::collection($data);
+        return response()->json($data);
+    }
+
+
+    public function vehicleTorqueTest(StoreVehicleTorqueRequest $request): VehicleTorqueTestResource
+    {
+        $validatedData = $request->validated();
+
+        $data = VehicleTorqueTest::query()->create($validatedData);
+
+        return new VehicleTorqueTestResource($data);
     }
 
 
