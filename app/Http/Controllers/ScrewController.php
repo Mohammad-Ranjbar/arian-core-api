@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreVehicleTorqueRequest;
 use App\Http\Resources\ScrewResource;
 use App\Http\Resources\VehicleTorqueTestResource;
+use App\Jobs\ExportJob;
+use App\Models\Job;
 use App\Models\Vehicle;
 use App\Models\VehicleTorqueTest;
 use App\Repositories\ScrewRepository;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class ScrewController extends CrudController
 {
@@ -41,5 +45,26 @@ class ScrewController extends CrudController
         return new VehicleTorqueTestResource($data);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
+    public function reportExcel(): JsonResponse
+    {
+        $this->authorize('export-vehicle-torque-test');
+        $validatedData['type'] = 'export-vehicle-torque-test';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = request()->all();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
 
 }
