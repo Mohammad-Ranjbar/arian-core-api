@@ -21,7 +21,7 @@ class ProductionLine extends Model
      * @var string[]
      */
     protected $fillable = [
-        'title', 'salon_id', 'teams_webhook','location_code','show_in_board','prefix'
+        'title', 'salon_id', 'teams_webhook', 'location_code', 'show_in_board', 'prefix', 'location', 'central_location'
     ];
 
 
@@ -122,14 +122,6 @@ class ProductionLine extends Model
     }
 
     /**
-     * @return MorphMany
-     */
-    public function tracking(): MorphMany
-    {
-        return $this->morphMany(Tracking::class, 'model');
-    }
-
-    /**
      * @return bool
      */
     public function isEnterUpperLocation(): bool
@@ -141,6 +133,22 @@ class ProductionLine extends Model
             ->exists();
     }
 
+    public function trackingCount($type, $start, $end)
+    {
+        return $this->tracking()
+            ->where('type', $type)
+            ->whereBetween('created_at', [$start, $end])
+            ->count();
+    }
+
+    /**
+     * @return MorphMany
+     */
+    public function tracking(): MorphMany
+    {
+        return $this->morphMany(Tracking::class, 'model');
+    }
+
     /**
      * @return Attribute
      */
@@ -149,18 +157,10 @@ class ProductionLine extends Model
         return Attribute::make(
             get: fn() => [
                 'is_upper_location' => true,
-                'upper_id'          => $this->getAttribute('salon')->id,
-                'upper_class'       => Salon::class
+                'upper_id' => $this->getAttribute('salon')->id,
+                'upper_class' => Salon::class
             ],
         );
-    }
-
-    public function trackingCount($type,$start,$end)
-    {
-        return $this->tracking()
-            ->where('type',$type)
-            ->whereBetween('created_at',[$start,$end])
-            ->count();
     }
 
 }
