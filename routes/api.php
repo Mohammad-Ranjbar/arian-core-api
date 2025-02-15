@@ -226,6 +226,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::get('/screws',[ScrewController::class,'listScrewsForVin'])->name('vehicles.screws');
 
             Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -342,6 +343,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
     Route::get('/report-excel-pallet-transactions', [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
     Route::get('/report-excel-pallet-stocks', [PalletController::class, 'reportExcelStocks'])->name('export-pallet-stocks');
+
+
 
     Route::apiResource('settings', SettingController::class)->except('store', 'destroy');
     Route::apiResources([
