@@ -35,4 +35,9 @@ class CarModel extends Model
     {
         return $this->belongsToMany(ProductionLine::class);
     }
+
+    public function screws(): BelongsToMany
+    {
+        return $this->belongsToMany(Screw::class);
+    }
 }
