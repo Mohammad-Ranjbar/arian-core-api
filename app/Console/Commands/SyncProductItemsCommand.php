@@ -40,8 +40,14 @@ class SyncProductItemsCommand extends Command
                         'type'          => $row->Engin ? 'engine' : $row->Item_Type,
                     ];
 
-                    ErpProductItem::query()->where('reference', $data['reference'])
-                        ->firstOrCreate($data);
+                   $record = ErpProductItem::query()->where('reference', $data['reference'])
+                        ->first();
+                   if (!$record){
+                       $record = new ErpProductItem($data);
+                   }
+
+                   $record->setAttribute('related_to',$row->Related_Component);
+                   $record->save();
                     $bar->advance();
                 }
                 $bar->finish();

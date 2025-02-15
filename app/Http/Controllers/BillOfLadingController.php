@@ -228,6 +228,7 @@ class BillOfLadingController extends CrudController
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),
             $this->customStoreRules()));
         $request->validate([
+            'item_type' => 'required_if:type,bodies|in:0,1,2',
             'code' => [
                 'required',
                 'string',
@@ -239,6 +240,7 @@ class BillOfLadingController extends CrudController
             ],
         ]);
         $validatedData = array_merge($validatedData, $this->appendStoreData);
+
         if ($this->appendUserId) {
             $validatedData['user_id'] = Auth::id();
         }
@@ -248,7 +250,7 @@ class BillOfLadingController extends CrudController
                 foreach ($validatedData['items'] as $vin) {
                     $body = Vehicle::query()->where('vin', $vin)->first();
                     if (empty($body->getAttribute('qc_status'))) {
-                        $message = ' لطفا کد کیفیت '.$body.' وارد شود ';
+                        $message = ' لطفا کد کیفیت '.$body->getAttribute('vin').' وارد شود ';
                         throw new Exception($message);
                     }
                 }
@@ -287,7 +289,9 @@ class BillOfLadingController extends CrudController
         }
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
+                'item_type' => 'required_if:type,bodies|in:0,1,2',
                 'code' => [
+                    'item_type' => 'required_if:type,bodies|in:0,1,2',
                     'required',
                     'string',
                     'max:255', // Adjust as needed
@@ -304,7 +308,7 @@ class BillOfLadingController extends CrudController
             'code' => [
                 'required',
                 'string',
-                'max:255', // Adjust as needed
+                'max:255',
                 Rule::unique('bill_of_ladings')->where(function ($query) {
                     return $query->where('location_source_id', request()->get('location_source_id'))
                         ->where('location_destination_id', request()->get('location_destination_id'));
@@ -335,7 +339,7 @@ class BillOfLadingController extends CrudController
         }
 
         if ($data['type'] == 'bodies') {
-            $record->createAutoGatePermit($data['items']);
+            $record->createAutoGatePermit($data['items'],$data['item_type'],true);
             $record->vehicles()->syncWithPivotValues($data['items'], ['type' => 'bodies']);
         }
 

@@ -83,6 +83,36 @@ class Tracking extends Model
         return $query->get();
     }
 
+    public static function getReportExitDoorData(array $data)
+    {
+        $query = self::query();
+
+        $query = $query->where('model_type', Location::class)
+            ->where('model_id',1);
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['vin'])) {
+            $query = $query->where('vin', $data['vin']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['type'])) {
+            $query = $query->where('type', $data['type']);
+        }
+
+        if (!empty($data['user_id'])) {
+            $query = $query->where('user_id', $data['user_id']);
+        }
+        if (!empty($data['make_code_id'])) {
+            $query = $query->whereHas('vehicle', function ($query) use ($data) {
+                $query->where('make_code_id', $data['make_code_id']);
+            });
+        }
+        return $query->get();
+    }
+
     /**
      * @return BelongsTo
      */

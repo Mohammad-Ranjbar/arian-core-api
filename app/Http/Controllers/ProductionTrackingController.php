@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TrackingExitDoorReportExcelRequest;
 use App\Http\Requests\TrackingReportExcelRequest;
 use App\Http\Requests\TrackingRequest;
 use App\Http\Requests\TrackingSaleLocationExcelRequest;
@@ -96,6 +97,24 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         $validatedData['type'] = 'export-tracking';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = $request->validated();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
+    public function reportExcelExitDoor(TrackingExitDoorReportExcelRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $validatedData['type'] = 'export-tracking-exit-door';
         $validatedData['user_id'] = Auth::id();
         $validatedData['data'] = $request->validated();
         $job = Job::query()->create($validatedData);

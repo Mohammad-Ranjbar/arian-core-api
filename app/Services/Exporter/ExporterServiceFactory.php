@@ -19,6 +19,7 @@ class ExporterServiceFactory
             'export-block-items' => new ExportBlockItemsService($job),
             'export-production-test-results' => new ExportProductionTestResultService($job),
             'export-tracking', 'export-tracking-sale-location' => new ExportTrackingService($job),
+            'export-tracking-exit-door' => new ExportTrackingExitDoorService($job),
             'export-vehicle-qc' => new ExportVehicleQcService($job),
             'export-bill-of-ladings' => new ExportBillOfLadingsService($job),
             'export-gate-permits' => new ExportGatePermitsService($job),
@@ -31,6 +32,7 @@ class ExporterServiceFactory
             'export-cabin-numbers' => new ExportCabinNumberService($job),
             'export-pallet-transactions' => new ExportPalletTransactionService($job),
             'export-pallet-stocks' => new ExportPalletStockService($job),
+            'export-vehicle-torque-test' => new ExportVehicleTorqueTestService($job),
             default => throw  new Exception('Invalid input for type: ' . $job->type . 'by user id:' . Auth::id()),
         };
     }

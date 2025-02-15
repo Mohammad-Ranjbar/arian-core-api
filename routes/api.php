@@ -54,6 +54,7 @@ use App\Http\Controllers\SaleCompanyController;
 use App\Http\Controllers\SaleInvoicesController;
 use App\Http\Controllers\SaleLocationController;
 use App\Http\Controllers\SalonController;
+use App\Http\Controllers\ScrewController;
 use App\Http\Controllers\SendSmsGatewayController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ShortageController;
@@ -220,23 +221,25 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
-
+    Route::post('/torque-test',[ScrewController::class,'vehicleTorqueTest'])->name('vehicles.torque-test');
     Route::post('/report-shortages', [ShortageController::class, 'reportShortages'])->name('report-shortages');
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-
+            Route::get('/screws',[ScrewController::class,'listScrewsForVin'])->name('vehicles.screws');
             Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
-            Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update','destroy']);
+            Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update', 'destroy']);
 
-            Route::get('/main-component-items', [ComponentItemController::class,'main'])->name('vehicles.main-component-items');
-            Route::get('/all-component-items', [ComponentItemController::class,'all'])->name('vehicles.all-component-items');
+            Route::get('/main-component-items', [ComponentItemController::class, 'main'])->name('vehicles.main-component-items');
+            Route::get('/all-component-items', [ComponentItemController::class, 'all'])->name('vehicles.all-component-items');
             Route::get('overview', VehicleOverviewController::class)->name('vehicle.overview');
 
             Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');
 
             Route::post('/gate-permit-exit',
                 GatePermitTransferController::class)->withoutMiddleware('access.vehicle')->name('gate-permit-exit');
+
+
             Route::get('/get-available-sale-locations',
                 [SaleLocationController::class, 'getAvailableSaleLocations'])->name('get-available-sale-locations');
             Route::post('/set-sale-location',
@@ -297,6 +300,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-tracking',
         [ProductionTrackingController::class, 'reportExcel'])->name('report-excel-tracking');
 
+    Route::get('/report-excel-tracking-exit-door',
+        [ProductionTrackingController::class, 'reportExcelExitDoor'])->name('report-excel-tracking-exit-door');
+
     Route::get('/report-excel-tracking-sale-locations',
         [ProductionTrackingController::class, 'reportExcelSaleLocation'])->name('report-excel-tracking-sale-locations');
 
@@ -336,8 +342,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
     Route::get('/report-excel-pallet-transactions', [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
     Route::get('/report-excel-pallet-stocks', [PalletController::class, 'reportExcelStocks'])->name('export-pallet-stocks');
+    Route::get('/report-excel-vehicle-torque-test', [ScrewController::class, 'reportExcel'])->name('export-vehicle-torque-test');
 
-    Route::apiResource( 'settings' , SettingController::class)->except('store','destroy');
+
+
+    Route::apiResource('settings', SettingController::class)->except('store', 'destroy');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -374,6 +383,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
         'body-options' => BodyOptionController::class,
+        'screws' => ScrewController::class
     ]);
 
     /*

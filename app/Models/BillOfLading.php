@@ -152,7 +152,7 @@ class BillOfLading extends Model
     /**
      * @throws Exception
      */
-    public function createAutoGatePermit($items , $batch = false): void
+    public function createAutoGatePermit($items,$itemType , $batch = false): void
     {
         $exitIds = Location::query()->whereHas('attributes', function ($q) {
             $q->where('attribute', 'autoExitPermit')->where('value', 'true');
@@ -179,7 +179,7 @@ class BillOfLading extends Model
                         continue;
                     }
 
-                    $exitType = 2;// by shaghayegh => consignment , 1
+                    $exitType = 2;
 
                     $gate = GatePermit::query()->create([
                         'model_type' => Vehicle::class,
@@ -188,13 +188,14 @@ class BillOfLading extends Model
                         'owner_id' => Auth::id(),
                         'owner_type' => User::class,
                         'type' => $type,
-                        'exit_type' => $exitType
+                        'exit_type' => $exitType,
+                        'item_type' => $itemType,
                     ]);
 
                     if ($type == 'exit') {
                         if (!$batch){
                             $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
-                                $gate->getAttribute('location')->code);
+                                $gate->getAttribute('location')->code,$itemType);
                             if ($response['status'] !== 'ok') {
                                 throw new Exception($response['message']);
                             }
@@ -202,7 +203,7 @@ class BillOfLading extends Model
 
                     } else {
                         if (!$batch){
-                            $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code);
+                            $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code,$itemType);
                             if ($response['status'] !== 'ok') {
                                 throw new Exception($response['message']);
                             }
@@ -212,13 +213,13 @@ class BillOfLading extends Model
 
                 if ($batch){
                     if ($type == 'enter'){
-                        $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code);
+                        $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code,$itemType);
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }
                     }elseif($type == 'exit'){
                         $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
-                            $gate->getAttribute('location')->code);
+                            $gate->getAttribute('location')->code,$itemType);
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }

@@ -37,6 +37,7 @@ use App\Models\SaleCompany;
 use App\Models\SaleInvoice;
 use App\Models\SaleLocation;
 use App\Models\Salon;
+use App\Models\Screw;
 use App\Models\Setting;
 use App\Models\ShortageItem;
 use App\Models\SmsService;
@@ -108,6 +109,7 @@ class AuthServiceProvider extends ServiceProvider
         BodyOption::class => CrudPolicy::class,
         CabinNumber::class => CrudPolicy::class,
         Setting::class => CrudPolicy::class,
+        Screw::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];

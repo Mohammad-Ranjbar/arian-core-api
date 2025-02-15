@@ -20,13 +20,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class GatePermitController extends CrudController
 {
-    /**
-     * @param GatePermitRepository $repository
-     */
+
     public function __construct(public readonly GatePermitRepository $repository,public VehicleController $vehicleController)
     {
         $this->applyAuthorizeResource();
@@ -36,6 +33,7 @@ class GatePermitController extends CrudController
     public function customStoreRules(): array
     {
         return [
+            'item_type' => 'required|in:0,1,2',
             'vin' => ['required',
                 'string',
                 'exists:vehicles,vin',
@@ -64,13 +62,13 @@ class GatePermitController extends CrudController
             if ($validatedData['type'] == 'exit') {
 
                 $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
-                    $location->getAttribute('code'));
+                    $location->getAttribute('code'), $validatedData['item_type']);
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
             } elseif ($validatedData['type'] == 'enter') {
-                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'));
+                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'),$validatedData['item_type']);
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
@@ -112,10 +110,7 @@ class GatePermitController extends CrudController
 
 
     /**
-     * @param GatePermit $gatePermit
-     * @return JsonResponse
      * @throws AuthorizationException
-     * @throws ValidationException
      */
     public function print(GatePermit $gatePermit): JsonResponse
     {
