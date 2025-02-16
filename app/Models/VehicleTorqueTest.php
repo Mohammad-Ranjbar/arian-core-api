@@ -10,7 +10,29 @@ class VehicleTorqueTest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vin', 'value', 'screw_id'];
+    protected $fillable = ['vin', 'value', 'screw_id', 'user_id'];
+
+    public static function getReportData($data)
+    {
+        $query = self::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['vin'])) {
+            $query = $query->where('vin', $data['vin']);
+        }
+        if (!empty($data['value'])) {
+            $query = $query->where('value', $data['value']);
+        }
+        if (!empty($data['screw_id'])) {
+            $query = $query->where('screw_id', $data['screw_id']);
+        }
+
+        return $query->get();
+    }
 
     public function vehicle(): BelongsTo
     {
@@ -22,25 +44,8 @@ class VehicleTorqueTest extends Model
         return $this->belongsTo(Screw::class);
     }
 
-    public static function getReportData( $data)
+    public function user(): BelongsTo
     {
-        $query = self::query();
-        if (!empty($data['from'])) {
-            $query = $query->where('created_at', '>=', $data['from']);
-        }
-        if (!empty($data['to'])) {
-            $query = $query->where('created_at', '<=', $data['to']);
-        }
-        if (!empty($data['vin'])) {
-            $query = $query->where('vin',  $data['vin']);
-        }
-        if (!empty($data['value'])) {
-            $query = $query->where('value',  $data['value']);
-        }
-        if (!empty($data['screw_id'])) {
-            $query = $query->where('screw_id',  $data['screw_id']);
-        }
-
-        return $query->get();
+        return $this->belongsTo(User::class);
     }
 }

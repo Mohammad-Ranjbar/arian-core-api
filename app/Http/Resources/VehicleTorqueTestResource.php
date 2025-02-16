@@ -15,6 +15,8 @@ class VehicleTorqueTestResource extends JsonResource
             'value' => $this->resource->value,
             'screw_id' => $this->resource->screw_id,
             'vin' => $this->resource->vin,
+            'user_id' => $this->resource->user_id,
+            'user' => new UserShortResource($this->resource->user),
             'created_at' => $this->resource->created_at,
         ];
     }
