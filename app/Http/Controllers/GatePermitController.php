@@ -69,7 +69,8 @@ class GatePermitController extends CrudController
                     return $this->responseError($response['message'], 400);
                 }
             } elseif ($validatedData['type'] == 'enter') {
-                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'),$validatedData['item_type']);
+//                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'),$validatedData['item_type']);
+                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'));
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
