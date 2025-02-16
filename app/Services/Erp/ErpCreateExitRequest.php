@@ -12,7 +12,7 @@ class ErpCreateExitRequest {
      */
     public static function createExitRequest(string $vin, string $type, string $locationCode,$itemType): array
     {
-
+        dd($itemType);
        $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
             ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'itemTypeP' => $itemType]);
 
