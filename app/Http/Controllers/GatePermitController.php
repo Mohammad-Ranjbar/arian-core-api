@@ -61,9 +61,10 @@ class GatePermitController extends CrudController
 
             if ($validatedData['type'] == 'exit') {
 
+//                $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
+//                    $location->getAttribute('code'), $validatedData['item_type']);
                 $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
-                    $location->getAttribute('code'), $validatedData['item_type']);
-
+                    $location->getAttribute('code'));
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
