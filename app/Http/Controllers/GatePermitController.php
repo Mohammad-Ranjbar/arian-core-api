@@ -33,7 +33,7 @@ class GatePermitController extends CrudController
     public function customStoreRules(): array
     {
         return [
-//            'item_type' => 'required|in:0,1,2',
+            'item_type' => 'required|in:0,1,2',
             'vin' => ['required',
                 'string',
                 'exists:vehicles,vin',
@@ -61,10 +61,9 @@ class GatePermitController extends CrudController
 
             if ($validatedData['type'] == 'exit') {
 
-//                $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
-//                    $location->getAttribute('code'), $validatedData['item_type']);
                 $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
-                    $location->getAttribute('code'));
+                    $location->getAttribute('code'), $validatedData['item_type']);
+
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
