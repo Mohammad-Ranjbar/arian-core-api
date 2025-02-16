@@ -21,6 +21,12 @@ class SynchronousTypeRepository extends BaseRepository
             'title' => 'required|string',
             'qty' => 'required|numeric',
             'printer_ip' => 'required|string',
+            'carModelIds' => 'required|array',
+            'carModelIds.*' => 'required|exists:car_models,id',
+            'partCodes' => 'required|array',
+            'partCodes.*' => 'required|string|max:255',
+            'crossReferences' => 'required|array',
+            'crossReferences.*' => 'required|string|max:255',
         ]
     ];
 
