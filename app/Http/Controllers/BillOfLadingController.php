@@ -291,7 +291,7 @@ class BillOfLadingController extends CrudController
             return [
 //                'item_type' => 'required_if:type,bodies|in:0,1,2',
                 'code' => [
-                    'item_type' => 'required_if:type,bodies|in:0,1,2',
+//                    'item_type' => 'required_if:type,bodies|in:0,1,2',
                     'required',
                     'string',
                     'max:255', // Adjust as needed
