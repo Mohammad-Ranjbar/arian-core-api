@@ -1,0 +1,71 @@
+version: '2'
+
+services:
+    web:
+        container_name: web
+        image: nginx:latest
+        ports:
+            - "${HOST_PORT:-8080}:80"
+        volumes:
+            - .:/laravel
+            - ./docker/nginx/site.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - php
+            - io
+        restart: always
+    php:
+        container_name: php
+        build:
+            context: ./docker/php
+        volumes:
+            - .:/laravel
+        working_dir: /laravel
+        depends_on:
+            - db
+            - redis
+        restart: always
+    queue:
+        container_name: queue
+        build:
+            context: ./docker/php
+        volumes:
+            - .:/laravel
+        working_dir: /laravel
+        depends_on:
+            - php
+        command: bash -c 'php artisan horizon'
+        restart: always
+    io:
+        container_name: io
+        build:
+            context: ./docker/io
+        working_dir: "/usr/src/app"
+        volumes:
+            - "./io:/usr/src/app"
+        depends_on:
+            - redis
+        restart: always
+    db:
+        container_name: db
+        image: mysql:latest
+        volumes:
+            - ./data/mysql/:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: "root"
+            MYSQL_DATABASE: "laravel"
+        restart: always
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        depends_on:
+            - db
+        ports:
+            - "${PHP_MY_ADMIN_PORT:-9090}:80"
+        environment:
+            PMA_HOST: db
+            PMA_ARBITRARY: 1
+        restart: always
+    redis:
+        image: redis
+        container_name: redis
+        restart: always
