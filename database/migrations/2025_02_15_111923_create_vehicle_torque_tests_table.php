@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
 
     public function up(): void
     {
@@ -15,6 +14,7 @@ return new class extends Migration
             $table->foreign('vin')->references('vin')->on('vehicles')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('screw_id')->constrained()->cascadeOnDelete();
             $table->float('value');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

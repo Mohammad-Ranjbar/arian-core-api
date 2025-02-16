@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreVehicleTorqueRequest extends FormRequest
 {
@@ -17,8 +18,16 @@ class StoreVehicleTorqueRequest extends FormRequest
     {
         return [
             'vin' => 'required|string|exists:vehicles,vin',
+            'user_id' => 'nullable',
             'value' => 'required|numeric',
             'screw_id' => 'required|exists:screws,id',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'user_id' => Auth::id(),
+        ]);
     }
 }
