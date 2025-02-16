@@ -228,7 +228,7 @@ class BillOfLadingController extends CrudController
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),
             $this->customStoreRules()));
         $request->validate([
-//            'item_type' => 'required_if:type,bodies|in:0,1,2',
+            'item_type' => 'required_if:type,bodies|in:0,1,2',
             'code' => [
                 'required',
                 'string',
@@ -289,9 +289,9 @@ class BillOfLadingController extends CrudController
         }
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
-//                'item_type' => 'required_if:type,bodies|in:0,1,2',
+                'item_type' => 'required_if:type,bodies|in:0,1,2',
                 'code' => [
-//                    'item_type' => 'required_if:type,bodies|in:0,1,2',
+                    'item_type' => 'required_if:type,bodies|in:0,1,2',
                     'required',
                     'string',
                     'max:255', // Adjust as needed
@@ -339,8 +339,7 @@ class BillOfLadingController extends CrudController
         }
 
         if ($data['type'] == 'bodies') {
-//            $record->createAutoGatePermit($data['items'],$data['item_type'],true);
-            $record->createAutoGatePermit($data['items'],true);
+            $record->createAutoGatePermit($data['items'],$data['item_type'],true);
             $record->vehicles()->syncWithPivotValues($data['items'], ['type' => 'bodies']);
         }
 
