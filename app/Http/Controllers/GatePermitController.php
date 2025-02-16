@@ -33,7 +33,7 @@ class GatePermitController extends CrudController
     public function customStoreRules(): array
     {
         return [
-            'item_type' => 'required|in:0,1,2',
+//            'item_type' => 'required|in:0,1,2',
             'vin' => ['required',
                 'string',
                 'exists:vehicles,vin',
