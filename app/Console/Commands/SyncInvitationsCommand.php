@@ -14,10 +14,8 @@ use Illuminate\Support\Facades\Storage;
 class SyncInvitationsCommand extends Command
 {
 
-    protected $signature = 'app:sync-invitations-command';
-
     public $share;
-
+    protected $signature = 'app:sync-invitations-command';
 
     /**
      * @throws DependencyException
@@ -33,10 +31,10 @@ class SyncInvitationsCommand extends Command
         );
         $companies = SaleCompany::query()->get();
         foreach ($companies as $company) {
-            if(!empty($company->getAttribute('invitation'))){
+            if (!empty($company->getAttribute('invitation'))) {
                 $this->syncInvitation($company);
             }
-            if(!empty($company->getAttribute('contract'))){
+            if (!empty($company->getAttribute('contract'))) {
                 $this->syncContract($company);
             }
         }
@@ -58,15 +56,25 @@ class SyncInvitationsCommand extends Command
                 Storage::put($path, $content);
                 $reference = explode('.', $file->getName())[0];
 
-
-                dispatch(new MoveInvitationToSaleOnlineApplicationJob([
-                    'path'       => $path,
-                    'reference'  => $reference,
-                    'company_id' => $company->getAttribute('id')
-                ]));
-
                 fclose($content);
-                $this->share->remove($file->getPath());
+                $fileName = Storage::disk('s3')->putFile('/invitations/'.$company->getAttribute('id'),
+                    Storage::path($path));
+
+                if ($fileName) {
+                    $invoice = $company->invoices()->create([
+                        'reference' => $reference,
+                        'type'      => 'customer-finance',
+                        'value'     => 0,
+                        'data'      => [
+                            'local_file' => $path,
+                            'file'       => $fileName
+                        ]
+                    ]);
+                    Storage::delete($path);
+                    $this->share->remove($file->getPath());
+                    dispatch(new MoveInvitationToSaleOnlineApplicationJob($invoice->getAttribute('id')));
+                }
+
 
             } catch (Exception $exception) {
                 logger($exception->getMessage());
@@ -96,7 +104,7 @@ class SyncInvitationsCommand extends Command
                     'path'       => $path,
                     'reference'  => $reference,
                     'company_id' => $company->getAttribute('id'),
-                    'shareFile' => $file->getPath()
+                    'shareFile'  => $file->getPath()
                 ]));
 
                 fclose($content);
