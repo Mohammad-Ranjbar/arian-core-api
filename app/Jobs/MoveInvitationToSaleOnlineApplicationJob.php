@@ -18,7 +18,7 @@ class MoveInvitationToSaleOnlineApplicationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(private readonly array $invoiceId) {}
+    public function __construct(private readonly string $invoiceId) {}
 
     /**
      * Execute the job.
