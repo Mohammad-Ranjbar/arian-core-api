@@ -289,7 +289,7 @@ class BillOfLadingController extends CrudController
         }
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
-                'item_type' => [request()->get('type') == 'bodies'?'required|in:0,1,2' :'nullable'],
+                'item_type' => request()->get('type') == 'bodies'?'required|in:0,1,2' :'nullable',
                 'code' => [
                     'item_type' => 'required_if:type,bodies|in:0,1,2',
                     'required',
