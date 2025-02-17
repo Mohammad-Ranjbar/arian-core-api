@@ -152,7 +152,7 @@ class BillOfLading extends Model
     /**
      * @throws Exception
      */
-    public function createAutoGatePermit($items,$itemType , $batch = false): void
+    public function createAutoGatePermit($items,$itemType = null , $batch = false): void
     {
         $exitIds = Location::query()->whereHas('attributes', function ($q) {
             $q->where('attribute', 'autoExitPermit')->where('value', 'true');
