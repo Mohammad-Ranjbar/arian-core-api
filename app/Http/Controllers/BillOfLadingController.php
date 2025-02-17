@@ -283,6 +283,7 @@ class BillOfLadingController extends CrudController
                             ->where('location_destination_id', request()->get('location_destination_id'));
                     }),
                 ],
+                'items' => 'required',
                 'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
             ];
         }
@@ -299,6 +300,7 @@ class BillOfLadingController extends CrudController
                             ->where('location_destination_id', request()->get('location_destination_id'));
                     }),
                 ],
+                'items' => 'required',
                 'items.*' => Rule::exists('vehicles', 'vin'),
             ];
         }
