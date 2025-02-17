@@ -42,6 +42,8 @@ class SyncPDIBlockCommand extends Command
 
 
                     if (!$row->Blocked && $checkDate) {
+                        $this->info($row->Last_PDI_Date);
+                        $this->info($row->VIN);
                         $data = [
                             'block_reason_id' => $reasonId,
                             'description' => 'PDI Block',
