@@ -228,11 +228,10 @@ class BillOfLadingController extends CrudController
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),
             $this->customStoreRules()));
         $request->validate([
-            'item_type' => 'required_if:type,bodies|in:0,1,2',
             'code' => [
                 'required',
                 'string',
-                'max:255', // Adjust as needed
+                'max:255',
                 Rule::unique('bill_of_ladings')->where(function ($query) use ($request) {
                     return $query->where('location_source_id', $request->get('location_source_id'))
                         ->where('location_destination_id', $request->get('location_destination_id'));
@@ -284,6 +283,7 @@ class BillOfLadingController extends CrudController
                             ->where('location_destination_id', request()->get('location_destination_id'));
                     }),
                 ],
+                'items' => 'required',
                 'items.*' => Rule::exists('containers', 'id')->where('on_shipping', false),
             ];
         }
@@ -300,6 +300,7 @@ class BillOfLadingController extends CrudController
                             ->where('location_destination_id', request()->get('location_destination_id'));
                     }),
                 ],
+                'items' => 'required',
                 'items.*' => Rule::exists('vehicles', 'vin'),
             ];
         }
