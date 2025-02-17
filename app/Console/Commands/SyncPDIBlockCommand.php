@@ -41,7 +41,7 @@ class SyncPDIBlockCommand extends Command
                     $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 30;
 
 
-                    if (!$row->Blocked && $checkDate) {
+                    if (!$row->Blocked && $checkDate && $row->Last_PDI_Date != '0001-01-01T00:00:00Z') {
                         $this->info($row->Last_PDI_Date);
                         $this->info($row->VIN);
                         $data = [
