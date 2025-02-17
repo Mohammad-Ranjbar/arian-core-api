@@ -227,6 +227,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
             Route::get('/screws',[ScrewController::class,'listScrewsForVin'])->name('vehicles.screws');
+            Route::get('/torque-tests',[ScrewController::class,'torqueTests'])->name('vehicles.torque-tests');
             Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update', 'destroy']);
 

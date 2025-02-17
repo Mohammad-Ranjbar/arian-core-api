@@ -12,6 +12,7 @@ use App\Models\VehicleTorqueTest;
 use App\Repositories\ScrewRepository;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
 class ScrewController extends CrudController
@@ -60,11 +61,18 @@ class ScrewController extends CrudController
 
         return response()->json([
             'message' => 'export job created',
-            'data'    => [
-                'uuid'         => $job->getAttribute('uuid'),
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
+    }
+
+    public function torqueTests(Vehicle $vehicle): AnonymousResourceCollection
+    {
+        $data = VehicleTorqueTest::query()->where('vin', $vehicle->vin)->latest()->get();
+
+        return VehicleTorqueTestResource::collection($data);
     }
 
 }
