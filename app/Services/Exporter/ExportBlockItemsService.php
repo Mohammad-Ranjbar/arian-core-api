@@ -4,6 +4,7 @@ namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
 use App\Exports\BlockItemReportExport;
+use App\Models\BlockItem;
 use App\Repositories\BlockItemRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
@@ -25,8 +26,7 @@ class ExportBlockItemsService extends BaseExporterService
      */
     public function export(): string
     {
-        request()->merge((array) $this->job->getAttribute('data'));
-        $rows = app()->make(BlockItemRepository::class)->get();
+        $rows = BlockItem::getReportData((array) $this->job->getAttribute('data'));
 
         $eventData = [
             'id'      => $this->job->uuid,
