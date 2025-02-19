@@ -53,12 +53,10 @@ class ErpGetVehicleComponent
         $record = ErpProductItem::query()->where('reference', $data['reference'])
             ->first();
         if (!$record){
-            $record = new ErpProductItem($data);
+            return ErpProductItem::query()->create($data);
         }
-       // $record->setAttribute('related_to',$row->Related_Component);
-        $record->save();
-        return ErpProductItem::query()->create($data);
-
+        $record->update($data);
+        return  $record;
     }
 
 }
