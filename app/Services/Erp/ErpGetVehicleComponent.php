@@ -55,7 +55,7 @@ class ErpGetVehicleComponent
         if (!$record){
             $record = new ErpProductItem($data);
         }
-        $record->setAttribute('related_to',$row->Related_Component);
+       // $record->setAttribute('related_to',$row->Related_Component);
         $record->save();
         return ErpProductItem::query()->create($data);
 
