@@ -2,9 +2,12 @@
 
 namespace App\Imports;
 
+use App\Events\ErpJobEvent;
 use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\BlockItem;
+use App\Models\BlockReason;
+use App\Models\ErpJob;
 use App\Models\Job;
 use App\Models\Vehicle;
 use Exception;
@@ -50,13 +53,33 @@ class BlockItemImport implements ToCollection, WithStartRow
             try {
                 $vehicle = Vehicle::query()->where('vin', $row[0])->first();
                 if ($vehicle) {
-                    BlockItem::query()->create([
+                    $record = BlockItem::query()->create([
                         'vin' => $vehicle->getAttribute('vin'),
                         'blocked_at' => now(),
                         'blocked_by' => $this->userId,
                         'description' => $this->description,
                         'block_reason_id' => $this->blockReasonId,
                     ]);
+
+                    $blockReason = BlockReason::query()->find($this->blockReasonId);
+
+                    $parameters = [
+                        'barcodeInfoP' => $record->getAttribute('vin'),
+                        'blockTypeP' => $blockReason->getAttribute('block_type'),
+                    ];
+                    $erpJob = ErpJob::query()->create(
+                        [
+                            'queue' => ErpJob::QUEUE_UNIQUE,
+                            'user_id' => $record->getAttribute('blocked_by'),
+                            'method' => 'BlockingVehicleByType',
+                            'url' => config('erp.block_unblock'),
+                            'parameters' => $parameters,
+                            'model_type' => BlockItem::class,
+                            'model_id' => $record->getAttribute('id'),
+                            'section' => 'block-vehicle',
+                        ]
+                    );
+                    ErpJobEvent::dispatch($erpJob);
 
                     $this->data['success']++;
 
