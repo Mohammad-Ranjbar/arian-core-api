@@ -68,4 +68,33 @@ class BlockItem extends Model
         return $this->belongsTo(Vehicle::class, 'vin');
     }
 
+
+    public static function getReportData(array $data)
+    {
+        $query = self::query();
+        if (!empty($data['from'])) {
+            $query = $query->where('created_at', '>=', $data['from']);
+        }
+        if (!empty($data['vin'])) {
+            $query = $query->where('vin', $data['vin']);
+        }
+        if (!empty($data['to'])) {
+            $query = $query->where('created_at', '<=', $data['to']);
+        }
+        if (!empty($data['type'])) {
+            $query = $query->where('type', $data['type']);
+        }
+        if (!empty($data['car_model'])) {
+            $query = $query->whereHas('vehicle', function ($vehicle) use ($data) {
+                return $vehicle->where('car_model_id', $data['car_model']);
+            });
+        }
+        if (!empty($data['make_code'])) {
+            $query = $query->whereHas('vehicle', function ($vehicle) use ($data) {
+                return $vehicle->where('make_code_id', $data['make_code']);
+            });
+        }
+        return $query->get();
+    }
+
 }
