@@ -112,7 +112,7 @@ class ProductionLineTrackingService extends BaseTrackingService
 
 
         $method = 'PostProduction_OnlyBIN';
-        $shortages = ShortageItem::query()->where('vin', $record->vin)
+        $shortages = ShortageItem::query()->where('vin', $record->vin)->whereNull('shortage_item_id')
             ->where('status', 'pending')->with('erpProductItem')->get();
         if ($count = $shortages->count()) {
             $method = 'PostProduction_OnlyBIN_Shortage';

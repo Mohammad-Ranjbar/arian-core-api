@@ -7,12 +7,14 @@ use App\Http\Resources\ShortageItemResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
 use App\Models\ActionLog;
+use App\Models\ErpProductItem;
 use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\ShortageItem;
 use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Repositories\VehicleRepository;
+use App\Services\Erp\ErpGetVehicleComponent;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -28,7 +30,7 @@ use Psr\Container\NotFoundExceptionInterface;
 class ShortageController extends Controller
 {
 
-    public function __construct(public readonly VehicleRepository $vehicleRepository)
+    public function __construct(public readonly VehicleRepository $vehicleRepository,private readonly ErpGetVehicleComponent $component)
     {
     }
 
@@ -41,7 +43,7 @@ class ShortageController extends Controller
     {
         $this->authorize('shortages.index');
         $perPage = request()->get('per_page', 15);
-        $data = $vehicle->shortageItems();
+        $data = $vehicle->shortageItems()->whereNull('shortage_item_id');
         if (request()->has('has-routing-link') && request()->get('has-routing-link') == 'yes') {
             $data = $data->whereNotNull('routing_link_code');
         } elseif (request()->has('has-routing-link') && request()->get('has-routing-link') == 'no') {
@@ -86,6 +88,26 @@ class ShortageController extends Controller
                 'vin' => $vehicle->getAttribute('vin'),
                 'routing_link_code' => $validatedData['routing_link_code'] ?? null,
             ]);
+
+            if (empty($shortage->routing_link_code)){
+                $items = collect($this->component->get($vehicle->getAttribute('production_order_number')));
+
+               $references =  $items->filter(function ($row) use($shortage){
+                    return $row->Related_Component == $shortage->erpProductItem->reference && $row->Item_No != $shortage->erpProductItem->reference;
+                })->pluck('Item_No')->all();
+
+                 $erpProductItems = ErpProductItem::query()->whereIn('reference', $references)->get();
+
+                 foreach ($erpProductItems as $erpProductItem){
+                      ShortageItem::query()->create([
+                         'erp_product_item_id' => $erpProductItem->id,
+                         'user_id' => Auth::id(),
+                         'vin' => $vehicle->getAttribute('vin'),
+                          'shortage_item_id' => $shortage->getAttribute('id'),
+                     ]);
+                 }
+
+            }
             return new ShortageItemResource($shortage->fresh());
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 400);
