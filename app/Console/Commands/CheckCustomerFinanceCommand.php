@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\MoveInvitationToSaleOnlineApplicationJob;
 use App\Models\SaleInvoice;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -13,22 +14,28 @@ class CheckCustomerFinanceCommand extends Command
 
     public function handle(): void
     {
-        SaleInvoice::query()->where('payment_status','paid')
-            ->where('erp_status','!=', 'transferred')
-            ->distinct()
-            ->select(['reference','sale_company_id'])
-            ->get()
-            ->each(function ($row) {
-                if ($row->sale_company_id === 3) {
-                    Http::get('https://sales.lamari.ir/api/check-customer-finance/'.$row->reference);
-                }
-                if ($row->sale_company_id === 2) {
-                    Http::get('https://sales.arian-motor.com/api/check-customer-finance/'.$row->reference);
-                }
-                if ($row->sale_company_id === 1) {
-                    Http::get('https://sales.arian-diesel.com/api/check-customer-finance/'.$row->reference);
-                }
-                $this->info($row->reference);
-            });
+
+        $list = [
+            'CM0001485',
+            'CM0001485',
+            'CM0007217',
+            'CM0007402',
+            'CM0007551',
+            'CM0006762',
+            'CM0007216',
+            'CM0007232',
+            'CM0007240',
+            'CM0007578',
+            'CM0007478',
+            'CM0007677',
+            'CM0007258',
+            'CM0007239',
+
+        ];
+        $invoices = SaleInvoice::query()->whereIn('reference', $list)->get();
+        foreach ($invoices as $invoice) {
+            $this->info($invoice->reference);
+            dispatch(new MoveInvitationToSaleOnlineApplicationJob($invoice->id));
+        }
     }
 }
