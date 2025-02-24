@@ -16,8 +16,6 @@ class Synchronous extends Model
         'synchronous_type_id',
         'counter',
         'capacity',
-        'erp_product_item_id',
-        'cross_reference'
     ];
 
     public function synchronousType(): BelongsTo
@@ -40,8 +38,5 @@ class Synchronous extends Model
         );
     }
 
-    public function erpProductItem(): BelongsTo
-    {
-        return $this->belongsTo(ErpProductItem::class);
-    }
+
 }
