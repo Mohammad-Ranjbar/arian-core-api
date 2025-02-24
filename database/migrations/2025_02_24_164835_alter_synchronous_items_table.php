@@ -8,7 +8,7 @@ return new class extends Migration {
 
     public function up(): void
     {
-        Schema::table('synchronous', function (Blueprint $table) {
+        Schema::table('synchronous_items', function (Blueprint $table) {
             $table->foreignId('erp_product_item_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('cross_reference')->nullable();
         });
@@ -16,8 +16,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::table('synchronous', function (Blueprint $table) {
-            $table->dropForeign('erp_product_item_id');
+        Schema::table('synchronous_items', function (Blueprint $table) {
             $table->dropColumn('erp_product_item_id');
             $table->dropColumn('cross_reference');
         });

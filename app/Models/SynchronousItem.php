@@ -9,7 +9,9 @@ class SynchronousItem extends Model
 {
     protected $fillable = [
         'synchronous_id',
-        'vin'
+        'vin',
+        'erp_product_item_id',
+        'cross_reference'
     ];
 
     public function vehicle(): BelongsTo
@@ -20,5 +22,10 @@ class SynchronousItem extends Model
     public function synchronous(): BelongsTo
     {
         return $this->belongsTo(Synchronous::class);
+    }
+
+    public function erpProductItem(): BelongsTo
+    {
+        return $this->belongsTo(ErpProductItem::class);
     }
 }
