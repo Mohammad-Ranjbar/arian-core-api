@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SynchronousType extends Model
 {
@@ -13,8 +14,14 @@ class SynchronousType extends Model
         'qty',
         'printer_ip'
     ];
+
     public function productionLine(): BelongsTo
     {
         return $this->belongsTo(ProductionLine::class);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(SynchronousTypeItem::class);
     }
 }
