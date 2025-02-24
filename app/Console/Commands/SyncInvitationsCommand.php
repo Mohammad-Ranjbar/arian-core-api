@@ -70,9 +70,9 @@ class SyncInvitationsCommand extends Command
                             'file'       => $fileName
                         ]
                     ]);
+                    dispatch(new MoveInvitationToSaleOnlineApplicationJob($invoice->getAttribute('id')));
                     Storage::delete($path);
                     $this->share->remove($file->getPath());
-                    dispatch(new MoveInvitationToSaleOnlineApplicationJob($invoice->getAttribute('id')));
                 }
 
 
