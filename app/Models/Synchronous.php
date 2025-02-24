@@ -15,7 +15,9 @@ class Synchronous extends Model
     protected $fillable = [
         'synchronous_type_id',
         'counter',
-        'capacity'
+        'capacity',
+        'erp_product_item_id',
+        'cross_reference'
     ];
 
     public function synchronousType(): BelongsTo
