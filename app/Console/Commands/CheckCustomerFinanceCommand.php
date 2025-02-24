@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\MoveInvitationToSaleOnlineApplicationJob;
 use App\Models\SaleInvoice;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
