@@ -39,4 +39,9 @@ class Synchronous extends Model
                 str_pad($this->getAttribute('counter'), 5, 0, STR_PAD_LEFT)
         );
     }
+
+    public function erpProductItem(): BelongsTo
+    {
+        return $this->belongsTo(ErpProductItem::class);
+    }
 }
