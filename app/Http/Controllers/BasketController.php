@@ -68,21 +68,20 @@ class BasketController extends CrudController
     public function batchUpdate(UpdateBasketBatchRequest $request): bool|JsonResponse
     {
         $validatedData = $request->validated();
-        $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new');
+        $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
         if ($baskets->count() == 0) {
             return response()->json([
                 'message' => 'بارکدی وجود ندارد'
             ]);
         }
-        $data = $baskets;
-        $codes = $baskets->get()->pluck('code')->toArray();
 
-        $this->sendBasketBatchBarcode($codes, $validatedData['batch']);
-        $data->update(['status' => 'submitted']);
+        $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],$baskets->first()->id);
+        Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status'=>'submitted' ]);
+
         return true;
     }
 
-    public function sendBasketBatchBarcode(array $codes, $batch): void
+    public function sendBasketBatchBarcode(array $codes, $batch, $basketId): void
     {
         $parameters = [
             'numberP' => count($codes),
@@ -90,7 +89,7 @@ class BasketController extends CrudController
             'batchNoP' => 'Batch-' . $batch
         ];
         $erpJob = ErpJob::query()->create([
-            'model_id' => 'baskets',
+            'model_id' => $basketId,
             'model_type' => Basket::class,
             'section' => 'send-basket',
             'user_id' => Auth::id(),
