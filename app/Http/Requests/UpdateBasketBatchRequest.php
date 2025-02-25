@@ -16,7 +16,6 @@ class UpdateBasketBatchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'codes' => ['required', 'array'],
             'batch' => [ 'required', 'string'],
         ];
     }
