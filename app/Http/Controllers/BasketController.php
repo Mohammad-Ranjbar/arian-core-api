@@ -139,6 +139,27 @@ class BasketController extends CrudController
             'queue' => ErpJob::QUEUE_UNIQUE
         ]);
 
+            ErpJobEvent::dispatch($erpJob);
+
+    }
+    public function sendBasketBatchBarcode(array $codes,$batch,$basketId): void
+    {
+        $parameters = [
+            'numberP' => count($codes),
+            'arrayCrossReferenceNoP' => implode(",",$codes),
+            'batchNoP' => 'Batch-' . $batch
+        ];
+        $erpJob = ErpJob::query()->create([
+            'model_id' => $basketId,
+            'model_type' => Basket::class,
+            'section' => 'send-basket',
+            'user_id' => Auth::id(),
+            'method' => 'GroupItemReclassJournal',
+            'url' => config('erp.basket_batch'),
+            'parameters' => $parameters,
+            'queue' => ErpJob::QUEUE_UNIQUE
+        ]);
+
         ErpJobEvent::dispatch($erpJob);
 
     }
