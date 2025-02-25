@@ -68,16 +68,40 @@ class BasketController extends CrudController
     public function batchUpdate(UpdateBasketBatchRequest $request): bool|JsonResponse
     {
         $validatedData = $request->validated();
-       $query = Basket::query()->where('user_id', Auth::id())->where('status','new');
-       if ($query->count() == 0){
-           return response()->json([
-               'message' => 'بارکدی وجود ندارد'
-           ]);
-       }
-        $basketIdFirst = $query->first()->getAttribute('id');
-        $this->sendBasketBatchBarcode($query->get()->pluck('code')->toArray(),$validatedData['batch'],$basketIdFirst);
-        $query->update(['status'=> 'submitted']);
+        $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new');
+        if ($baskets->count() == 0) {
+            return response()->json([
+                'message' => 'بارکدی وجود ندارد'
+            ]);
+        }
+        $data = $baskets;
+        $codes = $baskets->get()->pluck('code')->toArray();
+
+        $this->sendBasketBatchBarcode($codes, $validatedData['batch']);
+        $data->update(['status' => 'submitted']);
         return true;
+    }
+
+    public function sendBasketBatchBarcode(array $codes, $batch): void
+    {
+        $parameters = [
+            'numberP' => count($codes),
+            'arrayCrossReferenceNoP' => implode(",", $codes),
+            'batchNoP' => 'Batch-' . $batch
+        ];
+        $erpJob = ErpJob::query()->create([
+            'model_id' => 'baskets',
+            'model_type' => Basket::class,
+            'section' => 'send-basket',
+            'user_id' => Auth::id(),
+            'method' => 'GroupItemReclassJournal',
+            'url' => config('erp.basket_batch'),
+            'parameters' => $parameters,
+            'queue' => ErpJob::QUEUE_UNIQUE
+        ]);
+
+        ErpJobEvent::dispatch($erpJob);
+
     }
 
     /**
@@ -112,27 +136,6 @@ class BasketController extends CrudController
             'user_id' => Auth::id(),
             'method' => 'CreateItemReclassJournal',
             'url' => config('erp.basket'),
-            'parameters' => $parameters,
-            'queue' => ErpJob::QUEUE_UNIQUE
-        ]);
-
-            ErpJobEvent::dispatch($erpJob);
-
-    }
-    public function sendBasketBatchBarcode(array $codes,$batch,$basketId): void
-    {
-        $parameters = [
-            'numberP' => count($codes),
-            'arrayCrossReferenceNoP' => implode(",",$codes),
-            'batchNoP' => 'Batch-' . $batch
-        ];
-        $erpJob = ErpJob::query()->create([
-            'model_id' => $basketId,
-            'model_type' => Basket::class,
-            'section' => 'send-basket',
-            'user_id' => Auth::id(),
-            'method' => 'GroupItemReclassJournal',
-            'url' => config('erp.basket_batch'),
             'parameters' => $parameters,
             'queue' => ErpJob::QUEUE_UNIQUE
         ]);
