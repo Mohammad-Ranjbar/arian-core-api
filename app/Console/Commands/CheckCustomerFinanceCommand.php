@@ -16,25 +16,23 @@ class CheckCustomerFinanceCommand extends Command
     {
 
         $list = [
-            'CM0001485',
-            'CM0001485',
-            'CM0007217',
-            'CM0007402',
-            'CM0007551',
-            'CM0006762',
-            'CM0007216',
-            'CM0007232',
-            'CM0007240',
-            'CM0007578',
-            'CM0007478',
-            'CM0007677',
-            'CM0007258',
-            'CM0007239',
-
+            'CNIV07879',
+            'CNIV07882',
+            'CNIV07886',
+            'CNIV07919',
+            'CNIV07927',
+            'CNIV07930',
+            'CNIV07933',
+            'CNIV07943',
+            'CNIV07953',
+            'CNIV07994',
+            'CNIV08023',
+            'CNIV08027',
         ];
+        $this->info(count($list));
         $invoices = SaleInvoice::query()->whereIn('reference', $list)->get();
-        foreach ($invoices as $invoice) {
-            $this->info($invoice->reference);
+        foreach ($invoices as $key => $invoice) {
+            $this->info($key.': '.$invoice->reference);
             dispatch(new MoveInvitationToSaleOnlineApplicationJob($invoice->id));
         }
     }
