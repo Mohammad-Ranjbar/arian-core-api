@@ -87,6 +87,8 @@ Route::any('/', function () {
 });
 Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
+
+Route::get('/synchronous/{number}',[SynchronousController::class,'getBySynchronousNumber'])->name('search-synchronous-by-number');
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
 Route::post('auth/login', [AuthController::class, 'login']);
