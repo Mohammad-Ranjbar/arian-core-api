@@ -102,7 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
     Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
     Route::put('/erp-jobs/{erpJob}', [ErpJobController::class, 'retry'])->name('retry-erp-jobs');
-
+    Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
     Route::get('/vehicle-shortages', [ShortageController::class, 'vehicleShortages'])->name('vehicle-shortages');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
