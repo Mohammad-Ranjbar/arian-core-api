@@ -355,4 +355,21 @@ class BillOfLadingController extends CrudController
 
         return $record;
     }
+
+    public function reportBol(string $batch): array
+    {
+        $billOfLadingIds  = BillOfLading::query()->where('batch', $batch)->pluck('id')->toArray();
+        $query = ActionLog::query()
+            ->where('model_type',BillOfLading::class)
+            ->whereIn('model_id', $billOfLadingIds)
+            ->where('action','discharge');
+
+        return [
+            'min' => $query->min('created_at'),
+            'max' => $query->max('created_at'),
+        ];
+
+
+
+    }
 }

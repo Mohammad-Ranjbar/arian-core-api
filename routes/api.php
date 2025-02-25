@@ -78,7 +78,7 @@ use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
 use Illuminate\Support\Facades\Route;
 
-
+Route::get('/report-bol/{batch}',[BillOfLadingController::class,'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 
 Route::get('/block-history/{vehicle}', BlockHistoryController::class);
