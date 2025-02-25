@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ErpJobEvent;
+use App\Http\Requests\UpdateBasketBatchRequest;
 use App\Http\Resources\BasketResource;
 use App\Models\Basket;
 use App\Models\ErpJob;
@@ -64,6 +65,44 @@ class BasketController extends CrudController
         ]);
     }
 
+    public function batchUpdate(UpdateBasketBatchRequest $request): bool|JsonResponse
+    {
+        $validatedData = $request->validated();
+        $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
+        if ($baskets->count() == 0) {
+            return response()->json([
+                'message' => 'بارکدی وجود ندارد'
+            ]);
+        }
+
+        $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],$baskets->first()->id);
+        Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status'=>'submitted' ]);
+
+        return true;
+    }
+
+    public function sendBasketBatchBarcode(array $codes, $batch, $basketId): void
+    {
+        $parameters = [
+            'numberP' => count($codes),
+            'arrayCrossReferenceNoP' => implode(",", $codes),
+            'batchNoP' => 'Batch-' . $batch
+        ];
+        $erpJob = ErpJob::query()->create([
+            'model_id' => $basketId,
+            'model_type' => Basket::class,
+            'section' => 'send-basket',
+            'user_id' => Auth::id(),
+            'method' => 'GroupItemReclassJournal',
+            'url' => config('erp.basket_batch'),
+            'parameters' => $parameters,
+            'queue' => ErpJob::QUEUE_UNIQUE
+        ]);
+
+        ErpJobEvent::dispatch($erpJob);
+
+    }
+
     /**
      * @param Request $request
      * @param $id
@@ -100,7 +139,7 @@ class BasketController extends CrudController
             'queue' => ErpJob::QUEUE_UNIQUE
         ]);
 
-            ErpJobEvent::dispatch($erpJob);
+        ErpJobEvent::dispatch($erpJob);
 
     }
 }
