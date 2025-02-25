@@ -55,6 +55,18 @@ class SynchronousController extends Controller
         return new SynchronousResource($synchronous);
     }
 
+    public function getBySynchronousNumber(string $number): JsonResponse|SynchronousResource
+    {
+        $items = explode('-',$number);
+        if (count($items) !== 3) {
+            return response()->json([
+                'message' => 'شماره وارد شده نامعتبر است'
+            ],422);
+        }
+        $synchronous = Synchronous::query()->where('synchronous_type_id',$items[1])->where('counter',$items[2])->firstOrFail();
+        return new SynchronousResource($synchronous);
+    }
+
     public function updateCrossReference(UpdateCrossReferenceRequest $request, SynchronousItem $synchronousItem): JsonResponse|bool
     {
         $validatedData = $request->validated();
