@@ -19,6 +19,8 @@ return [
     'basket'           => env('WSDL_BASKET', 'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/Item_Reclass_Journal_API'),
     'display_board'    => env('WSDL_DISPLAY_BOARD',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'basket_batch'    => env('BASKET_BATCH',
+        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'barcode'    => env('WSDL_BARCODE',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'post_production'  => env('WSDL_POST_PRODUCTION',
