@@ -23,6 +23,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ErpJobController;
+use App\Http\Controllers\ErpProductItemController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitTransferController;
@@ -113,7 +114,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/return-container/{billOfLading}',
         [BillOfLadingController::class, 'returnContainer'])->name('return-container');
-
+    Route::get('/erp-product-items/{erpProductItem}/cross-references', [ErpProductItemController::class, 'crossReferences'])->name('erp-product-items.cross-references');
     Route::post('/register-cross-reference/{synchronousType}', [SynchronousTypeItemController::class, 'store'])->name('register-cross-reference');
     Route::delete('/synchronous-type-item/{synchronousTypeItem}',[SynchronousTypeItemController::class,'destroy'])->name('synchronous-type-item.destroy');
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
