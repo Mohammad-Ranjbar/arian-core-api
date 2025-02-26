@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('synchronous_type_id')->constrained()->cascadeOnDelete();
             $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
             $table->foreignId('erp_product_item_id')->constrained()->cascadeOnDelete();
-            $table->string('cross_reference');
+            $table->string('cross_reference')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
