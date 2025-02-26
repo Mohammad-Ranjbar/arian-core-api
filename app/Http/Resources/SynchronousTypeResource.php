@@ -19,7 +19,6 @@ class SynchronousTypeResource extends JsonResource
             'production_line_id' => $this->resource->production_line_id,
             'title' => $this->resource->title,
             'qty' => $this->resource->qty,
-            'prefix' => $this->resource->prefix,
             'printer_ip' => $this->resource->printer_ip,
             'productionLine' => new ProductionLineResource($this->resource->productionLine),
         ];
