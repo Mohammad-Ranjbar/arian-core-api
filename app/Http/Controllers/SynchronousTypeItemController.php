@@ -36,6 +36,7 @@ class SynchronousTypeItemController extends Controller
                 'message' => 'کراس رفرنس وارد شده نامعتبر است'
             ],422);
         }
+        $validatedData['synchronous_type_id'] = $synchronousType->getAttribute('id');
         return new SynchronousTypeItemResource(SynchronousTypeItem::query()->create($validatedData));
     }
 
