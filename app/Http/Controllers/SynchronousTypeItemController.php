@@ -20,14 +20,14 @@ class SynchronousTypeItemController extends Controller
     public function store(SynchronousTypeItemRequest $request, SynchronousType $synchronousType): JsonResponse|SynchronousTypeItemResource
     {
         $validatedData = $request->validated();
-//        if ($synchronousType->items()
-//            ->where('is_active', true)
-//            ->where('car_model_id', $validatedData['car_model_id'])
-//            ->exists()) {
-//            return response()->json([
-//                'message' => 'برای این مدل خودرو قبلا ثبت شده است'
-//            ]);
-//        }
+        if ($synchronousType->items()
+            ->where('is_active', true)
+            ->where('car_model_id', $validatedData['car_model_id'])
+            ->exists()) {
+            return response()->json([
+                'message' => 'برای این مدل خودرو قبلا ثبت شده است'
+            ]);
+        }
         $erpProductItem = ErpProductItem::query()->findOrFail($validatedData['erp_product_item_id']);
         $crossReferences = $this->erpCrossReference->get($erpProductItem->getAttribute('reference'));
 
