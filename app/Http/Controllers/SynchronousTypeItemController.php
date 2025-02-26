@@ -37,6 +37,7 @@ class SynchronousTypeItemController extends Controller
             ],422);
         }
         $validatedData['synchronous_type_id'] = $synchronousType->getAttribute('id');
+        $validatedData['is_active'] = true;
         return new SynchronousTypeItemResource(SynchronousTypeItem::query()->create($validatedData));
     }
 
