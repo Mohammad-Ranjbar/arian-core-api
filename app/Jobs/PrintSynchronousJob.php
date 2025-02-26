@@ -57,6 +57,7 @@ class PrintSynchronousJob implements ShouldQueue
                     $item->vehicle->vin,
                     $item->vehicle->getProductionType(),
                     $item->vehicle->carModel->title,
+                    $item->erpProductItem?->title,
                     $item->vehicle->makeCode->title,
                     $item->vehicle->color_code,
                     jdate($item->created_at)->toDateString(),

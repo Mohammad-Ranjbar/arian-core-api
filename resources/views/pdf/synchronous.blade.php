@@ -30,6 +30,7 @@
         <th style="text-align: center">CKD/SKD</th>
         <th style="text-align: center">مدل</th>
         <th style="text-align: center">شرح محصول</th>
+        <th style="text-align: center">قطعه</th>
         <th style="text-align: center">رنگ</th>
         <th style="text-align: center">تاریخ خروج</th>
         <th style="text-align: center">زمان خروج</th>
