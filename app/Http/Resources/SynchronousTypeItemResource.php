@@ -18,7 +18,6 @@ class SynchronousTypeItemResource extends JsonResource
             'erp_product_item_id' => $this->resource->erp_product_item_id,
             'is_active' => $this->resource->is_active,
             'synchronous_type_id' => $this->resource->synchronous_type_id,
-            'synchronousType' => new SynchronousTypeResource($this->resource->synchronousType),
             'created_at' => $this->resource->created_at,
         ];
     }
