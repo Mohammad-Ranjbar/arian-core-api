@@ -26,7 +26,7 @@ class SynchronousTypeItemController extends Controller
             ->exists()) {
             return response()->json([
                 'message' => 'برای این مدل خودرو قبلا ثبت شده است'
-            ]);
+            ],422);
         }
         $erpProductItem = ErpProductItem::query()->findOrFail($validatedData['erp_product_item_id']);
         $crossReferences = $this->erpCrossReference->get($erpProductItem->getAttribute('reference'));
