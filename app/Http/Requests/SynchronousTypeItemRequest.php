@@ -16,9 +16,9 @@ class SynchronousTypeItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'car_model_id' => 'required|exists:car_models,id',
+            'car_model_id'        => 'required|exists:car_models,id',
             'erp_product_item_id' => 'required|exists:erp_product_items,id',
-            'cross_reference' => 'required|string'
+            'cross_reference'     => 'nullable'
         ];
     }
 }
