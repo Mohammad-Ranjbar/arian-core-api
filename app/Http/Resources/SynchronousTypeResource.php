@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\SynchronousTypeItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,7 @@ class SynchronousTypeResource extends JsonResource
             'qty' => $this->resource->qty,
             'printer_ip' => $this->resource->printer_ip,
             'productionLine' => new ProductionLineResource($this->resource->productionLine),
+            'items' => SynchronousTypeItemResource::collection($this->resource->items),
         ];
     }
 }
