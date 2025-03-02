@@ -68,7 +68,7 @@ class BasketController extends CrudController
     public function batchUpdate(UpdateBasketBatchRequest $request): true|JsonResponse
     {
         $validatedData = $request->validated();
-        $lock = Cache::lock('process_' . Auth::id(), 10);
+        $lock = Cache::lock('batch_update_process_' . Auth::id(), 10);
         if ($lock->get()) {
             $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
             if ($baskets->count() == 0) {
