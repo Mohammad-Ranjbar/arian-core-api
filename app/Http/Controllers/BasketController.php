@@ -65,18 +65,24 @@ class BasketController extends CrudController
         ]);
     }
 
-    public function batchUpdate(UpdateBasketBatchRequest $request): bool|JsonResponse
+    public function batchUpdate(UpdateBasketBatchRequest $request): true|JsonResponse
     {
         $validatedData = $request->validated();
-        $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
-        if ($baskets->count() == 0) {
-            return response()->json([
-                'message' => 'بارکدی وجود ندارد'
-            ]);
+        $lock = Cache::lock('process_' . Auth::id(), 10);
+        if ($lock->get()) {
+            $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
+            if ($baskets->count() == 0) {
+                return response()->json([
+                    'message' => 'بارکدی وجود ندارد'
+                ]);
+            }
+            $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
+                $baskets->first()->id);
+            Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
+            $lock->release();
+        }else {
+            return response()->json('Server busy',500);
         }
-
-        $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],$baskets->first()->id);
-        Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status'=>'submitted' ]);
 
         return true;
     }
