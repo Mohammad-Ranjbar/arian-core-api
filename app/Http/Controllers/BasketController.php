@@ -30,6 +30,13 @@ class BasketController extends CrudController
 
     public function store(Request $request)
     {
+        $newItemCount = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->count();
+        if ($newItemCount >= 50) {
+            return new JsonResponse(
+                data: ['message' => 'تعداد سبدهای ثبت شده بیشتر از حد مجاز است.'],
+                status: 400
+            );
+        }
         $validatedData = $request->validate($this->repository->getCreateRules());
 
         $submitted = Cache::get('basket_barcode_submitted_' . $validatedData['code']);
