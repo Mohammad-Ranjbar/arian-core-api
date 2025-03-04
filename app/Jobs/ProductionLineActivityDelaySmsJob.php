@@ -31,11 +31,9 @@ class ProductionLineActivityDelaySmsJob implements ShouldQueue
         $started = $productionLineActivity->getAttribute('logs')
             ->where('action', 'start')
             ->count();
-        logger(111111111);
         if ($started){
             return;
         }
-        logger(2222222222222222);
 
         ContentProductionLineActivitySmsService::sendSms($this->id, $phones);
     }
