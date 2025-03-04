@@ -32,7 +32,7 @@ class ProductionTrackingController extends Controller
     public function submit(TrackingRequest $request, Vehicle $vehicle): JsonResponse|VehicleResource
     {
         $validatedData = $request->validated();
-//        try {
+        try {
             if ($validatedData['type'] == 'exit' && !Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists()){
                 return $this->responseError('لطفا ابتدا ثبت ورود را انجام دهید');
             }
@@ -58,10 +58,10 @@ class ProductionTrackingController extends Controller
             }
             DB::commit();
             return new VehicleResource($vehicle);
-//        } catch (Exception $exception) {
-//            DB::rollBack();
-//            return $this->responseError($exception->getMessage(), 400);
-//        }
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return $this->responseError($exception->getMessage(), 400);
+        }
 
     }
 
