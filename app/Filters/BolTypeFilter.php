@@ -23,7 +23,7 @@ class BolTypeFilter
         }
         if (request()->get('bol_type') == 'containers') {
             return $next($request)->whereHas('containers',function ($q){
-                $q->where('bol_type',request()->get('bol_type'));
+                $q->wherePivot('type',request()->get('bol_type'));
             });
         }
         return $next($request)->whereHas('vehicles', function ($q) {
