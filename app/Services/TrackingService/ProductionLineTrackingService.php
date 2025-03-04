@@ -11,7 +11,7 @@ use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
 use App\Models\Tracking;
-use App\Services\Erp\ErpWsdlClient;
+use App\Models\Vehicle;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,25 +43,30 @@ class ProductionLineTrackingService extends BaseTrackingService
     public function submitSynchronous(string $vin, $productionLineId): void
     {
         $synchronousTypes = SynchronousType::query()->where('production_line_id', $productionLineId)->get();
-
+        $vehicle = Vehicle::query()->find($vin);
         foreach ($synchronousTypes as $synchronousType) {
             $synchronous = Synchronous::query()->where('capacity', '>', 0)
                 ->where('synchronous_type_id', $synchronousType->id)->first();
             if (!$synchronous) {
                 $counter = Synchronous::query()
                         ->where('synchronous_type_id', $synchronousType->id)->max('counter') + 1;
+              $item =  $synchronousType->items()->where('car_model_id',$vehicle->getAttribute('car_model_id'))->where('is_active',true)->first();
                 $synchronous = Synchronous::query()->create([
                     'synchronous_type_id' => $synchronousType->id,
                     'counter'             => $counter,
                     'capacity'            => $synchronousType->qty,
                 ]);
+
+
             }
             SynchronousItem::query()->create([
                 'synchronous_id' => $synchronous->getAttribute('id'),
-                'vin'            => $vin
+                'vin'            => $vin,
+                'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
+                'cross_reference' => $item->getAttribute('cross_reference'),
             ]);
             $synchronous->decrement('capacity');
-            dispatch(new PrintSynchronousJob($synchronous->id));
+            dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
         }
 
     }
@@ -112,7 +117,7 @@ class ProductionLineTrackingService extends BaseTrackingService
 
 
         $method = 'PostProduction_OnlyBIN';
-        $shortages = ShortageItem::query()->where('vin', $record->vin)
+        $shortages = ShortageItem::query()->where('vin', $record->vin)->whereNull('shortage_item_id')
             ->where('status', 'pending')->with('erpProductItem')->get();
         if ($count = $shortages->count()) {
             $method = 'PostProduction_OnlyBIN_Shortage';

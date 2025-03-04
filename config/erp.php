@@ -3,6 +3,8 @@ return [
     'pdi_block_reason_id' =>env('PDI_BLOCK_REASON_ID'),
     'vehicles'  => env('ERP_URL_VEHICLES',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/Vehicle_List_API"),
+    'cross_reference'  => env('ERP_URL_CROSS_REFERENCE',
+        "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/Item_Cross_Reference_API"),
     'block_pdi'  => env('ERP_URL_VEHICLES',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/PDI_Block_API"),
     'items'     => env('ARIAN_URL_ITEMS',
@@ -20,6 +22,8 @@ return [
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
 
     'display_board'    => env('WSDL_DISPLAY_BOARD',
+        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'basket_batch'    => env('BASKET_BATCH',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'barcode'    => env('WSDL_BARCODE',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),

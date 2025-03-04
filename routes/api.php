@@ -67,6 +67,7 @@ use App\Http\Controllers\SubmitEngineBarcodeController;
 use App\Http\Controllers\SubmitIncidentLocationController;
 use App\Http\Controllers\SynchronousController;
 use App\Http\Controllers\SynchronousTypeController;
+use App\Http\Controllers\SynchronousTypeItemController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
@@ -77,7 +78,7 @@ use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
 use Illuminate\Support\Facades\Route;
 
-
+Route::get('/report-bol/{batch}',[BillOfLadingController::class,'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 
 Route::get('/block-history/{vehicle}', BlockHistoryController::class);
@@ -86,6 +87,8 @@ Route::any('/', function () {
 });
 Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
+
+Route::get('/synchronous/{number}',[SynchronousController::class,'getBySynchronousNumber'])->name('search-synchronous-by-number');
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -96,7 +99,7 @@ Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware('auth:sanctum')->group(function () {
 
-
+    Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
     Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
     Route::put('/erp-jobs/{erpJob}', [ErpJobController::class, 'retry'])->name('retry-erp-jobs');
     Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
@@ -111,6 +114,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/return-container/{billOfLading}',
         [BillOfLadingController::class, 'returnContainer'])->name('return-container');
 
+    Route::post('/register-cross-reference/{synchronousType}', [SynchronousTypeItemController::class, 'store'])->name('register-cross-reference');
+    Route::delete('/synchronous-type-item/{synchronousTypeItem}',[SynchronousTypeItemController::class,'destroy'])->name('synchronous-type-item.destroy');
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
     Route::get('/report-vehicle-qc', [VehicleController::class, 'reportVehicleQc'])->name('report-vehicle-qc');
@@ -221,13 +226,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
-    Route::post('/torque-test',[ScrewController::class,'vehicleTorqueTest'])->name('vehicles.torque-test');
+    Route::post('/torque-test', [ScrewController::class, 'vehicleTorqueTest'])->name('vehicles.torque-test');
     Route::post('/report-shortages', [ShortageController::class, 'reportShortages'])->name('report-shortages');
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-            Route::get('/screws',[ScrewController::class,'listScrewsForVin'])->name('vehicles.screws');
-            Route::get('/torque-tests',[ScrewController::class,'torqueTests'])->name('vehicles.torque-tests');
+            Route::get('/screws', [ScrewController::class, 'listScrewsForVin'])->name('vehicles.screws');
+            Route::get('/torque-tests', [ScrewController::class, 'torqueTests'])->name('vehicles.torque-tests');
             Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update', 'destroy']);
 
@@ -344,7 +349,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/report-excel-pallet-transactions', [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
     Route::get('/report-excel-pallet-stocks', [PalletController::class, 'reportExcelStocks'])->name('export-pallet-stocks');
     Route::get('/report-excel-vehicle-torque-test', [ScrewController::class, 'reportExcel'])->name('export-vehicle-torque-test');
-
 
 
     Route::apiResource('settings', SettingController::class)->except('store', 'destroy');

@@ -15,7 +15,7 @@ class Synchronous extends Model
     protected $fillable = [
         'synchronous_type_id',
         'counter',
-        'capacity'
+        'capacity',
     ];
 
     public function synchronousType(): BelongsTo
@@ -37,4 +37,6 @@ class Synchronous extends Model
                 str_pad($this->getAttribute('counter'), 5, 0, STR_PAD_LEFT)
         );
     }
+
+
 }

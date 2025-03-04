@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class ShortageItem extends Model
@@ -14,7 +15,8 @@ class ShortageItem extends Model
         'erp_product_item_id',
         'status',
         'shortage_items',
-        'routing_link_code'
+        'routing_link_code',
+        'shortage_item_id',
     ];
 
     public static function getReportData(array $data)
@@ -31,7 +33,7 @@ class ShortageItem extends Model
             $query = $query->where('vin', $data['vin']);
         }
         if (!empty($data['items'])) {
-            $query = $query->whereHas('erpProductItem',function ($q) use ($data) {
+            $query = $query->whereHas('erpProductItem', function ($q) use ($data) {
                 $q->whereIn('reference', $data['items']);
             });
         }
@@ -49,6 +51,11 @@ class ShortageItem extends Model
 
 
         return $query->get();
+    }
+
+    public function related(): HasMany
+    {
+        return $this->hasMany(self::class, 'shortage_item_id');
     }
 
     public function user(): BelongsTo

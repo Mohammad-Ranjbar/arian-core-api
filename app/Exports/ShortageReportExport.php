@@ -40,9 +40,9 @@ class ShortageReportExport implements FromCollection, WithMapping, WithHeadings,
     public function headings(): array
     {
         return [
-            'vin', 'زمان ایجاد', 'کاربر', 'عنوان کد', 'توضیحات کد', 'شناسه کد',
+            'id' ,'vin', 'زمان ایجاد', 'کاربر', 'عنوان کد', 'توضیحات کد', 'شناسه کد',
             'وضعیت', 'رفع کسری توسط', 'زمان رفع کسری',
-            'نوع کسری','قطعات وابسته'
+            'نوع کسری','related to id'
 
 
         ];
@@ -63,6 +63,7 @@ class ShortageReportExport implements FromCollection, WithMapping, WithHeadings,
     public function map($row): array
     {
         $row = [
+            $row->id,
             $row->vin,
             jdate($row->created_at),
             $row->user->name,
@@ -72,8 +73,12 @@ class ShortageReportExport implements FromCollection, WithMapping, WithHeadings,
             $row->status,
             $row->actionLog?->user->name ?? '',
             $row->actionLog? jdate($row->actionLog->created_at) : '',
-            empty($row->routing_link_code) ? 'قطعه اصلی': 'قطعه منفرد',
-            implode(',',$row->erpProductItem->related->pluck('reference')->toArray()),
+            empty($row->routing_link_code) ?
+                empty($row->shortage_item_id) ? 'قطعه اصلی' : 'قطعه وابسته' :
+
+                'قطعه منفرد',
+            $row->shortage_item_id
+
         ];
 
         $this->eventData['done']++;
