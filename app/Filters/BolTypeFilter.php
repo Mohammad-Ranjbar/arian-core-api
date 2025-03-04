@@ -27,7 +27,7 @@ class BolTypeFilter
             });
         }
         return $next($request)->whereHas('vehicles', function ($q) {
-            $q->where('type', request()->get('bol_type'));
+            $q->wherePivot('type', request()->get('bol_type'));
         });
 
     }
