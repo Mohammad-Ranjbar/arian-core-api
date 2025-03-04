@@ -36,25 +36,30 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
      */
     public function map($row): array
     {
-        $columns = [];
+        try {
+            $columns = [];
 
-        $job = Job::query()->find($this->data['id']);
-        $this->userId = $job->getAttribute('user_id');
-        $data = $job->getAttribute('data');
+            $job = Job::query()->find($this->data['id']);
+            $this->userId = $job->getAttribute('user_id');
+            $data = $job->getAttribute('data');
 
-        $this->type = $data['type'];
-        $this->locationSourceID = $data['location_source_id'];
-        $this->locationDestinationID = $data['location_destination_id'];
-        if ($data['type'] === 'containers') {
-            foreach (BillOfLading::HEAD_CONTAINER as $key => $value) {
-                $columns[$value] = $row[$key];
+            $this->type = $data['type'];
+            $this->locationSourceID = $data['location_source_id'];
+            $this->locationDestinationID = $data['location_destination_id'];
+            if ($data['type'] === 'containers') {
+                foreach (BillOfLading::HEAD_CONTAINER as $key => $value) {
+                    $columns[$value] = $row[$key];
+                }
+            } elseif ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
+                foreach (BillOfLading::HEAD_VEHICLE as $key => $value) {
+                    $columns[$value] = $row[$key];
+                }
             }
-        } elseif ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
-            foreach (BillOfLading::HEAD_VEHICLE as $key => $value) {
-                $columns[$value] = $row[$key];
-            }
+            return $columns;
+        }catch (Exception $exception){
+            logger($exception->getMessage());
         }
-        return $columns;
+
     }
 
     /**
