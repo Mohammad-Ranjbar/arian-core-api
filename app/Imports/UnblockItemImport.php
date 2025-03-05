@@ -58,7 +58,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
 
                     $count = BlockItem::query()
                         ->where('vin', $blockItem->getAttribute('vin'))
-                        ->whereNotNull('unblocked_at')->count();
+                        ->whereNull('unblocked_at')->count();
 
                     if ($count === 0) {
                         $parameters = ['barcodeInfoP' => $blockItem->getAttribute('vin')];
