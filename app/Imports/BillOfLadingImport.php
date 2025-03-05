@@ -79,7 +79,9 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
             DB::beginTransaction();
             $this->data['total'] = $collection->count();
             $this->sendEvent();
-
+            if ($collection->count() == 0) {
+                throw new Exception('No Bill Of Lading Found');
+            }
             $collection->each(function ($row) {
 
                 try {
