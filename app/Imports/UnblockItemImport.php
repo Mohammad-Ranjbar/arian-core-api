@@ -53,7 +53,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
 
                     $blockItem->update([
                         'unblocked_at' => now(),
-                        'unblocked_by' => Auth::id(),
+                        'unblocked_by' => $this->data['user_id'],
                     ]);
 
                     $count = BlockItem::query()
