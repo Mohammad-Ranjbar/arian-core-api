@@ -30,10 +30,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
     }
 
-    /**
-     * @param $row
-     * @return array
-     */
+
     public function map($row): array
     {
         try {
@@ -57,7 +54,8 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
             }
             return $columns;
         }catch (Exception $exception){
-            logger($exception->getMessage());
+            logger()->error($exception->getMessage());
+            return [];
         }
 
     }
@@ -81,7 +79,9 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
             DB::beginTransaction();
             $this->data['total'] = $collection->count();
             $this->sendEvent();
-
+            if ($collection->count() == 0) {
+                throw new Exception('No Bill Of Lading Found');
+            }
             $collection->each(function ($row) {
 
                 try {
@@ -143,7 +143,6 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                             'weight' => $row['weight'],
                             'batch' => $row['batch'],
                             'description' => $row['description'],
-                            'type' => $this->type
                         ]);
 
                         if (!empty($row['VIN'])) {
@@ -152,9 +151,8 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                                 'model_id' => $row['VIN'],
                                 'model_type' => Vehicle::class,
                                 'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                                'type' => $this->type
                             ]);
-
-
 
                             if ($billOfLading->getAttribute('type') == 'bodies'){
                                 $this->addVin($billOfLading,$row['VIN']);
@@ -166,6 +164,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                                 'model_id' => $container->getAttribute('id'),
                                 'model_type' => Container::class,
                                 'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                                'type' => $this->type
                             ]);
                         }
 
@@ -179,7 +178,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                         if (!empty($row['VIN'])) {
 
                             $itemType = 'vehicles';
-                            if ($billOfLading->type == 'bodies'){
+                            if ($billOfLading->getAttribute('type') == 'bodies'){
                                 $this->addVin($billOfLading,$row['VIN']);
                                 $itemType = 'bodies';
                             }
@@ -196,7 +195,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                                 'model_id' => $container->getAttribute('id'),
                                 'model_type' => Container::class,
                                 'bill_of_lading_id' => $billOfLading->getAttribute('id'),
-                                'type' => 'containers'
+                                'type' => $this->type
                             ]);
                         }
                     }
@@ -292,13 +291,13 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
     private function addVin(BillOfLading $billOfLading,string $vin): void
     {
-        if (!isset($this->billOfLadingList[$billOfLading->id])) {
-            $this->billOfLadingList[$billOfLading->id] = [
+        if (!isset($this->billOfLadingList[$billOfLading->getAttribute('id')])) {
+            $this->billOfLadingList[$billOfLading->getAttribute('id')] = [
                 'vin' => [],
                 'billOfLading' => $billOfLading
             ];
         }
-        $this->billOfLadingList[$billOfLading->id]['vin'] [] = $vin;
+        $this->billOfLadingList[$billOfLading->getAttribute('id')]['vin'] [] = $vin;
 
     }
 }
