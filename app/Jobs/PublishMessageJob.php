@@ -30,7 +30,10 @@ class PublishMessageJob implements ShouldQueue
     {
         if ($this->data['action'] === 'extra-payment-paid') {
             $service  = new DieselExtraPaymentService();
-            $service->process($this->data['online_order_id']);
+            $result = $service->process($this->data['online_order_id']);
+            logger('extra-payment-paid');
+            logger($this->data['online_order_id']);
+            logger($result);
         }
         if ($this->data['action'] === 'customer-finance-paid') {
             $data = $this->data;
