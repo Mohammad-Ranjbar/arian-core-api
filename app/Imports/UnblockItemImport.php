@@ -78,7 +78,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
 
                     $this->data['success']++;
 
-                    $row['result'] = 'imported'.$count;
+                    $row['result'] = 'imported';
                 } else {
                     $this->data['error']++;
                     $row['result'] = 'not imported';
