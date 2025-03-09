@@ -30,6 +30,13 @@ class BasketController extends CrudController
 
     public function store(Request $request)
     {
+        $newItemCount = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->count();
+        if ($newItemCount >= 50) {
+            return new JsonResponse(
+                data: ['message' => 'تعداد سبدهای ثبت شده بیشتر از حد مجاز است.'],
+                status: 400
+            );
+        }
         $validatedData = $request->validate($this->repository->getCreateRules());
 
         $submitted = Cache::get('basket_barcode_submitted_' . $validatedData['code']);
@@ -65,18 +72,24 @@ class BasketController extends CrudController
         ]);
     }
 
-    public function batchUpdate(UpdateBasketBatchRequest $request): bool|JsonResponse
+    public function batchUpdate(UpdateBasketBatchRequest $request): true|JsonResponse
     {
         $validatedData = $request->validated();
-        $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
-        if ($baskets->count() == 0) {
-            return response()->json([
-                'message' => 'بارکدی وجود ندارد'
-            ]);
+        $lock = Cache::lock('batch_update_process_' . Auth::id(), 10);
+        if ($lock->get()) {
+            $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
+            if ($baskets->count() == 0) {
+                return response()->json([
+                    'message' => 'بارکدی وجود ندارد'
+                ]);
+            }
+            $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
+                $baskets->first()->id);
+            Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
+            $lock->release();
+        }else {
+            return response()->json('Server busy',500);
         }
-
-        $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],$baskets->first()->id);
-        Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status'=>'submitted' ]);
 
         return true;
     }

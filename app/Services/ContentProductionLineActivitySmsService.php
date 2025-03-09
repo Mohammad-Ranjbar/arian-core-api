@@ -25,7 +25,7 @@ class ContentProductionLineActivitySmsService
             $diff2 = $stopAt->diffInMinutes($startAt);
             if ($diff2 > 30) {
                 $phones2 = Setting::query()->where('key', 'notify_with_delay_minute')->first()->users()->get()->pluck('mobile')->all();
-                $phones = array_unique(array_merge($phones1, $phones2));
+                $phones = array_unique(array_merge($phones, $phones2));
             }
             $arrDiff = [];
             if ($v = $diff->d) {

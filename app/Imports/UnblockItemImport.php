@@ -21,7 +21,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
 {
 
     /**
-     * @param array $data
+     * @param  array  $data
      */
     public function __construct(public array $data)
     {
@@ -37,7 +37,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
     }
 
     /**
-     * @param Collection $collection
+     * @param  Collection  $collection
      * @return void
      */
     public function collection(Collection $collection): void
@@ -51,24 +51,31 @@ class UnblockItemImport implements ToCollection, WithStartRow
                 $blockItem = BlockItem::query()->where('id', $row[0])->first();
                 if (!empty($blockItem) && $blockItem->getAttribute('unblocked_at') == null) {
 
-                    $parameters = ['barcodeInfoP' => $blockItem->getAttribute('vin')];
-                    $erpJob = ErpJob::query()->create([
-                        'model_id' => $blockItem->getAttribute('id'),
-                        'model_type' => BlockItem::class,
-                        'section' => 'unblock-vehicle',
-                        'user_id' => $this->data['user_id'],
-                        'method' => 'UnblockingVehicle',
-                        'url' => config('erp.block_unblock'),
-                        'parameters' => $parameters,
-                        'queue' => ErpJob::QUEUE_UNIQUE
-                    ]);
-                    ErpJobEvent::dispatch($erpJob);
-
-
                     $blockItem->update([
                         'unblocked_at' => now(),
-                        'unblocked_by' => Auth::id(),
+                        'unblocked_by' => $this->data['user_id'],
                     ]);
+
+                    $count = BlockItem::query()
+                        ->where('vin', $blockItem->getAttribute('vin'))
+                        ->whereNull('unblocked_at')->count();
+
+                    if ($count === 0) {
+                        $parameters = ['barcodeInfoP' => $blockItem->getAttribute('vin')];
+                        $erpJob = ErpJob::query()->create([
+                            'model_id'   => $blockItem->getAttribute('id'),
+                            'model_type' => BlockItem::class,
+                            'section'    => 'unblock-vehicle',
+                            'user_id'    => $this->data['user_id'],
+                            'method'     => 'UnblockingVehicle',
+                            'url'        => config('erp.block_unblock'),
+                            'parameters' => $parameters,
+                            'queue'      => ErpJob::QUEUE_UNIQUE
+                        ]);
+                        ErpJobEvent::dispatch($erpJob);
+                    }
+
+
                     $this->data['success']++;
 
                     $row['result'] = 'imported';
@@ -85,13 +92,13 @@ class UnblockItemImport implements ToCollection, WithStartRow
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        Excel::store(new ResultExport($collection->prepend(BlockItem::HEADING)), 'public/results/' . $uuid . '.xlsx');
+        Excel::store(new ResultExport($collection->prepend(BlockItem::HEADING)), 'public/results/'.$uuid.'.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
-                'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
-                'total' => $this->data['total'],
+                'file'    => route('dl', ['path' => 'results/'.$uuid.'.xlsx']),
+                'total'   => $this->data['total'],
                 'success' => $this->data['success'],
-                'error' => $this->data['error'],
+                'error'   => $this->data['error'],
             ]
         ]);
 

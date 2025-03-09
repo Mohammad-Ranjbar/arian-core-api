@@ -30,31 +30,34 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
     }
 
-    /**
-     * @param $row
-     * @return array
-     */
+
     public function map($row): array
     {
-        $columns = [];
+        try {
+            $columns = [];
 
-        $job = Job::query()->find($this->data['id']);
-        $this->userId = $job->getAttribute('user_id');
-        $data = $job->getAttribute('data');
+            $job = Job::query()->find($this->data['id']);
+            $this->userId = $job->getAttribute('user_id');
+            $data = $job->getAttribute('data');
 
-        $this->type = $data['type'];
-        $this->locationSourceID = $data['location_source_id'];
-        $this->locationDestinationID = $data['location_destination_id'];
-        if ($data['type'] === 'containers') {
-            foreach (BillOfLading::HEAD_CONTAINER as $key => $value) {
-                $columns[$value] = $row[$key];
+            $this->type = $data['type'];
+            $this->locationSourceID = $data['location_source_id'];
+            $this->locationDestinationID = $data['location_destination_id'];
+            if ($data['type'] === 'containers') {
+                foreach (BillOfLading::HEAD_CONTAINER as $key => $value) {
+                    $columns[$value] = $row[$key];
+                }
+            } elseif ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
+                foreach (BillOfLading::HEAD_VEHICLE as $key => $value) {
+                    $columns[$value] = $row[$key];
+                }
             }
-        } elseif ($data['type'] === 'vehicles' || $data['type'] === 'bodies') {
-            foreach (BillOfLading::HEAD_VEHICLE as $key => $value) {
-                $columns[$value] = $row[$key];
-            }
+            return $columns;
+        }catch (Exception $exception){
+            logger()->error($exception->getMessage());
+            return [];
         }
-        return $columns;
+
     }
 
     /**
@@ -72,160 +75,169 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
      */
     public function collection(Collection $collection): void
     {
-        $this->data['total'] = $collection->count();
-        $this->sendEvent();
+        try {
+            DB::beginTransaction();
+            $this->data['total'] = $collection->count();
+            $this->sendEvent();
+            if ($collection->count() == 0) {
+                throw new Exception('No Bill Of Lading Found');
+            }
+            $collection->each(function ($row) {
 
-        $collection->each(function ($row) {
-
-            try {
-                /** @var BillOfLading $billOfLading */
-                $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
-                if (!empty($row['VIN'])) {
-                    $this->checkingData($row);
-                }
-
-                if (!empty($row['container_number'])) {
-                    $this->checkingData($row);
-                    $container = Container::query()->where('code', $row['container_number'])->firstOrCreate([
-                        'code' => $row['container_number'],
-                    ]);
-                }
-                if (!$billOfLading) {
-
-                    if (!$driver = Driver::query()->where('national_code', $row['driver_national_code'])->first()) {
-                        $driver = Driver::query()->create([
-                            'national_code' => $row['driver_national_code'],
-                            'phone' => $row['driver_mobile'],
-                            'name' => $row['driver_name'],
-                        ]);
-                    }
-                    if (!$transitCompany = TransitCompany::query()->where('title', $row['shipping_company'])->first()) {
-                        $transitCompany = TransitCompany::query()->create([
-                            'title' => $row['shipping_company'],
-                        ]);
-                    }
-
-                    $chr = str_replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], null, $row['number_plates']);
-                    $one = substr($row['number_plates'], 0, 2);
-                    $second = substr(preg_replace('/\D/', '', $row['number_plates']), 2, 3);
-                    $plate = [
-                        "char" => $chr,
-                        "number1" => $one,
-                        "number2" => $second,
-                        "number3" => $row['plate_area']
-                    ];
-
-                    if (!$car = Car::query()->where('plate', $plate)->first()) {
-                        $car = Car::query()->create([
-                            'plate' => json_encode($plate),
-                            'car' => $row['vehicle_title'],
-                            'transit_company_id' => $transitCompany->getAttribute('id'),
-                            'driver_id' => $driver->getAttribute('id'),
-                        ]);
-                    }
-                    $billOfLading = BillOfLading::query()->create([
-                        'user_id' => $this->userId,
-                        'location_source_id' => $this->locationSourceID,
-                        'location_destination_id' => $this->locationDestinationID,
-                        'car_id' => $car->getAttribute('id'),
-                        'code' => $row['freight_number'],
-                        'request_no' => $row['request_number'],
-                        'status' => 'new',
-                        'priority' => 0,
-                        'cottage' => $row['cottage_number'],
-                        'weight' => $row['weight'],
-                        'batch' => $row['batch'],
-                        'description' => $row['description'],
-                        'type' => $this->type
-                    ]);
-
+                try {
+                    /** @var BillOfLading $billOfLading */
+                    $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
                     if (!empty($row['VIN'])) {
+                        $this->checkingData($row);
+                    }
 
-                        DB::table('bill_of_lading_item')->insert([
-                            'model_id' => $row['VIN'],
-                            'model_type' => Vehicle::class,
-                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                    if (!empty($row['container_number'])) {
+                        $this->checkingData($row);
+                        $container = Container::query()->where('code', $row['container_number'])->firstOrCreate([
+                            'code' => $row['container_number'],
                         ]);
+                    }
+                    if (!$billOfLading) {
 
-
-
-                        if ($billOfLading->getAttribute('type') == 'bodies'){
-                            $this->addVin($billOfLading,$row['VIN']);
+                        if (!$driver = Driver::query()->where('national_code', $row['driver_national_code'])->first()) {
+                            $driver = Driver::query()->create([
+                                'national_code' => $row['driver_national_code'],
+                                'phone' => $row['driver_mobile'],
+                                'name' => $row['driver_name'],
+                            ]);
+                        }
+                        if (!$transitCompany = TransitCompany::query()->where('title', $row['shipping_company'])->first()) {
+                            $transitCompany = TransitCompany::query()->create([
+                                'title' => $row['shipping_company'],
+                            ]);
                         }
 
-                    }
-                    if (!empty($row['container_number'])) {
-                        DB::table('bill_of_lading_item')->insert([
-                            'model_id' => $container->getAttribute('id'),
-                            'model_type' => Container::class,
-                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
-                        ]);
-                    }
+                        $chr = str_replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], null, $row['number_plates']);
+                        $one = substr($row['number_plates'], 0, 2);
+                        $second = substr(preg_replace('/\D/', '', $row['number_plates']), 2, 3);
+                        $plate = [
+                            "char" => $chr,
+                            "number1" => $one,
+                            "number2" => $second,
+                            "number3" => $row['plate_area']
+                        ];
 
-
-
-                    $this->data['success']++;
-
-                    $row['result'] = 'imported';
-                }
-                else {
-                    if (!empty($row['VIN'])) {
-
-                        $itemType = 'vehicles';
-                        if ($billOfLading->type == 'bodies'){
-                            $this->addVin($billOfLading,$row['VIN']);
-                            $itemType = 'bodies';
+                        if (!$car = Car::query()->where('plate', $plate)->first()) {
+                            $car = Car::query()->create([
+                                'plate' => json_encode($plate),
+                                'car' => $row['vehicle_title'],
+                                'transit_company_id' => $transitCompany->getAttribute('id'),
+                                'driver_id' => $driver->getAttribute('id'),
+                            ]);
                         }
-                        DB::table('bill_of_lading_item')->insert([
-                            'model_id' => $row['VIN'],
-                            'model_type' => Vehicle::class,
-                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
-                            'type' => $itemType
+                        $billOfLading = BillOfLading::query()->create([
+                            'user_id' => $this->userId,
+                            'location_source_id' => $this->locationSourceID,
+                            'location_destination_id' => $this->locationDestinationID,
+                            'car_id' => $car->getAttribute('id'),
+                            'code' => $row['freight_number'],
+                            'request_no' => $row['request_number'],
+                            'status' => 'new',
+                            'priority' => 0,
+                            'cottage' => $row['cottage_number'],
+                            'weight' => $row['weight'],
+                            'batch' => $row['batch'],
+                            'description' => $row['description'],
                         ]);
 
+                        if (!empty($row['VIN'])) {
+
+                            DB::table('bill_of_lading_item')->insert([
+                                'model_id' => $row['VIN'],
+                                'model_type' => Vehicle::class,
+                                'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                                'type' => $this->type
+                            ]);
+
+                            if ($billOfLading->getAttribute('type') == 'bodies'){
+                                $this->addVin($billOfLading,$row['VIN']);
+                            }
+
+                        }
+                        if (!empty($row['container_number'])) {
+                            DB::table('bill_of_lading_item')->insert([
+                                'model_id' => $container->getAttribute('id'),
+                                'model_type' => Container::class,
+                                'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                                'type' => $this->type
+                            ]);
+                        }
+
+
+
+                        $this->data['success']++;
+
+                        $row['result'] = 'imported';
                     }
-                    if (!empty($row['container_number'])) {
-                        DB::table('bill_of_lading_item')->insert([
-                            'model_id' => $container->getAttribute('id'),
-                            'model_type' => Container::class,
-                            'bill_of_lading_id' => $billOfLading->getAttribute('id'),
-                            'type' => 'containers'
-                        ]);
+                    else {
+                        if (!empty($row['VIN'])) {
+
+                            $itemType = 'vehicles';
+                            if ($billOfLading->getAttribute('type') == 'bodies'){
+                                $this->addVin($billOfLading,$row['VIN']);
+                                $itemType = 'bodies';
+                            }
+                            DB::table('bill_of_lading_item')->insert([
+                                'model_id' => $row['VIN'],
+                                'model_type' => Vehicle::class,
+                                'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                                'type' => $itemType
+                            ]);
+
+                        }
+                        if (!empty($row['container_number'])) {
+                            DB::table('bill_of_lading_item')->insert([
+                                'model_id' => $container->getAttribute('id'),
+                                'model_type' => Container::class,
+                                'bill_of_lading_id' => $billOfLading->getAttribute('id'),
+                                'type' => $this->type
+                            ]);
+                        }
                     }
+
+
+                } catch (Exception $exception) {
+                    $this->data['error']++;
+                    $row['result'] = $exception->getMessage();
                 }
 
 
-            } catch (Exception $exception) {
-                $this->data['error']++;
-                $row['result'] = $exception->getMessage();
+                $this->data['done']++;
+                $this->sendEvent();
+
+
+            });
+
+            foreach ($this->billOfLadingList as $row) {
+                $row['billOfLading']->createAutoGatePermit($row['vin'], true);
             }
 
-
-            $this->data['done']++;
-            $this->sendEvent();
-
-
-        });
-
-        foreach ($this->billOfLadingList as $row) {
-            $row['billOfLading']->createAutoGatePermit($row['vin'], true);
+            $uuid = Str::uuid();
+            if ($this->type === 'vehicles' || $this->type === 'bodies') {
+                $headers = BillOfLading::HEAD_VEHICLE;
+            } else {
+                $headers = BillOfLading::HEAD_CONTAINER;
+            }
+            Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/' . $uuid . '.xlsx');
+            Job::query()->find($this->data['id'])->update([
+                'result' => [
+                    'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
+                    'total' => $this->data['total'],
+                    'success' => $this->data['success'],
+                    'error' => $this->data['error'],
+                ]
+            ]);
+            DB::commit();
+        }catch (Exception $exception){
+            DB::rollBack();
+            logger($exception->getMessage());
         }
 
-        $uuid = Str::uuid();
-        if ($this->type === 'vehicles' || $this->type === 'bodies') {
-            $headers = BillOfLading::HEAD_VEHICLE;
-        } else {
-            $headers = BillOfLading::HEAD_CONTAINER;
-        }
-        Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/' . $uuid . '.xlsx');
-        Job::query()->find($this->data['id'])->update([
-            'result' => [
-                'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
-                'total' => $this->data['total'],
-                'success' => $this->data['success'],
-                'error' => $this->data['error'],
-            ]
-        ]);
 
     }
 
@@ -277,15 +289,15 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         event(new JobProcessEvent($this->data));
     }
 
-    private function addVin(BillOfLading $billOfLading,string $vin)
+    private function addVin(BillOfLading $billOfLading,string $vin): void
     {
-        if (!isset($this->billOfLadingList[$billOfLading->id])) {
-            $this->billOfLadingList[$billOfLading->id] = [
+        if (!isset($this->billOfLadingList[$billOfLading->getAttribute('id')])) {
+            $this->billOfLadingList[$billOfLading->getAttribute('id')] = [
                 'vin' => [],
                 'billOfLading' => $billOfLading
             ];
         }
-        $this->billOfLadingList[$billOfLading->id]['vin'] [] = $vin;
+        $this->billOfLadingList[$billOfLading->getAttribute('id')]['vin'] [] = $vin;
 
     }
 }
