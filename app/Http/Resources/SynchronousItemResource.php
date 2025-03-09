@@ -18,7 +18,7 @@ class SynchronousItemResource extends JsonResource
             'vehicle' => new VehicleResource($this->resource->vehicle),
             'cross_reference' => $this->resource->cross_reference,
             'erp_product_item_id' => $this->resource->erp_product_item_id,
-            'erpProductItem' => $this->whenLoaded('erpProductItem', function () {
+            'erpProductItem' => $this->resource->whenLoaded('erpProductItem', function () {
                return new ErpProductItemResource($this->resource->erpProductItem);
             }),
             'synchronous_at' => $this->resource->created_at
