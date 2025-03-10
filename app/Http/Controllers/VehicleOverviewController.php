@@ -37,6 +37,10 @@ class VehicleOverviewController extends Controller
                 'file'  => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
             ],
+            [
+                'file'  => '/api/dl-file?path=cop/BOM/N721-BOM.xlsx',
+                'title' => 'BOM JAC ۱۲ تن'
+            ],
         ];
 
         $copList = [
