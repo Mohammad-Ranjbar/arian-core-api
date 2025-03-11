@@ -257,6 +257,12 @@ class VehicleOverviewController extends Controller
                     ]
                 ],
                 [
+                    'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $checkList
+                ],
+                [
                     'title'  => 'ایرادات کیفی حین تولید و کنترل نهایی محصول '.$qcChecked,
                     'type'   => 'table',
                     'heads'  => [],
@@ -287,12 +293,6 @@ class VehicleOverviewController extends Controller
                             $record->description
                         ];
                     })->all()
-                ],
-                [
-                    'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
-                    'type'   => 'download-list',
-                    'heads'  => [],
-                    'values' => $checkList
                 ],
                 [
                     'title'  => 'کنترل کیفیت',
