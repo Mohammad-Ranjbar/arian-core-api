@@ -37,6 +37,12 @@ class VehicleOverviewController extends Controller
                 'title' => 'جک ۱۲ تن'
             ],
         ];
+        $checkList = [
+            [
+                'file'  => '/api/dl-file?path=check-lists/JAC-N120.xlsx',
+                'title' => 'جک ۱۲ تن'
+            ],
+        ];
 
         $qrLinks = [
             [
@@ -281,6 +287,12 @@ class VehicleOverviewController extends Controller
                             $record->description
                         ];
                     })->all()
+                ],
+                [
+                    'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $checkList
                 ],
                 [
                     'title'  => 'کنترل کیفیت',
