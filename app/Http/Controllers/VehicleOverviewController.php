@@ -251,7 +251,7 @@ class VehicleOverviewController extends Controller
                     'heads'  => [],
                     'values' => [
                         [
-                            'file'  => '/api/dl-file?path=torque-reports/torque-report.zip',
+                            'file'  => '/api/dl-file?path=torque-reports/torque-reports_torque-report.zip',
                             'title' => 'گزارش گشتاور سنجی'
                         ],
                     ]
