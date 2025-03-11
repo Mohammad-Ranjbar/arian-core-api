@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ActionLog;
 use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
-use App\Models\BlockItem;
 use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ErpProductItem;
 use App\Models\Location;
@@ -32,13 +31,20 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
 
+        $itemsReference = [
+            [
+                'file'  => '/api/dl-file?path=diesel/12T.zip',
+                'title' => 'جک ۱۲ تن'
+            ],
+        ];
+
         $qrLinks = [
             [
                 'file'  => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
             ],
             [
-                'file'  => '/api/dl-file?path=cop/BOM/N721-BOM.xlsx',
+                'file'  => '/api/dl-file?path=BOM/N721-BOM.xlsx',
                 'title' => 'BOM JAC ۱۲ تن'
             ],
         ];
@@ -391,6 +397,12 @@ class VehicleOverviewController extends Controller
                     'type'   => 'download-list',
                     'heads'  => [],
                     'values' => $copList
+                ],
+                [
+                    'title'  => 'شناسنامه فنی قطعات',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $itemsReference
                 ],
                 $police,
                 [
