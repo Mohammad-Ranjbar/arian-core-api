@@ -27,7 +27,11 @@ class DownloadController extends Controller
             fclose($stream);
         });
 
+        $fileName = basename($request->get('path'));
+
         $response->headers->set('Content-Type', Storage::disk('s3')->mimeType($request->get('path')));
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+
         return $response;
     }
 }
