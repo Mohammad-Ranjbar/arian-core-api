@@ -2,23 +2,22 @@
 
 namespace App\Jobs;
 
-use App\Models\SaleCompany;
 use App\Models\SaleInvoice;
 use App\Services\Erp\ErpOdataClient;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 
-class MoveInvitationToSaleOnlineApplicationJob implements ShouldQueue
+class MoveInvitationToSaleOnlineApplicationJob
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(private readonly string $invoiceId) {}
+    public function __construct(private readonly string $invoiceId)
+    {
+    }
 
     /**
      * Execute the job.
