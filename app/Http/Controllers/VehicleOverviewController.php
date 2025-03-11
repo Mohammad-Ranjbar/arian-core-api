@@ -295,6 +295,12 @@ class VehicleOverviewController extends Controller
                     })->all()
                 ],
                 [
+                    'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $checkList
+                ],
+                [
                     'title'  => 'کنترل کیفیت',
                     'type'   => 'table',
                     'heads'  => [],
