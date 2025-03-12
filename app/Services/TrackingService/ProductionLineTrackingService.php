@@ -64,8 +64,8 @@ class ProductionLineTrackingService extends BaseTrackingService
             SynchronousItem::query()->create([
                 'synchronous_id' => $synchronous->getAttribute('id'),
                 'vin'            => $vin,
-//                'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
-//                'cross_reference' => $item->getAttribute('cross_reference'),
+                'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
+                'cross_reference' => $item->getAttribute('cross_reference'),
             ]);
             $synchronous->decrement('capacity');
             dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
