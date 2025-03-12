@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ErpJobEvent;
 use App\Filters\SynchronousProductionLineIdFilter;
 use App\Filters\SynchronousTitleFilter;
 use App\Http\Requests\UpdateCrossReferenceRequest;
 use App\Http\Resources\SynchronousResource;
+use App\Models\ErpJob;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Services\Erp\ErpCrossReference;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
 
 class SynchronousController extends Controller
@@ -80,8 +84,52 @@ class SynchronousController extends Controller
                 'message' => 'کراس رفرنس وارد شده نامعتبر است'
             ], 422);
         }
-        return $synchronousItem->update([
-            'cross_reference' => $validatedData['cross_reference']
+         $synchronousItem->update([
+            'cross_reference' => $validatedData['cross_reference'],
+            'checked' => true
         ]);
+
+      $count =  SynchronousItem::query()
+          ->where('synchronous_id',$synchronousItem->getAttribute('synchronous_id'))
+          ->where('checked',false)->count();
+      if ($count == 0) {
+        $items =  SynchronousItem::query()
+              ->where('synchronous_id',$synchronousItem->getAttribute('synchronous_id'))->get();
+        $crossReferences = $items->implode('cross_reference');
+        $docP = $synchronousItem->synchronous->number;
+        $locationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->central_location;
+        $newLocationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->location;
+
+        $variantCodeP = $items->map(function ($item) {
+         return  $item->vehicle->color_code;
+        })->implode();
+        $numberP = $items->count();
+        $batchNoP = Carbon::now()->toDateTimeString();
+
+
+        $parameters =[
+            'crossReferenceP' => $crossReferences,
+            'docP' => $docP,
+            'locationCodeP' => $locationCodeP,
+            'newLocationCodeP' => $newLocationCodeP,
+            'variantCodeP' => $variantCodeP,
+            'numberP' => $numberP,
+            'batchNoP' => $batchNoP,
+        ];
+          $erpJob = ErpJob::query()->create([
+              'model_id' => $synchronousItem->getAttribute('id'),
+              'model_type' => SynchronousItem::class,
+              'section' => 'synchronous',
+              'user_id' => Auth::id(),
+              'method' => 'createSynchroen',
+              'url' => config('erp.synchronous_v2'),
+              'parameters' => $parameters,
+              'queue' => ErpJob::QUEUE_UNIQUE
+          ]);
+
+          ErpJobEvent::dispatch($erpJob);
+      }
+
+      return true;
     }
 }
