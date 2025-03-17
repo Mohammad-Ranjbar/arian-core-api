@@ -50,22 +50,20 @@ class ProductionLineTrackingService extends BaseTrackingService
             if (!$synchronous) {
                 $counter = Synchronous::query()
                         ->where('synchronous_type_id', $synchronousType->id)->max('counter') + 1;
-              $item =  $synchronousType->items()->where('car_model_id',$vehicle->getAttribute('car_model_id'))->where('is_active',true)->first();
+                $item = $synchronousType->items()->where('car_model_id', $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
                 $synchronous = Synchronous::query()->create([
                     'synchronous_type_id' => $synchronousType->id,
-                    'counter'             => $counter,
-                    'capacity'            => $synchronousType->qty,
-                    'erp_product_item_id' => $item?->getAttribute('erp_product_item_id') ?? null,
-                    'cross_reference' => $item?->getAttribute('cross_reference') ?? null,
+                    'counter' => $counter,
+                    'capacity' => $synchronousType->qty,
                 ]);
 
 
             }
             SynchronousItem::query()->create([
                 'synchronous_id' => $synchronous->getAttribute('id'),
-                'vin'            => $vin,
-                'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
-                'cross_reference' => $item->getAttribute('cross_reference'),
+                'vin' => $vin,
+                'erp_product_item_id' => $item?->getAttribute('erp_product_item_id') ?? null,
+                'cross_reference' => $item?->getAttribute('cross_reference') ?? null,
             ]);
             $synchronous->decrement('capacity');
             dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
@@ -107,10 +105,10 @@ class ProductionLineTrackingService extends BaseTrackingService
     public function sendToErp($record): void
     {
         $params = [
-            'vINL'         => $record->vin,
-            'wCGroup'      => '',
+            'vINL' => $record->vin,
+            'wCGroup' => '',
             'withTracking' => 'false',
-            'withOutput'   => 'true',//change to true => shaghayegh
+            'withOutput' => 'true',//change to true => shaghayegh
         ];
 
         if ($record->type == 'exit') {
@@ -123,25 +121,25 @@ class ProductionLineTrackingService extends BaseTrackingService
             ->where('status', 'pending')->with('erpProductItem')->get();
         if ($count = $shortages->count()) {
             $method = 'PostProduction_OnlyBIN_Shortage';
-            $params['lackItemNo'] = $shortages->implode('erpProductItem.reference',',');
+            $params['lackItemNo'] = $shortages->implode('erpProductItem.reference', ',');
             //TODO refactor with new method navision
-            $params['lackRoutingNo'] = $shortages->implode('routing_link_code',',');
+            $params['lackRoutingNo'] = $shortages->implode('routing_link_code', ',');
             $params['numberFractionalItems'] = $count;
         }
 
         $data = [
-            'user_id'    => Auth::id(),
-            'section'    => 'production-line-tracking-'.$record->type,
-            'model_id'   => $record->id,
+            'user_id' => Auth::id(),
+            'section' => 'production-line-tracking-' . $record->type,
+            'model_id' => $record->id,
             'model_type' => Tracking::class,
-            'method'     => $method,
-            'url'        => config('erp.post_production'),
+            'method' => $method,
+            'url' => config('erp.post_production'),
             'parameters' => $params,
-            'queue'      => ErpJob::QUEUE_UNIQUE
+            'queue' => ErpJob::QUEUE_UNIQUE
         ];
 
         $erpJob = ErpJob::query()->where([
-            'model_id'   => $record->id,
+            'model_id' => $record->id,
             'model_type' => Tracking::class,
         ])->first();
         if (empty($erpJob)) {
