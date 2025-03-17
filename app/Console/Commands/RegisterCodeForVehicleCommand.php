@@ -19,20 +19,20 @@ class RegisterCodeForVehicleCommand extends Command
     public function handle(): void
     {
 
-        $vehicles = [
-            "N5RLAK4B4S2000034",
-            "N5RLAK4B4S2000035",
-            "N5RLAK4B4S2000036",
-            "N5RLAK4B4S2000037",
-            "N5RLAK4B4S2000038",
-            "N5RLAK4B4S2000039",
-            "N5RLAK4B4S2000040",
-            "N5RLAK4B4S2000041",
-            "N5RLAK4B4S2000042",
-            "N5RLAK4B4S2000043",
-            "N5RLAK4B4S2000044",
-            "N5RLAK4B4S2000045",
-        ];
+//        $vehicles = [
+//            "N5RLAK4B4S2000034",
+//            "N5RLAK4B4S2000035",
+//            "N5RLAK4B4S2000036",
+//            "N5RLAK4B4S2000037",
+//            "N5RLAK4B4S2000038",
+//            "N5RLAK4B4S2000039",
+//            "N5RLAK4B4S2000040",
+//            "N5RLAK4B4S2000041",
+//            "N5RLAK4B4S2000042",
+//            "N5RLAK4B4S2000043",
+//            "N5RLAK4B4S2000044",
+//            "N5RLAK4B4S2000045",
+//        ];
 
 
         foreach ($vehicles as $vehicle) {
