@@ -55,8 +55,8 @@ class ProductionLineTrackingService extends BaseTrackingService
                     'synchronous_type_id' => $synchronousType->id,
                     'counter'             => $counter,
                     'capacity'            => $synchronousType->qty,
-                    'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
-                    'cross_reference' => $item->getAttribute('cross_reference'),
+                    'erp_product_item_id' => $item?->getAttribute('erp_product_item_id') ?? null,
+                    'cross_reference' => $item?->getAttribute('cross_reference') ?? null,
                 ]);
 
 
