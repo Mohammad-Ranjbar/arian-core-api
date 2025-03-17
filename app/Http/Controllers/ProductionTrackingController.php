@@ -60,6 +60,7 @@ class ProductionTrackingController extends Controller
             return new VehicleResource($vehicle);
         } catch (Exception $exception) {
             DB::rollBack();
+            logger($exception);
             return $this->responseError($exception->getMessage(), 400);
         }
 
