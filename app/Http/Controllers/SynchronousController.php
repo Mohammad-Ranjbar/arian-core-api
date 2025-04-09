@@ -78,6 +78,10 @@ class SynchronousController extends Controller
     ): JsonResponse|bool {
         $validatedData = $request->validated();
 
+        if ($synchronousItem->getAttribute('checked')) {
+            abort('422', 'سنکرون قبلا ارسال شده است');
+        }
+
         $reference = $synchronousItem->erpProductItem->reference;
 
         $data = $this->erpCrossReference->get($reference);
@@ -119,6 +123,7 @@ class SynchronousController extends Controller
                 'numberP'          => $numberP,
                 'batchNoP'         => $batchNoP,
             ];
+            // TODO check submitted by user ? user_id = Auth::id()
             $insert = [
                 'model_id'   => $synchronousItem->getAttribute('id'),
                 'model_type' => SynchronousItem::class,
@@ -129,7 +134,6 @@ class SynchronousController extends Controller
                 'parameters' => $parameters,
                 'queue'      => ErpJob::QUEUE_UNIQUE
             ];
-            logger($insert);
             $erpJob = ErpJob::query()->create($insert);
 
             ErpJobEvent::dispatch($erpJob);
