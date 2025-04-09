@@ -123,7 +123,7 @@ class SynchronousController extends Controller
                 'model_id'   => $synchronousItem->getAttribute('id'),
                 'model_type' => SynchronousItem::class,
                 'section'    => 'synchronous',
-                'user_id'    => Auth::id(),
+                'user_id'    => 1,
                 'method'     => 'createSynchroen',
                 'url'        => config('erp.synchronous_v2'),
                 'parameters' => $parameters,
