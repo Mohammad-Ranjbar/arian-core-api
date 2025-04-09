@@ -102,7 +102,7 @@ class SynchronousController extends Controller
 
         $variantCodeP = $items->map(function ($item) {
          return  $item->vehicle->color_code;
-        })->implode();
+        })->implode(',');
         $numberP = $items->count();
         $batchNoP = Carbon::now()->toDateTimeString();
 
