@@ -98,7 +98,7 @@ class SynchronousController extends Controller
         if ($count == 0) {
             $items = SynchronousItem::query()
                 ->where('synchronous_id', $synchronousItem->getAttribute('synchronous_id'))->get();
-            $crossReferences = $items->implode('cross_reference');
+            $crossReferences = $items->pluck('cross_reference')->implode(',');
             $docP = $synchronousItem->synchronous->number;
             $locationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->central_location;
             $newLocationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->location;
