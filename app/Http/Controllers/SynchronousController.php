@@ -124,7 +124,7 @@ class SynchronousController extends Controller
                 'model_type' => SynchronousItem::class,
                 'section'    => 'synchronous',
                 'user_id'    => 1,
-                'method'     => 'createSynchroen',
+                'method'     => 'CreateSynchroen',
                 'url'        => config('erp.synchronous_v2'),
                 'parameters' => $parameters,
                 'queue'      => ErpJob::QUEUE_UNIQUE
