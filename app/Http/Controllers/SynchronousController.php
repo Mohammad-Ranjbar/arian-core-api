@@ -119,7 +119,7 @@ class SynchronousController extends Controller
                 'numberP'          => $numberP,
                 'batchNoP'         => $batchNoP,
             ];
-            $erpJob = ErpJob::query()->create([
+            $insert = [
                 'model_id'   => $synchronousItem->getAttribute('id'),
                 'model_type' => SynchronousItem::class,
                 'section'    => 'synchronous',
@@ -128,7 +128,9 @@ class SynchronousController extends Controller
                 'url'        => config('erp.synchronous_v2'),
                 'parameters' => $parameters,
                 'queue'      => ErpJob::QUEUE_UNIQUE
-            ]);
+            ];
+            logger($insert);
+            $erpJob = ErpJob::query()->create($insert);
 
             ErpJobEvent::dispatch($erpJob);
         }
