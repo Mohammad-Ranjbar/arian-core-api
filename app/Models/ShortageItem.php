@@ -33,6 +33,7 @@ class ShortageItem extends Model
             $query = $query->where('vin', $data['vin']);
         }
         if (!empty($data['vins'])) {
+            logger($data['vins']);
             $query = $query->whereIn('vin', $data['vins']);
         }
         if (!empty($data['items'])) {
