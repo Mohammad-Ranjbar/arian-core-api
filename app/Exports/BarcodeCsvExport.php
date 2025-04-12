@@ -45,7 +45,7 @@ class BarcodeCsvExport
                     $trackable = 'ندارد';
                 }
                 fputcsv($this->handle, [
-                    $row->user->name,
+                    $row->user?->name ?? 'unknown user',
                     $row->vin,
                     $row->code,
                     $row->generalProductItem?->id ?? '-',
