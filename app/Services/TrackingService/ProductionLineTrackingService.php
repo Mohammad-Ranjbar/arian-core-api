@@ -125,6 +125,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             //TODO refactor with new method navision
             $params['lackRoutingNo'] = $shortages->implode('routing_link_code',',');
             $params['numberFractionalItems'] = $count;
+            $params['itemTypeP'] = 2;
         }
 
         $data = [

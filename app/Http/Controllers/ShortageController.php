@@ -138,7 +138,8 @@ class ShortageController extends Controller
                 'withOutput' => 'false',
                 'lackItemNo' => $shortage->getAttribute('erpProductItem')->reference,
                 'numberFractionalItems' => 1,
-                'lackRoutingNo' => $shortage->getAttribute('routing_link_code')
+                'lackRoutingNo' => $shortage->getAttribute('routing_link_code'),
+                'itemTypeP' => 2
             ];
 
 
