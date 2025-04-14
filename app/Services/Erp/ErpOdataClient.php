@@ -16,7 +16,7 @@ class ErpOdataClient
     public function getOne(string $url)
     {
         $result = $this->getValue($url);
-        dd($result);
+
         return (empty($result)) ? false : $result[0];
     }
 
@@ -37,6 +37,7 @@ class ErpOdataClient
                     'Accept' => 'application/json'
                 ]
             ]);
+            dd($apiRequest);
             return json_decode($apiRequest->getBody()->getContents());
         } catch (GuzzleException $e) {
             Log::error($e->getMessage());
