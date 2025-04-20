@@ -10,6 +10,7 @@ use App\Models\Job;
 use App\Models\Vehicle;
 use App\Models\VehicleTorqueTest;
 use App\Repositories\ScrewRepository;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -37,13 +38,18 @@ class ScrewController extends CrudController
     }
 
 
-    public function vehicleTorqueTest(StoreVehicleTorqueRequest $request): VehicleTorqueTestResource
+    public function vehicleTorqueTest(StoreVehicleTorqueRequest $request): VehicleTorqueTestResource|JsonResponse
     {
-        $validatedData = $request->validated();
+        try {
+            $validatedData = $request->validated();
 
-        $data = VehicleTorqueTest::query()->create($validatedData);
+            $data = VehicleTorqueTest::query()->create($validatedData);
 
-        return new VehicleTorqueTestResource($data);
+            return new VehicleTorqueTestResource($data);
+        } catch (Exception $exception) {
+            return response()->json(['message' => $exception->getMessage()], 400);
+        }
+
     }
 
     /**
