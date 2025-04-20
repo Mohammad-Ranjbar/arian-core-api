@@ -28,7 +28,8 @@ class TrackingRequest extends FormRequest
             'model_id'   => 'required_if:model_type,!=,""|exists:'.$this->input('model_type').',id',
             'type'       => 'required|in:enter,exit',
             'vin'        => 'nullable',
-            'user_id'    => 'nullable'
+            'user_id'    => 'nullable',
+            'item_type' => 'required|in:0,1,2'
         ];
     }
 
