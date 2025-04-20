@@ -97,18 +97,14 @@ class ProductionLineTrackingService extends BaseTrackingService
         return $this->prepareData($data);
     }
 
-    /**
-     * @param $record
-     * @return void
-     * @throws Exception
-     */
-    public function sendToErp($record): void
+    public function sendToErp($record,$type): void
     {
         $params = [
             'vINL'         => $record->vin,
             'wCGroup'      => '',
             'withTracking' => 'false',
             'withOutput'   => 'true',//change to true => shaghayegh
+            'itemTypeP' => $type
         ];
 
         if ($record->type == 'exit') {
