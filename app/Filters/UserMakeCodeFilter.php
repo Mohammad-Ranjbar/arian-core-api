@@ -20,9 +20,11 @@ class UserMakeCodeFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        return $next($request)->whereIn('make_code_id', MakeCode::query()->whereHas('users', function ($query) {
+        $list  = MakeCode::query()->whereHas('users', function ($query) {
             $query->where('users.id', Auth::id());
-        }));
+        })->get()->pluck('id')->all();
+
+        return $next($request)->whereIn('make_code_id', $list);
     }
 
 }
