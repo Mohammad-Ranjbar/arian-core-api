@@ -118,10 +118,9 @@ class ProductionLineTrackingService extends BaseTrackingService
         if ($count = $shortages->count()) {
             $method = 'PostProduction_OnlyBIN_Shortage';
             $params['lackItemNo'] = $shortages->implode('erpProductItem.reference',',');
-            //TODO refactor with new method navision
             $params['lackRoutingNo'] = $shortages->implode('routing_link_code',',');
             $params['numberFractionalItems'] = $count;
-            $params['itemTypeP'] = 2;
+            $params['itemTypeP'] = $type;
         }
 
         $data = [
