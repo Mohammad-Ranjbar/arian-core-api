@@ -14,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
 {
@@ -63,7 +64,12 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
                     ]
                 ];
 
-                Http::post($company->getAttribute('sync_order_url'), $sendData);
+                $url = $company->getAttribute('sync_order_url');
+                if (Str::contains($data->Online_Contract_ID,'PARS_AM')) {
+                    $url = 'https://sales.arian-motor.com/api/sync-orders-erp';
+                }
+
+                Http::post($url, $sendData);
                 Storage::delete($this->data['path']);
             } else {
                 // TODO update for each company
