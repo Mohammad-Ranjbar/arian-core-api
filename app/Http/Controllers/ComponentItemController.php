@@ -14,6 +14,9 @@ class ComponentItemController extends Controller
     {
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function all(Vehicle $vehicle): JsonResponse
     {
         return $this->main($vehicle, false);
