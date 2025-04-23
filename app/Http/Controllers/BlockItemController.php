@@ -19,11 +19,17 @@ use App\Repositories\BlockReasonRepository;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,6 +38,17 @@ class BlockItemController extends Controller
 
     public function __construct(public readonly BlockItemRepository $repository, public readonly BlockReasonRepository $reasonRepository)
     {
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function systemBlocks(): AnonymousResourceCollection
+    {
+        $data = BlockItem::query()->where('type', 'system')->latest()->paginate(request()->get('per_page', 10));
+
+        return BlockItemResource::collection($data);
     }
 
     /**
@@ -47,7 +64,7 @@ class BlockItemController extends Controller
     {
         $this->authorize('block-items.index');
         $perPage = $request->get('per_page', 15);
-        return BlockItemResource::collection($vehicle->blockItems()->latest()->paginate($perPage));
+        return BlockItemResource::collection($vehicle->blockItems()->where('type', 'user')->latest()->paginate($perPage));
     }
 
 
@@ -60,6 +77,32 @@ class BlockItemController extends Controller
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
+    }
+
+    public function createBlock(array $validatedData): Model|Application|\Illuminate\Http\Response|Builder|\Illuminate\Contracts\Foundation\Application|ResponseFactory
+    {
+        $record = $this->repository->store($validatedData);
+
+        $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
+
+        $parameters = [
+            'barcodeInfoP' => $record->getAttribute('vin'),
+            'blockTypeP' => $blockReason->getAttribute('block_type'),
+        ];
+        $erpJob = ErpJob::query()->create(
+            [
+                'queue' => ErpJob::QUEUE_UNIQUE,
+                'user_id' => $record->getAttribute('blocked_by'),
+                'method' => 'BlockingVehicleByType',
+                'url' => config('erp.block_unblock'),
+                'parameters' => $parameters,
+                'model_type' => BlockItem::class,
+                'model_id' => $record->getAttribute('id'),
+                'section' => 'block-vehicle',
+            ]
+        );
+        ErpJobEvent::dispatch($erpJob);
+        return $record;
     }
 
     /**
@@ -174,35 +217,5 @@ class BlockItemController extends Controller
         $headers = ['id'];
         $export = new TemplateExport($headers);
         return Excel::download($export, 'un' . $this->repository->model->getTable() . '-template.xlsx');
-    }
-
-    /**
-     * @param mixed $validatedData
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|\Illuminate\Foundation\Application|\Illuminate\Http\Response
-     */
-    public function createBlock(mixed $validatedData): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Contracts\Foundation\Application|\Illuminate\Database\Eloquent\Builder|\Illuminate\Http\Response|\Illuminate\Foundation\Application|\Illuminate\Database\Eloquent\Model
-    {
-        $record = $this->repository->store($validatedData);
-
-        $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
-
-        $parameters = [
-            'barcodeInfoP' => $record->getAttribute('vin'),
-            'blockTypeP' => $blockReason->getAttribute('block_type'),
-        ];
-        $erpJob = ErpJob::query()->create(
-            [
-                'queue' => ErpJob::QUEUE_UNIQUE,
-                'user_id' => $record->getAttribute('blocked_by'),
-                'method' => 'BlockingVehicleByType',
-                'url' => config('erp.block_unblock'),
-                'parameters' => $parameters,
-                'model_type' => BlockItem::class,
-                'model_id' => $record->getAttribute('id'),
-                'section' => 'block-vehicle',
-            ]
-        );
-        ErpJobEvent::dispatch($erpJob);
-        return $record;
     }
 }

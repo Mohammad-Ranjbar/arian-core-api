@@ -3,6 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\BlockItemController;
+use App\Http\Controllers\VehicleController;
+use App\Jobs\CheckVehicleJob;
+use App\Models\BlockReason;
+use App\Models\Vehicle;
 use App\Services\Erp\ErpOdataClient;
 use Carbon\Carbon;
 use Exception;
@@ -22,7 +26,12 @@ class SyncPDIBlockCommand extends Command
 
     public function handle(): void
     {
-        $reasonId = config('erp.pdi_block_reason_id');
+
+       $reasonId = BlockReason::query()->where('id',config('erp.pdi_block_reason_id'))->firstOrCreate([
+            'title' => 'PDI BLOCK',
+            'block_type' => 'COP',
+        ])->getAttribute('id');
+
         $url = config('erp.block_pdi');
 
         while ($url) {
@@ -36,9 +45,14 @@ class SyncPDIBlockCommand extends Command
                 $bar->start();
                 $count = 0;
                 foreach ($content->value as $row) {
+                    if (!Vehicle::query()->where('vin', $row->VIN)->exists() ) {
+                            CheckVehicleJob::dispatch($row->VIN);
+                            continue;
+
+                    }
 
                     $dateString = $row->Last_PDI_Date;
-                    $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 30;
+                    $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
 
 
                     if (!$row->Blocked && $checkDate && $row->Last_PDI_Date != '0001-01-01T00:00:00Z') {
@@ -46,7 +60,8 @@ class SyncPDIBlockCommand extends Command
                             'block_reason_id' => $reasonId,
                             'description' => 'PDI Block',
                             'blocked_by' => 1,
-                            'vin' => $row->VIN
+                            'vin' => $row->VIN,
+                            'type' => 'system'
                         ];
 
                         try {

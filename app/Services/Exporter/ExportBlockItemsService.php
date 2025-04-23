@@ -5,7 +5,6 @@ namespace App\Services\Exporter;
 use App\Events\JobProcessEvent;
 use App\Exports\BlockItemReportExport;
 use App\Models\BlockItem;
-use App\Repositories\BlockItemRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -26,20 +25,20 @@ class ExportBlockItemsService extends BaseExporterService
      */
     public function export(): string
     {
-        $rows = BlockItem::getReportData((array) $this->job->getAttribute('data'));
+        $rows = BlockItem::getReportData((array)$this->job->getAttribute('data'));
 
         $eventData = [
-            'id'      => $this->job->uuid,
+            'id' => $this->job->uuid,
             'user_id' => $this->job->user_id,
-            'total'   => $rows->count(),
-            'done'    => 0,
+            'total' => $rows->count(),
+            'done' => 0,
             'success' => 0,
-            'error'   => 0,
+            'error' => 0,
         ];
         event(new JobProcessEvent($eventData));
 
-        $fileName = 'blockItemExport-'.Str::uuid().'.xlsx';
-        $path = '/public/exports/'.$fileName;
+        $fileName = 'blockItemExport-' . Str::uuid() . '.xlsx';
+        $path = '/public/exports/' . $fileName;
         Excel::store(new BlockItemReportExport($rows, $eventData), $path);
         return $fileName;
 

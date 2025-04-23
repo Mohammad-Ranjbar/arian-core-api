@@ -2,9 +2,9 @@
 
 namespace App\Console;
 
-use App\Console\Commands\CheckCustomerFinanceCommand;
 use App\Console\Commands\RetryErpJobCommand;
 use App\Console\Commands\SyncInvitationsCommand;
+use App\Console\Commands\SyncPDIBlockCommand;
 use App\Console\Commands\SyncProductItemsCommand;
 use App\Console\Commands\SyncServiceItemsCommand;
 use Illuminate\Console\Scheduling\Schedule;
@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
 {
 
     /**
-     * @param  Schedule  $schedule
+     * @param Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule): void
@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(SyncServiceItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
         $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();
         $schedule->command(RetryErpJobCommand::class)->everyTenMinutes()->withoutOverlapping();
+        $schedule->command(SyncPDIBlockCommand::class)->daily()->at('02:00')->withoutOverlapping();
     }
 
 
@@ -31,7 +32,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
