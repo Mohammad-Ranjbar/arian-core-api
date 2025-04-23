@@ -3,7 +3,6 @@
 namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
-use App\Exports\BillOfLadingReportExport;
 use App\Exports\GatePermitReportExport;
 use App\Repositories\GatePermitRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -27,7 +26,7 @@ class ExportGatePermitsService extends BaseExporterService
     {
 
         $rows = app()->make(GatePermitRepository::class)
-                     ->getReportData((array)$this->job->getAttribute('data'));
+            ->getReportData((array)$this->job->getAttribute('data'));
 
         $eventData = [
             'id' => $this->job->uuid,

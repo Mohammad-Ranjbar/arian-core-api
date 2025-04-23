@@ -88,6 +88,7 @@ Route::any('/', function () {
 Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
 
+
 Route::get('/synchronous/{number}',[SynchronousController::class,'getBySynchronousNumber'])->name('search-synchronous-by-number');
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
@@ -98,7 +99,7 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware('auth:sanctum')->group(function () {
-
+    Route::get('/system-block-items',[BlockItemController::class,'systemBlocks'])->name('system-block-items');
     Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
     Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
     Route::put('/erp-jobs/{erpJob}', [ErpJobController::class, 'retry'])->name('retry-erp-jobs');
