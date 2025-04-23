@@ -24,8 +24,8 @@ class ProductionTrackingController extends Controller
 {
 
     /**
-     * @param  TrackingRequest  $request
-     * @param  Vehicle  $vehicle
+     * @param TrackingRequest $request
+     * @param Vehicle $vehicle
      * @return JsonResponse|VehicleResource
      * @throws AuthorizationException
      */
@@ -33,16 +33,16 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
-            if ($validatedData['type'] == 'exit' && !Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists()){
+            if ($validatedData['type'] == 'exit' && !Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists()) {
                 return $this->responseError('لطفا ابتدا ثبت ورود را انجام دهید');
             }
-            Tracking::query()->where('vin',$vehicle->vin)->where('type','enter')->exists();
+            Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists();
             DB::beginTransaction();
             if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
-                $this->authorize('production-tracking.'.$validatedData['model_type'].'.enter');
+                $this->authorize('production-tracking.' . $validatedData['model_type'] . '.enter');
             }
             if ($validatedData['type'] === 'exit' && $validatedData['model_type']) {
-                $this->authorize('production-tracking.'.$validatedData['model_type'].'.exit');
+                $this->authorize('production-tracking.' . $validatedData['model_type'] . '.exit');
             }
 
             $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
@@ -53,7 +53,7 @@ class ProductionTrackingController extends Controller
             $record = $vehicle->tracking()->create($data);
             if (method_exists($modelTrackingService, 'sendToErp')) {
                 if ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
-                    $modelTrackingService->sendToErp($record,$validatedData['item_type']);
+                    $modelTrackingService->sendToErp($record, $validatedData['item_type']);
                 }
             }
             DB::commit();
@@ -92,6 +92,21 @@ class ProductionTrackingController extends Controller
         return new TrackingResource($tracking);
     }
 
+    public function destroy(Tracking $tracking): JsonResponse
+    {
+        try {
+            $tracking->delete();
+
+            return response()->json([
+                'message' => 'با موفقیت حذف گردید'
+            ]);
+        } catch (Exception $exception) {
+
+            return $this->responseError($exception->getMessage(), 400);
+        }
+
+    }
+
 
     public function reportExcel(TrackingReportExcelRequest $request): JsonResponse
     {
@@ -105,12 +120,13 @@ class ProductionTrackingController extends Controller
 
         return response()->json([
             'message' => 'export job created',
-            'data'    => [
-                'uuid'         => $job->getAttribute('uuid'),
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
     }
+
     public function reportExcelExitDoor(TrackingExitDoorReportExcelRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
@@ -123,8 +139,8 @@ class ProductionTrackingController extends Controller
 
         return response()->json([
             'message' => 'export job created',
-            'data'    => [
-                'uuid'         => $job->getAttribute('uuid'),
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
@@ -145,8 +161,8 @@ class ProductionTrackingController extends Controller
 
         return response()->json([
             'message' => 'export job created',
-            'data'    => [
-                'uuid'         => $job->getAttribute('uuid'),
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);

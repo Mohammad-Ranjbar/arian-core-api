@@ -99,6 +99,7 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware('auth:sanctum')->group(function () {
+    Route::delete('/production-tracking/{tracking}',[ProductionTrackingController::class,'destroy'])->name('production-tracking-destroy');
     Route::get('/system-block-items',[BlockItemController::class,'systemBlocks'])->name('system-block-items');
     Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
     Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
