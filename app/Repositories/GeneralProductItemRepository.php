@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Filters\GeneralProductItemByMakeCodeFilter;
 use App\libs\BaseRepository;
 use App\Models\GeneralProductItem;
 
@@ -32,6 +33,7 @@ class GeneralProductItemRepository extends BaseRepository
     public function __construct(GeneralProductItem $model)
     {
         $this->model = $model;
+        $this->filters[] =  GeneralProductItemByMakeCodeFilter::class;
     }
 
 }
