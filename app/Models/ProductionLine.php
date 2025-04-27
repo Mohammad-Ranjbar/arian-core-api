@@ -21,7 +21,7 @@ class ProductionLine extends Model
      * @var string[]
      */
     protected $fillable = [
-        'title', 'salon_id', 'teams_webhook', 'location_code', 'show_in_board', 'prefix', 'location', 'central_location'
+        'title', 'salon_id', 'teams_webhook', 'location_code', 'show_in_board', 'prefix', 'location', 'central_location','item_type'
     ];
 
 

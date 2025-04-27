@@ -29,7 +29,6 @@ class TrackingRequest extends FormRequest
             'type'       => 'required|in:enter,exit',
             'vin'        => 'nullable',
             'user_id'    => 'nullable',
-            'item_type' => 'required|in:0,1,2'
         ];
     }
 
