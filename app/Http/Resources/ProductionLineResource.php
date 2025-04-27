@@ -25,6 +25,7 @@ class ProductionLineResource extends JsonResource
             'on_enter' => $this->resource->sendErp?->on_enter ?? null,
             'on_exit' => $this->resource->sendErp?->on_exit ?? null,
             'location' => $this->resource->location,
+            'item_type' => $this->resource->item_type,
             'central_location' => $this->resource->central_location,
         ];
     }
