@@ -23,7 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(SyncServiceItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
         $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();
         $schedule->command(RetryErpJobCommand::class)->everyTenMinutes()->withoutOverlapping();
-        $schedule->command(SyncPDIBlockCommand::class)->daily()->at('02:00')->withoutOverlapping();
+//        $schedule->command(SyncPDIBlockCommand::class)->daily()->at('02:00')->withoutOverlapping();
     }
 
 
