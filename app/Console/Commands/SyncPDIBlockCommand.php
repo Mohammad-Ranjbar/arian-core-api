@@ -29,7 +29,7 @@ class SyncPDIBlockCommand extends Command
 
        $reasonId = BlockReason::query()->where('id',config('erp.pdi_block_reason_id'))->firstOrCreate([
             'title' => 'PDI BLOCK',
-            'block_type' => 'COP',
+            'block_type' => 'Critical',
         ])->getAttribute('id');
 
         $url = config('erp.block_pdi');
