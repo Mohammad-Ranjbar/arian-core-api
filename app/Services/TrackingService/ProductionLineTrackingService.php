@@ -97,7 +97,7 @@ class ProductionLineTrackingService extends BaseTrackingService
     public function sendToErp($record): void
     {
         $type = $record->getAttribute('model')->item_type;
-        logger($record->getAttribute('model'));
+        logger($record->getAttribute('model')->item_type);
         $params = [
             'vINL' => $record->vin,
             'wCGroup' => '',
