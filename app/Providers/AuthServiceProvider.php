@@ -32,6 +32,7 @@ use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\ProductionTest;
 use App\Models\ProductionTestResult;
+use App\Models\QcCode;
 use App\Models\Role;
 use App\Models\SaleCompany;
 use App\Models\SaleInvoice;
@@ -112,6 +113,7 @@ class AuthServiceProvider extends ServiceProvider
         CabinNumber::class => CrudPolicy::class,
         Setting::class => CrudPolicy::class,
         Screw::class => CrudPolicy::class,
+        QcCode::class => CrudPolicy::class,
         TorqueMeasuringEquipment::class => CrudPolicy::class,
         TorqueCoefficient::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
