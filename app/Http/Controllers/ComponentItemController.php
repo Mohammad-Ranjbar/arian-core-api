@@ -39,7 +39,7 @@ class ComponentItemController extends Controller
         if ($filter) {
             $items = $items
                 ->filter(function ($item) {
-                    return isset($item->Main_Component);
+                    return isset($item->Main_Component) && $item->Main_Component == true;
                 });
         } else {
             $items = $items
