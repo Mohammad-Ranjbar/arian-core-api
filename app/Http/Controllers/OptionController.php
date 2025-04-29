@@ -21,6 +21,7 @@ use App\Repositories\PalletTypeRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProductionLineRepository;
 use App\Repositories\ProductionTestRepository;
+use App\Repositories\QcCodeRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SaleLocationRepository;
 use App\Repositories\SalonRepository;
@@ -88,6 +89,7 @@ class OptionController extends Controller
             'body-options' => BodyOptionRepository::class,
             'year-maps' => YearMapRepository::class,
             'color-maps' => ColorMapRepository::class,
+            'qc-codes' => QcCodeRepository::class,
 
             default => false,
         };
