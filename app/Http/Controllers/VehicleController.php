@@ -11,6 +11,7 @@ use App\Models\ActionLog;
 use App\Models\Barcode;
 use App\Models\GeneralProductItem;
 use App\Models\Job;
+use App\Models\QcCode;
 use App\Models\Vehicle;
 use App\Repositories\ActionLogRepository;
 use App\Repositories\CarModelRepository;
@@ -136,7 +137,8 @@ class VehicleController extends CrudController
                     return $this->responseError('All barcodes have not been submitted yet.', 400);
                 }
             }
-            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'],$validatedData['type']);
+            $qcCode = QcCode::query()->where('title',$validatedData['qc_status'])->first();
+            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'],$validatedData['type'],$qcCode->getAttribute('type'));
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
@@ -161,10 +163,10 @@ class VehicleController extends CrudController
      * @param  string  $qcStatus
      * @return array
      */
-    private function updateStatus(string $vin, string $qcStatus,$type): array
+    private function updateStatus(string $vin, string $qcStatus,$type,$qcType): array
     {
-        return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts',
-            ['vINP' => $vin, 'qCStatusP' => $qcStatus,'itemTypeP' => $type]);
+        return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts_Zone',
+            ['vINP' => $vin, 'qCStatusP' => $qcStatus,'itemTypeP' => $type,'qCTypeP' => $qcType]);
 
     }
 
