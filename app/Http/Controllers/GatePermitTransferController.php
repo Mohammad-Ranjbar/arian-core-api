@@ -38,7 +38,8 @@ class GatePermitTransferController extends Controller
                 $parameters = [
                     'url' => config('erp.gate'),
                     'parameters' => ['barcodeInfoP' => $permit->getAttribute('model_id'),'itemTypeP' => $permit->getAttribute('item_type')],
-                    'method' => 'ApproveExit',
+//                    'method' => 'ApproveExit',
+                    'method' => 'ApproveExit_Zone',
                     'section' => 'gate-permit-exit'
                 ];
             } elseif ($record->getAttribute('type') == 'enter') {
