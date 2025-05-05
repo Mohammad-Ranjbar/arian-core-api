@@ -159,7 +159,7 @@ class SaleLocationController extends CrudController
      */
     private function transfer(string $vin, string $saleLocationCode): array
     {
-        return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts',
+        return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts_Zone',
             ['vINP' => $vin, 'toLocationTypeP' => $saleLocationCode]);
 
     }
