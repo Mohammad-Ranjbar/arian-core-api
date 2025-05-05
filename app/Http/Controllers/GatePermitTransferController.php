@@ -46,7 +46,8 @@ class GatePermitTransferController extends Controller
                 $parameters = [
                     'url' => config('erp.approve'),
                     'parameters' =>  ['vINP' => $permit->getAttribute('model_id'),'itemTypeP' => $permit->getAttribute('item_type')],
-                    'method' => 'ApproveReturn',
+//                    'method' => 'ApproveReturn',
+                    'method' => 'ApproveReturn_Zone',
                     'section' => 'gate-permit-enter'
                 ];
             }
