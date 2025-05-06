@@ -30,6 +30,7 @@ class UserRepository extends BaseRepository
             'national_code' => 'required|string|digits:10|unique:users,national_code',
             'locations'     => 'nullable|array',
             'locations.*'   => 'nullable|exists:locations,id',
+            'is_active'     => 'required|boolean',
         ],
         'update' => [
             'name'          => 'required',
@@ -44,6 +45,7 @@ class UserRepository extends BaseRepository
             'national_code' => 'required|string|digits:10|unique:users,national_code,',
             'locations'     => 'nullable|array',
             'locations.*'   => 'nullable|exists:locations,id',
+            'is_active'     => 'required|boolean',
         ]
     ];
 
