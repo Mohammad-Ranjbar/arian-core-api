@@ -27,7 +27,9 @@ class UserRepository extends BaseRepository
             'roles.*'       => 'exists:roles,id',
             'makeCodes'     => 'nullable|array',
             'makeCodes.*'   => 'exists:make_codes,id',
-            'national_code' => 'required|string|digits:10|unique:users,national_code'
+            'national_code' => 'required|string|digits:10|unique:users,national_code',
+            'locations'     => 'nullable|array',
+            'locations.*'   => 'nullable|exists:locations,id',
         ],
         'update' => [
             'name'          => 'required',
@@ -39,7 +41,9 @@ class UserRepository extends BaseRepository
             'roles.*'       => 'exists:roles,id',
             'makeCodes'     => 'nullable|array',
             'makeCodes.*'   => 'exists:make_codes,id',
-            'national_code' => 'required|string|digits:10|unique:users,national_code,'
+            'national_code' => 'required|string|digits:10|unique:users,national_code,',
+            'locations'     => 'nullable|array',
+            'locations.*'   => 'nullable|exists:locations,id',
         ]
     ];
 
