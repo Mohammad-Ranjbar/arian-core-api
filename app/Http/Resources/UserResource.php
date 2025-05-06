@@ -14,7 +14,7 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'            => $this->resource->id,
+//            'id'            => $this->resource->id,
             'name'          => $this->resource->name,
             'email'         => $this->resource->email,
             'avatar'        => $this->resource->avatar,
@@ -22,8 +22,8 @@ class UserResource extends JsonResource
             'national_code' => $this->resource->national_code,
             'roles'         => $this->resource->roles()->get()->pluck('id')->all(),
             'makeCodes'     => $this->resource->makeCodes()->get()->pluck('id')->all(),
-            'is_active'     => $this->resource->is_active,
-            'locations'     => $this->resource->locations()->get()->pluck('id')->all(),
+//            'is_active'     => $this->resource->is_active,
+//            'locations'     => $this->resource->locations()->get()->pluck('id')->all(),
         ];
     }
 }
