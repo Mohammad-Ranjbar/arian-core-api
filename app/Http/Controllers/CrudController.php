@@ -110,8 +110,7 @@ class CrudController extends Controller
         try {
             DB::beginTransaction();
             $model = $this->repository->update($id, $data);
-            $this->afterSave($model, $data);
-            $model = $model->refresh();
+            $model = $this->afterSave($model, $data);
             DB::commit();
             return new $this->resource($model);
         } catch (Exception $exception) {
