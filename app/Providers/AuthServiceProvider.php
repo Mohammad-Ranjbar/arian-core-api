@@ -49,6 +49,7 @@ use App\Models\StopType;
 use App\Models\SynchronousType;
 use App\Models\TorqueCoefficient;
 use App\Models\TorqueMeasuringEquipment;
+use App\Models\TorqueMeasuringEquipment;
 use App\Models\TransitCompany;
 use App\Models\User;
 use App\Models\Vehicle;
