@@ -68,6 +68,7 @@ use App\Http\Controllers\SubmitIncidentLocationController;
 use App\Http\Controllers\SynchronousController;
 use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\SynchronousTypeItemController;
+use App\Http\Controllers\TorqueCoefficientController;
 use App\Http\Controllers\TorqueMeasuringEquipmentController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
@@ -393,6 +394,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'body-options' => BodyOptionController::class,
         'screws' => ScrewController::class,
         'torque-measuring-equipments' => TorqueMeasuringEquipmentController::class,
+        'torque-coefficients' => TorqueCoefficientController::class,
     ]);
 
     /*
