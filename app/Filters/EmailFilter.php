@@ -21,7 +21,7 @@ class EmailFilter
         if (!request()->has('email') || !request()->get('email')) {
             return $next($request);
         }
-        return $next($request)->where('email', 'LIKE', '%'.request()->input('email').'%');
+        return $next($request)->where('email', request()->input('email'));
     }
 
 }
