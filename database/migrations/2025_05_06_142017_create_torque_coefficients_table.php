@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->float('high_1')->default(0);
             $table->float('high_2')->default(0);
             $table->float('high_3')->default(0);
+            $table->float('high_4')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

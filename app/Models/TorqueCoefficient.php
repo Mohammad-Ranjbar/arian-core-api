@@ -16,6 +16,7 @@ class TorqueCoefficient extends Model
         'high_1',
         'high_2',
         'high_3',
+        'high_4',
         'is_active',
     ];
 

@@ -19,6 +19,7 @@ class TorqueCoefficientRepository extends BaseRepository
             'high_1'    => 'required|numeric',
             'high_2'    => 'required|numeric',
             'high_3'    => 'required|numeric',
+            'high_4'    => 'required|numeric',
             'is_active' => 'required|boolean',
         ],
         'update' => [
@@ -28,6 +29,7 @@ class TorqueCoefficientRepository extends BaseRepository
             'high_1'    => 'required|numeric',
             'high_2'    => 'required|numeric',
             'high_3'    => 'required|numeric',
+            'high_4'    => 'required|numeric',
             'is_active' => 'required|boolean',
         ]
     ];

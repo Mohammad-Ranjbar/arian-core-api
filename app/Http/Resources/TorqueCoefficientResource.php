@@ -22,6 +22,7 @@ class TorqueCoefficientResource extends JsonResource
             'high_1'    => $this->resource->high_1,
             'high_2'    => $this->resource->high_2,
             'high_3'    => $this->resource->high_3,
+            'high_4'    => $this->resource->high_4,
             'is_active' => $this->resource->is_active,
             'created_at'=> $this->resource->created_at,
         ];
