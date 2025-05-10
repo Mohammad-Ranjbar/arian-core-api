@@ -28,7 +28,7 @@ class CustomLocationController extends Controller
                 'title' => 'سایت تولیدی خمین'
             ]
             ];
-        } elseif ($request->get('type') == 'qc') {
+        } elseif ($request->get('type') == 'qc' || $request->get('type') == 'pdi') {
             $data = Station::query()->whereHas('users', fn($query) => $query->where('user_id', Auth::id()))
                 ->get()->map(function ($station) {
                     return [
