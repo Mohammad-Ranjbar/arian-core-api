@@ -78,6 +78,7 @@ use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
 use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
+use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
@@ -100,7 +101,7 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
     Route::delete('/production-tracking/{tracking}', [ProductionTrackingController::class, 'destroy'])->name('production-tracking-destroy');
     Route::get('/system-block-items', [BlockItemController::class, 'systemBlocks'])->name('system-block-items');
     Route::post('/basket-batch-update', [BasketController::class, 'batchUpdate'])->name('basket-batch-update');
