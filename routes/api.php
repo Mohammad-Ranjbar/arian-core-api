@@ -79,9 +79,10 @@ use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
 use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
+use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/report-bol/{batch}',[BillOfLadingController::class,'reportBol']);
+Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 
 Route::get('/block-history/{vehicle}', BlockHistoryController::class);
@@ -92,7 +93,7 @@ Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
 
 
-Route::get('/synchronous/{number}',[SynchronousController::class,'getBySynchronousNumber'])->name('search-synchronous-by-number');
+Route::get('/synchronous/{number}', [SynchronousController::class, 'getBySynchronousNumber'])->name('search-synchronous-by-number');
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -394,9 +395,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'year-maps' => YearMapController::class,
         'body-options' => BodyOptionController::class,
         'torque-measuring-equipments' => TorqueMeasuringEquipmentController::class,
-        'torque-coefficients' => TorqueCoefficientController::class,
         'screws' => ScrewController::class,
-        'torque-measuring-equipments' => TorqueMeasuringEquipmentController::class,
         'qc-codes' => QcCodeController::class,
         'torque-coefficients' => TorqueCoefficientController::class,
     ]);
