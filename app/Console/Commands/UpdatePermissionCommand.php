@@ -29,6 +29,11 @@ class UpdatePermissionCommand extends Command
             'vehicles.faults.qc.report_excel',
             'vehicles.faults.evaluation.report_excel',
 
+            'vehicles.faults.pdi.index',
+            'vehicles.faults.pdi.submit',
+            'vehicles.faults.pdi.report',
+            'vehicles.faults.pdi.report_excel',
+
             'bill-of-lading.change-status.temporary_receipt',
             'bill-of-lading.change-status.enter',
             'bill-of-lading.change-status.discharge',
