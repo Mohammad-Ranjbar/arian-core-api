@@ -19,7 +19,8 @@ class UserShortResource extends JsonResource
             'email'         => $this->resource->email,
             'mobile'        => $this->resource->mobile,
             'national_code' => $this->resource->national_code,
-            'stations'      => $this->resource->stations
+            'stations'      => $this->resource->stations,
+            'is_active'     => $this->resource->is_active,
         ];
     }
 }
