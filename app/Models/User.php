@@ -24,7 +24,8 @@ class User extends Authenticatable
         'mobile',
         'avatar',
         'password',
-        'national_code'
+        'national_code',
+        'is_active',
     ];
 
     /**
@@ -41,6 +42,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
 
     /**

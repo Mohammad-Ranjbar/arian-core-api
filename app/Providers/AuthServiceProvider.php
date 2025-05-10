@@ -46,6 +46,8 @@ use App\Models\StopFact;
 use App\Models\StopReason;
 use App\Models\StopType;
 use App\Models\SynchronousType;
+use App\Models\TorqueCoefficient;
+use App\Models\TorqueMeasuringEquipment;
 use App\Models\TransitCompany;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -110,6 +112,8 @@ class AuthServiceProvider extends ServiceProvider
         CabinNumber::class => CrudPolicy::class,
         Setting::class => CrudPolicy::class,
         Screw::class => CrudPolicy::class,
+        TorqueMeasuringEquipment::class => CrudPolicy::class,
+        TorqueCoefficient::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];

@@ -21,6 +21,7 @@ class GatePermitResource extends JsonResource
             'model_type'  => $this->resource->model?->getTable() ?? 'unknown',
             'model_id'    => $this->resource->model->id ? $this->resource->model->id : $this->resource->model->vin,
             'model'       => $this->resource->model,
+            'bol_no'       => 1234,
             'deleted_at'  => $this->resource->deleted_at,
             'created_at' => $this->resource->created_at,
         ];

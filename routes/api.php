@@ -68,6 +68,8 @@ use App\Http\Controllers\SubmitIncidentLocationController;
 use App\Http\Controllers\SynchronousController;
 use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\SynchronousTypeItemController;
+use App\Http\Controllers\TorqueCoefficientController;
+use App\Http\Controllers\TorqueMeasuringEquipmentController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
@@ -76,9 +78,10 @@ use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
 use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
+use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/report-bol/{batch}',[BillOfLadingController::class,'reportBol']);
+Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 
 Route::get('/block-history/{vehicle}', BlockHistoryController::class);
@@ -89,7 +92,7 @@ Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
 
 
-Route::get('/synchronous/{number}',[SynchronousController::class,'getBySynchronousNumber'])->name('search-synchronous-by-number');
+Route::get('/synchronous/{number}', [SynchronousController::class, 'getBySynchronousNumber'])->name('search-synchronous-by-number');
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -98,13 +101,13 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
-Route::middleware('auth:sanctum')->group(function () {
-    Route::delete('/production-tracking/{tracking}',[ProductionTrackingController::class,'destroy'])->name('production-tracking-destroy');
-    Route::get('/system-block-items',[BlockItemController::class,'systemBlocks'])->name('system-block-items');
-    Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
+Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
+    Route::delete('/production-tracking/{tracking}', [ProductionTrackingController::class, 'destroy'])->name('production-tracking-destroy');
+    Route::get('/system-block-items', [BlockItemController::class, 'systemBlocks'])->name('system-block-items');
+    Route::post('/basket-batch-update', [BasketController::class, 'batchUpdate'])->name('basket-batch-update');
     Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
     Route::put('/erp-jobs/{erpJob}', [ErpJobController::class, 'retry'])->name('retry-erp-jobs');
-    Route::post('/basket-batch-update',[BasketController::class,'batchUpdate'])->name('basket-batch-update');
+    Route::post('/basket-batch-update', [BasketController::class, 'batchUpdate'])->name('basket-batch-update');
     Route::get('/vehicle-shortages', [ShortageController::class, 'vehicleShortages'])->name('vehicle-shortages');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
@@ -117,7 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
         [BillOfLadingController::class, 'returnContainer'])->name('return-container');
 
     Route::post('/register-cross-reference/{synchronousType}', [SynchronousTypeItemController::class, 'store'])->name('register-cross-reference');
-    Route::delete('/synchronous-type-item/{synchronousTypeItem}',[SynchronousTypeItemController::class,'destroy'])->name('synchronous-type-item.destroy');
+    Route::delete('/synchronous-type-item/{synchronousTypeItem}', [SynchronousTypeItemController::class, 'destroy'])->name('synchronous-type-item.destroy');
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
     Route::get('/report-vehicle-qc', [VehicleController::class, 'reportVehicleQc'])->name('report-vehicle-qc');
@@ -390,7 +393,9 @@ Route::middleware('auth:sanctum')->group(function () {
         'color-maps' => ColorMapController::class,
         'year-maps' => YearMapController::class,
         'body-options' => BodyOptionController::class,
-        'screws' => ScrewController::class
+        'screws' => ScrewController::class,
+        'torque-measuring-equipments' => TorqueMeasuringEquipmentController::class,
+        'torque-coefficients' => TorqueCoefficientController::class,
     ]);
 
     /*

@@ -23,7 +23,7 @@ class FaultReportExcelRequest extends FormRequest
             'make_code.*' => 'required|exists:make_codes,id',
             'car_model' => 'nullable|array',
             'car_model.*' => 'nullable|exists:car_models,id',
-            'type' => 'required|in:qc,evaluation',
+            'type' => 'required|in:qc,evaluation,pdi',
             'user_id' => 'nullable',
             'method' => 'nullable',
             'intensities' => 'nullable',
