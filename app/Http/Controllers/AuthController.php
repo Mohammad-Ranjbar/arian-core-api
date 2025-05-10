@@ -41,6 +41,9 @@ class AuthController extends Controller
                 ->orWhere('mobile', $validatedData['username'])
                 ->first();
 
+            if ($user->getAttribute('is_active') == 0) {
+                return $this->responseError('کاربر غیر فعال میباشد', 404);
+            }
             if (!isset($user)) {
                 return $this->responseError('کاربر با مشخصات وارد شده موجود نیست', 404);
             }
