@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BarcodeResource;
 use App\Jobs\ExportJob;
+use App\Models\Barcode;
 use App\Models\GeneralProductItem;
 use App\Models\Job;
 use App\Models\Vehicle;
@@ -149,6 +150,14 @@ class BarcodeController extends CrudController
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
+    }
+
+
+    public function getInfo(string $code)
+    {
+        $barcode = Barcode::query()->where('code', $code)->firstOrFail();
+
+        return BarcodeResource::make($barcode);
     }
 
 }
