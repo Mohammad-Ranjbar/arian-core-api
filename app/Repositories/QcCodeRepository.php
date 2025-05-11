@@ -11,19 +11,21 @@ class QcCodeRepository extends BaseRepository
      * @var array|array[]
      */
     protected array $rules = [
-        'create'    => [
-                'title' => 'required|string|unique:qc_codes,title',
-                'item_type' => 'required|in:vehicle,body',
-                'type' => 'required|in:0,1',
+        'create' => [
+            'title' => 'required|string|unique:qc_codes,title',
+            'item_type' => 'required|in:vehicle,body',
+            'type' => 'required|in:0,1',
+            'description' => 'nullable|string',
         ], 'update' => [
             'title' => 'required|string|unique:qc_codes,title,',
             'item_type' => 'required|in:vehicle,body',
             'type' => 'required|in:0,1',
+            'description' => 'nullable|string',
         ]
     ];
 
     /**
-     * @param  QcCode  $model
+     * @param QcCode $model
      */
     public function __construct(QcCode $model)
     {
@@ -32,7 +34,8 @@ class QcCodeRepository extends BaseRepository
             $this->rules['update']['title'] .= request()->route()->parameter('qc_code');
         }
     }
-    public function getOptions():array
+
+    public function getOptions(): array
     {
         return $this->get('id', 'asc', request()->get('limit'))->map(function ($item) {
             return [

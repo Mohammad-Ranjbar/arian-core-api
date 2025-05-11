@@ -13,6 +13,7 @@ class QcCode extends Model
         'title',
         'item_type',
         'type',
+        'description',
     ];
 
 }
