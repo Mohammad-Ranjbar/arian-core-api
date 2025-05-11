@@ -20,7 +20,7 @@ class UpdateQcStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'qc_status'      => 'required|string',
+            'qc_status'      => 'required',
             'qc_description' => 'nullable',
             'type' => 'required|string'
         ];

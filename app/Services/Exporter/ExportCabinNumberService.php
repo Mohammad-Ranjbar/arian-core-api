@@ -4,9 +4,7 @@ namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
 use App\Exports\CabinNumberReportExport;
-use App\Exports\ShortageReportExport;
 use App\Models\CabinNumber;
-use App\Models\ShortageItem;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;

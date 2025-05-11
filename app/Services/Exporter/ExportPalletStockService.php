@@ -4,7 +4,6 @@ namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
 use App\Exports\PalletStockReportExport;
-use App\Exports\PalletTransactionReportExport;
 use App\Models\PalletTransaction;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;

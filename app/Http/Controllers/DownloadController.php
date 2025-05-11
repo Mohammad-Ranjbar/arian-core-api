@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DownloadController extends Controller
 {
@@ -18,8 +19,19 @@ class DownloadController extends Controller
         abort(404);
     }
 
-    public function s3(Request $request)
+    public function s3(Request $request): StreamedResponse
     {
-        return Storage::disk('s3')->download($request->get('path'));
+        $response = new StreamedResponse(function () use ($request) {
+            $stream = Storage::disk('s3')->readStream($request->get('path'));
+            fpassthru($stream);
+            fclose($stream);
+        });
+
+        $fileName = basename($request->get('path'));
+
+        $response->headers->set('Content-Type', Storage::disk('s3')->mimeType($request->get('path')));
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+
+        return $response;
     }
 }

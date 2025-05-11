@@ -5,25 +5,24 @@ namespace App\Services\Exporter;
 use App\Events\JobProcessEvent;
 use App\Exports\BillOfLadingReportExport;
 use App\Models\BillOfLading;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ExportBillOfLadingsService extends BaseExporterService
 {
 
-    /**
-     * @param $job
-     * @param $type
-     */
+
     public function __construct(public $job)
     {
 
     }
 
+
     /**
-     * @return string
-     * @throws BindingResolutionException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function export(): string
     {

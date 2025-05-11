@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Filters\UserMakeCodeFilter;
 use App\libs\BaseRepository;
 use App\Models\CarModel;
 
@@ -42,6 +43,7 @@ class CarModelRepository extends BaseRepository
         if (request()->route()) {
             $this->rules['update']['reference'] .= request()->route()->parameter('car_model');
         }
+        $this->filters[] = UserMakeCodeFilter::class;
     }
 
     public function getOptions(): array

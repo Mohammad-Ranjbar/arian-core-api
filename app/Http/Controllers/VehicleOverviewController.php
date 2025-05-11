@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ActionLog;
 use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
-use App\Models\BlockItem;
 use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ErpProductItem;
 use App\Models\Location;
@@ -32,10 +31,27 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
 
+        $itemsReference = [
+            [
+                'file'  => '/api/dl-file?path=diesel/12T.zip',
+                'title' => 'جک ۱۲ تن'
+            ],
+        ];
+        $checkList = [
+            [
+                'file'  => '/api/dl-file?path=check-lists/JAC-N120.xlsx',
+                'title' => 'جک ۱۲ تن'
+            ],
+        ];
+
         $qrLinks = [
             [
                 'file'  => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
+            ],
+            [
+                'file'  => '/api/dl-file?path=BOM/N721-BOM.xlsx',
+                'title' => 'BOM JAC ۱۲ تن'
             ],
         ];
 
@@ -65,7 +81,11 @@ class VehicleOverviewController extends Controller
         $incomingControlList = [
             [
                 'file'  => '/api/dl-file?path=incoming-control/JAC-Incoming-Control.zip',
-                'title' => 'جک'
+                'title' => 'جک ۶-۸.۵-۹ تن'
+            ],
+            [
+                'file'  => '/api/dl-file?path=incoming-control/JAC-Incoming-Control-12.zip',
+                'title' => 'جک ۱۲ تن'
             ],
             [
                 'file'  => '/api/dl-file?path=incoming-control/Lamari-Incoming-Control.zip',
@@ -231,10 +251,16 @@ class VehicleOverviewController extends Controller
                     'heads'  => [],
                     'values' => [
                         [
-                            'file'  => '/api/dl-file?path=torque-reports/torque-report.zip',
+                            'file'  => '/api/dl-file?path=torque-reports/torque-reports_torque-report.zip',
                             'title' => 'گزارش گشتاور سنجی'
                         ],
                     ]
+                ],
+                [
+                    'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $checkList
                 ],
                 [
                     'title'  => 'ایرادات کیفی حین تولید و کنترل نهایی محصول '.$qcChecked,
@@ -383,6 +409,12 @@ class VehicleOverviewController extends Controller
                     'type'   => 'download-list',
                     'heads'  => [],
                     'values' => $copList
+                ],
+                [
+                    'title'  => 'شناسنامه فنی قطعات',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $itemsReference
                 ],
                 $police,
                 [

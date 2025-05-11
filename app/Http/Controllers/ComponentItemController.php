@@ -14,6 +14,9 @@ class ComponentItemController extends Controller
     {
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function all(Vehicle $vehicle): JsonResponse
     {
         return $this->main($vehicle, false);
@@ -36,7 +39,7 @@ class ComponentItemController extends Controller
         if ($filter) {
             $items = $items
                 ->filter(function ($item) {
-                    return $item->Main_Component;
+                    return isset($item->Main_Component) && $item->Main_Component == true;
                 });
         } else {
             $items = $items

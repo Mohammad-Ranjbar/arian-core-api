@@ -38,14 +38,16 @@ class GatePermitTransferController extends Controller
                 $parameters = [
                     'url' => config('erp.gate'),
                     'parameters' => ['barcodeInfoP' => $permit->getAttribute('model_id'),'itemTypeP' => $permit->getAttribute('item_type')],
-                    'method' => 'ApproveExit',
+//                    'method' => 'ApproveExit',
+                    'method' => 'ApproveExit_Zone',
                     'section' => 'gate-permit-exit'
                 ];
             } elseif ($record->getAttribute('type') == 'enter') {
                 $parameters = [
                     'url' => config('erp.approve'),
                     'parameters' =>  ['vINP' => $permit->getAttribute('model_id'),'itemTypeP' => $permit->getAttribute('item_type')],
-                    'method' => 'ApproveReturn',
+//                    'method' => 'ApproveReturn',
+                    'method' => 'ApproveReturn_Zone',
                     'section' => 'gate-permit-enter'
                 ];
             }

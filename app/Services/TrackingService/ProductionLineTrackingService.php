@@ -103,18 +103,16 @@ class ProductionLineTrackingService extends BaseTrackingService
         return $this->prepareData($data);
     }
 
-    /**
-     * @param $record
-     * @return void
-     * @throws Exception
-     */
     public function sendToErp($record): void
     {
+        $type = $record->getAttribute('model')->item_type;
+
         $params = [
-            'vINL'         => $record->vin,
-            'wCGroup'      => '',
+            'vINL' => $record->vin,
+            'wCGroup' => '',
             'withTracking' => 'false',
-            'withOutput'   => 'true',//change to true => shaghayegh
+            'withOutput' => 'true',
+            'itemTypeP' => $type
         ];
 
         if ($record->type == 'exit') {
@@ -128,9 +126,9 @@ class ProductionLineTrackingService extends BaseTrackingService
         if ($count = $shortages->count()) {
             $method = 'PostProduction_OnlyBIN_Shortage';
             $params['lackItemNo'] = $shortages->implode('erpProductItem.reference', ',');
-            //TODO refactor with new method navision
             $params['lackRoutingNo'] = $shortages->implode('routing_link_code', ',');
             $params['numberFractionalItems'] = $count;
+            $params['itemTypeP'] = $type;
         }
 
         $data = [
