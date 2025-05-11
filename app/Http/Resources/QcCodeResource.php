@@ -19,6 +19,7 @@ class QcCodeResource extends JsonResource
             'title' => $this->resource->title,
             'item_type' => $this->resource->item_type,
             'type' => $this->resource->type,
+            'description' => $this->resource->description,
         ];
     }
 }
