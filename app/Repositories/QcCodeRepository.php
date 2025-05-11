@@ -41,6 +41,7 @@ class QcCodeRepository extends BaseRepository
             return [
                 'id' => $item->id,
                 'title' => $item->title .' - ' . $item->description,
+                'value' => $item->title,
                 'item_type' => $item->item_type,
             ];
         })->all();
