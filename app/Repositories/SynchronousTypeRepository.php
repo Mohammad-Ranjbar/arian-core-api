@@ -17,11 +17,13 @@ class SynchronousTypeRepository extends BaseRepository
             'title'              => 'required|string',
             'qty'                => 'required|numeric',
             'printer_ip'         => 'required|string',
+            'type'               => 'required|string',
         ], 'update' => [
             'production_line_id' => 'required|exists:production_lines,id',
             'title'              => 'required|string',
             'qty'                => 'required|numeric',
             'printer_ip'         => 'required|string',
+            'type'               => 'required|string',
         ]
     ];
 
