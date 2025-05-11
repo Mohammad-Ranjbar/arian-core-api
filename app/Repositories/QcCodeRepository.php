@@ -40,7 +40,7 @@ class QcCodeRepository extends BaseRepository
         return $this->get('id', 'asc', request()->get('limit'))->map(function ($item) {
             return [
                 'id' => $item->id,
-                'title' => $item->title,
+                'title' => $item->title .' - ' . $item->description,
                 'item_type' => $item->item_type,
             ];
         })->all();
