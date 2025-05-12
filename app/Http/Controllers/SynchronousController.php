@@ -73,7 +73,13 @@ class SynchronousController extends Controller
             })
             ->where('synchronous_type_id', $items[1])
             ->where('counter', $items[2])
-            ->firstOrFail();
+            ->first();
+
+        if (!$synchronous) {
+            return response()->json([
+                'message' => 'شماره وارد شده نامعتبر است'
+            ], 422);
+        }
         return new SynchronousResource($synchronous);
     }
 
