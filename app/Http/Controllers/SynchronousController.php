@@ -67,8 +67,13 @@ class SynchronousController extends Controller
                 'message' => 'شماره وارد شده نامعتبر است'
             ], 422);
         }
-        $synchronous = Synchronous::query()->where('synchronous_type_id', $items[1])->where('counter',
-            $items[2])->firstOrFail();
+        $synchronous = Synchronous::query()
+            ->whereDoesntHave('synchronousType', function ($q) {
+                $q->where('type', 'engine');
+            })
+            ->where('synchronous_type_id', $items[1])
+            ->where('counter', $items[2])
+            ->firstOrFail();
         return new SynchronousResource($synchronous);
     }
 
