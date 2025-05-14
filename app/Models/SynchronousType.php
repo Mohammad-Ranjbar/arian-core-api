@@ -25,4 +25,9 @@ class SynchronousType extends Model
     {
         return $this->hasMany(SynchronousTypeItem::class);
     }
+
+    public function synchronous(): HasMany
+    {
+        return $this->hasMany(Synchronous::class);
+    }
 }
