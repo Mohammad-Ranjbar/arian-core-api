@@ -72,6 +72,7 @@ class SynchronousController extends Controller
                 $q->where('type', 'engine');
             })
             ->where('synchronous_type_id', $items[1])
+            ->where('capacity', 0)
             ->where('counter', $items[2])
             ->first();
 
