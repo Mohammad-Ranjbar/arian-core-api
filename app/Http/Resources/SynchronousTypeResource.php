@@ -23,6 +23,7 @@ class SynchronousTypeResource extends JsonResource
             'type'               => $this->resource->type,
             'productionLine'     => new ProductionLineResource($this->resource->productionLine),
             'items'              => SynchronousTypeItemResource::collection($this->resource->items),
+            'has_synchronous'    => $this->resource->synchronous()->count() > 0
         ];
     }
 }
