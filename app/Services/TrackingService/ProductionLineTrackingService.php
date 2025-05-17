@@ -50,7 +50,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             $item = $synchronousType->items()->where('car_model_id',
                 $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
             if (!$item) {
-                return;
+                continue;
             }
             if (!$synchronous) {
                 $counter = Synchronous::query()
