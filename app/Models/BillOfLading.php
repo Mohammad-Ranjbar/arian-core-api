@@ -190,6 +190,7 @@ class BillOfLading extends Model
                         'type' => $type,
                         'exit_type' => $exitType,
                         'item_type' => $itemType,
+                        'source_id' => $this->getAttribute('location_source_id')
                     ]);
 
                     if ($type == 'exit') {
