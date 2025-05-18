@@ -14,6 +14,7 @@ use App\Models\Car;
 use App\Models\CarModel;
 use App\Models\ColorMap;
 use App\Models\Container;
+use App\Models\CopPlan;
 use App\Models\Driver;
 use App\Models\Element;
 use App\Models\File;
@@ -23,11 +24,15 @@ use App\Models\Incident;
 use App\Models\IncidentCategory;
 use App\Models\Inspection;
 use App\Models\Inventory;
+use App\Models\ItemInputChecklist;
+use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
 use App\Models\LocationAttribute;
 use App\Models\MakeCode;
 use App\Models\Pallet;
 use App\Models\PalletType;
+use App\Models\ProductBom;
+use App\Models\ProductionChecklist;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\ProductionTest;
@@ -116,6 +121,11 @@ class AuthServiceProvider extends ServiceProvider
         TorqueMeasuringEquipment::class => CrudPolicy::class,
         QcCode::class => CrudPolicy::class,
         TorqueCoefficient::class => CrudPolicy::class,
+        ProductionChecklist::class => CrudPolicy::class,
+        ItemInputChecklist::class => CrudPolicy::class,
+        CopPlan::class => CrudPolicy::class,
+        ItemTechnicalChecklist::class => CrudPolicy::class,
+        ProductBom::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];
