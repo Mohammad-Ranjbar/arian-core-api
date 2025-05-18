@@ -107,7 +107,7 @@ class BasketController extends CrudController
             'section' => 'send-basket',
             'user_id' => Auth::id(),
             'method' => 'GroupItemReclassJournal',
-            'url' => config('erp.basket'),
+            'url' => config('erp.basket_batch'),
             'parameters' => $parameters,
             'queue' => ErpJob::QUEUE_UNIQUE
         ]);
