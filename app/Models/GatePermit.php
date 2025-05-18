@@ -17,7 +17,7 @@ class GatePermit extends Model
      * @var string[]
      */
     protected $fillable = [
-        'model_type', 'model_id', 'type', 'location_id', 'owner_id', 'owner_type', 'exit_type','item_type'
+        'model_type', 'model_id', 'type', 'location_id', 'owner_id', 'owner_type', 'exit_type','item_type','source_id'
     ];
 
 
@@ -27,6 +27,11 @@ class GatePermit extends Model
     public function model(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function source(): BelongsTo
+    {
+        return $this->belongsTo(Location::class,'source_id');
     }
 
     public function location(): BelongsTo

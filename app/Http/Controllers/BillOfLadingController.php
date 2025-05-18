@@ -277,7 +277,7 @@ class BillOfLadingController extends CrudController
                 'code' => [
                     'required',
                     'string',
-                    'max:255', // Adjust as needed
+                    'max:255',
                     Rule::unique('bill_of_ladings')->where(function ($query) {
                         return $query->where('location_source_id', request()->get('location_source_id'))
                             ->where('location_destination_id', request()->get('location_destination_id'));

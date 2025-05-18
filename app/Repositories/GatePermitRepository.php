@@ -19,11 +19,13 @@ class GatePermitRepository extends BaseRepository
             'type' => 'required|in:enter,exit',
             'exit_type' => ['nullable', 'required_if:type,exit', 'in:1,2'],
             'location_id' => ['required', 'exists:locations,id'],
+            'source_id' => ['required', 'exists:locations,id'],
         ], 'update' => [
             'type' => 'required|in:enter,exit',
             'vin' => 'required|string|exists:vehicles,vin',
             'exit_type' => ['nullable', 'required_if:type,exit', 'in:1,2'],
             'location_id' => ['required', 'exists:locations,id'],
+            'source_id' => ['required', 'exists:locations,id'],
         ]
     ];
 
