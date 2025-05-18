@@ -12,6 +12,7 @@ use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
 use App\Models\Tracking;
 use App\Models\Vehicle;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class ProductionLineTrackingService extends BaseTrackingService
@@ -46,24 +47,32 @@ class ProductionLineTrackingService extends BaseTrackingService
         foreach ($synchronousTypes as $synchronousType) {
             $synchronous = Synchronous::query()->where('capacity', '>', 0)
                 ->where('synchronous_type_id', $synchronousType->id)->first();
+            $item = $synchronousType->items()->where('car_model_id',
+                $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
+            if (!$item) {
+                continue;
+            }
             if (!$synchronous) {
                 $counter = Synchronous::query()
                         ->where('synchronous_type_id', $synchronousType->id)->max('counter') + 1;
-                $synchronousType->items()->where('car_model_id', $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
+
                 $synchronous = Synchronous::query()->create([
                     'synchronous_type_id' => $synchronousType->id,
-                    'counter' => $counter,
-                    'capacity' => $synchronousType->qty,
+                    'counter'             => $counter,
+                    'capacity'            => $synchronousType->qty,
                 ]);
 
-
             }
+
             SynchronousItem::query()->create([
-                'synchronous_id' => $synchronous->getAttribute('id'),
-                'vin' => $vin,
+                'synchronous_id'      => $synchronous->getAttribute('id'),
+                'vin'                 => $vin,
+                'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
+                'cross_reference'     => $item->getAttribute('cross_reference'),
             ]);
             $synchronous->decrement('capacity');
             dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
+
         }
 
     }
@@ -123,18 +132,18 @@ class ProductionLineTrackingService extends BaseTrackingService
         }
 
         $data = [
-            'user_id' => Auth::id(),
-            'section' => 'production-line-tracking-' . $record->type,
-            'model_id' => $record->id,
+            'user_id'    => Auth::id(),
+            'section'    => 'production-line-tracking-'.$record->type,
+            'model_id'   => $record->id,
             'model_type' => Tracking::class,
-            'method' => $method,
-            'url' => config('erp.post_production'),
+            'method'     => $method,
+            'url'        => config('erp.post_production'),
             'parameters' => $params,
-            'queue' => ErpJob::QUEUE_UNIQUE
+            'queue'      => ErpJob::QUEUE_UNIQUE
         ];
 
         $erpJob = ErpJob::query()->where([
-            'model_id' => $record->id,
+            'model_id'   => $record->id,
             'model_type' => Tracking::class,
         ])->first();
         if (empty($erpJob)) {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BarcodeForPoliceResource;
 use App\Http\Resources\BarcodeResource;
 use App\Jobs\ExportJob;
 use App\Models\Barcode;
@@ -157,7 +158,7 @@ class BarcodeController extends CrudController
     {
         $barcode = Barcode::query()->where('code', $code)->firstOrFail();
 
-        return BarcodeResource::make($barcode);
+        return BarcodeForPoliceResource::make($barcode);
     }
 
 }

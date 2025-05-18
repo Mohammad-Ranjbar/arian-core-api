@@ -17,6 +17,7 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -24,24 +25,26 @@ use Illuminate\Validation\Rule;
 class GatePermitController extends CrudController
 {
 
-    public function __construct(public readonly GatePermitRepository $repository,public VehicleController $vehicleController)
+    public function __construct(public readonly GatePermitRepository $repository, public VehicleController $vehicleController)
     {
         $this->applyAuthorizeResource();
         $this->setResource(GatePermitResource::class);
     }
 
-    public function customStoreRules(): array
-    {
-        return [
-            'item_type' => 'required|in:0,1,2',
-            'vin' => ['required',
-                'string',
-                'exists:vehicles,vin',
-                Rule::unique('gate_permits','model_id')->whereNull('deleted_at')
-            ],
-        ];
-    }
 
+    public function index(Request $request): JsonResponse|AnonymousResourceCollection
+    {
+        $data = GatePermit::query()->whereHas('source', function ($source) {
+            $source->whereHas('users', function ($user) {
+                $user->where('users.id', Auth::id());
+            });
+        })->orWhereHas('location', function ($source) {
+            $source->whereHas('users', function ($user) {
+                $user->where('users.id', Auth::id());
+            });
+        })->paginate($request->get('per_page', 15));
+        return GatePermitResource::collection($data);
+    }
 
     /**
      * @param Request $request
@@ -49,7 +52,7 @@ class GatePermitController extends CrudController
      */
     public function store(Request $request): mixed
     {
-        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),$this->customStoreRules()));
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         try {
             DB::beginTransaction();
             $validatedData['model_type'] = Vehicle::class;
@@ -68,7 +71,7 @@ class GatePermitController extends CrudController
                     return $this->responseError($response['message'], 400);
                 }
             } elseif ($validatedData['type'] == 'enter') {
-                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'),$validatedData['item_type']);
+                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'), $validatedData['item_type']);
 
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
@@ -88,6 +91,17 @@ class GatePermitController extends CrudController
         }
     }
 
+    public function customStoreRules(): array
+    {
+        return [
+            'item_type' => 'required|in:0,1,2',
+            'vin' => ['required',
+                'string',
+                'exists:vehicles,vin',
+                Rule::unique('gate_permits', 'model_id')->whereNull('deleted_at')
+            ],
+        ];
+    }
 
     public function reportExcel(ReportExcelGatePermitRequest $request): JsonResponse
     {
@@ -117,7 +131,7 @@ class GatePermitController extends CrudController
         $this->authorize('gate-permits.print');
         try {
             $this->vehicleController->getData($gatePermit->getAttribute('model_id'));
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             logger($exception->getMessage());
         }
         return new JsonResponse(

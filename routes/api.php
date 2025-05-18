@@ -23,6 +23,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ErpJobController;
+use App\Http\Controllers\ErpProductItemController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitTransferController;
@@ -92,8 +93,9 @@ Route::any('/', function () {
 Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
 
+Route::get('/synchronous/{number}',[SynchronousController::class,'getBySynchronousNumber'])->name('search-synchronous-by-number');
+Route::put('/synchronous-items/{synchronousItem}',[SynchronousController::class,'updateCrossReference'])->name('update-synchronous-item');
 
-Route::get('/synchronous/{number}', [SynchronousController::class, 'getBySynchronousNumber'])->name('search-synchronous-by-number');
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -120,9 +122,10 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::post('/return-container/{billOfLading}',
         [BillOfLadingController::class, 'returnContainer'])->name('return-container');
-
+    Route::get('/erp-product-items/{erpProductItem}/cross-references', [ErpProductItemController::class, 'crossReferences'])->name('erp-product-items.cross-references');
     Route::post('/register-cross-reference/{synchronousType}', [SynchronousTypeItemController::class, 'store'])->name('register-cross-reference');
     Route::delete('/synchronous-type-item/{synchronousTypeItem}', [SynchronousTypeItemController::class, 'destroy'])->name('synchronous-type-item.destroy');
+
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
     Route::get('/report-vehicle-qc', [VehicleController::class, 'reportVehicleQc'])->name('report-vehicle-qc');

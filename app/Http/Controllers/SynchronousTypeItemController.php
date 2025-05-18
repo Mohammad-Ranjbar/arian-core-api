@@ -26,16 +26,18 @@ class SynchronousTypeItemController extends Controller
             ->exists()) {
             return response()->json([
                 'message' => 'برای این مدل خودرو قبلا ثبت شده است'
-            ]);
+            ],422);
         }
         $erpProductItem = ErpProductItem::query()->findOrFail($validatedData['erp_product_item_id']);
         $crossReferences = $this->erpCrossReference->get($erpProductItem->getAttribute('reference'));
 
-        if (!in_array($validatedData['cross_reference'], $crossReferences)) {
+        if (!empty($validatedData['cross_reference']) && !in_array($validatedData['cross_reference'], $crossReferences)) {
             return response()->json([
                 'message' => 'کراس رفرنس وارد شده نامعتبر است'
-            ]);
+            ],422);
         }
+        $validatedData['synchronous_type_id'] = $synchronousType->getAttribute('id');
+        $validatedData['is_active'] = true;
         return new SynchronousTypeItemResource(SynchronousTypeItem::query()->create($validatedData));
     }
 

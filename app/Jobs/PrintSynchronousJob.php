@@ -34,6 +34,10 @@ class PrintSynchronousJob implements ShouldQueue
     {
         /** @var Synchronous $synchronous */
         $synchronous = Synchronous::query()->find($this->id);
+        $ip = $synchronous->getAttribute('synchronousType')->printer_ip;
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return;
+        }
         if ($synchronous->getAttribute('capacity') !== 0) {
             return;
         }
@@ -57,6 +61,7 @@ class PrintSynchronousJob implements ShouldQueue
                     $item->vehicle->vin,
                     $item->vehicle->getProductionType(),
                     $item->vehicle->carModel->title,
+                    $item->erpProductItem?->title,
                     $item->vehicle->makeCode->title,
                     $item->vehicle->color_code,
                     jdate($item->created_at)->toDateString(),
@@ -68,7 +73,7 @@ class PrintSynchronousJob implements ShouldQueue
         $mpdf->WriteHTML($content);
         $path = storage_path('synchronous-'.$synchronous->getAttribute('id').'.pdf');
         $mpdf->Output($path, 'F');
-        $socket = fsockopen($synchronous->getAttribute('synchronousType')->printer_ip, 9100);
+        $socket = fsockopen($ip, 9100);
         $pdf = file_get_contents($path);
         fwrite($socket, $pdf);
         fclose($socket);

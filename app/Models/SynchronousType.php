@@ -12,7 +12,8 @@ class SynchronousType extends Model
         'title',
         'production_line_id',
         'qty',
-        'printer_ip'
+        'printer_ip',
+        'type'
     ];
 
     public function productionLine(): BelongsTo
@@ -23,5 +24,10 @@ class SynchronousType extends Model
     public function items(): HasMany
     {
         return $this->hasMany(SynchronousTypeItem::class);
+    }
+
+    public function synchronous(): HasMany
+    {
+        return $this->hasMany(Synchronous::class);
     }
 }

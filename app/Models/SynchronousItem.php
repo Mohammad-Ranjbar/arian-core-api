@@ -11,7 +11,7 @@ class SynchronousItem extends Model
         'synchronous_id',
         'vin',
         'erp_product_item_id',
-        'cross_reference'
+        'cross_reference','checked'
     ];
 
     public function vehicle(): BelongsTo
