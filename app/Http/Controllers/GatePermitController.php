@@ -51,7 +51,7 @@ class GatePermitController extends CrudController
     {
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(),$this->customStoreRules()));
         try {
-//            DB::beginTransaction();
+            DB::beginTransaction();
             $validatedData['model_type'] = Vehicle::class;
             $validatedData['model_id'] = $validatedData['vin'];
             $validatedData['owner_id'] = Auth::id();
@@ -59,31 +59,31 @@ class GatePermitController extends CrudController
 
             $location = Location::query()->find($validatedData['location_id']);
 
-//            if ($validatedData['type'] == 'exit') {
-//
-//                $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
-//                    $location->getAttribute('code'), $validatedData['item_type']);
-//
-//                if ($response['status'] !== 'ok') {
-//                    return $this->responseError($response['message'], 400);
-//                }
-//            } elseif ($validatedData['type'] == 'enter') {
-//                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'),$validatedData['item_type']);
-//
-//                if ($response['status'] !== 'ok') {
-//                    return $this->responseError($response['message'], 400);
-//                }
-//            }
+            if ($validatedData['type'] == 'exit') {
+
+                $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
+                    $location->getAttribute('code'), $validatedData['item_type']);
+
+                if ($response['status'] !== 'ok') {
+                    return $this->responseError($response['message'], 400);
+                }
+            } elseif ($validatedData['type'] == 'enter') {
+                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'),$validatedData['item_type']);
+
+                if ($response['status'] !== 'ok') {
+                    return $this->responseError($response['message'], 400);
+                }
+            }
 
 
             unset($validatedData['vin']);
 
             $saveItem = $this->repository->store($validatedData);
             $data = new $this->resource($saveItem);
-//            DB::commit();
+            DB::commit();
             return $data;
         } catch (Exception $exception) {
-//            DB::rollBack();
+            DB::rollBack();
             return $this->responseError($exception->getMessage(), 500);
         }
     }
