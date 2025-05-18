@@ -15,6 +15,7 @@ use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ColorMapController;
 use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
+use App\Http\Controllers\CopPlanController;
 use App\Http\Controllers\CustomLocationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliverVehicleToCustomerController;
@@ -33,6 +34,8 @@ use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\IncomingVehicleController;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ItemInputChecklistController;
+use App\Http\Controllers\ItemTechnicalChecklistController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JoinChannelController;
 use App\Http\Controllers\LineActivityStartStopController;
@@ -44,6 +47,8 @@ use App\Http\Controllers\PalletController;
 use App\Http\Controllers\PalletTransactionController;
 use App\Http\Controllers\PalletTypeController;
 use App\Http\Controllers\PendingInvoiceController;
+use App\Http\Controllers\ProductBomController;
+use App\Http\Controllers\ProductionChecklistController;
 use App\Http\Controllers\ProductionLineActivityController;
 use App\Http\Controllers\ProductionLineController;
 use App\Http\Controllers\ProductionTestController;
@@ -93,8 +98,8 @@ Route::any('/', function () {
 Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
 
-Route::get('/synchronous/{number}',[SynchronousController::class,'getBySynchronousNumber'])->name('search-synchronous-by-number');
-Route::put('/synchronous-items/{synchronousItem}',[SynchronousController::class,'updateCrossReference'])->name('update-synchronous-item');
+Route::get('/synchronous/{number}', [SynchronousController::class, 'getBySynchronousNumber'])->name('search-synchronous-by-number');
+Route::put('/synchronous-items/{synchronousItem}', [SynchronousController::class, 'updateCrossReference'])->name('update-synchronous-item');
 
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
@@ -105,7 +110,7 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
-    Route::get('/info-barcode/{code}',[BarcodeController::class,'getInfo'])->name('info-barcode');
+    Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
     Route::delete('/production-tracking/{tracking}', [ProductionTrackingController::class, 'destroy'])->name('production-tracking-destroy');
     Route::get('/system-block-items', [BlockItemController::class, 'systemBlocks'])->name('system-block-items');
     Route::post('/basket-batch-update', [BasketController::class, 'batchUpdate'])->name('basket-batch-update');
@@ -402,6 +407,11 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'screws' => ScrewController::class,
         'qc-codes' => QcCodeController::class,
         'torque-coefficients' => TorqueCoefficientController::class,
+        'production-checklists' => ProductionChecklistController::class,
+        'item-input-checklists' => ItemInputChecklistController::class,
+        'cop-plans' => CopPlanController::class,
+        'item-technical-checklists' => ItemTechnicalChecklistController::class,
+        'product-boms' => ProductBomController::class,
     ]);
 
     /*
