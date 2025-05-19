@@ -21,11 +21,13 @@ class ItemInputChecklistRepository extends BaseRepository
             'title' => 'required',
             'carModels' => 'required|array',
             'carModels.*' => 'required|exists:car_models,id',
+            'file_id' => 'required|exists:files,uuid',
         ],
         'update' => [
             'title' => 'required',
             'carModels' => 'required|array',
             'carModels.*' => 'required|exists:car_models,id',
+            'file_id' => 'required|exists:files,uuid',
         ]
     ];
 
