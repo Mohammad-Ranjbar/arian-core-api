@@ -12,6 +12,7 @@
         {{$vin}}
         <br>
             <span style="font-size: 20px">{{$carModel}}</span>
+        <br>
 
         <small>{{$productItem}}</small>
         <br>
