@@ -16,7 +16,7 @@ class VehicleTorqueTestController extends Controller
         $validatedData = $request->validated();
         $validatedData['screw_id'] = $vehicleTorqueTest->getAttribute('screw_id');
 
-        $data = $vehicleTorqueTest->childTests()->create($validatedData);
+        $vehicleTorqueTest->childTests()->create($validatedData);
 
         $vehicleTorqueTest->load('childTests');
 
