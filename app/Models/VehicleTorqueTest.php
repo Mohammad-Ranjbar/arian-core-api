@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VehicleTorqueTest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vin', 'value', 'screw_id', 'user_id'];
+    protected $fillable = ['vin', 'value', 'screw_id', 'user_id', 'vehicle_torque_test_id'];
 
     public static function getReportData($data)
     {
@@ -32,6 +33,17 @@ class VehicleTorqueTest extends Model
         }
 
         return $query->get();
+    }
+
+    public function parentTest(): BelongsTo
+    {
+        return $this->belongsTo(VehicleTorqueTest::class, 'vehicle_torque_test_id');
+    }
+
+    // Define the relationship to child tests
+    public function childTests(): HasMany
+    {
+        return $this->hasMany(VehicleTorqueTest::class, 'vehicle_torque_test_id');
     }
 
     public function vehicle(): BelongsTo

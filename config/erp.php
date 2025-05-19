@@ -17,6 +17,7 @@ return [
     'make_codes'       => env('ARIAN_URL_MAKE_CODES',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/Make_List_API"),
     'basket'           => env('WSDL_BASKET', 'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/Item_Reclass_Journal_API'),
+    'basket_batch'           => env('WSDL_BASKET_BATCH', 'http://172.16.0.58:7047/Pars_pregolive/WS/Pars/Codeunit/GeneralAPI'),
 
     'display_board'    => env('WSDL_DISPLAY_BOARD',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),

@@ -83,6 +83,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
+use App\Http\Controllers\VehicleTorqueTestController;
 use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
@@ -110,6 +111,8 @@ Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
+
+    Route::post('/repeat-vehicle_torque_test/{vehicleTorqueTest}', VehicleTorqueTestController::class)->name('repeat-vehicle_torque_test');
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
     Route::delete('/production-tracking/{tracking}', [ProductionTrackingController::class, 'destroy'])->name('production-tracking-destroy');
     Route::get('/system-block-items', [BlockItemController::class, 'systemBlocks'])->name('system-block-items');
