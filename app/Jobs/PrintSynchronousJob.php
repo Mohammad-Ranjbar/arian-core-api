@@ -54,11 +54,16 @@ class PrintSynchronousJob implements ShouldQueue
     {
 
         $mpdf = new Mpdf([
-            'mode'         => 'utf-8',
-            'format'       => 'B10',
-            'tempDir'      => storage_path('app/mpdf_temp'),
-            'default_font' => 'xbriyaz',
-            'orientation'  => 'L'
+            'mode'          => 'utf-8',
+            'format'        => [100, 50],
+            'tempDir'       => storage_path('app/mpdf_temp'),
+            'default_font'  => 'xbriyaz',
+            'margin_left'   => 0,
+            'margin_right'  => 0,
+            'margin_top'    => 5,
+            'margin_bottom' => 0,
+            'margin_header' => 0,
+            'margin_footer' => 0,
         ]);
         $generator = new BarcodeGeneratorPNG();
         $item = $synchronous->SynchronousItems()->first();

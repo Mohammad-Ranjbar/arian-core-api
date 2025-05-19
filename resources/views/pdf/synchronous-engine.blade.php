@@ -5,23 +5,18 @@
     <title>Synchronous</title>
 </head>
 <body dir="rtl">
-<div style="width: 100%; text-align: center">
-    <div>
+<div style="text-align: center">
+
         <img src="{{$barcode}}" alt=""/>
-    </div>
-    <div>
+        <br>
         {{$vin}}
-    </div>
-    <h1>
-        {{$carModel}}
-    </h1>
-    <div>
+        <br>
+            <span style="font-size: 20px">{{$carModel}}</span>
+
         <small>{{$productItem}}</small>
-    </div>
-    <div>
+        <br>
         {{$date}} {{$time}}
-    </div>
-    <div>{{$number}}</div>
+        <br/>{{$number}}
 
 </div>
 </body>
