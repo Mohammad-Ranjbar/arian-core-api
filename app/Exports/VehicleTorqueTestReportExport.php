@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class VehicleTorqueTestReportExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithEvents
 {
@@ -22,16 +23,37 @@ class VehicleTorqueTestReportExport implements FromCollection, WithMapping, With
     {
     }
 
-    /**
-     * @return mixed
-     */
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->getDelegate()->setRightToLeft(true);
+
+                $highestRow = $event->sheet->getDelegate()->getHighestRow();
+
+                for ($row = 2; $row <= $highestRow; $row++) {
+                    $value = $event->sheet->getCell('B' . $row)->getValue();
+                    $color = $this->getColorBasedOnValue($value);
+
+                    $event->sheet->getDelegate()->getStyle('B' . $row)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'color' => ['argb' => $color],
+                        ]
+                    ]);
+                }
             },
         ];
+    }
+
+    private function getColorBasedOnValue($value): string
+    {
+        if ($value > 100) {
+            return 'FF0000'; // Red
+        } elseif ($value > 50) {
+            return 'FFFF00'; // Yellow
+        }
+        return '00FF00'; // Green
     }
 
     /**
