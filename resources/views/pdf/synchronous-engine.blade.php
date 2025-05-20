@@ -9,14 +9,14 @@
 
         <img src="{{$barcode}}" alt=""/>
         <br>
-        {{$vin}}
+        <span style="font-size: 10px">{{$vin}}</span>
         <br>
-            <span style="font-size: 20px">{{$carModel}}</span>
+            <span style="font-size: 14px">{{$carModel}}</span>
         <br>
 
-        <small>{{$productItem}}</small>
+        <small style="font-size: 8px">{{$productItem}}</small>
         <br>
-        {{$date}} {{$time}}
+        <span>{{$date}} {{$time}}</span>
         <br/>{{$number}}
 
 </div>

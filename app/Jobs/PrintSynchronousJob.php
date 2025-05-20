@@ -67,7 +67,7 @@ class PrintSynchronousJob implements ShouldQueue
         ]);
         $generator = new BarcodeGeneratorPNG();
         $item = $synchronous->SynchronousItems()->first();
-        $barcode = $generator->getBarcode($item->vehicle->vin, $generator::TYPE_CODE_128,1.6);
+        $barcode = $generator->getBarcode($item->vehicle->vin, $generator::TYPE_CODE_128,1.6,20);
         $barcodeImage = base64_encode($barcode);
         $barcodeSrc = 'data:image/png;base64,'.$barcodeImage;
         $content = view('pdf.synchronous-engine', [
