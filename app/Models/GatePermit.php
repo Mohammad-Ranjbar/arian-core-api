@@ -29,6 +29,7 @@ class GatePermit extends Model
                     ->join('bill_of_ladings', 'bill_of_lading_item.bill_of_lading_id', '=', 'bill_of_ladings.id');
             })
                 ->select( 'bill_of_ladings.*')
+                ->latest('bill_of_ladings.created_at')
                 ->first();
         });
     }
