@@ -10,11 +10,16 @@ class VehicleTorqueTest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vin', 'value', 'screw_id', 'user_id','range_color','range_code'];
+    protected $fillable = ['vin', 'value', 'screw_id', 'user_id', 'range_color', 'range_code', ' vehicle_torque_test_id'];
 
     public static function getReportData($data)
     {
-        $query = self::query()->with(['vehicle','screw','user']);
+        $query = self::query()->with(['vehicle', 'screw', 'user'])->whereNull('vehicle_torque_test_id')->whereIn('id', function ($query) {
+            $query->selectRaw('MIN(id)')
+                ->from('vehicle_torque_tests')
+                ->whereNull('vehicle_torque_test_id')
+                ->groupBy('screw_id');
+        });
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
