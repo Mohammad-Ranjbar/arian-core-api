@@ -60,6 +60,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleCompanyController;
 use App\Http\Controllers\SaleInvoicesController;
 use App\Http\Controllers\SaleLocationController;
+use App\Http\Controllers\SalesBridgeController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\ScrewController;
 use App\Http\Controllers\SendSmsGatewayController;
@@ -99,8 +100,10 @@ Route::any('/', function () {
 Route::get('/print-synchronous/{synchronous}',
     [SynchronousController::class, 'printSynchronous'])->name('print-synchronous');
 
-Route::get('/synchronous/{number}', [SynchronousController::class, 'getBySynchronousNumber'])->name('search-synchronous-by-number');
-Route::put('/synchronous-items/{synchronousItem}', [SynchronousController::class, 'updateCrossReference'])->name('update-synchronous-item');
+Route::get('/synchronous/{number}',
+    [SynchronousController::class, 'getBySynchronousNumber'])->name('search-synchronous-by-number');
+Route::put('/synchronous-items/{synchronousItem}',
+    [SynchronousController::class, 'updateCrossReference'])->name('update-synchronous-item');
 
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
@@ -112,9 +115,11 @@ Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
-    Route::post('/repeat-vehicle_torque_test/{vehicleTorqueTest}', VehicleTorqueTestController::class)->name('repeat-vehicle_torque_test');
+    Route::post('/repeat-vehicle_torque_test/{vehicleTorqueTest}',
+        VehicleTorqueTestController::class)->name('repeat-vehicle_torque_test');
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
-    Route::delete('/production-tracking/{tracking}', [ProductionTrackingController::class, 'destroy'])->name('production-tracking-destroy');
+    Route::delete('/production-tracking/{tracking}',
+        [ProductionTrackingController::class, 'destroy'])->name('production-tracking-destroy');
     Route::get('/system-block-items', [BlockItemController::class, 'systemBlocks'])->name('system-block-items');
     Route::post('/basket-batch-update', [BasketController::class, 'batchUpdate'])->name('basket-batch-update');
     Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
@@ -130,9 +135,12 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::post('/return-container/{billOfLading}',
         [BillOfLadingController::class, 'returnContainer'])->name('return-container');
-    Route::get('/erp-product-items/{erpProductItem}/cross-references', [ErpProductItemController::class, 'crossReferences'])->name('erp-product-items.cross-references');
-    Route::post('/register-cross-reference/{synchronousType}', [SynchronousTypeItemController::class, 'store'])->name('register-cross-reference');
-    Route::delete('/synchronous-type-item/{synchronousTypeItem}', [SynchronousTypeItemController::class, 'destroy'])->name('synchronous-type-item.destroy');
+    Route::get('/erp-product-items/{erpProductItem}/cross-references',
+        [ErpProductItemController::class, 'crossReferences'])->name('erp-product-items.cross-references');
+    Route::post('/register-cross-reference/{synchronousType}',
+        [SynchronousTypeItemController::class, 'store'])->name('register-cross-reference');
+    Route::delete('/synchronous-type-item/{synchronousTypeItem}',
+        [SynchronousTypeItemController::class, 'destroy'])->name('synchronous-type-item.destroy');
 
     Route::get('/custom-locations', CustomLocationController::class)->name('get-custom-locations');
     Route::get('/report-block-items', [BlockItemController::class, 'report'])->name('report-block-items');
@@ -251,11 +259,14 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         Route::prefix('vehicles/{vehicle}')->group(function () {
             Route::get('/screws', [ScrewController::class, 'listScrewsForVin'])->name('vehicles.screws');
             Route::get('/torque-tests', [ScrewController::class, 'torqueTests'])->name('vehicles.torque-tests');
-            Route::post('/generate-cabin-numbers', [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
+            Route::post('/generate-cabin-numbers',
+                [CabinNumberController::class, 'generate'])->name('generate.cabin-numbers');
             Route::apiResource('shortages', ShortageController::class)->only(['index', 'store', 'update', 'destroy']);
 
-            Route::get('/main-component-items', [ComponentItemController::class, 'main'])->name('vehicles.main-component-items');
-            Route::get('/all-component-items', [ComponentItemController::class, 'all'])->name('vehicles.all-component-items');
+            Route::get('/main-component-items',
+                [ComponentItemController::class, 'main'])->name('vehicles.main-component-items');
+            Route::get('/all-component-items',
+                [ComponentItemController::class, 'all'])->name('vehicles.all-component-items');
             Route::get('overview', VehicleOverviewController::class)->name('vehicle.overview');
 
             Route::post('engine-barcode', SubmitEngineBarcodeController::class)->name('submit.engine.barcode');
@@ -306,7 +317,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
     Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
     Route::group([
-        'prefix' => 'production-lines/{production_line}',
+        'prefix'     => 'production-lines/{production_line}',
         'controller' => LineActivityStartStopController::class, 'as' => 'production-lines.'
     ], function () {
         Route::get('status', 'status')->name('status');
@@ -333,7 +344,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('/report-excel-bill-of-ladings',
         [BillOfLadingController::class, 'reportExcel'])->name('report-excel-bill-of-ladings');
 
-    Route::patch('/erp-jobs/{erpJob}/change-status-to-ignore', [ErpJobController::class, 'changeStatusToIgnore'])->name('erp-job.change-status');
+    Route::patch('/erp-jobs/{erpJob}/change-status-to-ignore',
+        [ErpJobController::class, 'changeStatusToIgnore'])->name('erp-job.change-status');
     Route::get('/report-excel-test-results',
         [ProductionTestResultController::class, 'reportExcel'])->name('report-excel-test-results');
 
@@ -345,7 +357,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::post('/add-pallet', [PalletController::class, 'addPallet'])->name('add-pallet');
     Route::post('/transfer-pallet', [PalletController::class, 'transferPallet'])->name('transfer-pallet');
-    Route::get('/pallets/{pallet}/locations', [PalletController::class, 'getPalletLocations'])->name('pallet-locations');
+    Route::get('/pallets/{pallet}/locations',
+        [PalletController::class, 'getPalletLocations'])->name('pallet-locations');
 
 
     Route::get('list-sale-locations',
@@ -363,58 +376,62 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::apiResource('cabin-numbers', CabinNumberController::class)->only(['index', 'show']);
 
-    Route::get('/report-excel-cabin-numbers', [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
-    Route::get('/report-excel-pallet-transactions', [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
-    Route::get('/report-excel-pallet-stocks', [PalletController::class, 'reportExcelStocks'])->name('export-pallet-stocks');
-    Route::get('/report-excel-vehicle-torque-test', [ScrewController::class, 'reportExcel'])->name('export-vehicle-torque-test');
+    Route::get('/report-excel-cabin-numbers',
+        [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
+    Route::get('/report-excel-pallet-transactions',
+        [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
+    Route::get('/report-excel-pallet-stocks',
+        [PalletController::class, 'reportExcelStocks'])->name('export-pallet-stocks');
+    Route::get('/report-excel-vehicle-torque-test',
+        [ScrewController::class, 'reportExcel'])->name('export-vehicle-torque-test');
 
 
     Route::apiResource('settings', SettingController::class)->except('store', 'destroy');
     Route::apiResources([
-        'roles' => RoleController::class,
-        'make-codes' => MakeCodeController::class,
-        'car-models' => CarModelController::class,
-        'users' => UserController::class,
-        'salons' => SalonController::class,
-        'production-lines' => ProductionLineController::class,
-        'work-group-centers' => WorkGroupCenterController::class,
-        'stations' => StationController::class,
-        'incidents' => IncidentController::class,
-        'elements' => ElementController::class,
-        'block-reasons' => BlockReasonController::class,
-        'transit-companies' => TransitCompanyController::class,
-        'cars' => CarController::class,
-        'stop-facts' => StopFactController::class,
-        'stop-reasons' => StopReasonController::class,
-        'stop-types' => StopTypeController::class,
-        'barcodes' => BarcodeController::class,
-        'baskets' => BasketController::class,
-        'inventories' => InventoryController::class,
-        'containers' => ContainerController::class,
-        'drivers' => DriverController::class,
-        'sale-locations' => SaleLocationController::class,
-        'production-test-results' => ProductionTestResultController::class,
-        'accompanying-items' => AccompanyingItemController::class,
-        'locations' => LocationController::class,
-        'sale-companies' => SaleCompanyController::class,
-        'general-product-items' => GeneralProductItemController::class,
-        'synchronous-type' => SynchronousTypeController::class,
-        'production-tests' => ProductionTestController::class,
-        'incident-categories' => IncidentCategoryController::class,
-        'pallet-types' => PalletTypeController::class,
-        'pallets' => PalletController::class,
-        'color-maps' => ColorMapController::class,
-        'year-maps' => YearMapController::class,
-        'body-options' => BodyOptionController::class,
+        'roles'                       => RoleController::class,
+        'make-codes'                  => MakeCodeController::class,
+        'car-models'                  => CarModelController::class,
+        'users'                       => UserController::class,
+        'salons'                      => SalonController::class,
+        'production-lines'            => ProductionLineController::class,
+        'work-group-centers'          => WorkGroupCenterController::class,
+        'stations'                    => StationController::class,
+        'incidents'                   => IncidentController::class,
+        'elements'                    => ElementController::class,
+        'block-reasons'               => BlockReasonController::class,
+        'transit-companies'           => TransitCompanyController::class,
+        'cars'                        => CarController::class,
+        'stop-facts'                  => StopFactController::class,
+        'stop-reasons'                => StopReasonController::class,
+        'stop-types'                  => StopTypeController::class,
+        'barcodes'                    => BarcodeController::class,
+        'baskets'                     => BasketController::class,
+        'inventories'                 => InventoryController::class,
+        'containers'                  => ContainerController::class,
+        'drivers'                     => DriverController::class,
+        'sale-locations'              => SaleLocationController::class,
+        'production-test-results'     => ProductionTestResultController::class,
+        'accompanying-items'          => AccompanyingItemController::class,
+        'locations'                   => LocationController::class,
+        'sale-companies'              => SaleCompanyController::class,
+        'general-product-items'       => GeneralProductItemController::class,
+        'synchronous-type'            => SynchronousTypeController::class,
+        'production-tests'            => ProductionTestController::class,
+        'incident-categories'         => IncidentCategoryController::class,
+        'pallet-types'                => PalletTypeController::class,
+        'pallets'                     => PalletController::class,
+        'color-maps'                  => ColorMapController::class,
+        'year-maps'                   => YearMapController::class,
+        'body-options'                => BodyOptionController::class,
         'torque-measuring-equipments' => TorqueMeasuringEquipmentController::class,
-        'screws' => ScrewController::class,
-        'qc-codes' => QcCodeController::class,
-        'torque-coefficients' => TorqueCoefficientController::class,
-        'production-checklists' => ProductionChecklistController::class,
-        'item-input-checklists' => ItemInputChecklistController::class,
-        'cop-plans' => CopPlanController::class,
-        'item-technical-checklists' => ItemTechnicalChecklistController::class,
-        'product-boms' => ProductBomController::class,
+        'screws'                      => ScrewController::class,
+        'qc-codes'                    => QcCodeController::class,
+        'torque-coefficients'         => TorqueCoefficientController::class,
+        'production-checklists'       => ProductionChecklistController::class,
+        'item-input-checklists'       => ItemInputChecklistController::class,
+        'cop-plans'                   => CopPlanController::class,
+        'item-technical-checklists'   => ItemTechnicalChecklistController::class,
+        'product-boms'                => ProductBomController::class,
     ]);
 
     /*
@@ -435,5 +452,13 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
 
     Route::get('pending-invoices', PendingInvoiceController::class)->name('sales-company.pending-invoices');
+});
+
+Route::prefix('sb')->group(function () {
+    Route::prefix('{companyPrefix}')->group(function () {
+        Route::get('/', [SalesBridgeController::class, 'getOrderIds']);
+        Route::get('/{id}', [SalesBridgeController::class, 'getOrderDetail']);
+        Route::get('/cf/{reference}', [SalesBridgeController::class, 'getCustomerFinance']);
+    })->whereIn('companyPrefix', ['l', 'd', 'p', 'a']);
 });
 
