@@ -32,20 +32,18 @@ class GatePermitController extends CrudController
     }
 
 
-    public function index(Request $request): JsonResponse|AnonymousResourceCollection
-    {
-//        $data = GatePermit::query()->whereHas('source', function ($source) {
-//            $source->whereHas('users', function ($user) {
-//                $user->where('users.id', Auth::id());
-//            });
-//        })->orWhereHas('location', function ($source) {
-//            $source->whereHas('users', function ($user) {
-//                $user->where('users.id', Auth::id());
-//            });
-//        })->paginate($request->get('per_page', 15));
-        $data = GatePermit::query()->paginate($request->get('per_page', 15));
-        return GatePermitResource::collection($data);
-    }
+//    public function index(Request $request): JsonResponse|AnonymousResourceCollection
+//    {
+////        $data = GatePermit::query()->whereHas('source', function ($source) {
+////            $source->whereHas('users', function ($user) {
+////                $user->where('users.id', Auth::id());
+////            });
+////        })->orWhereHas('location', function ($source) {
+////            $source->whereHas('users', function ($user) {
+////                $user->where('users.id', Auth::id());
+////            });
+////        })->paginate($request->get('per_page', 15));
+//    }
 
     /**
      * @param Request $request
