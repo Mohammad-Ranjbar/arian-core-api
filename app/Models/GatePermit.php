@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -21,18 +22,9 @@ class GatePermit extends Model
         'model_type', 'model_id', 'type', 'location_id', 'owner_id', 'owner_type', 'exit_type', 'item_type', 'source_id'
     ];
 
-    public function billOfLading(): Attribute
+    public function BillOfLadingItem(): HasOne
     {
-        return Attribute::get(function () {
-            return GatePermit::query()->join('bill_of_lading_item', function ($join) {
-                $join->on('gate_permits.model_id', '=', 'bill_of_lading_item.model_id')
-                    ->join('bill_of_ladings', 'bill_of_lading_item.bill_of_lading_id', '=', 'bill_of_ladings.id');
-            })
-                ->where('bill_of_lading_item.type','bodies')
-                ->select( 'bill_of_ladings.*')
-                ->latest('bill_of_ladings.created_at')
-                ->first();
-        });
+        return $this->hasOne(BillOfLadingItem::class, 'model_id', 'model_id');
     }
 
 
