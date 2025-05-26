@@ -28,6 +28,7 @@ class GatePermit extends Model
                 $join->on('gate_permits.model_id', '=', 'bill_of_lading_item.model_id')
                     ->join('bill_of_ladings', 'bill_of_lading_item.bill_of_lading_id', '=', 'bill_of_ladings.id');
             })
+                ->where('bill_of_lading_item.type','bodies')
                 ->select( 'bill_of_ladings.*')
                 ->latest('bill_of_ladings.created_at')
                 ->first();
