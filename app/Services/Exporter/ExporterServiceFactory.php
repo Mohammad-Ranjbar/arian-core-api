@@ -4,7 +4,6 @@ namespace App\Services\Exporter;
 
 
 use Exception;
-use Illuminate\Support\Facades\Auth;
 
 class ExporterServiceFactory
 {
@@ -26,6 +25,7 @@ class ExporterServiceFactory
             'export-barcodes' => new ExportBarcodeService($job),
             'export-faults-qc' => new ExportFaultService($job, 'qc'),
             'export-faults-evaluation' => new ExportFaultService($job, 'evaluation'),
+            'export-faults-pdi' => new ExportFaultService($job, 'pdi'),
             'export-incidents' => new ExportIncidentsService($job),
             'export-production-line-activities' => new ExportProductionLineActivityService($job),
             'export-shortages' => new ExportShortageService($job),
@@ -33,7 +33,7 @@ class ExporterServiceFactory
             'export-pallet-transactions' => new ExportPalletTransactionService($job),
             'export-pallet-stocks' => new ExportPalletStockService($job),
             'export-vehicle-torque-test' => new ExportVehicleTorqueTestService($job),
-            default => throw  new Exception('Invalid input for type: ' . $job->type . 'by user id:' . Auth::id()),
+            default => throw  new Exception('Invalid input for type: '.$job->type),
         };
     }
 }
