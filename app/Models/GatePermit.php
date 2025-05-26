@@ -24,7 +24,7 @@ class GatePermit extends Model
 
     public function BillOfLadingItem(): HasOne
     {
-        return $this->hasOne(BillOfLadingItem::class, 'model_id', 'model_id');
+        return $this->hasOne(BillOfLadingItem::class, 'model_id', 'model_id')->where('type','bodies');
     }
 
 
