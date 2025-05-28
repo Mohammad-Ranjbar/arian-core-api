@@ -23,7 +23,6 @@ class UpdateOnlineOrdersCommand extends Command
         foreach ($companies as $company) {
             $url = $company->getAttribute('erp_contract_url');
             while ($url) {
-                $this->info($url);
                 $content = null;
                 try {
                     $content = Http::withHeaders([
@@ -73,7 +72,6 @@ class UpdateOnlineOrdersCommand extends Command
                             'items'  => $parsList,
                             'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                         ]);
-                        $this->info(count($parsList).' orders imported to arian-motors');
                     }
                     $bar->finish();
                 }
