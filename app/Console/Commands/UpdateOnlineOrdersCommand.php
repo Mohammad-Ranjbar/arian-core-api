@@ -32,7 +32,6 @@ class UpdateOnlineOrdersCommand extends Command
                     ])->withOptions([
                         'auth'    => config('erp.auth'),
                     ])->get($url)->json();
-                    dd($content);
                 } catch (Exception $exception) {
                     $this->warn($exception->getMessage());
                     $this->warn($url);
