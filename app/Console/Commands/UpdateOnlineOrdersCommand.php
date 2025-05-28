@@ -31,7 +31,7 @@ class UpdateOnlineOrdersCommand extends Command
                         'Accept'       => 'application/json'
                     ])->withOptions([
                         'auth'    => config('erp.auth'),
-                    ])->get($url)->json();
+                    ])->get($url)->collect();
                 } catch (Exception $exception) {
                     $this->warn($exception->getMessage());
                     $this->warn($url);
