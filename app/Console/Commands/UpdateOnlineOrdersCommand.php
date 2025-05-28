@@ -13,12 +13,6 @@ class UpdateOnlineOrdersCommand extends Command
 
     protected $signature = 'app:update-online-orders-command';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
 
     /**
      * Execute the console command.
@@ -38,6 +32,7 @@ class UpdateOnlineOrdersCommand extends Command
                     ])->withOptions([
                         'auth'    => config('erp.auth'),
                     ])->get($url)->json();
+                    dd($content);
                 } catch (Exception $exception) {
                     $this->warn($exception->getMessage());
                     $this->warn($url);
