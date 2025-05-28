@@ -62,11 +62,6 @@ class UpdateOnlineOrdersCommand extends Command
                         $bar->advance();
                     }
                     if (count($list)) {
-
-                        $this->info($company->sync_order_url);
-                        $this->info(count($list));
-                        $this->info('folder_name');
-
                         Http::post($company->sync_order_url, [
                             'items'  => $list,
                             'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
