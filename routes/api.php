@@ -128,7 +128,9 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('/vehicle-shortages', [ShortageController::class, 'vehicleShortages'])->name('vehicle-shortages');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-    Route::get('/synchronous', [SynchronousController::class, 'index'])->name('index.synchronous');
+    Route::get('/synchronous-other', [SynchronousController::class, 'otherIndex'])->name('index.other-synchronous');
+    Route::get('/synchronous-engine', [SynchronousController::class, 'engineIndex'])->name('index.engine-synchronous');
+
     Route::patch('/close-synchronous/{synchronous}',
         [SynchronousController::class, 'closeSynchronous'])->name('close-synchronous');
 

@@ -28,18 +28,38 @@ class SynchronousController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function index(): AnonymousResourceCollection
+    public function otherIndex(): AnonymousResourceCollection
     {
-        $this->authorize('index.synchronous');
+        $this->authorize('index.other-synchronous');
+        $data = Pipeline::send(
+            Synchronous::query()->with('synchronousType')
+                ->whereHas('synchronousType', function ($q) {
+                    $q->where('type', 'other');
+                })
+                ->latest()
+        )->through([
+            SynchronousProductionLineIdFilter::class,
+            SynchronousTitleFilter::class
+        ])->thenReturn()->paginate(request()->per_page ?? 15);
+        return SynchronousResource::collection($data);
+    }
 
-        $data = Pipeline::send(Synchronous::query()->with('synchronousType')->latest())
-            ->through([
-                SynchronousProductionLineIdFilter::class,
-                SynchronousTitleFilter::class
-            ])
-            ->thenReturn()->paginate(request()->per_page ?? 15);
-
-
+    /**
+     * @throws AuthorizationException
+     */
+    public function engineIndex(): AnonymousResourceCollection
+    {
+        $this->authorize('index.engine-synchronous');
+        $data = Pipeline::send(
+            Synchronous::query()->with('synchronousType')
+                ->whereHas('synchronousType', function ($q) {
+                    $q->where('type', 'engine');
+                })
+                ->latest()
+        )->through([
+            SynchronousProductionLineIdFilter::class,
+            SynchronousTitleFilter::class
+        ])->thenReturn()->paginate(request()->per_page ?? 15);
         return SynchronousResource::collection($data);
     }
 

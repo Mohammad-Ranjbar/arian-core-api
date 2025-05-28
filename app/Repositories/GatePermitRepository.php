@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Filters\AccessGatePermitFilter;
 use App\libs\BaseRepository;
 use App\Models\GatePermit;
 
@@ -57,6 +58,13 @@ class GatePermitRepository extends BaseRepository
         }
 
         return $query->get();
+    }
+
+    public function getFilters(): array
+    {
+        $filters = parent::getFilters();
+        $filters[] = AccessGatePermitFilter::class;
+        return $filters;
     }
 
 }

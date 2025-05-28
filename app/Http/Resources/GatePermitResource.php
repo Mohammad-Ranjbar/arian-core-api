@@ -23,7 +23,7 @@ class GatePermitResource extends JsonResource
             'model' => $this->resource->model,
             'source_id' => $this->resource->source_id,
             'source' => LocationResource::make($this->resource->source),
-            'billOfLading' => $this->resource->billOfLading,
+            'billOfLading' => $this->resource->BillOfLadingItem?->billOfLading ,
             'deleted_at' => $this->resource->deleted_at,
             'created_at' => $this->resource->created_at,
         ];

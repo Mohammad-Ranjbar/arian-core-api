@@ -23,6 +23,18 @@ return [
             'type' => 'gearbox',
         ]
     ],
+    'LAMACO'   => [
+        [
+            'type'   => 'custom_engine',
+            'prefix' => 'SFG15TA',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
+    ],
     'SHACMOTO' => [
         [
             'type' => 'engine',
