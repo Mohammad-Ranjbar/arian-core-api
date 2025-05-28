@@ -31,18 +31,19 @@ class UpdateOnlineOrdersCommand extends Command
                         'Accept'       => 'application/json'
                     ])->withOptions([
                         'auth'    => config('erp.auth'),
-                    ])->get($url)->collect();
+                    ])->get($url)->json();
                 } catch (Exception $exception) {
                     $this->warn($exception->getMessage());
                     $this->warn($url);
                 }
 
-                if (isset($content->value)) {
-                    $bar = $this->output->createProgressBar(count($content->value));
+                if (isset($content['value'])) {
+                    $bar = $this->output->createProgressBar(count($content['value']));
                     $bar->start();
                     $list = [];
                     $parsList = [];
-                    foreach ($content->value as $row) {
+                    foreach ($content['value'] as $item) {
+                        $row = (object) $item;
                         if ($row->Online_Contract_ID) {
                             $z = [
                                 'erp_reference' => $row->No,
@@ -79,8 +80,8 @@ class UpdateOnlineOrdersCommand extends Command
                 }
 
                 $url = null;
-                if (isset($content->{'odata.nextLink'})) {
-                    $url = $content->{'odata.nextLink'};
+                if (isset($content['odata.nextLink'])) {
+                    $url = $content['odata.nextLink'];
                 }
             }
         }
