@@ -7,6 +7,7 @@ use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
 use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ErpProductItem;
+use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
 use App\Models\ProductionLine;
 use App\Models\ProductionTestResult;
@@ -31,20 +32,28 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
 
-        $itemsReference = [
-            [
-                'file'  => '/api/dl-file?path=diesel/12T.zip',
-                'title' => 'جک ۱۲ تن'
-            ],
-        ];
-        $checkList = [
+        $fileRecord = ItemTechnicalChecklist::query()->whereHas('carModels', function ($q) use ($vehicle){
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->first();
+        $list1 = [];
+        if ($fileRecord) {
+            // todo update zzzzzz
+            $list1 = [
+                [
+                    'file'  => $fileRecord->file->zzzzz,
+                    'title' => $fileRecord->getAttribute('title')
+                ],
+            ];
+        }
+
+        $list2 = [
             [
                 'file'  => '/api/dl-file?path=check-lists/JAC-N120.xlsx',
                 'title' => 'جک ۱۲ تن'
             ],
         ];
 
-        $qrLinks = [
+        $list3 = [
             [
                 'file'  => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
@@ -55,7 +64,7 @@ class VehicleOverviewController extends Controller
             ],
         ];
 
-        $copList = [
+        $list4 = [
             [
                 'file'  => '/api/dl-file?path=cop/lamari/1.pdf',
                 'title' => 'فایل جامع طرح انطباق تولید لاماری'
@@ -260,7 +269,7 @@ class VehicleOverviewController extends Controller
                     'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $checkList
+                    'values' => $list2
                 ],
                 [
                     'title'  => 'ایرادات کیفی حین تولید و کنترل نهایی محصول '.$qcChecked,
@@ -408,20 +417,20 @@ class VehicleOverviewController extends Controller
                     'title'  => 'آرشیو فنی محصولات',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $copList
+                    'values' => $list4
                 ],
                 [
                     'title'  => 'شناسنامه فنی قطعات',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $itemsReference
+                    'values' => $list1
                 ],
                 $police,
                 [
                     'title'  => 'ویژگی های فنی و عمومی محصول',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $qrLinks
+                    'values' => $list3
                 ],
             ], $services)))
         ]);
