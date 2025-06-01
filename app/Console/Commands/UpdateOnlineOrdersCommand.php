@@ -13,12 +13,6 @@ class UpdateOnlineOrdersCommand extends Command
 
     protected $signature = 'app:update-online-orders-command';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
 
     /**
      * Execute the console command.
@@ -43,12 +37,13 @@ class UpdateOnlineOrdersCommand extends Command
                     $this->warn($url);
                 }
 
-                if (isset($content->value)) {
-                    $bar = $this->output->createProgressBar(count($content->value));
+                if (isset($content['value'])) {
+                    $bar = $this->output->createProgressBar(count($content['value']));
                     $bar->start();
                     $list = [];
                     $parsList = [];
-                    foreach ($content->value as $row) {
+                    foreach ($content['value'] as $item) {
+                        $row = (object) $item;
                         if ($row->Online_Contract_ID) {
                             $z = [
                                 'erp_reference' => $row->No,
@@ -67,7 +62,6 @@ class UpdateOnlineOrdersCommand extends Command
                         $bar->advance();
                     }
                     if (count($list)) {
-
                         Http::post($company->sync_order_url, [
                             'items'  => $list,
                             'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
@@ -79,14 +73,13 @@ class UpdateOnlineOrdersCommand extends Command
                             'items'  => $parsList,
                             'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                         ]);
-                        $this->info(count($parsList).' orders imported to arian-motors');
                     }
                     $bar->finish();
                 }
 
                 $url = null;
-                if (isset($content->{'odata.nextLink'})) {
-                    $url = $content->{'odata.nextLink'};
+                if (isset($content['odata.nextLink'])) {
+                    $url = $content['odata.nextLink'];
                 }
             }
         }

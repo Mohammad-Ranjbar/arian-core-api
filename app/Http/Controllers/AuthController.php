@@ -165,7 +165,7 @@ class AuthController extends Controller
     }
 
 
-    public function checkUserName(Request $request)
+    public function checkUserName(Request $request): UserResource|JsonResponse
     {
         $validatedData = $request->validate(['username' => 'required']);
         try {
@@ -179,7 +179,6 @@ class AuthController extends Controller
                 'message' => 'نام کاربری '.$validatedData['username'].' یافت نشد.'
             ]
             ],400);
-//            abort('422', 'نام کاربری '.$validatedData['username'].' یافت نشد.');
         }
     }
 

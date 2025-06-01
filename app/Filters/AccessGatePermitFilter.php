@@ -26,7 +26,7 @@ class AccessGatePermitFilter
            return $user->where('users.id',Auth::id());
         })->get()->pluck('id')->toArray();
 
-        return $next($request)->whereIn('location_id',$locationIds)->orWhereIn('source_id',$locationIds);
+        return $next($request)->where(fn($q) => $q->whereIn('location_id',$locationIds)->orWhereIn('source_id',$locationIds));
     }
 
 }
