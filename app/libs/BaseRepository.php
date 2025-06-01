@@ -260,6 +260,7 @@ abstract class BaseRepository
      */
     public function paginate($perPage, string $orderBy = 'id', string $orderType = 'desc'): mixed
     {
+        logger($this->makeQuery()->orderBy($orderBy, $orderType)->toSql());
         return $this->makeQuery()->orderBy($orderBy, $orderType)->paginate($perPage);
     }
 
