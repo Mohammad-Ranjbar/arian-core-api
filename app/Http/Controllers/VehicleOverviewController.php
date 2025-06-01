@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\ActionLog;
 use App\Models\Barcode;
 use App\Models\BillOfLadingItem;
+use App\Models\CopPlan;
 use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ErpProductItem;
+use App\Models\ItemInputChecklist;
+use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
+use App\Models\ProductBom;
+use App\Models\ProductionChecklist;
 use App\Models\ProductionLine;
 use App\Models\ProductionTestResult;
 use App\Models\SaleLocation;
@@ -31,79 +36,77 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
 
-        $itemsReference = [
-            [
-                'file'  => '/api/dl-file?path=diesel/12T.zip',
-                'title' => 'جک ۱۲ تن'
-            ],
-        ];
-        $checkList = [
-            [
-                'file'  => '/api/dl-file?path=check-lists/JAC-N120.xlsx',
-                'title' => 'جک ۱۲ تن'
-            ],
-        ];
+        $fileRecord = ItemTechnicalChecklist::query()->whereHas('carModels', function ($q) use ($vehicle){
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->first();
+        $list1 = [];
+        if ($fileRecord) {
+            $list1 = [
+                [
+                    'file'  =>  asset( $fileRecord->file->path),
+                    'title' => $fileRecord->getAttribute('title')
+                ],
+            ];
+        }
 
-        $qrLinks = [
+        ////////////
+        $fileRecord = ProductionChecklist::query()->whereHas('carModels', function ($q) use ($vehicle){
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->first();
+        $list2 = [];
+
+
+        if ($fileRecord){
+            $list2 = [
+                [
+                    'file'  => asset( $fileRecord->file->path),
+                    'title' => $fileRecord->getAttribute('title')
+                ],
+            ];
+        }
+
+    ///////////////
+        $fileRecord = ProductBom::query()->whereHas('carModels', function ($q) use ($vehicle){
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->first();
+        $list3 = [
             [
                 'file'  => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
             ],
-            [
-                'file'  => '/api/dl-file?path=BOM/N721-BOM.xlsx',
-                'title' => 'BOM JAC ۱۲ تن'
-            ],
         ];
+        if ($fileRecord){
+            $list3[] = [
+                'file'  => asset( $fileRecord->file->path),
+                'title' => $fileRecord->getAttribute('title')
+            ];
+        }
 
-        $copList = [
-            [
-                'file'  => '/api/dl-file?path=cop/lamari/1.pdf',
-                'title' => 'فایل جامع طرح انطباق تولید لاماری'
-            ],
-            [
-                'file'  => '/api/dl-file?path=cop/jac.zip',
-                'title' => 'فایل جامع طرح انطباق تولید جک'
-            ],
-            [
-                'file'  => '/api/dl-file?path=cop/dumper.zip',
-                'title' => 'فایل جامع طرح انطباق تولید دامپر'
-            ],
-            [
-                'file'  => '/api/dl-file?path=cop/lorry.zip',
-                'title' => 'فایل جامع طرح انطباق تولید لاری'
-            ],
-            [
-                'file'  => '/api/dl-file?path=cop/X5000-COP-PLAN.pdf',
-                'title' => 'فایل جامع طرح انطباق تولید کشنده'
-            ],
-        ];
 
-        $incomingControlList = [
-            [
-                'file'  => '/api/dl-file?path=incoming-control/JAC-Incoming-Control.zip',
-                'title' => 'جک ۶-۸.۵-۹ تن'
-            ],
-            [
-                'file'  => '/api/dl-file?path=incoming-control/JAC-Incoming-Control-12.zip',
-                'title' => 'جک ۱۲ تن'
-            ],
-            [
-                'file'  => '/api/dl-file?path=incoming-control/Lamari-Incoming-Control.zip',
-                'title' => 'لاماری'
-            ],
-            [
-                'file'  => '/api/dl-file?path=incoming-control/Lamaco-Incoming-Control.zip',
-                'title' => 'لاماکو'
-            ],
-            [
-                'file'  => '/api/dl-file?path=incoming-control/Lorry-Dumper-Incoming-Control.zip',
-                'title' => 'لاری و دامپر'
-            ],
-            [
-                'file'  => '/api/dl-file?path=incoming-control/Shacman-Incoming-Control.zip',
-                'title' => 'کشنده'
-            ],
-        ];
+        ///////////
+        $fileRecord = CopPlan::query()->whereHas('carModels', function ($q) use ($vehicle){
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->first();
+
+        $list4 = [];
+        if ($fileRecord){
+            $list4[] = [
+                'file'  => asset( $fileRecord->file->path),
+                'title' => $fileRecord->getAttribute('title')
+            ];
+        }
+
+////////
+        $fileRecord = ItemInputChecklist::query()->whereHas('carModels', function ($q) use ($vehicle){
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->first();
+        $list5 = [];
+        if ($fileRecord){
+            $list5[] = [
+                'file'  => asset( $fileRecord->file->path),
+                'title' => $fileRecord->getAttribute('title')
+            ];
+        }
 
         $incidents = VehicleIncident::query()
             ->where('vin', $vehicle->getAttribute('vin'));
@@ -215,6 +218,7 @@ class VehicleOverviewController extends Controller
             ];
         }catch (Exception $exception) {
             $componentItems = null;
+            logger($exception);
         }
 
 
@@ -225,7 +229,7 @@ class VehicleOverviewController extends Controller
                     'title'  => 'کنترل اقلام ورودی',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $incomingControlList
+                    'values' => $list5
                 ],
                 [
                     'title'  => 'بارکد قطعات',
@@ -260,7 +264,7 @@ class VehicleOverviewController extends Controller
                     'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $checkList
+                    'values' => $list2
                 ],
                 [
                     'title'  => 'ایرادات کیفی حین تولید و کنترل نهایی محصول '.$qcChecked,
@@ -318,12 +322,12 @@ class VehicleOverviewController extends Controller
                     'heads'  => [],
                     'values' => [
                         [
-                            $vehicle->data['PDI_Result'],
-                            $vehicle->data['PDI_Result_Description'].' '.$vehicle->data['PDI_Result_Description_2'],
-                            (is_numeric(strpos($vehicle->data['PDI_Result'],'Y')) or is_numeric(strpos($vehicle->data['PDI_Result'],'G'))) ?
+                            $vehicle->getAttribute('data')['PDI_Result'],
+                            $vehicle->getAttribute('data')['PDI_Result_Description'].' '.$vehicle->getAttribute('data')['PDI_Result_Description_2'],
+                            (is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'],'Y')) or is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'],'G'))) ?
                                 ($r =$vehicle->tracking()->where('model_type', SaleLocation::class)->latest()->first()) ?
                                     'تاریخ بررسی و رفع ایراد: '.
-                                    jdate($r->created_at)->toDateString()
+                                    jdate($r->getAttribute('created_at'))->toDateString()
                                     :''
                                 : ''
                         ]
@@ -408,20 +412,20 @@ class VehicleOverviewController extends Controller
                     'title'  => 'آرشیو فنی محصولات',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $copList
+                    'values' => $list4
                 ],
                 [
                     'title'  => 'شناسنامه فنی قطعات',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $itemsReference
+                    'values' => $list1
                 ],
                 $police,
                 [
                     'title'  => 'ویژگی های فنی و عمومی محصول',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => $qrLinks
+                    'values' => $list3
                 ],
             ], $services)))
         ]);
