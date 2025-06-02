@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\TrackingEvent;
 use App\Http\Resources\TrackingResource;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -83,12 +84,11 @@ class Tracking extends Model
         return $query->get();
     }
 
-    public static function getReportExitDoorData(array $data)
+    public static function getReportExitDoorData(array $data): Collection|array
     {
         $query = self::query();
 
-        $query = $query->where('model_type', Location::class)
-            ->where('model_id',1);
+        $query = $query->where('model_type', Location::class);
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
@@ -105,11 +105,19 @@ class Tracking extends Model
         if (!empty($data['user_id'])) {
             $query = $query->where('user_id', $data['user_id']);
         }
+
         if (!empty($data['make_code_id'])) {
             $query = $query->whereHas('vehicle', function ($query) use ($data) {
                 $query->where('make_code_id', $data['make_code_id']);
             });
         }
+
+        if (!empty($data['car_model_id'])) {
+            $query = $query->whereHas('vehicle', function ($query) use ($data) {
+                $query->where('car_model_id', $data['car_model_id']);
+            });
+        }
+
         return $query->get();
     }
 

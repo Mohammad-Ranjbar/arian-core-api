@@ -28,7 +28,7 @@ class GatePermitTransferController extends Controller
                 $vehicle->getAttribute('vin'))->latest()->firstOrFail();
             $record = $vehicle->tracking()->create([
                 'model_type' => Location::class,
-                'model_id'   => 1,
+                'model_id'   => $permit->getAttribute('source_id'),
                 'type'       => $permit->getAttribute('type'),
                 'user_id'    => Auth::id()
             ]);

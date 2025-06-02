@@ -9,16 +9,17 @@ class ElementResource extends JsonResource
 {
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray(Request $request): array
     {
         return [
-            'id'       => (int) $this->resource->id,
-            'title'    => $this->resource->title,
+            'id' => (int)$this->resource->id,
+            'title' => $this->resource->title,
             'title_en' => $this->resource->title_en,
-            'code'     => $this->resource->code,
+            'code' => $this->resource->code,
+            'makeCodes' => $this->resource->makeCodes->pluck('id')->toArray(),
         ];
     }
 }
