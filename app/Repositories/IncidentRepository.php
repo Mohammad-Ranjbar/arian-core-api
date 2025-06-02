@@ -41,7 +41,13 @@ class IncidentRepository extends BaseRepository
 
     public function getOptions(): array
     {
-        return $this->get()->map(function ($item) {
+        $query = $this->model->newQuery();
+        if (request()->filled('make_code_id')) {
+            $query = $query->whereHas('makeCodes', function ($makeCode){
+                $makeCode->where('id', request()->input('make_code_id'));
+            });
+        }
+        return $query->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'title' => $item->title . ' - ' . $item->code,
