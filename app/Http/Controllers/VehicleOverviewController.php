@@ -36,37 +36,37 @@ class VehicleOverviewController extends Controller
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
 
-        $fileRecord = ItemTechnicalChecklist::query()->whereHas('carModels', function ($q) use ($vehicle){
+        $fileRecord = ItemTechnicalChecklist::query()->whereHas('carModels', function ($q) use ($vehicle) {
             $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
         })->latest()->first();
         $list1 = [];
         if ($fileRecord) {
             $list1 = [
                 [
-                    'file'  =>  asset( $fileRecord->file->path),
+                    'file'  => route('dl', ['path' => $fileRecord->file->path]),
                     'title' => $fileRecord->getAttribute('title')
                 ],
             ];
         }
 
         ////////////
-        $fileRecord = ProductionChecklist::query()->whereHas('carModels', function ($q) use ($vehicle){
+        $fileRecord = ProductionChecklist::query()->whereHas('carModels', function ($q) use ($vehicle) {
             $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
         })->latest()->first();
         $list2 = [];
 
 
-        if ($fileRecord){
+        if ($fileRecord) {
             $list2 = [
                 [
-                    'file'  => asset( $fileRecord->file->path),
+                    'file'  => route('dl', ['path' => $fileRecord->file->path]),
                     'title' => $fileRecord->getAttribute('title')
                 ],
             ];
         }
 
-    ///////////////
-        $fileRecord = ProductBom::query()->whereHas('carModels', function ($q) use ($vehicle){
+        ///////////////
+        $fileRecord = ProductBom::query()->whereHas('carModels', function ($q) use ($vehicle) {
             $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
         })->latest()->first();
         $list3 = [
@@ -75,35 +75,35 @@ class VehicleOverviewController extends Controller
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
             ],
         ];
-        if ($fileRecord){
+        if ($fileRecord) {
             $list3[] = [
-                'file'  => asset( $fileRecord->file->path),
+                'file'  => route('dl', ['path' => $fileRecord->file->path]),
                 'title' => $fileRecord->getAttribute('title')
             ];
         }
 
 
         ///////////
-        $fileRecord = CopPlan::query()->whereHas('carModels', function ($q) use ($vehicle){
+        $fileRecord = CopPlan::query()->whereHas('carModels', function ($q) use ($vehicle) {
             $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
         })->latest()->first();
 
         $list4 = [];
-        if ($fileRecord){
+        if ($fileRecord) {
             $list4[] = [
-                'file'  => asset( $fileRecord->file->path),
+                'file'  => route('dl', ['path' => $fileRecord->file->path]),
                 'title' => $fileRecord->getAttribute('title')
             ];
         }
 
 ////////
-        $fileRecord = ItemInputChecklist::query()->whereHas('carModels', function ($q) use ($vehicle){
+        $fileRecord = ItemInputChecklist::query()->whereHas('carModels', function ($q) use ($vehicle) {
             $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
         })->latest()->first();
         $list5 = [];
-        if ($fileRecord){
+        if ($fileRecord) {
             $list5[] = [
-                'file'  => asset( $fileRecord->file->path),
+                'file'  => route('dl', ['path' => $fileRecord->file->path]),
                 'title' => $fileRecord->getAttribute('title')
             ];
         }
@@ -216,7 +216,7 @@ class VehicleOverviewController extends Controller
                     ];
                 })->all())
             ];
-        }catch (Exception $exception) {
+        } catch (Exception $exception) {
             $componentItems = null;
             logger($exception);
         }
@@ -287,7 +287,8 @@ class VehicleOverviewController extends Controller
                     'title'  => 'آزمون های انتهای خط',
                     'type'   => 'table',
                     'heads'  => [],
-                    'values' => ProductionTestResult::query()->where('vin', $vehicle->vin)->get()->map(function ($record) {
+                    'values' => ProductionTestResult::query()->where('vin', $vehicle->vin)->get()->map(function ($record
+                    ) {
                         return [
                             $record->productionTest->title,
                             $record->user->name,
@@ -324,37 +325,39 @@ class VehicleOverviewController extends Controller
                         [
                             $vehicle->getAttribute('data')['PDI_Result'],
                             $vehicle->getAttribute('data')['PDI_Result_Description'].' '.$vehicle->getAttribute('data')['PDI_Result_Description_2'],
-                            (is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'],'Y')) or is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'],'G'))) ?
-                                ($r =$vehicle->tracking()->where('model_type', SaleLocation::class)->latest()->first()) ?
+                            (is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'],
+                                    'Y')) or is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'], 'G'))) ?
+                                ($r = $vehicle->tracking()->where('model_type',
+                                    SaleLocation::class)->latest()->first()) ?
                                     'تاریخ بررسی و رفع ایراد: '.
                                     jdate($r->getAttribute('created_at'))->toDateString()
-                                    :''
+                                    : ''
                                 : ''
                         ]
                     ]
                 ],
-              /*
-                [
-                    'title'  => 'بلوکه',
-                    'type'   => 'table',
-                    'heads'  => [],
-                    'values' => BlockItem::query()
-                        ->where('vin', $vehicle->getAttribute('vin'))
-                        ->get()->map(function ($record) {
-                            return [
-                                $record->created_at ?
-                                    jdate($record->created_at)->toDateTimeString()
-                                    : '-'
-                                ,
-                                $record->description,
-                                $record->blockReason?->title,
-                                $record->blockedBy->name,
-                                ($record->unblockedBy) ? "رفع شده" : '--',
-                                ($record->unblockedBy) ? jdate($record->unblocked_at)->toDateTimeString() : '--'
-                            ];
-                        })->all()
-                ],
-*/
+                /*
+                  [
+                      'title'  => 'بلوکه',
+                      'type'   => 'table',
+                      'heads'  => [],
+                      'values' => BlockItem::query()
+                          ->where('vin', $vehicle->getAttribute('vin'))
+                          ->get()->map(function ($record) {
+                              return [
+                                  $record->created_at ?
+                                      jdate($record->created_at)->toDateTimeString()
+                                      : '-'
+                                  ,
+                                  $record->description,
+                                  $record->blockReason?->title,
+                                  $record->blockedBy->name,
+                                  ($record->unblockedBy) ? "رفع شده" : '--',
+                                  ($record->unblockedBy) ? jdate($record->unblocked_at)->toDateTimeString() : '--'
+                              ];
+                          })->all()
+                  ],
+  */
                 [
                     'title'  => 'رهگیری محصول - تاریخ تولید',
                     'type'   => 'table',
@@ -394,10 +397,10 @@ class VehicleOverviewController extends Controller
 //                            $q->orWhere('location_destination_id', 4);
 //                        })
                         ->get()->map(function ($record) {
-                            if(
-                            $record->billOfLading->locationSource->id === 4 or
-                            $record->billOfLading->locationDestination->id === 4
-                            ){
+                            if (
+                                $record->billOfLading->locationSource->id === 4 or
+                                $record->billOfLading->locationDestination->id === 4
+                            ) {
                                 return null;
                             }
                             return [
