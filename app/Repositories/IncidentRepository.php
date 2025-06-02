@@ -7,24 +7,29 @@ use App\Models\Incident;
 
 class IncidentRepository extends BaseRepository
 {
+    public array $searchTerms = [
+        'title', 'title_en', 'code'
+    ];
     /**
      * @var array|array[]
      */
     protected array $rules = [
         'create' => [
-            'title'    => 'required|string',
+            'title' => 'required|string',
             'title_en' => 'required|string',
-            'code'     => 'required|unique:incidents,code',
+            'code' => 'required|unique:incidents,code',
+            'makeCodes' => 'required|exists:make_codes,id',
         ],
         'update' => [
-            'title'    => 'required|string',
+            'title' => 'required|string',
             'title_en' => 'required|string',
-            'code'     => 'required|unique:incidents,code,',
+            'code' => 'required|unique:incidents,code,',
+            'makeCodes' => 'required|exists:make_codes,id',
         ]
     ];
 
     /**
-     * @param  Incident  $model
+     * @param Incident $model
      */
     public function __construct(Incident $model)
     {
@@ -33,9 +38,6 @@ class IncidentRepository extends BaseRepository
             $this->rules['update']['code'] .= request()->route()->parameter('incident');
         }
     }
-    public array $searchTerms = [
-        'title','title_en','code'
-    ];
 
     public function getOptions(): array
     {

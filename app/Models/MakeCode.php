@@ -44,4 +44,14 @@ class MakeCode extends Model
     {
         return $this->hasMany(SaleLocation::class);
     }
+
+    public function elements(): BelongsToMany
+    {
+        return $this->belongsToMany(Element::class);
+    }
+
+    public function incidents(): BelongsToMany
+    {
+        return $this->belongsToMany(Incident::class);
+    }
 }
