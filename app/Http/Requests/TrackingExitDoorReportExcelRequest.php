@@ -26,7 +26,7 @@ class TrackingExitDoorReportExcelRequest extends FormRequest
             'to'              => 'date|nullable',
             'car_model_id'    => 'nullable|exists:car_models,id',
             'make_code_id'    => 'nullable|exists:make_codes,id',
-            'locations_ids'   => 'required|array',
+            'locations_ids'   => 'nullable|array',
             'locations_ids.*' => 'exists:locations,id',
         ];
     }
