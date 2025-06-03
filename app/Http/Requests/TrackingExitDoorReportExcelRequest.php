@@ -21,13 +21,13 @@ class TrackingExitDoorReportExcelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type'            => 'in:enter,exit',
+//            'type'            => 'in:enter,exit',
             'from'            => 'date|nullable',
             'to'              => 'date|nullable',
-            'car_model_id'    => 'nullable|exists:car_models,id',
-            'make_code_id'    => 'nullable|exists:make_codes,id',
-            'locations_ids'   => 'nullable|array',
-            'locations_ids.*' => 'exists:locations,id',
+//            'car_model_id'    => 'nullable|exists:car_models,id',
+//            'make_code_id'    => 'nullable|exists:make_codes,id',
+//            'locations_ids'   => 'nullable|array',
+//            'locations_ids.*' => 'exists:locations,id',
         ];
     }
 
