@@ -53,6 +53,6 @@ return [
         env('LDAP_AUTH_TYPE', 'ntlm')
     ],
     'workgroups'       => env('LDAP_WORKGROUP', 'arian-motors.com'),
-    'share_server'     => env('SHARE_SERVER', '172.16.0.4'),
-    'share_folder'     => env('SHARE_FOLDER', 'Holding/ERP-Link/Sales Documents')
+    'share_server'     => env('SHARE_SERVER', '172.16.0.44'),
+    'share_folder'     => env('SHARE_FOLDER', 'ERP-Link/Sales Documents')
 ];
