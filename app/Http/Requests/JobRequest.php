@@ -22,6 +22,8 @@ class JobRequest extends FormRequest
     {
         return [
             'file' => 'required|exists:files,uuid',
+            'makeCodes' => 'nullable|array',
+            'makeCodes.*' => 'nullable|exists:make_codes,id',
         ];
     }
 }
