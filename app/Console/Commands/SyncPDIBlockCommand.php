@@ -27,9 +27,9 @@ class SyncPDIBlockCommand extends Command
     public function handle(): void
     {
 
-       $reasonId = BlockReason::query()->where('id',config('erp.pdi_block_reason_id'))->firstOrCreate([
+       $reasonId = BlockReason::query()->where('id',config('erp.pdi_block_reason_id'))->where('title','PDI BLOCK')->firstOrCreate([
             'title' => 'PDI BLOCK',
-            'block_type' => 'Critical',
+            'block_type' => 'critical',
         ])->getAttribute('id');
 
         $url = config('erp.block_pdi');
