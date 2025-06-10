@@ -162,7 +162,7 @@ class CrudController extends Controller
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
         $validatedData['type'] = 'import-' . $this->repository->model->getTable();
-        $validatedData['data'] = ['file' => $validatedData['file']];
+        $validatedData['data'] = [$request->all()];
         $job = Job::query()->create($validatedData);
 
         ImportJob::dispatch($job->getAttribute('uuid'));
