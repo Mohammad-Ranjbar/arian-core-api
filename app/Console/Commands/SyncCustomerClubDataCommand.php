@@ -116,7 +116,7 @@ class SyncCustomerClubDataCommand extends Command
                 $url = null;
             }
             $records = [];
-            foreach ($list as $record) {
+            foreach ($list as $key => $record) {
                 if ($record->VIN and $record->Customer_No) {
                     $records[] = [
                         'vin'           => $record->VIN,
@@ -124,8 +124,9 @@ class SyncCustomerClubDataCommand extends Command
                         'navision_data' => (array) $record
                     ];
                 }
-                if (count($records) > 99) {
+                if (count($records) > 50) {
                     $this->sendData($records);
+                    $this->info($key);
                     $records = [];
                 }
             }
