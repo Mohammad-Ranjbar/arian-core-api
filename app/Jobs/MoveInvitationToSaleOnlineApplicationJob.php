@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class MoveInvitationToSaleOnlineApplicationJob
 {
@@ -55,8 +56,11 @@ class MoveInvitationToSaleOnlineApplicationJob
                 'secret'      => md5(trim($data->Online_Contract_ID).$data->Net_To_Pay_when_issued.'xyz'),
                 'file_name'   => $invoice->data['file']
             ];
-
-            Http::post($company->getAttribute('site_url'), $sendData);
+            $url = $company->getAttribute('site_url');
+            if (Str::contains($data->Online_Contract_ID,'PARS_AM')) {
+                $url = 'https://sales.arian-motor.com/api/sync-invoices';
+            }
+            Http::post($url, $sendData);
         }
 
     }
