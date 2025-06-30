@@ -10,8 +10,12 @@ class PooyaCustomerFinanceService
     public function process($data): array
     {
         $url = 'http://172.16.0.17:7047/ArianMotors/WS/POYA/Codeunit/API_Web_Online_Sales_call_API';
-         return ErpWsdlClient::run($url,'CustomerFinanceIsReady',[
+        if (isset($data['target']) && $data['target'] == 'PARS_AM') {
+            $url = 'http://172.16.0.17:7047/ArianTurboveh/WS/Vehicle%20LAMARI/Codeunit/API_Web_Online_Sales_call_API';
+        }
+        return ErpWsdlClient::run($url, 'CustomerFinanceIsReady', [
             'customerFinanceNoP' => $data['reference'],
+            'uRLAddressP' => url('/sb/p/cf/' . $data['reference']),
             'goldenCardP' => $data['golden_warranty'],
         ]);
     }
