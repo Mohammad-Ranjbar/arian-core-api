@@ -12,18 +12,20 @@ class SynchronousTypeRepository extends BaseRepository
      * @var array|array[]
      */
     protected array $rules = [
-        'create'    => [
+        'create' => [
             'production_line_id' => 'required|exists:production_lines,id',
-            'title'              => 'required|string',
-            'qty'                => 'required|numeric',
-            'printer_ip'         => 'required|string',
-            'type'               => 'required|string',
+            'title' => 'required|string',
+            'qty' => 'required|numeric',
+            'printer_ip' => 'required|string',
+            'type' => 'required|string',
+            'printable' => 'required|boolean',
         ], 'update' => [
             'production_line_id' => 'required|exists:production_lines,id',
-            'title'              => 'required|string',
-            'qty'                => 'required|numeric',
-            'printer_ip'         => 'required|string',
-            'type'               => 'required|string',
+            'title' => 'required|string',
+            'qty' => 'required|numeric',
+            'printer_ip' => 'required|string',
+            'type' => 'required|string',
+            'printable' => 'required|boolean',
         ]
     ];
 

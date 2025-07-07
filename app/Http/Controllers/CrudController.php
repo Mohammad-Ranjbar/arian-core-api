@@ -60,9 +60,9 @@ class CrudController extends Controller
             DB::beginTransaction();
             $saveItem = $this->repository->store($validatedData);
             $saveItem = $this->afterSave($saveItem, $validatedData);
-            $data = new $this->resource($saveItem);
             DB::commit();
-            return $data;
+
+            return new $this->resource($saveItem);
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => $exception->getMessage()], 500);

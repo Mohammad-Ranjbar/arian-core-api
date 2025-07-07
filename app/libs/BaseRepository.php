@@ -65,7 +65,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -285,18 +284,8 @@ abstract class BaseRepository
 
     public function store($data)
     {
-        try {
-            DB::beginTransaction();
-            $data = $this->model->query()->create($data);
-            DB::commit();
-            return $data;
-        }catch (Exception $exception){
-            DB::rollBack();
 
-            return response([
-                'message' => $exception->getMessage()
-            ]);
-        }
+        return $this->model->query()->create($data);
 
     }
 

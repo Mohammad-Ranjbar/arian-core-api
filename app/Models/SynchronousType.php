@@ -13,7 +13,8 @@ class SynchronousType extends Model
         'production_line_id',
         'qty',
         'printer_ip',
-        'type'
+        'type',
+        'printable'
     ];
 
     public function productionLine(): BelongsTo

@@ -15,15 +15,16 @@ class SynchronousTypeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                 => $this->resource->id,
+            'id' => $this->resource->id,
             'production_line_id' => $this->resource->production_line_id,
-            'title'              => $this->resource->title,
-            'qty'                => $this->resource->qty,
-            'printer_ip'         => $this->resource->printer_ip,
-            'type'               => $this->resource->type,
-            'productionLine'     => new ProductionLineResource($this->resource->productionLine),
-            'items'              => SynchronousTypeItemResource::collection($this->resource->items),
-            'has_synchronous'    => $this->resource->synchronous()->count() > 0
+            'title' => $this->resource->title,
+            'qty' => $this->resource->qty,
+            'printer_ip' => $this->resource->printer_ip,
+            'type' => $this->resource->type,
+            'printable' => $this->resource->printable,
+            'productionLine' => new ProductionLineResource($this->resource->productionLine),
+            'items' => SynchronousTypeItemResource::collection($this->resource->items),
+            'has_synchronous' => $this->resource->synchronous()->count() > 0
         ];
     }
 }
