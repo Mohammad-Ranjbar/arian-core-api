@@ -4,6 +4,7 @@ return [
         'username' => env('SMS_USERNAME'),
         'password' => env('SMS_PASSWORD'),
         'from'     => env('SMS_FROM'),
-        'url'      => 'https://tsms.ir/url/tsmshttp.php'
+        'url'      => 'https://tsms.ir/url/tsmshttp.php',
+        'json_url'      => 'https://www.tsms.ir/json/json.php',
     ]
 ];

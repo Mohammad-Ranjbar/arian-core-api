@@ -32,6 +32,24 @@ class SmsService
         return Http::get(config('sms.tsms.url'), $data);
     }
 
+    public static function jsonSend($to, $text)
+    {
+        $username = config('sms.tsms.username');
+        $password = config('sms.tsms.password');
+
+        $mobileArray = [$to];
+        $msgArray = [trim($text)];
+        $smsNumberArray = [config('sms.tsms.from')];
+
+        return Http::post(config('sms.tsms.json_url'), [
+            'method'     => 'sendSms',
+            'username'   => $username,
+            'password'   => $password,
+            'sms_number' => $smsNumberArray,
+            'mobile'     => $mobileArray,
+            'msg'        => $msgArray
+        ])->json('rezult')[0];
+    }
     public function send(
         $number,
         $template,
@@ -47,6 +65,8 @@ class SmsService
         return true;
 
     }
+
+
 
 
 }

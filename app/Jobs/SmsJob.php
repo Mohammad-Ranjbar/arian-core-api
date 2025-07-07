@@ -29,6 +29,6 @@ class SmsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        SmsService::sendSms($this->number, $this->content);
+        SmsService::jsonSend($this->number, $this->content);
     }
 }
