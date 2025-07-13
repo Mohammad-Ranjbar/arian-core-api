@@ -143,6 +143,7 @@ class BlockItemController extends Controller
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
+                dd($response);
                 $data = [
                     'unblocked_by' => Auth::id(),
                     'unblocked_at' => Carbon::now(),
