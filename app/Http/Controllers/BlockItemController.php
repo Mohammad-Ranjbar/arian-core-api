@@ -152,7 +152,6 @@ class BlockItemController extends Controller
                 return new BlockItemResource($item);
             }
 
-            return $this->responseError('امکان انبلاک وجود ندارد');
 
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
