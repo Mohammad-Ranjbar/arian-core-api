@@ -117,8 +117,7 @@ class BlockItemController extends Controller
             $this->authorize('block-items.unblock');
 
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
-            $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
-            if (!$exists) {
+            if ($exists) {
 
                 $parameters = [
                     'barcodeInfoP' => $vehicle->getAttribute('vin'),
@@ -143,18 +142,20 @@ class BlockItemController extends Controller
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
-                dd($response);
+
                 $data = [
                     'unblocked_by' => Auth::id(),
                     'unblocked_at' => Carbon::now(),
                 ];
+                $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
 
                 $item->update($data);
                 $item = $item->fresh();
-
+                return new BlockItemResource($item);
             }
 
-            return new BlockItemResource($item);
+            return $this->responseError('امکان انبلاک وجود ندارد');
+
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
