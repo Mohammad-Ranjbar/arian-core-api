@@ -124,7 +124,12 @@ class BlockItemController extends Controller
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
             if (!$exists) {
 
-                $parameters = ['barcodeInfoP' => $vehicle->getAttribute('vin')];
+                $parameters = [
+                    'barcodeInfoP' => $vehicle->getAttribute('vin'),
+                    'pDIResultP' => request()->filled('pdi_result') ? request()->get('pdi_result') : '',
+                    'pDIDescriptionP' => request()->filled('pdi_result_description') ? request()->get('pdi_result_description') : '',
+                    'pdi_result_description2' => request()->filled('pdi_result_description2') ? request()->get('pdi_result_description2') : '',
+                ];
                 $erpJob = ErpJob::query()->create([
                     'model_id' => $id,
                     'model_type' => BlockItem::class,
