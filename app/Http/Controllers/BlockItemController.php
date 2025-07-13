@@ -117,6 +117,7 @@ class BlockItemController extends Controller
             $this->authorize('block-items.unblock');
 
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
+            $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
             if (!$exists) {
 
                 $parameters = [
@@ -146,13 +147,13 @@ class BlockItemController extends Controller
                     'unblocked_by' => Auth::id(),
                     'unblocked_at' => Carbon::now(),
                 ];
-                $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
+
                 $item->update($data);
                 $item = $item->fresh();
-                return new BlockItemResource($item);
+
             }
 
-
+            return new BlockItemResource($item);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
