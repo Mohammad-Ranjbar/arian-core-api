@@ -113,13 +113,8 @@ class BlockItemController extends Controller
      */
     public function unblock(Vehicle $vehicle, $id): BlockItemResource|JsonResponse
     {
-        try {
+//        try {
             $this->authorize('block-items.unblock');
-            $data = [
-                'unblocked_by' => Auth::id(),
-                'unblocked_at' => Carbon::now(),
-            ];
-
 
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
             if (!$exists) {
@@ -147,15 +142,19 @@ class BlockItemController extends Controller
                 if ($response['status'] !== 'ok') {
                     return $this->responseError($response['message'], 400);
                 }
+                $data = [
+                    'unblocked_by' => Auth::id(),
+                    'unblocked_at' => Carbon::now(),
+                ];
                 $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
                 $item->update($data);
             }
             $item = $item->fresh();
             return new BlockItemResource($item);
 
-        } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(), 500);
-        }
+//        } catch (Exception $exception) {
+//            return $this->responseError($exception->getMessage(), 500);
+//        }
     }
 
     public function report(Request $request): JsonResponse
