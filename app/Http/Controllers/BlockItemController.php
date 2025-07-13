@@ -106,14 +106,14 @@ class BlockItemController extends Controller
         return $record;
     }
 
+
     /**
-     * @param Vehicle $vehicle
-     * @param $id
-     * @return BlockItemResource|JsonResponse
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public function unblock(Vehicle $vehicle, $id): BlockItemResource|JsonResponse
     {
-//        try {
+        try {
             $this->authorize('block-items.unblock');
 
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
@@ -148,13 +148,15 @@ class BlockItemController extends Controller
                 ];
                 $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
                 $item->update($data);
+                $item = $item->fresh();
+                return new BlockItemResource($item);
             }
-            $item = $item->fresh();
-            return new BlockItemResource($item);
 
-//        } catch (Exception $exception) {
-//            return $this->responseError($exception->getMessage(), 500);
-//        }
+            return $this->responseError('امکان انبلاک وجود ندارد');
+
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 500);
+        }
     }
 
     public function report(Request $request): JsonResponse
