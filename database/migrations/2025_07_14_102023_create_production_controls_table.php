@@ -10,6 +10,7 @@ return new class extends Migration {
         Schema::create('production_controls', function (Blueprint $table) {
             $table->id();
             $table->string('title')->unique();
+            $table->uuid('file_id')->nullable();
             $table->timestamps();
         });
         Schema::create('car_model_production_control', function (Blueprint $table) {
