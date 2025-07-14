@@ -10,13 +10,13 @@ class ProductionControl extends Model
 {
     use HasFactory;
 
-    protected $with = ['makeCodes'];
+    protected $with = ['carModels'];
 
     protected $fillable = ['title'];
 
-    public function makeCodes(): BelongsToMany
+    public function carModels(): BelongsToMany
     {
-        return $this->belongsToMany(MakeCode::class);
+        return $this->belongsToMany(CarModel::class);
     }
 
 }

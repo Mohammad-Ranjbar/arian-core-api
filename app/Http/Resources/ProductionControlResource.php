@@ -13,7 +13,7 @@ class ProductionControlResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
-            'makeCodes' => MakeCodeResource::collection($this->resource->makeCodes),
+            'carModels' => CarModelResource::collection($this->resource->carModels),
             'created_at' => $this->resource->created_at,
 
         ];

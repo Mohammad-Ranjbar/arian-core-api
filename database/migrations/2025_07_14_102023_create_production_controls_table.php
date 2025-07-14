@@ -12,9 +12,9 @@ return new class extends Migration {
             $table->string('title')->unique();
             $table->timestamps();
         });
-        Schema::create('make_code_production_control', function (Blueprint $table) {
+        Schema::create('car_model_production_control', function (Blueprint $table) {
             $table->foreignId('production_control_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('make_code_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
         });
 
     }
@@ -22,7 +22,7 @@ return new class extends Migration {
     public function down(): void
     {
 
-        Schema::dropIfExists('make_code_production_control');
+        Schema::dropIfExists('car_model_production_control');
         Schema::dropIfExists('production_controls');
     }
 };
