@@ -28,9 +28,6 @@ class ProductionControlRepository extends BaseRepository
     public function __construct(ProductionControl $model)
     {
         $this->model = $model;
-        if (request()->route()) {
-            $this->rules['update']['title'] .= request()->route()->parameter('production_control');
-        }
     }
 
 }
