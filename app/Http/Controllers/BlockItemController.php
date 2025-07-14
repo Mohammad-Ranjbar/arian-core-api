@@ -16,6 +16,7 @@ use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\BlockItemRepository;
 use App\Repositories\BlockReasonRepository;
+use App\Services\Erp\ErpWsdlClient;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -105,41 +106,55 @@ class BlockItemController extends Controller
         return $record;
     }
 
+
     /**
-     * @param Vehicle $vehicle
-     * @param $id
-     * @return BlockItemResource|JsonResponse
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public function unblock(Vehicle $vehicle, $id): BlockItemResource|JsonResponse
     {
         try {
             $this->authorize('block-items.unblock');
-            $data = [
-                'unblocked_by' => Auth::id(),
-                'unblocked_at' => Carbon::now(),
-            ];
-            $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
-            $item->update($data);
 
             $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
-            if (!$exists) {
+            if ($exists) {
 
-                $parameters = ['barcodeInfoP' => $vehicle->getAttribute('vin')];
-                $erpJob = ErpJob::query()->create([
-                    'model_id' => $id,
-                    'model_type' => BlockItem::class,
-                    'section' => 'unblock-vehicle',
-                    'user_id' => Auth::id(),
-                    'method' => 'UnblockingVehicle',
-                    'url' => config('erp.block_unblock'),
-                    'parameters' => $parameters,
-                    'queue' => ErpJob::QUEUE_UNIQUE
-                ]);
-                ErpJobEvent::dispatch($erpJob);
+                $parameters = [
+                    'barcodeInfoP' => $vehicle->getAttribute('vin'),
+                    'pDIResultP' => request()->filled('pdi_result') ? request()->get('pdi_result') : '',
+                    'pDIDescriptionP' => request()->filled('pdi_result_description') ? request()->get('pdi_result_description') : '',
+                    'pDISecondDescriptionP' => request()->filled('pdi_result_description2') ? request()->get('pdi_result_description2') : '',
+                ];
+//                $erpJob = ErpJob::query()->create([
+//                    'model_id' => $id,
+//                    'model_type' => BlockItem::class,
+//                    'section' => 'unblock-vehicle',
+//                    'user_id' => Auth::id(),
+//                    'method' => 'UnblockingVehicle',
+//                    'url' => config('erp.block_unblock'),
+//                    'parameters' => $parameters,
+//                    'queue' => ErpJob::QUEUE_UNIQUE
+//                ]);
+//                ErpJobEvent::dispatch($erpJob);
 
+                $response = ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', $parameters);
+
+                if ($response['status'] !== 'ok') {
+                    return $this->responseError($response['message'], 400);
+                }
+
+                $data = [
+                    'unblocked_by' => Auth::id(),
+                    'unblocked_at' => Carbon::now(),
+                ];
+                $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
+
+                $item->update($data);
+                $item = $item->fresh();
+                return new BlockItemResource($item);
             }
 
-            return new BlockItemResource($item);
+            return $this->responseError('امکان انبلاک وجود ندارد');
 
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);

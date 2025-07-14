@@ -33,6 +33,7 @@ use App\Models\Pallet;
 use App\Models\PalletType;
 use App\Models\ProductBom;
 use App\Models\ProductionChecklist;
+use App\Models\ProductionControl;
 use App\Models\ProductionLine;
 use App\Models\ProductionLineActivity;
 use App\Models\ProductionTest;
@@ -126,6 +127,7 @@ class AuthServiceProvider extends ServiceProvider
         CopPlan::class => CrudPolicy::class,
         ItemTechnicalChecklist::class => CrudPolicy::class,
         ProductBom::class => CrudPolicy::class,
+        ProductionControl::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];
