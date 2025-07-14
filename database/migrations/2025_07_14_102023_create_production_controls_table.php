@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('production_controls', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->unique();
+            $table->string('title');
             $table->uuid('file_id')->nullable();
             $table->timestamps();
         });

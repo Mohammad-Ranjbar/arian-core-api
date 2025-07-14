@@ -12,12 +12,12 @@ class ProductionControlRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'title' => 'required|string|unique:production_controls,title',
+            'title' => 'required|string',
             'file_id' => 'required|exists:files,uuid',
             'carModels' => 'required|array',
             'carModels.*' => 'required|exists:car_models,id',
         ], 'update' => [
-            'title' => 'required|string|unique:production_controls,title,',
+            'title' => 'required|string',
             'file_id' => 'required|exists:files,uuid',
             'carModels' => 'required|array',
             'carModels.*' => 'required|exists:car_models,id',
