@@ -13,6 +13,7 @@ use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
 use App\Models\ProductBom;
 use App\Models\ProductionChecklist;
+use App\Models\ProductionControl;
 use App\Models\ProductionLine;
 use App\Models\ProductionTestResult;
 use App\Models\SaleLocation;
@@ -63,6 +64,25 @@ class VehicleOverviewController extends Controller
                     'title' => $fileRecord->getAttribute('title')
                 ],
             ];
+        }
+
+
+
+        ///////////////////////
+        $fileRecords = ProductionControl::query()->whereHas('carModels', function ($q) use ($vehicle) {
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->get();
+        $controlList = [];
+
+
+        if ($fileRecords->count()) {
+            foreach ($fileRecords as $fileRecord) {
+                $controlList[] =
+                    [
+                        'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                        'title' => $fileRecord->getAttribute('title')
+                    ];
+            }
         }
 
         ///////////////
@@ -253,12 +273,7 @@ class VehicleOverviewController extends Controller
                     'title'  => 'کنترل حین تولید',
                     'type'   => 'download-list',
                     'heads'  => [],
-                    'values' => [
-                        [
-                            'file'  => '/api/dl-file?path=torque-reports/torque-reports_torque-report.zip',
-                            'title' => 'گزارش گشتاور سنجی'
-                        ],
-                    ]
+                    'values' => $controlList
                 ],
                 [
                     'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
