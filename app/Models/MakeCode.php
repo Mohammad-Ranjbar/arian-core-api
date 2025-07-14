@@ -54,4 +54,9 @@ class MakeCode extends Model
     {
         return $this->belongsToMany(Incident::class);
     }
+
+    public function productionControllers(): BelongsToMany
+    {
+        return $this->belongsToMany(ProductionControl::class);
+    }
 }
