@@ -31,8 +31,8 @@ class SyncCustomerClubDataCommand extends Command
     public function addServices(): void
     {
         $result = DWVehicleServiceHistoryTree::query()
-            ->groupBy(['VIN', 'Document No_'])
-            ->selectRaw('VIN as vin, [Document No_] as document_no ,count(*) as count, max(Date) as date')
+            ->groupBy(['VIN', 'Document_No'])
+            ->selectRaw('VIN as vin, [Document_No] as document_no ,count(*) as count, max(Date) as date')
             ->get();
 
         $progress = $this->output->createProgressBar($result->count());
@@ -49,12 +49,12 @@ class SyncCustomerClubDataCommand extends Command
             $items = [];
             $list = DWVehicleServiceHistoryTree::query()
                 ->where('VIN', $row->vin)
-                ->where('Document No_', $row->document_no)
+                ->where('Document_No', $row->document_no)
                 ->get();
             foreach ($list as $item) {
                 if ((int) $item->Quantity) {
                     $items[] = [
-                        'title' => $item->Description.' '.$item->{'Description 2'},
+                        'title' => $item->Description.' '.$item->{'Description2'},
                         'qty'   => (int) $item->Quantity,
                     ];
                 }
