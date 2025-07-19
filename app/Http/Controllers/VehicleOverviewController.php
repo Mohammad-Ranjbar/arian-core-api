@@ -176,7 +176,7 @@ class VehicleOverviewController extends Controller
             logger()->error($exception);
         }
         $result = DWVehicleServiceHistoryTree::query()
-            ->groupBy(['VIN', 'Document No_'])
+            ->groupBy(['VIN', 'Document_No'])
             ->where('VIN', $vehicle->getAttribute('vin'))
             ->selectRaw('VIN as vin, [Document_No] as document_no ,count(*) as count, max(Date) as date')
             ->get();
