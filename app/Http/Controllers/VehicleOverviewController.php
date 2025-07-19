@@ -178,21 +178,21 @@ class VehicleOverviewController extends Controller
         $result = DWVehicleServiceHistoryTree::query()
             ->groupBy(['VIN', 'Document No_'])
             ->where('VIN', $vehicle->getAttribute('vin'))
-            ->selectRaw('VIN as vin, [Document No_] as document_no ,count(*) as count, max(Date) as date')
+            ->selectRaw('VIN as vin, [Document_No] as document_no ,count(*) as count, max(Date) as date')
             ->get();
 
         $services = [];
         foreach ($result as $row) {
             $list = DWVehicleServiceHistoryTree::query()
                 ->where('VIN', $row->vin)
-                ->where('Document No_', $row->document_no)
+                ->where('Document_No', $row->document_no)
                 ->get();
 
             $items = [];
             foreach ($list as $item) {
                 if ((int) $item->Quantity) {
                     $items[] = [
-                        $item->Description.' '.$item->{'Description 2'},
+                        $item->Description.' '.$item->{'Description2'},
                         (int) $item->Quantity,
                     ];
                 }
