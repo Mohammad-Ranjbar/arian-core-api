@@ -91,6 +91,20 @@ use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/bol',function (\Illuminate\Http\Request $request){
+    $row = $request->all();
+    $chr = str_replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], null, $row['number_plates']);
+    $one = substr($row['number_plates'], 0, 2);
+    $second = substr(preg_replace('/\D/', '', $row['number_plates']), 2, 3);
+    $plate = [
+        "char" => $chr,
+        "number1" => $one,
+        "number2" => $second,
+        "number3" => $row['plate_area']
+    ];
+
+    return $plate;
+});
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 

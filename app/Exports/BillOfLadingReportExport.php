@@ -100,7 +100,7 @@ class BillOfLadingReportExport implements FromCollection, WithMapping, WithHeadi
             $row->car->transitCompany->title,
             $row->car->driver->name,
             $row->car->driver->phone,
-            $plate?->number1 . $plate?->char . $plate?->number2 . $plate?->number3,
+            $plate?->number3 . $plate?->char . $plate?->number2 . $plate?->number1,
             $row->car->driver->national_code,
             $row->code,
             $row->vehicles()->get()->implode('vin', ',') . $row->containers()->get()->implode('code', ','),
