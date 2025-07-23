@@ -12,7 +12,7 @@ class ActionLog extends Model
     use HasFactory;
 
     const string UPDATED_QC_STATUS = 'update_qc_status';
-    const string UPDATED_GRADE_STATUS = ['update_grade_status_raw_body','update_grade_status_painted_body','update_grade_status_vehicle'];
+    const  UPDATED_GRADE_STATUS = ['update_grade_status_raw_body','update_grade_status_painted_body','update_grade_status_vehicle'];
 
     const string RETURN_CONTAINER_AT = 'return_container';
     const string REPORT_SHORTAGE = 'report_shortage';
