@@ -22,7 +22,8 @@ class UpdateGradeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'grade'             => 'required|string|in:1,2',
+            'grade' => 'required|string|in:1,2',
+            'item_type' => 'required|in:0,1,2',
             'grade_description' => 'nullable',
         ];
     }
