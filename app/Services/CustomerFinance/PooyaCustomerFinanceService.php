@@ -14,7 +14,7 @@ class PooyaCustomerFinanceService
             'CustomerFinanceIsReady',
             [
                 'customerFinanceNoP' => $data['reference'],
-                'uRLAddressP'        => url('/sb/p/cf/'.$data['reference']),
+                'uRLAddressP'        => url('/api/sb/p/cf/'.$data['reference']),
                 'goldenCardP'        => $data['golden_warranty'],
             ]);
     }

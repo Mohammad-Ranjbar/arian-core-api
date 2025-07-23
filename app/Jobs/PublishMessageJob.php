@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
 
 class PublishMessageJob implements ShouldQueue
 {
@@ -28,17 +29,23 @@ class PublishMessageJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $data = $this->data;
+        /** @var SaleCompany $saleCompany */
+        $saleCompany = SaleCompany::query()->find($data['sale_company_id']);
+
         if ($this->data['action'] === 'extra-payment-paid') {
             $service  = new DieselExtraPaymentService();
             $result = $service->process($this->data['online_order_id']);
-            logger('extra-payment-paid');
-            logger($this->data['online_order_id']);
-            logger($result);
+
+            $responseData = [
+                'reference' => $data['reference'],
+                'order_id'  => $data['online_order_id'],
+                'status'    => $result,
+            ];
+            Http::post($saleCompany->site_url.'-response', $responseData);
         }
         if ($this->data['action'] === 'customer-finance-paid') {
-            $data = $this->data;
-            /** @var SaleCompany $saleCompany */
-            $saleCompany = SaleCompany::query()->find($data['sale_company_id']);
+
             $saleCompany->invoices()->where('reference',$data['reference'])->update([
                 'payment_status' => 'paid'
             ]);
@@ -53,6 +60,13 @@ class PublishMessageJob implements ShouldQueue
                     'data->message' => $result['message']
                 ]);
             }
+
+            $responseData = [
+                'reference' => $data['reference'],
+                'order_id'  => $data['online_order_id'],
+                'status'    => $result,
+            ];
+            Http::post($saleCompany->site_url.'-response', $responseData);
         }
     }
 }

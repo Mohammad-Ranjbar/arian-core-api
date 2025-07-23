@@ -114,6 +114,7 @@ class PrintSynchronousJob implements ShouldQueue
                     $item->erpProductItem?->title,
                     $item->vehicle->makeCode->title,
                     $item->vehicle->color_code,
+                    $item->vehicle->grade ?? '-',
                     jdate($item->created_at)->toDateString(),
                     jdate($item->created_at)->toTimeString()
                 ];
