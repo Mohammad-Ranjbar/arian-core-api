@@ -39,7 +39,7 @@ class PublishMessageJob implements ShouldQueue
 
             $responseData = [
                 'reference' => $data['reference'],
-                'order_id'  => $data['order_id'],
+                'order_id'  => $data['online_order_id'],
                 'status'    => $result,
             ];
             Http::post($saleCompany->site_url.'-response', $responseData);
@@ -63,7 +63,7 @@ class PublishMessageJob implements ShouldQueue
 
             $responseData = [
                 'reference' => $data['reference'],
-                'order_id'  => $data['order_id'],
+                'order_id'  => $data['online_order_id'],
                 'status'    => $result,
             ];
             Http::post($saleCompany->site_url.'-response', $responseData);
