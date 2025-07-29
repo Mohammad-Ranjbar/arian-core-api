@@ -433,12 +433,12 @@ class VehicleOverviewController extends Controller
 //                            $q->orWhere('location_destination_id', 4);
 //                        })
                         ->get()->map(function ($record) {
-                            if (
-                                $record->billOfLading->locationSource->id === 4 or
-                                $record->billOfLading->locationDestination->id === 4
-                            ) {
-                                return null;
-                            }
+//                            if (
+//                                $record->billOfLading->locationSource->id === 4 or
+//                                $record->billOfLading->locationDestination->id === 4
+//                            ) {
+//                                return null;
+//                            }
                             return [
                                 jdate($record->billOfLading->created_at)->toDateTimeString(),
                                 $record->billOfLading->locationSource->title,
