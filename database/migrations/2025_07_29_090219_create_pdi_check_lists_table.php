@@ -23,7 +23,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('car_model_pdi_check_lists');
+        Schema::dropIfExists('car_model_pdi_check_list');
         Schema::dropIfExists('pdi_check_lists');
     }
 };
