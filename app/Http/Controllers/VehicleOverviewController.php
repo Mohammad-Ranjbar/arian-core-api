@@ -441,6 +441,7 @@ class VehicleOverviewController extends Controller
 //                            }
                             return [
                                 jdate($record->billOfLading->created_at)->toDateTimeString(),
+                                $record->billOfLading->code,
                                 $record->billOfLading->locationSource->title,
                                 $record->billOfLading->locationDestination->title
                             ];
