@@ -129,6 +129,10 @@ class VehicleOverviewController extends Controller
         }
 
         $incidents = VehicleIncident::query()
+            ->where('type', '!=','pdi')
+            ->where('vin', $vehicle->getAttribute('vin'));
+        $pdiIncidents = VehicleIncident::query()
+            ->where('type','pdi')
             ->where('vin', $vehicle->getAttribute('vin'));
 
         $qcCheckedAt = $incidents->max('checked_at');
@@ -350,6 +354,23 @@ class VehicleOverviewController extends Controller
                                 : ''
                         ]
                     ]
+                ],
+                [
+                    'title'  => 'ایرادات PDI',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => $pdiIncidents->get()->map(function ($record) {
+                        return [
+                            jdate($record->checked_at)->toDateString(),
+                            $record->description,
+                            $record->type,
+                            $record->method,
+                            $record->intensity,
+                            $record->user->name,
+                            $record->element->title.' ('.$record->element->code.')',
+                            $record->incident->title.' ('.$record->element->code.')'
+                        ];
+                    })->all()
                 ],
                 /*
                   [
