@@ -32,6 +32,7 @@
         <th style="text-align: center">شرح محصول</th>
         <th style="text-align: center">قطعه</th>
         <th style="text-align: center">رنگ</th>
+        <th style="text-align: center">گرید</th>
         <th style="text-align: center">تاریخ خروج</th>
         <th style="text-align: center">زمان خروج</th>
     </tr>

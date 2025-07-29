@@ -184,7 +184,7 @@ class VehicleController extends CrudController
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
                 'model_id'   => $vehicle->getAttribute('vin'),
-                'action'     => ActionLog::UPDATED_GRADE_STATUS,
+                'action'     => ActionLog::UPDATED_GRADE_STATUS[$validatedData['item_type']],
                 'user_id'    => Auth::id(),
                 'data'       => $validatedData['grade'],
             ]);
