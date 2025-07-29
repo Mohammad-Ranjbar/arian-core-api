@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('car_model_pdi_check_lists', function (Blueprint $table) {
+        Schema::create('car_model_pdi_check_list', function (Blueprint $table) {
             $table->foreignId('pdi_check_list_id')->constrained()->cascadeOnDelete();
             $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
         });
@@ -23,7 +23,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('car_model_pdi_check_lists');
+        Schema::dropIfExists('car_model_pdi_check_list');
         Schema::dropIfExists('pdi_check_lists');
     }
 };
