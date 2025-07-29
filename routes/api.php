@@ -46,6 +46,7 @@ use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PalletController;
 use App\Http\Controllers\PalletTransactionController;
 use App\Http\Controllers\PalletTypeController;
+use App\Http\Controllers\PdiCheckListController;
 use App\Http\Controllers\PendingInvoiceController;
 use App\Http\Controllers\ProductBomController;
 use App\Http\Controllers\ProductionChecklistController;
@@ -89,9 +90,10 @@ use App\Http\Controllers\VehicleTorqueTestController;
 use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/bol',function (\Illuminate\Http\Request $request){
+Route::post('/bol', function (Request $request) {
     $row = $request->all();
     $chr = str_replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], null, $row['number_plates']);
     $one = substr($row['number_plates'], 0, 2);
@@ -450,6 +452,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'item-technical-checklists' => ItemTechnicalChecklistController::class,
         'product-boms' => ProductBomController::class,
         'production-control' => ProductionControlController::class,
+        'pdi-check-lists' => PdiCheckListController::class,
     ]);
 
     /*

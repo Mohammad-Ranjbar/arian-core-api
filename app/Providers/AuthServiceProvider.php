@@ -31,6 +31,7 @@ use App\Models\LocationAttribute;
 use App\Models\MakeCode;
 use App\Models\Pallet;
 use App\Models\PalletType;
+use App\Models\PdiCheckList;
 use App\Models\ProductBom;
 use App\Models\ProductionChecklist;
 use App\Models\ProductionControl;
@@ -128,6 +129,7 @@ class AuthServiceProvider extends ServiceProvider
         ItemTechnicalChecklist::class => CrudPolicy::class,
         ProductBom::class => CrudPolicy::class,
         ProductionControl::class => CrudPolicy::class,
+        PdiCheckList::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];
