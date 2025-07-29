@@ -11,6 +11,7 @@ use App\Models\ErpProductItem;
 use App\Models\ItemInputChecklist;
 use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
+use App\Models\PdiCheckList;
 use App\Models\ProductBom;
 use App\Models\ProductionChecklist;
 use App\Models\ProductionControl;
@@ -66,7 +67,21 @@ class VehicleOverviewController extends Controller
             ];
         }
 
+        $pdiCheckLists = PdiCheckList::query()->whereHas('carModels', function ($q) use ($vehicle) {
+            $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
+        })->latest()->get();
+        $pdiCheckData = [];
 
+
+        if ($pdiCheckLists->count()) {
+            foreach ($pdiCheckLists as $fileRecord) {
+                $pdiCheckData[] =
+                    [
+                        'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                        'title' => $fileRecord->getAttribute('title')
+                    ];
+            }
+        }
 
         ///////////////////////
         $fileRecords = ProductionControl::query()->whereHas('carModels', function ($q) use ($vehicle) {
@@ -354,6 +369,12 @@ class VehicleOverviewController extends Controller
                                 : ''
                         ]
                     ]
+                ],
+                [
+                    'title'  => 'چک لیست های PDI',
+                    'type'   => 'download-list',
+                    'heads'  => [],
+                    'values' => $pdiCheckData
                 ],
                 [
                     'title'  => 'ایرادات PDI',
