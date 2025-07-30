@@ -59,6 +59,7 @@ use App\Models\TorqueMeasuringEquipment;
 use App\Models\TransitCompany;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\VinEngine;
 use App\Models\WorkGroupCenter;
 use App\Models\YearMap;
 use App\Policies\CrudPolicy;
@@ -130,6 +131,7 @@ class AuthServiceProvider extends ServiceProvider
         ProductBom::class => CrudPolicy::class,
         ProductionControl::class => CrudPolicy::class,
         PdiCheckList::class=>CrudPolicy::class,
+        VinEngine::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];

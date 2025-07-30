@@ -87,6 +87,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
 use App\Http\Controllers\VehicleTorqueTestController;
+use App\Http\Controllers\VinEngineController;
 use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
@@ -453,6 +454,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'product-boms' => ProductBomController::class,
         'production-control' => ProductionControlController::class,
         'pdi-check-lists' => PdiCheckListController::class,
+        'vin-engines' => VinEngineController::class,
     ]);
 
     /*

@@ -30,13 +30,13 @@ class CrudController extends Controller
     protected bool $appendUserId = false;
 
 
-    public function index(Request $request): JsonResponse |AnonymousResourceCollection
+    public function index(Request $request): JsonResponse|AnonymousResourceCollection
     {
         $perPage = $request->get('per_page', 15);
         if (isset($this->repository)) {
             return $this->collect($this->repository->paginate($perPage));
         }
-        return $this->responseError('repository not found',400);
+        return $this->responseError('repository not found', 400);
     }
 
     public function collect($q)
@@ -48,8 +48,8 @@ class CrudController extends Controller
 
     public function store(Request $request)
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         $validatedData = array_merge($validatedData, $this->appendStoreData);
@@ -84,28 +84,33 @@ class CrudController extends Controller
         return $record;
     }
 
-
     public function show($id)
     {
         if (isset($this->repository)) {
             return new $this->resource($this->repository->show($id));
         }
-        return $this->responseError('repository not found',400);
+        return $this->responseError('repository not found', 400);
     }
 
     public function update(Request $request, $id)
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
-        $validatedData = $request->validate($this->repository->getUpdateRules());
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customUpdateRules()));
+
         return $this->doUpdate($id, $validatedData);
+    }
+
+    public function customUpdateRules(): array
+    {
+        return [];
     }
 
     public function doUpdate($id, $data)
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
         try {
             DB::beginTransaction();
@@ -121,20 +126,20 @@ class CrudController extends Controller
 
     public function destroy($id)
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
-        if($this->repository->destroy($id)){
+        if ($this->repository->destroy($id)) {
             return response()->json(['message' => 'item deleted!']);
         }
-        return $this->responseError( 'امکان حذف آیتم مورد نظر وجود ندارد.');
+        return $this->responseError('امکان حذف آیتم مورد نظر وجود ندارد.');
     }
 
 
     public function applyAuthorizeResource(): bool|JsonResponse
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
         $this->authorizeResource($this->repository->model->getMorphClass(), $this->repository->model->getMorphClass());
 
@@ -156,8 +161,8 @@ class CrudController extends Controller
      */
     public function import(JobRequest $request): JsonResponse
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
@@ -171,8 +176,8 @@ class CrudController extends Controller
 
     public function getTemplate(): BinaryFileResponse|JsonResponse
     {
-        if (! isset($this->repository)) {
-            return $this->responseError('repository not found',400);
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
         }
         $headers = $this->repository->getHeadings();
         $export = new TemplateExport($headers);

@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+
+    public function up(): void
+    {
+        Schema::create('vin_engines', function (Blueprint $table) {
+            $table->id();
+            $table->string('vin')->index();
+            $table->string('engine_no')->index();
+            $table->string('production_order_number')->nullable();
+            $table->unique(['vin', 'engine_no']);
+            $table->timestamps();
+        });
+    }
+
+
+    public function down(): void
+    {
+        Schema::dropIfExists('vin_engines');
+    }
+};
