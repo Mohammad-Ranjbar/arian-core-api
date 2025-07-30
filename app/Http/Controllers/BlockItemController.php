@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Events\ErpJobEvent;
 use App\Exports\TemplateExport;
+use App\Filters\CreatedAtFilter;
+use App\Filters\VinFilter;
 use App\Http\Requests\BlockItemStoreRequest;
 use App\Http\Requests\ImportBlockRequest;
 use App\Http\Requests\JobRequest;
@@ -28,6 +30,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Pipeline;
 use Maatwebsite\Excel\Facades\Excel;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -47,7 +50,11 @@ class BlockItemController extends Controller
      */
     public function systemBlocks(): AnonymousResourceCollection
     {
-        $data = BlockItem::query()->where('type', 'system')->latest()->paginate(request()->get('per_page', 10));
+        $data = Pipeline::send(BlockItem::query()->where('type', 'system')
+            ->latest())->through([
+            VinFilter::class,
+            CreatedAtFilter::class
+        ])->thenReturn()->paginate(request()->get('per_page', 30));
 
         return BlockItemResource::collection($data);
     }
