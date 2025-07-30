@@ -174,6 +174,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('/tracking-history/{modelType}/{modelId}/{type}',
         TrackingHistoryController::class)->name('tracking-history');
     Route::get('/get-template-incident', [IncidentController::class, 'getTemplate']);
+    Route::get('/get-template-vin-engines', [VinEngineController::class, 'getTemplate']);
     Route::get('/get-template-element', [ElementController::class, 'getTemplate']);
     Route::get('/get-template-unblock-items', [BlockItemController::class, 'getTemplateUnblockItems']);
 
@@ -185,6 +186,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::post('/import-bill-of-lading',
         [BillOfLadingController::class, 'importBillOfLading'])->name('import.bill-of-lading');
+    Route::post('/import-vin-engines',
+        [VinEngineController::class, 'importer'])->name('import.vin-engines');
 
     Route::get('/get-stop-locations',
         [SubmitIncidentLocationController::class, 'getStopLocations'])->name('get.stop.locations');

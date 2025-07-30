@@ -10,6 +10,15 @@ class VinEngine extends Model
     use HasFactory;
 
     protected $fillable = ['vin','engine_no','production_order_number'];
+    const  HEADING = [
+        'vin',
+        'engine_no',
+        'production_order_number'
+    ];
 
+    public function getHeadings(): array
+    {
+        return self::HEADING;
+    }
 
 }
