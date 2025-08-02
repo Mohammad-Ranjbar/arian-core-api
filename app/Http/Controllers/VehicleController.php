@@ -29,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -70,13 +71,18 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param  string  $vin
+     * @param  string  $inputString
      * @return Model|Builder
      * @throws ValidationException
      */
-    public function getData(string $vin): Model|Builder
+    public function getData(string $inputString): Model|Builder
     {
-        $vehicleData = $this->erpGetVehicle->get($vin);
+        if(Str::length($inputString) == 17){
+            $vehicleData = $this->erpGetVehicle->get($inputString);
+        }else{
+            $vehicleData = $this->erpGetVehicle->getByPo($inputString);
+        }
+
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
 

@@ -27,6 +27,8 @@ class ProductionLineResource extends JsonResource
             'location' => $this->resource->location,
             'item_type' => $this->resource->item_type,
             'central_location' => $this->resource->central_location,
+            'production_line_type' => $this->resource->production_line_type,
+            'printer_address' => $this->resource->printer_address,
         ];
     }
 }

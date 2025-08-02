@@ -50,4 +50,21 @@ class ProductionLineRepository extends BaseRepository
         }
     }
 
+    public function getOptions(): array
+    {
+        $url = request()->getRequestUri()  ;
+
+        $type = match ($url) {
+            '/api/options/production-engine-lines' => 'engine',
+            default => 'vehicle'
+        };
+
+        return $this->model->newQuery()->where('production_line_type', $type)->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title . ' - ' . $item->code,
+            ];
+        })->all();
+    }
+
 }

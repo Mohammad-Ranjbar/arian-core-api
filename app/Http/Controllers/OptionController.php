@@ -62,7 +62,7 @@ class OptionController extends Controller
             'permissions' => PermissionRepository::class,
             'roles' => RoleRepository::class,
             'salons' => SalonRepository::class,
-            'production-lines' => ProductionLineRepository::class,
+            'production-lines', 'production-engine-lines' => ProductionLineRepository::class,
             'work-group-centers' => WorkGroupCenterRepository::class,
             'stations' => StationRepository::class,
             'make-codes' => MakeCodeRepository::class,

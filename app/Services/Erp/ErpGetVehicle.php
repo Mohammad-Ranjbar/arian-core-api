@@ -45,6 +45,30 @@ class ErpGetVehicle
         ];
     }
 
+
+    public function getByPo($po): array
+    {
+        $po = trim($po, '* ');
+        $url = config('erp.vehicles') . '?$filter=VIN eq \'' . $po . '\'';
+        $result = $this->client->getOne($url);
+
+        if (!$result) {
+            Log::info('get VIN: ' . $vin . 'by User:' . Auth::id() . ' not found');
+            throw ValidationException::withMessages(['message' => 'vehicle not found']);
+        }
+        return [
+            'vin' => $result->VIN,
+            'color_code' => $result->Color_Code,
+            'production_order_number' => $result->Production_Order,
+            'engine_no' => $result->Engine_No,
+            'cabin_no' => $result->Cabin_No,
+            'make_code' => $this->getMakeCode($result->Make_Code),
+            'car_model' => $this->getCarModel($result->Model_No),
+            'is_blocked' => $result->Blocked,
+            'data' => $result
+        ];
+    }
+
     /**
      * @param $makeCode
      * @return array|null
