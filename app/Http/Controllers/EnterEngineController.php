@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Filters\ProductionLineIdFilter;
-use App\Filters\UserIdFilter;
 use App\Http\Requests\StoreEnterEngineRequest;
 use App\Http\Resources\EnterEngineResource;
 use App\Models\EnterEngine;
@@ -23,13 +22,17 @@ class EnterEngineController extends Controller
         $this->authorize('index.enter-engines');
         $data = Pipeline::send(EnterEngine::query())
             ->through([
-                UserIdFilter::class,
                 ProductionLineIdFilter::class
             ])
             ->thenReturn()
             ->paginate(request()->input('per_page', 10));
 
         return EnterEngineResource::collection($data);
+    }
+
+    public function show(EnterEngine $engine): EnterEngineResource
+    {
+        return EnterEngineResource::make($engine);
     }
 
     public function store(StoreEnterEngineRequest $request): EnterEngineResource|JsonResponse

@@ -135,9 +135,8 @@ Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
 
-    Route::get('/enter-engines',[EnterEngineController::class,'index'])->name('index.enter-engines');
-    Route::post('/enter-engines',[EnterEngineController::class,'store'])->name('store.enter-engines');
-    Route::post('/enter-engines/{enterEngine}',[EnterEngineController::class,'destroy'])->name('destroy.enter-engines');
+    Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy','update']);
+
     Route::post('/repeat-vehicle_torque_test/{vehicleTorqueTest}',
         VehicleTorqueTestController::class)->name('repeat-vehicle_torque_test');
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
