@@ -23,6 +23,7 @@ use App\Http\Controllers\DisplayBoardController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\EnterEngineController;
 use App\Http\Controllers\ErpJobController;
 use App\Http\Controllers\ErpProductItemController;
 use App\Http\Controllers\FileController;
@@ -133,6 +134,10 @@ Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
+
+    Route::get('/enter-engines',[EnterEngineController::class,'index'])->name('index.enter-engines');
+    Route::post('/enter-engines',[EnterEngineController::class,'store'])->name('store.enter-engines');
+    Route::post('/enter-engines/{enterEngine}',[EnterEngineController::class,'destroy'])->name('destroy.enter-engines');
     Route::post('/repeat-vehicle_torque_test/{vehicleTorqueTest}',
         VehicleTorqueTestController::class)->name('repeat-vehicle_torque_test');
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
