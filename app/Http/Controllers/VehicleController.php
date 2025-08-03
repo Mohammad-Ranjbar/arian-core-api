@@ -51,12 +51,16 @@ class VehicleController extends CrudController
 
 
     /**
-     * @param  string  $vin
+     * @param string $vin
      * @return JsonResponse|VehicleResource
      * @throws ValidationException
+     * @throws Exception
      */
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
+        if (Str::contains($vin, 'temp')) {
+            throw new Exception('invalid vin number !');
+        }
         $vehicle = $this->getData($vin);
 
         if (Gate::allows('access', $vehicle)) {
@@ -118,11 +122,7 @@ class VehicleController extends CrudController
             'car_model_id'            => $carModel->getAttribute('id'),
         ];
 
-        $this->vehicleRepository->model->newQuery()->where([
-            'production_order_number' => $data['production_order_number'],
-        ])->update([
-            'production_order_number' => null
-        ]);
+
         return $this->vehicleRepository->make($data);
     }
 

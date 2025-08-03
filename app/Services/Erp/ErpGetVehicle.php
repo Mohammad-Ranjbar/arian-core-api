@@ -118,7 +118,7 @@ class ErpGetVehicle
     private function getResult2($result): array
     {
         return [
-            'vin' => 'tmp-'.$result->No,
+            'vin' => 'temp-'.$result->No,
             'color_code' => $result->Variant_Code,
             'production_order_number' => $result->No,
             'engine_no' => '',
@@ -126,7 +126,7 @@ class ErpGetVehicle
             'make_code' => $this->getMakeCode($result->Shortcut_Dimension_2_Code),
             'car_model' => $this->getCarModel($result->Source_No),
             'is_blocked' => false,
-            'data' => $result
+            'data' => $result,
         ];
     }
 
