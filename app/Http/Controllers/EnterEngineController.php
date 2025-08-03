@@ -43,13 +43,18 @@ class EnterEngineController extends Controller
     {
         try {
             $data = EnterEngine::query()->create($request->validated());
-
+            $this->sendPrinter($data);
             return EnterEngineResource::make($data);
         } catch (Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage()
             ]);
         }
+    }
+
+    public function sendPrinter($data)
+    {
+
     }
 
     public function destroy(EnterEngine $enterEngine): JsonResponse
