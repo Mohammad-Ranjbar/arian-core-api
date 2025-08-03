@@ -6,13 +6,13 @@ use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\Element;
 use App\Models\Job;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Facades\Excel;
-use Exception;
 
 
 class ElementImport implements ToCollection, WithStartRow, WithMapping
@@ -44,12 +44,13 @@ class ElementImport implements ToCollection, WithStartRow, WithMapping
     {
         $this->data['total'] = $collection->count();
         $this->sendEvent();
-
-        $collection->each(function ($row) {
+        $job = Job::query()->where('uuid', $this->data['id'])->first();
+        $info = $job->getAttribute('data');
+        $collection->each(function ($row) use ($info) {
             try {
                 if (!Element::query()->where('code', $row['code'])->exists()) {
-                   $element = Element::query()->create($row->toArray());
-                   $element->makeCodes()->attach($this->data['makeCodes']);
+                    $element = Element::query()->create($row->toArray());
+                    $element->makeCodes()->attach($info['makeCodes']);
                     $this->data['success']++;
 
                     $row['result'] = 'imported';
