@@ -17,7 +17,7 @@ class StoreChangeVinRequest extends FormRequest
     {
         return [
             'vin' => 'required|string|max:255',
-            'old_vin' => 'required|string|max:255',
+            'old_vin' => 'nullable|string|max:255',
             'production_order_number' => 'required|string|max:255',
         ];
     }

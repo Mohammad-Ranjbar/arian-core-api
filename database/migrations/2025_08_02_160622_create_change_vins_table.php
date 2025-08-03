@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->id();
             $table->string('vin');
             $table->string('production_order_number');
-            $table->string('old_vin');
+            $table->string('old_vin')->nullable();
             $table->json('data')->nullable();
             $table->timestamps();
         });
