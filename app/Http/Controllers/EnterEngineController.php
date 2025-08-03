@@ -33,10 +33,10 @@ class EnterEngineController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function show(EnterEngine $engine): EnterEngineResource
+    public function show(EnterEngine $enterEngine): EnterEngineResource
     {
         $this->authorize('enter-engines.show');
-        return EnterEngineResource::make($engine);
+        return EnterEngineResource::make($enterEngine);
     }
 
     public function store(StoreEnterEngineRequest $request): EnterEngineResource|JsonResponse
