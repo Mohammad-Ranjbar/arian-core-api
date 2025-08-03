@@ -11,6 +11,7 @@ use App\Http\Controllers\BlockReasonController;
 use App\Http\Controllers\BodyOptionController;
 use App\Http\Controllers\CabinNumberController;
 use App\Http\Controllers\CarController;
+use App\Http\Controllers\CarModelColorCodeController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ChangeVinController;
 use App\Http\Controllers\ColorMapController;
@@ -463,6 +464,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'production-control' => ProductionControlController::class,
         'pdi-check-lists' => PdiCheckListController::class,
         'vin-engines' => VinEngineController::class,
+        'car-model-color-codes' => CarModelColorCodeController::class
     ]);
 
     /*
