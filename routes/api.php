@@ -12,6 +12,7 @@ use App\Http\Controllers\BodyOptionController;
 use App\Http\Controllers\CabinNumberController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\ChangeVinController;
 use App\Http\Controllers\ColorMapController;
 use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
@@ -134,8 +135,8 @@ Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
-
-    Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy','update']);
+    Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store']);
+    Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy', 'update']);
 
     Route::post('/repeat-vehicle_torque_test/{vehicleTorqueTest}',
         VehicleTorqueTestController::class)->name('repeat-vehicle_torque_test');

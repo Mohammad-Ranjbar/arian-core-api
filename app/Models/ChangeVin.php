@@ -9,6 +9,10 @@ class ChangeVin extends Model
 {
     use HasFactory;
 
+
+    protected $casts = [
+        'data' => 'json'
+    ];
     protected $fillable = [
         'vin',
         'old_vin',
