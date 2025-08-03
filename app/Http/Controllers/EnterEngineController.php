@@ -19,7 +19,7 @@ class EnterEngineController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $this->authorize('index.enter-engines');
+        $this->authorize('enter-engines.index');
         $data = Pipeline::send(EnterEngine::query())
             ->through([
                 ProductionLineIdFilter::class
@@ -30,8 +30,12 @@ class EnterEngineController extends Controller
         return EnterEngineResource::collection($data);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function show(EnterEngine $engine): EnterEngineResource
     {
+        $this->authorize('enter-engines.show');
         return EnterEngineResource::make($engine);
     }
 

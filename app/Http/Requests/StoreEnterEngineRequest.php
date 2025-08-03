@@ -10,7 +10,7 @@ class StoreEnterEngineRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user()->can('store.enter-engines');
+        return $this->user()->can('enter-engines.store');
     }
 
     public function rules(): array
