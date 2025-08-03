@@ -263,7 +263,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
 
     Route::get('/job-tracking/{job}', JobController::class)->name('job.tracking');
-    Route::post('/incidents-imports', [IncidentController::class, 'importIncidents'])->name('incidents.imports');
+    Route::post('/incidents-imports', [IncidentController::class, 'import'])->name('incidents.imports');
     Route::post('/elements-imports', [ElementController::class, 'import'])->name('elements.imports');
     Route::post('/unblock-items-imports',
         [BlockItemController::class, 'importUnblockItems'])->name('unblock-items.imports');
