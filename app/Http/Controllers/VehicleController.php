@@ -80,14 +80,17 @@ class VehicleController extends CrudController
         if(Str::length($inputString) == 17){
             $vehicleData = $this->erpGetVehicle->get($inputString);
         }else{
-            $vehicleData = $this->erpGetVehicle->getByPo($inputString);
+            $vehicleData = $this->erpGetVehicle->getByPo($inputString,false);
+            if (!$vehicleData){
+                $vehicleData = $this->erpGetVehicle->getByPoFromHeader($inputString);
+            }
+
         }
 
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
 
-
-        if (!empty($colorMapCode = $vehicleData['data']->Color_Code)) {
+        if (!empty($colorMapCode = $vehicleData['color_code'])) {
             $colorMapData = [
                 'title'      => $colorMapCode,
                 'color_code' => $colorMapCode,
@@ -114,6 +117,7 @@ class VehicleController extends CrudController
             'make_code_id'            => $makeCode->getAttribute('id'),
             'car_model_id'            => $carModel->getAttribute('id'),
         ];
+
         $this->vehicleRepository->model->newQuery()->where([
             'production_order_number' => $data['production_order_number'],
         ])->update([

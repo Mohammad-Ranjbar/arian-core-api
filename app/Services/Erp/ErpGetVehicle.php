@@ -30,43 +30,10 @@ class ErpGetVehicle
 
         if (!$result) {
             Log::info('get VIN: ' . $vin . 'by User:' . Auth::id() . ' not found');
+
             throw ValidationException::withMessages(['message' => 'vehicle not found']);
         }
-        return [
-            'vin' => $result->VIN,
-            'color_code' => $result->Color_Code,
-            'production_order_number' => $result->Production_Order,
-            'engine_no' => $result->Engine_No,
-            'cabin_no' => $result->Cabin_No,
-            'make_code' => $this->getMakeCode($result->Make_Code),
-            'car_model' => $this->getCarModel($result->Model_No),
-            'is_blocked' => $result->Blocked,
-            'data' => $result
-        ];
-    }
-
-
-    public function getByPo($po): array
-    {
-        $po = trim($po, '* ');
-        $url = config('erp.vehicles') . '?$filter=VIN eq \'' . $po . '\'';
-        $result = $this->client->getOne($url);
-
-        if (!$result) {
-            Log::info('get VIN: ' . $vin . 'by User:' . Auth::id() . ' not found');
-            throw ValidationException::withMessages(['message' => 'vehicle not found']);
-        }
-        return [
-            'vin' => $result->VIN,
-            'color_code' => $result->Color_Code,
-            'production_order_number' => $result->Production_Order,
-            'engine_no' => $result->Engine_No,
-            'cabin_no' => $result->Cabin_No,
-            'make_code' => $this->getMakeCode($result->Make_Code),
-            'car_model' => $this->getCarModel($result->Model_No),
-            'is_blocked' => $result->Blocked,
-            'data' => $result
-        ];
+        return $this->getResult($result);
     }
 
     /**
@@ -96,4 +63,72 @@ class ErpGetVehicle
             'title' => $result->No
         ] : null;
     }
+
+    /**
+     * @throws ValidationException
+     */
+    public function getByPo($po, bool $throw = true): array|bool
+    {
+        $po = trim($po, '* ');
+        $url = config('erp.vehicles') . '?$filter=Production_Order eq \'' . $po . '\'';
+        $result = $this->client->getOne($url);
+
+        if (!$result) {
+            Log::info('get PO: ' . $po . 'by User:' . Auth::id() . ' not found');
+            if ($throw) {
+                throw ValidationException::withMessages(['message' => 'vehicle not found']);
+            }
+            return false;
+        }
+        return $this->getResult($result);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function getByPoFromHeader($po): array
+    {
+        $po = trim($po, '* ');
+        $url = config('erp.production_header') . '?$filter=No eq \'' . $po . '\'';
+        $result = $this->client->getOne($url);
+
+        if (!$result) {
+            Log::info('get PO: ' . $po . 'by User:' . Auth::id() . ' not found');
+
+            throw ValidationException::withMessages(['message' => 'vehicle not found']);
+
+        }
+        return $this->getResult2($result);
+    }
+
+    private function getResult($result): array
+    {
+        return [
+            'vin' => $result->VIN,
+            'color_code' => $result->Color_Code,
+            'production_order_number' => $result->Production_Order,
+            'engine_no' => $result->Engine_No,
+            'cabin_no' => $result->Cabin_No,
+            'make_code' => $this->getMakeCode($result->Make_Code),
+            'car_model' => $this->getCarModel($result->Model_No),
+            'is_blocked' => $result->Blocked,
+            'data' => $result
+        ];
+    }
+    private function getResult2($result): array
+    {
+        return [
+            'vin' => 'tmp-'.$result->No,
+            'color_code' => $result->Variant_Code,
+            'production_order_number' => $result->No,
+            'engine_no' => '',
+            'cabin_no' => '',
+            'make_code' => $this->getMakeCode($result->Shortcut_Dimension_2_Code),
+            'car_model' => $this->getCarModel($result->Source_No),
+            'is_blocked' => false,
+            'data' => $result
+        ];
+    }
+
+
 }
