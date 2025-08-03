@@ -3,6 +3,8 @@ return [
     'pdi_block_reason_id' =>env('PDI_BLOCK_REASON_ID'),
     'vehicles'  => env('ERP_URL_VEHICLES',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/Vehicle_List_API"),
+    'vehicle_change'  => env('ERP_URL_VEHICLE_CHANGE',
+        "http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI"),
     'production_header'  => env('ERP_URL_PRODUCTION_HEADER',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/ProductionHeader"),
     'cross_reference'  => env('ERP_URL_CROSS_REFERENCE',

@@ -7,6 +7,7 @@ use App\Filters\VinFilter;
 use App\Http\Requests\StoreChangeVinRequest;
 use App\Http\Resources\ChangeVinResource;
 use App\Models\ChangeVin;
+use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -34,6 +35,11 @@ class ChangeVinController extends Controller
     public function store(StoreChangeVinRequest $request): JsonResponse|ChangeVinResource
     {
         try {
+            $data = $request->validated();
+            $response = $this->sendErp($data);
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 400);
+            }
             $data = ChangeVin::query()->create($request->validated());
             return ChangeVinResource::make($data);
         } catch (Exception $exception) {
@@ -43,8 +49,12 @@ class ChangeVinController extends Controller
         }
     }
 
-    public function sendErp($data)
+    public function sendErp($data): array
     {
-        //TODO with Meysam
+        return ErpWsdlClient::run(config('erp.vehicle_change'), 'VINRegistrationChanges', [
+            'productionNoP' => $data['production_order_number'],
+            'tempVINP' => $data['old_vin'],
+            'vINP' => $data['vin'],
+        ]);
     }
 }
