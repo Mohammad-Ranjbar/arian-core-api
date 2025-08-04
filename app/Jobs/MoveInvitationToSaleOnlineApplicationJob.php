@@ -61,6 +61,8 @@ class MoveInvitationToSaleOnlineApplicationJob
                 $url = 'https://sales.arian-motor.com/api/sync-invoices';
             }
             Http::post($url, $sendData);
+        }else{
+            logger('data not found');
         }
 
     }
