@@ -13,7 +13,6 @@ class VinEngine extends Model
     const  HEADING = [
         'vin',
         'engine_no',
-        'production_order_number'
     ];
 
     public function getHeadings(): array
