@@ -83,6 +83,7 @@ use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\SynchronousTypeItemController;
 use App\Http\Controllers\TorqueCoefficientController;
 use App\Http\Controllers\TorqueMeasuringEquipmentController;
+use App\Http\Controllers\TorquemeterController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
@@ -464,7 +465,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'production-control' => ProductionControlController::class,
         'pdi-check-lists' => PdiCheckListController::class,
         'vin-engines' => VinEngineController::class,
-        'car-model-color-codes' => CarModelColorCodeController::class
+        'car-model-color-codes' => CarModelColorCodeController::class,
+        'torque-meters' => TorqueMeterController::class,
     ]);
 
     /*

@@ -56,6 +56,7 @@ use App\Models\StopType;
 use App\Models\SynchronousType;
 use App\Models\TorqueCoefficient;
 use App\Models\TorqueMeasuringEquipment;
+use App\Models\TorqueMeter;
 use App\Models\TransitCompany;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -132,6 +133,7 @@ class AuthServiceProvider extends ServiceProvider
         ProductionControl::class => CrudPolicy::class,
         PdiCheckList::class=>CrudPolicy::class,
         VinEngine::class=>CrudPolicy::class,
+        TorqueMeter::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
 
     ];
