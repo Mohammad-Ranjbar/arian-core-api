@@ -97,7 +97,7 @@ class CrudController extends Controller
         if (!isset($this->repository)) {
             return $this->responseError('repository not found', 400);
         }
-        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customUpdateRules()));
+        $validatedData = $request->validate(array_merge($this->repository->getUpdateRules(), $this->customUpdateRules()));
 
         return $this->doUpdate($id, $validatedData);
     }
