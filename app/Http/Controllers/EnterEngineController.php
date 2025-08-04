@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Filters\ProductionLineIdFilter;
 use App\Http\Requests\StoreEnterEngineRequest;
 use App\Http\Resources\EnterEngineResource;
+use App\Jobs\PrintEngineLableJob;
 use App\Models\EnterEngine;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -54,7 +55,7 @@ class EnterEngineController extends Controller
 
     public function sendPrinter($data)
     {
-
+            PrintEngineLableJob::dispatch($data->engine_no,$data->vin,$data->productionLine->printer_address);
     }
 
     public function destroy(EnterEngine $enterEngine): JsonResponse
