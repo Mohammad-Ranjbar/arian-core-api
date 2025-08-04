@@ -11,6 +11,8 @@ return new class extends Migration
         Schema::table('vehicle_torque_tests', function (Blueprint $table) {
             $table->dropForeign('vehicle_torque_tests_vehicle_torque_test_id_foreign');
             $table->dropColumn('vehicle_torque_test_id');
+
+
             $table->foreignId('torque_measuring_equipment_id')
                 ->after('id')
                 ->constrained('torque_measuring_equipment','id','newIndexTest')
@@ -27,13 +29,21 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('vehicle_torque_tests', function (Blueprint $table) {
-            $table->foreignId('vehicle_torque_test_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('vehicle_torque_test_id')->after('id')->constrained()->cascadeOnDelete();
 
-            $table->dropForeign('torque_measuring_equipment_id_foreign');
+            $table->dropForeign('newIndexTest');
             $table->dropColumn('torque_measuring_equipment_id');
 
-            $table->dropForeign('torque_measuring_equipment_id_foreign');
-            $table->dropColumn('torque_measuring_equipment__id');
+            $table->dropForeign('vehicle_torque_tests_torque_meter_id_foreign');
+            $table->dropColumn('torque_meter_id');
+
+
+            $table->dropForeign('vehicle_torque_tests_torque_test_group_id_foreign');
+            $table->dropColumn('torque_test_group_id');
+
+
+            $table->dropColumn('description');
+
         });
     }
 };
