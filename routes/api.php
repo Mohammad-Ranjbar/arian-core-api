@@ -84,6 +84,7 @@ use App\Http\Controllers\SynchronousTypeItemController;
 use App\Http\Controllers\TorqueCoefficientController;
 use App\Http\Controllers\TorqueMeasuringEquipmentController;
 use App\Http\Controllers\TorquemeterController;
+use App\Http\Controllers\TorqueTestGroupController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
@@ -95,23 +96,9 @@ use App\Http\Controllers\VinEngineController;
 use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/bol', function (Request $request) {
-    $row = $request->all();
-    $chr = str_replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], null, $row['number_plates']);
-    $one = substr($row['number_plates'], 0, 2);
-    $second = substr(preg_replace('/\D/', '', $row['number_plates']), 2, 3);
-    $plate = [
-        "char" => $chr,
-        "number1" => $one,
-        "number2" => $second,
-        "number3" => $row['plate_area']
-    ];
 
-    return $plate;
-});
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 
@@ -140,8 +127,6 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store']);
     Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy', 'update']);
 
-    Route::post('/repeat-vehicle_torque_test/{vehicleTorqueTest}',
-        VehicleTorqueTestController::class)->name('repeat-vehicle_torque_test');
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
     Route::delete('/production-tracking/{tracking}',
         [ProductionTrackingController::class, 'destroy'])->name('production-tracking-destroy');
@@ -282,7 +267,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
-    Route::post('/torque-test', [ScrewController::class, 'vehicleTorqueTest'])->name('vehicles.torque-test');
+    Route::post('/torque-test', VehicleTorqueTestController::class)->name('vehicles.torque-test');
     Route::post('/report-shortages', [ShortageController::class, 'reportShortages'])->name('report-shortages');
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
@@ -417,6 +402,9 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
 
     Route::apiResource('settings', SettingController::class)->except('store', 'destroy');
+
+    Route::get('/torque-test-groups/{torqueTestGroup}/screws', [TorqueTestGroupController::class, 'screws'])->name('torque-group-screws');
+    Route::get('/torque-test-groups/{torqueTestGroup}/get-tests', [TorqueTestGroupController::class, 'tests'])->name('torque-group-tests');
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
@@ -467,6 +455,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'vin-engines' => VinEngineController::class,
         'car-model-color-codes' => CarModelColorCodeController::class,
         'torque-meters' => TorqueMeterController::class,
+        'torque-test-groups' => TorqueTestGroupController::class
     ]);
 
     /*

@@ -29,6 +29,7 @@ use App\Repositories\StationRepository;
 use App\Repositories\StopFactRepository;
 use App\Repositories\StopReasonRepository;
 use App\Repositories\StopTypeRepository;
+use App\Repositories\TorqueMeterRepository;
 use App\Repositories\TransitCompanyRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\WorkGroupCenterRepository;
@@ -90,6 +91,7 @@ class OptionController extends Controller
             'year-maps' => YearMapRepository::class,
             'color-maps' => ColorMapRepository::class,
             'qc-codes' => QcCodeRepository::class,
+            'torque-meters' => TorqueMeterRepository::class,
 
             default => false,
         };

@@ -16,7 +16,9 @@ class TorqueTestGroupResource extends JsonResource
     {
         return [
             'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'title' => $this->resource->title,
+            'carModels' => CarModelResource::collection($this->resource->carModels),
+            'torqueMeasuringEquipments' => TorqueMeasuringEquipmentResource::collection($this->resource->torqueMeasuringEquipments)
         ];
     }
 }
