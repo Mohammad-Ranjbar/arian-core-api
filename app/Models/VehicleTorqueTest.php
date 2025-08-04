@@ -10,7 +10,21 @@ class VehicleTorqueTest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vin', 'value', 'screw_id', 'user_id', 'range_color', 'range_code', ' vehicle_torque_test_id'];
+    protected $fillable = ['vin', 'value', 'screw_id', 'user_id', 'range_color', 'range_code',
+        'torque_measuring_equipment_id',
+        'torque_meter_id',
+        'torque_test_group_id',
+        'description'
+    ];
+
+    public function torqueTestGroup(): BelongsTo
+    {
+        return $this->belongsTo(TorqueTestGroup::class);
+    }
+    public function torqueMeter(): BelongsTo
+    {
+        return $this->belongsTo(TorqueMeter::class);
+    }
 
     public static function getReportData($data)
     {
@@ -33,6 +47,11 @@ class VehicleTorqueTest extends Model
         }
 
         return $query->get();
+    }
+
+    public function torqueMeasuringEquipment(): BelongsTo
+    {
+        return $this->belongsTo(TorqueMeasuringEquipment::class);
     }
 
     public function vehicle(): BelongsTo
