@@ -23,7 +23,7 @@ class StoreVehicleTorqueRequest extends FormRequest
             'screw_id' => 'required|exists:screws,id',
 
 
-            'torque_measuring_equipment_id' => 'required|exists:torque_measuring_equipments,id',
+            'torque_measuring_equipment_id' => 'required|exists:torque_measuring_equipment,id',
             'torque_meter_id' => 'required|exists:torque_meters,id',
             'torque_test_group_id' => 'required|exists:torque_test_groups,id',
             'description' => 'nullable|string',
