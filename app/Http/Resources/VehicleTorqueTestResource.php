@@ -19,7 +19,6 @@ class VehicleTorqueTestResource extends JsonResource
             'vehicle' => new VehicleResource($this->resource->vehilce),
             'user_id' => $this->resource->user_id,
             'user' => new UserShortResource($this->resource->user),
-            'related' => $this->resource->childTests()->get()->pluck('value')->all(),
 
             'torque_meter_id' => $this->resource->torque_meter_id,
             'torqueMeter' => TorqueMeterResource::make($this->resource->torqueMeter),
