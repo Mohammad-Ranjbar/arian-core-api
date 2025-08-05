@@ -83,7 +83,7 @@ use App\Http\Controllers\SynchronousTypeController;
 use App\Http\Controllers\SynchronousTypeItemController;
 use App\Http\Controllers\TorqueCoefficientController;
 use App\Http\Controllers\TorqueMeasuringEquipmentController;
-use App\Http\Controllers\TorquemeterController;
+use App\Http\Controllers\TorqueMeterController;
 use App\Http\Controllers\TorqueTestGroupController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
