@@ -18,8 +18,8 @@ class VehicleTorqueTestResource extends JsonResource
             'vin' => $this->resource->vin,
             'vehicle' => new VehicleResource($this->resource->vehilce),
             'user_id' => $this->resource->user_id,
-            'range_color ' => $this->resource->range_color,
-            'range_code ' => $this->resource->range_code,
+            'range_color' => $this->resource->range_color,
+            'range_code' => $this->resource->range_code,
             'user' => new UserShortResource($this->resource->user),
 
             'torque_meter_id' => $this->resource->torque_meter_id,
