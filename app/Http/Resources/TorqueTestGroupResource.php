@@ -18,7 +18,8 @@ class TorqueTestGroupResource extends JsonResource
             'id'    => $this->resource->id,
             'title' => $this->resource->title,
             'carModels' => CarModelResource::collection($this->resource->carModels),
-            'torqueMeasuringEquipments' => TorqueMeasuringEquipmentResource::collection($this->resource->torqueMeasuringEquipments)
+            'torqueMeasuringEquipments' => TorqueMeasuringEquipmentResource::collection($this->resource->torqueMeasuringEquipments),
+            'created_at' => $this->resource->created_at,
         ];
     }
 }
