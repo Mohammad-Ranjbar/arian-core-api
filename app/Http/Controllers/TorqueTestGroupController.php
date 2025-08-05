@@ -24,7 +24,7 @@ class TorqueTestGroupController extends CrudController
     {
         $carModelsId = $torqueTestGroup->carModels()->pluck('id');
         $screws = Screw::query()->whereHas('carModels', function ($q) use ($carModelsId) {
-            $q->whereIn('carModels.id', $carModelsId);
+            $q->whereIn('car_models.id', $carModelsId);
         })->get();
 
         return ScrewResource::collection($screws);
