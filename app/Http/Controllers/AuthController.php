@@ -40,6 +40,9 @@ class AuthController extends Controller
             $user = User::query()->where('email', $validatedData['username'])
                 ->orWhere('mobile', $validatedData['username'])
                 ->first();
+            if (empty($user)){
+                return $this->responseError('کاربر یافت نشد');
+            }
 
             if ($user->getAttribute('is_active') == 0) {
                 return $this->responseError('کاربر غیر فعال میباشد', 404);
