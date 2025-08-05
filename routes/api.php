@@ -267,7 +267,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
-    Route::post('/torque-test', VehicleTorqueTestController::class)->name('vehicles.torque-test');
+    Route::post('/torque-test', [VehicleTorqueTestController::class,'store'])->name('vehicles.torque-test');
+    Route::post('/torque-test', [VehicleTorqueTestController::class,'destroy'])->name('vehicles.torque-test.destroy');
     Route::post('/report-shortages', [ShortageController::class, 'reportShortages'])->name('report-shortages');
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {

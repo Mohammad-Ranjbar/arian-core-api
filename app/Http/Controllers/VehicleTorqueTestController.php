@@ -9,11 +9,12 @@ use App\Models\TorqueCoefficient;
 use App\Models\VehicleTorqueTest;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class VehicleTorqueTestController extends Controller
 {
 
-    public function __invoke(StoreVehicleTorqueRequest $request): VehicleTorqueTestResource|JsonResponse
+    public function store(StoreVehicleTorqueRequest $request): VehicleTorqueTestResource|JsonResponse
     {
         try {
             $validatedData = $request->validated();
@@ -100,5 +101,17 @@ class VehicleTorqueTestController extends Controller
             return response()->json(['message' => $exception->getMessage()], 400);
         }
 
+    }
+
+    public function destroy(VehicleTorqueTest $vehicleTorqueTest): Response|JsonResponse
+    {
+        try {
+            $vehicleTorqueTest->delete();
+
+
+            return response()->noContent();
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage());
+        }
     }
 }
