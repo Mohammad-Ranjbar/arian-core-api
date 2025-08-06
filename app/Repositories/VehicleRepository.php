@@ -37,14 +37,14 @@ class VehicleRepository extends BaseRepository
         if ($vehicle) {
             $vehicle->update($data);
         }else{
+            $this->model->newQuery()->where('production_order_number',$po)->update([
+                'production_order_number' => null
+            ]);
             $vehicle = $this->model->newQuery()
                 ->where($parameter, $data[$parameter])->first();
             if ($vehicle) {
                 $vehicle->update($data);
             }else {
-                $this->model->newQuery()->where('production_order_number',$po)->update([
-                    'production_order_number' => null
-                ]);
                 $vehicle = $this->model->newQuery()->create($data);
             }
         }
