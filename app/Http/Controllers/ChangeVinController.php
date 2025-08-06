@@ -37,7 +37,7 @@ class ChangeVinController extends Controller
         $data = Pipeline::send(ChangeVin::query())->through([
             VinFilter::class,
             ProductionOrderNumberFilter::class
-        ])->thenReturn()->paginate(request()->input('per_page', 20));
+        ])->thenReturn()->latest()->paginate(request()->input('per_page', 20));
 
         return ChangeVinResource::collection($data);
     }
@@ -61,7 +61,7 @@ class ChangeVinController extends Controller
                 return $this->responseError($response['message'], 400);
             }
 
-            $this->vehicleController->getData($data['production_order_number']);
+            $this->vehicleController->getData($data['vin']);
 
             Tracking::query()->create([
                 'type' => 'enter',

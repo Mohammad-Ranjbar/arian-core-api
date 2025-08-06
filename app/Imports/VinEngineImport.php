@@ -49,7 +49,7 @@ class VinEngineImport implements ToCollection, WithStartRow, WithMapping
         $collection->each(function ($row) {
             try {
                 if (!VinEngine::query()->where('vin', $row['vin'])
-                    ->where('engine_no', $row['engine_no'])
+                    ->orWhere('engine_no', $row['engine_no'])
                     ->exists()) {
 
                     VinEngine::query()->create($row->toArray());
