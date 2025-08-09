@@ -29,7 +29,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('vehicle_torque_tests', function (Blueprint $table) {
-//            $table->foreignId('vehicle_torque_test_id')->after('id')->constrained()->cascadeOnDelete();
+            $table->foreignId('vehicle_torque_test_id')->after('id')->constrained()->cascadeOnDelete();
 
             $table->dropForeign('newIndexTest');
             $table->dropColumn('torque_measuring_equipment_id');
