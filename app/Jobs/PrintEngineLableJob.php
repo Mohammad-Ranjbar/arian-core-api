@@ -67,6 +67,6 @@ class PrintEngineLableJob implements ShouldQueue
         $pdf = file_get_contents($path);
         fwrite($socket, $pdf);
         fclose($socket);
-//        unlink($path);
+        unlink($path);
     }
 }

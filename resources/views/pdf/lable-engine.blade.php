@@ -6,6 +6,8 @@
 </head>
 <body dir="rtl">
 <div style="text-align: center">
+    <span style="font-size: 10px">id: {{$id}}</span>
+    <br>
     @if($vin)
         <img src="{{$vin_barcode}}" alt=""/>
         <br>
