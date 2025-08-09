@@ -10,7 +10,7 @@ return new class extends Migration {
     {
         Schema::create('enter_engines', function (Blueprint $table) {
             $table->id();
-            $table->string('engine_no');
+            $table->string('engine_no')->unique();
             $table->foreignId('production_line_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
