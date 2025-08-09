@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('torque_measuring_equipment_id')
                 ->constrained('torque_measuring_equipment','id','newIndex')
                 ->cascadeOnDelete();
-            $table->foreignId('torque_test_group_id')->constrained('torque_test_groups','id','newIndexGroup');
+            $table->foreignId('torque_test_group_id')->constrained('torque_test_groups','id','newIndexGroup')->cascadeOnDelete();
         });
     }
 

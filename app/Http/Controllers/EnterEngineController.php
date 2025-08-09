@@ -21,7 +21,7 @@ class EnterEngineController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('enter-engines.index');
-        $data = Pipeline::send(EnterEngine::query())
+        $data = Pipeline::send(EnterEngine::query()->latest('updated_at'))
             ->through([
                 ProductionLineIdFilter::class
             ])
@@ -53,9 +53,9 @@ class EnterEngineController extends Controller
         }
     }
 
-    public function sendPrinter($data)
+    public function sendPrinter($data): void
     {
-            PrintEngineLableJob::dispatch($data->engine_no,$data->vin,$data->productionLine->printer_address);
+        PrintEngineLableJob::dispatch($data->engine_no, $data->vin, $data->productionLine->printer_address, $data->id);
     }
 
     public function destroy(EnterEngine $enterEngine): JsonResponse

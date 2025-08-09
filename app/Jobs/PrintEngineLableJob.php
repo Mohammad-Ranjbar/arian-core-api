@@ -20,7 +20,8 @@ class PrintEngineLableJob implements ShouldQueue
     public function __construct(
         protected readonly string $engineNumber,
         protected readonly string $vin,
-        protected readonly string $printerAddress
+        protected readonly string $printerAddress,
+        protected readonly string $id
     )
     {
         //
@@ -42,6 +43,7 @@ class PrintEngineLableJob implements ShouldQueue
         ]);
         $data['vin_barcode'] = '';
         $data['vin'] = '';
+        $data['id'] = $this->id;
         $generator = new BarcodeGeneratorPNG();
         if (!empty($this->vin)){
             $vinBarcode = $generator->getBarcode($this->vin, $generator::TYPE_CODE_128);
@@ -65,6 +67,6 @@ class PrintEngineLableJob implements ShouldQueue
         $pdf = file_get_contents($path);
         fwrite($socket, $pdf);
         fclose($socket);
-        unlink($path);
+//        unlink($path);
     }
 }
