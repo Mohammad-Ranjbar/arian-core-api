@@ -55,7 +55,9 @@ class EnterEngineController extends Controller
 
     public function sendPrinter($data): void
     {
-        PrintEngineLableJob::dispatch($data->engine_no, $data->vin, $data->productionLine->printer_address, $data->id);
+        if (!empty($data->productionLine->printer_address)){
+            PrintEngineLableJob::dispatch($data->engine_no, $data->vin, $data->productionLine->printer_address, $data->id);
+        }
     }
 
     public function destroy(EnterEngine $enterEngine): JsonResponse
