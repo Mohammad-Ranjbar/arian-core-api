@@ -42,7 +42,7 @@ class ElementRepository extends BaseRepository
     public function getOptions(): array
     {
 
-        return $this->get()->map(function ($item) {
+        return $this->get('id', 'asc', request()->get('limit'))->map(function ($item) {
             return [
                 'id' => $item->id,
                 'title' => $item->title . ' - ' . $item->code,
