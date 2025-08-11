@@ -246,6 +246,7 @@ class VehicleOverviewController extends Controller
                 'title'  => 'فهرست قطعات ورودی - (BOM)',
                 'type'   => 'table',
                 'heads'  => [],
+                'dl' => route('dl.bom', ['po' => $vehicle->getAttribute('production_order_number')]),
                 'values' => array_values($components->map(function ($item) {
                     return [
                         $item->productItem?->title,
