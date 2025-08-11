@@ -9,17 +9,18 @@ class FileResource extends JsonResource
 {
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray(Request $request): array
     {
         return [
-            'id'      => $this->resource->uuid,
+            'id' => $this->resource->uuid,
             'user_id' => $this->resource->user_id,
-            'mime'    => $this->resource->mime,
-            'url'     => asset($this->resource->path),
-            'user'    => new UserShortResource($this->resource->user),
+            'path' => $this->resource->path,
+            'mime' => $this->resource->mime,
+            'url' => asset($this->resource->path),
+            'user' => new UserShortResource($this->resource->user),
         ];
     }
 }
