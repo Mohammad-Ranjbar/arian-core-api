@@ -28,6 +28,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\EnterEngineController;
 use App\Http\Controllers\ErpJobController;
 use App\Http\Controllers\ErpProductItemController;
+use App\Http\Controllers\ExportBomController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitTransferController;
@@ -101,6 +102,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
+Route::get('dl-bom/{po}', ExportBomController::class)->name('dl.bom');
 
 Route::get('/block-history/{vehicle}', BlockHistoryController::class);
 Route::any('/', function () {
@@ -267,8 +269,9 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         Route::put('/set-priority',
             [BillOfLadingController::class, 'setPriority'])->name('bill-of-lading.set-priority');
     });
-    Route::post('/torque-test', [VehicleTorqueTestController::class,'store'])->name('vehicles.torque-test');
-    Route::delete('/torque-test/{vehicleTorqueTest}', [VehicleTorqueTestController::class,'destroy'])->name('vehicles.torque-test.destroy');
+    Route::post('/torque-test', [VehicleTorqueTestController::class, 'store'])->name('vehicles.torque-test');
+    Route::delete('/torque-test/{vehicleTorqueTest}',
+        [VehicleTorqueTestController::class, 'destroy'])->name('vehicles.torque-test.destroy');
     Route::post('/report-shortages', [ShortageController::class, 'reportShortages'])->name('report-shortages');
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
@@ -333,7 +336,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');
     Route::apiResource('bill-of-ladings', BillOfLadingController::class)->except('update');
     Route::group([
-        'prefix' => 'production-lines/{production_line}',
+        'prefix'     => 'production-lines/{production_line}',
         'controller' => LineActivityStartStopController::class, 'as' => 'production-lines.'
     ], function () {
         Route::get('status', 'status')->name('status');
@@ -404,59 +407,61 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::apiResource('settings', SettingController::class)->except('store', 'destroy');
 
-    Route::get('/torque-test-groups/{torqueTestGroup}/screws', [TorqueTestGroupController::class, 'screws'])->name('torque-group-screws');
-    Route::get('/torque-test-groups/{torqueTestGroup}/get-tests', [TorqueTestGroupController::class, 'tests'])->name('torque-group-tests');
+    Route::get('/torque-test-groups/{torqueTestGroup}/screws',
+        [TorqueTestGroupController::class, 'screws'])->name('torque-group-screws');
+    Route::get('/torque-test-groups/{torqueTestGroup}/get-tests',
+        [TorqueTestGroupController::class, 'tests'])->name('torque-group-tests');
     Route::apiResources([
-        'roles' => RoleController::class,
-        'make-codes' => MakeCodeController::class,
-        'car-models' => CarModelController::class,
-        'users' => UserController::class,
-        'salons' => SalonController::class,
-        'production-lines' => ProductionLineController::class,
-        'work-group-centers' => WorkGroupCenterController::class,
-        'stations' => StationController::class,
-        'incidents' => IncidentController::class,
-        'elements' => ElementController::class,
-        'block-reasons' => BlockReasonController::class,
-        'transit-companies' => TransitCompanyController::class,
-        'cars' => CarController::class,
-        'stop-facts' => StopFactController::class,
-        'stop-reasons' => StopReasonController::class,
-        'stop-types' => StopTypeController::class,
-        'barcodes' => BarcodeController::class,
-        'baskets' => BasketController::class,
-        'inventories' => InventoryController::class,
-        'containers' => ContainerController::class,
-        'drivers' => DriverController::class,
-        'sale-locations' => SaleLocationController::class,
-        'production-test-results' => ProductionTestResultController::class,
-        'accompanying-items' => AccompanyingItemController::class,
-        'locations' => LocationController::class,
-        'sale-companies' => SaleCompanyController::class,
-        'general-product-items' => GeneralProductItemController::class,
-        'synchronous-type' => SynchronousTypeController::class,
-        'production-tests' => ProductionTestController::class,
-        'incident-categories' => IncidentCategoryController::class,
-        'pallet-types' => PalletTypeController::class,
-        'pallets' => PalletController::class,
-        'color-maps' => ColorMapController::class,
-        'year-maps' => YearMapController::class,
-        'body-options' => BodyOptionController::class,
+        'roles'                       => RoleController::class,
+        'make-codes'                  => MakeCodeController::class,
+        'car-models'                  => CarModelController::class,
+        'users'                       => UserController::class,
+        'salons'                      => SalonController::class,
+        'production-lines'            => ProductionLineController::class,
+        'work-group-centers'          => WorkGroupCenterController::class,
+        'stations'                    => StationController::class,
+        'incidents'                   => IncidentController::class,
+        'elements'                    => ElementController::class,
+        'block-reasons'               => BlockReasonController::class,
+        'transit-companies'           => TransitCompanyController::class,
+        'cars'                        => CarController::class,
+        'stop-facts'                  => StopFactController::class,
+        'stop-reasons'                => StopReasonController::class,
+        'stop-types'                  => StopTypeController::class,
+        'barcodes'                    => BarcodeController::class,
+        'baskets'                     => BasketController::class,
+        'inventories'                 => InventoryController::class,
+        'containers'                  => ContainerController::class,
+        'drivers'                     => DriverController::class,
+        'sale-locations'              => SaleLocationController::class,
+        'production-test-results'     => ProductionTestResultController::class,
+        'accompanying-items'          => AccompanyingItemController::class,
+        'locations'                   => LocationController::class,
+        'sale-companies'              => SaleCompanyController::class,
+        'general-product-items'       => GeneralProductItemController::class,
+        'synchronous-type'            => SynchronousTypeController::class,
+        'production-tests'            => ProductionTestController::class,
+        'incident-categories'         => IncidentCategoryController::class,
+        'pallet-types'                => PalletTypeController::class,
+        'pallets'                     => PalletController::class,
+        'color-maps'                  => ColorMapController::class,
+        'year-maps'                   => YearMapController::class,
+        'body-options'                => BodyOptionController::class,
         'torque-measuring-equipments' => TorqueMeasuringEquipmentController::class,
-        'screws' => ScrewController::class,
-        'qc-codes' => QcCodeController::class,
-        'torque-coefficients' => TorqueCoefficientController::class,
-        'production-checklists' => ProductionChecklistController::class,
-        'item-input-checklists' => ItemInputChecklistController::class,
-        'cop-plans' => CopPlanController::class,
-        'item-technical-checklists' => ItemTechnicalChecklistController::class,
-        'product-boms' => ProductBomController::class,
-        'production-control' => ProductionControlController::class,
-        'pdi-check-lists' => PdiCheckListController::class,
-        'vin-engines' => VinEngineController::class,
-        'car-model-color-codes' => CarModelColorCodeController::class,
-        'torque-meters' => TorqueMeterController::class,
-        'torque-test-groups' => TorqueTestGroupController::class
+        'screws'                      => ScrewController::class,
+        'qc-codes'                    => QcCodeController::class,
+        'torque-coefficients'         => TorqueCoefficientController::class,
+        'production-checklists'       => ProductionChecklistController::class,
+        'item-input-checklists'       => ItemInputChecklistController::class,
+        'cop-plans'                   => CopPlanController::class,
+        'item-technical-checklists'   => ItemTechnicalChecklistController::class,
+        'product-boms'                => ProductBomController::class,
+        'production-control'          => ProductionControlController::class,
+        'pdi-check-lists'             => PdiCheckListController::class,
+        'vin-engines'                 => VinEngineController::class,
+        'car-model-color-codes'       => CarModelColorCodeController::class,
+        'torque-meters'               => TorqueMeterController::class,
+        'torque-test-groups'          => TorqueTestGroupController::class
     ]);
 
     /*
