@@ -25,10 +25,6 @@ class Car extends Model
         'driver_id', 'plate', 'car', 'transit_company_id',
     ];
 
-    protected $casts = [
-        'plate' => 'json'
-    ];
-
     /**
      * @return BelongsTo
      */
@@ -51,11 +47,6 @@ class Car extends Model
     public function driver(): BelongsTo
     {
         return $this->belongsTo(Driver::class);
-    }
-
-    public function billOfLadings(): HasMany
-    {
-        return $this->hasMany(BillOfLading::class);
     }
 
     /**
