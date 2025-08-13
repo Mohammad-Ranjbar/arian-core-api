@@ -61,15 +61,15 @@ class ChangeVinController extends Controller
                 return $this->responseError($response['message'], 400);
             }
 
-//            $this->vehicleController->getData($data['vin']);
+            $this->vehicleController->getData($data['vin']);
 
-//            Tracking::query()->create([
-//                'type' => 'enter',
-//                'vin' => $data['vin'],
-//                'model_type' => ProductionLine::class,
-//                'model_id' => $tracking->model_id,
-//                'user_id' => Auth::id(),
-//            ]);
+            Tracking::query()->create([
+                'type' => 'enter',
+                'vin' => $data['vin'],
+                'model_type' => ProductionLine::class,
+                'model_id' => $tracking->model_id,
+                'user_id' => Auth::id(),
+            ]);
             $changeVin = ChangeVin::query()->create($data);
             VinEngine::query()
                 ->where('vin', $data['vin'])
