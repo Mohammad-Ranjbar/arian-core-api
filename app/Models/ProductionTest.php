@@ -11,7 +11,7 @@ class ProductionTest extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['title'];
+    protected $fillable = ['title','type'];
 
     protected $table = 'production_tests';
 
