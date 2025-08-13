@@ -21,7 +21,7 @@ class TypeFilter
         if (!request()->has('type') || !request()->get('type')) {
             return $next($request);
         }
-        return $next($request)->where('type', request()->input('type'));
+        return $next($request)->whereIn('type', (array)request()->input('type'));
     }
 
 }
