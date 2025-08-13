@@ -11,7 +11,7 @@ class TitleFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,7 +21,7 @@ class TitleFilter
         if (!request()->has('title') || !request()->get('title')) {
             return $next($request);
         }
-        return $next($request)->where('title', 'LIKE', '%'.request()->input('title').'%');
+        return $next($request)->where('title', 'LIKE', '%' . request()->input('title') . '%');
     }
 
 }

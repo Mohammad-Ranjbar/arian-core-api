@@ -10,7 +10,7 @@ class SynchronousTitleFilter
 {
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,8 +21,8 @@ class SynchronousTitleFilter
             return $next($request);
         }
         return $next($request)->whereHas('synchronousType', function ($query) {
-                $query->where('title', request()->get('synchronous_title'));
-            });
+            $query->where('title', request()->get('synchronous_title'));
+        });
 
     }
 

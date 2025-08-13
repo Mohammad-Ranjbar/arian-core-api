@@ -11,7 +11,7 @@ class VinFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,7 +21,7 @@ class VinFilter
         if (!request()->has('vin') || !request()->get('vin')) {
             return $next($request);
         }
-        return $next($request)->where('vin','LIKE','%'. request()->input('vin').'%');
+        return $next($request)->where('vin', 'LIKE', '%' . request()->input('vin') . '%');
     }
 
 }

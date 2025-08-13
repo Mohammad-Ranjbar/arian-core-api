@@ -14,7 +14,7 @@ class AccessGatePermitFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -22,11 +22,11 @@ class AccessGatePermitFilter
     public function handle($request, Closure $next): mixed
     {
         /** @var User $user */
-       $locationIds = Location::query()->whereHas('users',function ($user){
-           return $user->where('users.id',Auth::id());
+        $locationIds = Location::query()->whereHas('users', function ($user) {
+            return $user->where('users.id', Auth::id());
         })->get()->pluck('id')->toArray();
 
-        return $next($request)->where(fn($q) => $q->whereIn('location_id',$locationIds)->orWhereIn('source_id',$locationIds));
+        return $next($request)->where(fn($q) => $q->whereIn('location_id', $locationIds)->orWhereIn('source_id', $locationIds));
     }
 
 }

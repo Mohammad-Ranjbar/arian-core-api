@@ -10,7 +10,7 @@ class StationProductionLineIdFilter
 {
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -20,8 +20,8 @@ class StationProductionLineIdFilter
         if (!request()->has('station_production_line_id') || !request()->get('station_production_line_id')) {
             return $next($request);
         }
-        return $next($request)->whereHas('workGroupCenter',function ($q){
-            $q->where('production_line_id',request()->get('station_production_line_id'));
+        return $next($request)->whereHas('workGroupCenter', function ($q) {
+            $q->where('production_line_id', request()->get('station_production_line_id'));
         });
     }
 

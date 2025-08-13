@@ -10,7 +10,6 @@ use App\Models\ErpJob;
 use App\Models\Job;
 use Exception;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
@@ -21,7 +20,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
 {
 
     /**
-     * @param  array  $data
+     * @param array $data
      */
     public function __construct(public array $data)
     {
@@ -37,7 +36,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
     }
 
     /**
-     * @param  Collection  $collection
+     * @param Collection $collection
      * @return void
      */
     public function collection(Collection $collection): void
@@ -63,14 +62,14 @@ class UnblockItemImport implements ToCollection, WithStartRow
                     if ($count === 0) {
                         $parameters = ['barcodeInfoP' => $blockItem->getAttribute('vin')];
                         $erpJob = ErpJob::query()->create([
-                            'model_id'   => $blockItem->getAttribute('id'),
+                            'model_id' => $blockItem->getAttribute('id'),
                             'model_type' => BlockItem::class,
-                            'section'    => 'unblock-vehicle',
-                            'user_id'    => $this->data['user_id'],
-                            'method'     => 'UnblockingVehicle',
-                            'url'        => config('erp.block_unblock'),
+                            'section' => 'unblock-vehicle',
+                            'user_id' => $this->data['user_id'],
+                            'method' => 'UnblockingVehicle',
+                            'url' => config('erp.block_unblock'),
                             'parameters' => $parameters,
-                            'queue'      => ErpJob::QUEUE_UNIQUE
+                            'queue' => ErpJob::QUEUE_UNIQUE
                         ]);
                         ErpJobEvent::dispatch($erpJob);
                     }
@@ -92,13 +91,13 @@ class UnblockItemImport implements ToCollection, WithStartRow
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        Excel::store(new ResultExport($collection->prepend(BlockItem::HEADING)), 'public/results/'.$uuid.'.xlsx');
+        Excel::store(new ResultExport($collection->prepend(BlockItem::HEADING)), 'public/results/' . $uuid . '.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
-                'file'    => route('dl', ['path' => 'results/'.$uuid.'.xlsx']),
-                'total'   => $this->data['total'],
+                'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
+                'total' => $this->data['total'],
                 'success' => $this->data['success'],
-                'error'   => $this->data['error'],
+                'error' => $this->data['error'],
             ]
         ]);
 

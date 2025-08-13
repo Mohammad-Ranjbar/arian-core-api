@@ -11,7 +11,7 @@ class CarModelIdsFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,8 +21,8 @@ class CarModelIdsFilter
         if (!request()->has('car_model_ids') || !request()->get('car_model_ids')) {
             return $next($request);
         }
-        return $next($request)->whereHas('carModels',function ($q){
-            $q->whereIn('id',(array) request()->get('car_model_ids'));
+        return $next($request)->whereHas('carModels', function ($q) {
+            $q->whereIn('id', (array)request()->get('car_model_ids'));
         });
     }
 

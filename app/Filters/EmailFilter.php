@@ -11,7 +11,7 @@ class EmailFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,7 +21,7 @@ class EmailFilter
         if (!request()->has('email') || !request()->get('email')) {
             return $next($request);
         }
-        return $next($request)->where('email', 'LIKE', '%'.trim(request()->input('email')).'%');
+        return $next($request)->where('email', 'LIKE', '%' . trim(request()->input('email')) . '%');
     }
 
 }

@@ -11,7 +11,7 @@ class UnblockedAtToFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,7 +21,7 @@ class UnblockedAtToFilter
         if (!request()->has('unblocked_at_to') || !request()->get('unblocked_at_to')) {
             return $next($request);
         }
-        return $next($request)->where('unblocked_at_to','<=', request()->input('unblocked_at_to'));
+        return $next($request)->where('unblocked_at_to', '<=', request()->input('unblocked_at_to'));
     }
 
 }

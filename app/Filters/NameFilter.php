@@ -11,7 +11,7 @@ class NameFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,7 +21,7 @@ class NameFilter
         if (!request()->has('name') || !request()->get('name')) {
             return $next($request);
         }
-        return $next($request)->where('name', 'LIKE', '%'.request()->input('name').'%');
+        return $next($request)->where('name', 'LIKE', '%' . request()->input('name') . '%');
     }
 
 }

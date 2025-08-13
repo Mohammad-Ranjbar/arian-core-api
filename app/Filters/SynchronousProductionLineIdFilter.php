@@ -10,7 +10,7 @@ class SynchronousProductionLineIdFilter
 {
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -22,8 +22,8 @@ class SynchronousProductionLineIdFilter
         }
 
         return $next($request)->whereHas('synchronousType', function ($query) {
-                $query->where('production_line_id', request()->get('synchronous_production_line_id'));
-            });
+            $query->where('production_line_id', request()->get('synchronous_production_line_id'));
+        });
     }
 
 }

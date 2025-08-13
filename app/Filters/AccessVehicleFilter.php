@@ -13,7 +13,7 @@ class AccessVehicleFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -22,8 +22,8 @@ class AccessVehicleFilter
     {
         /** @var User $user */
         $user = Auth::user();
-        return $next($request)->whereHas('vehicle',function ($q) use ($user){
-            $q->whereIn('make_code_id',$user->makeCodes()->get()->pluck('id')->all());
+        return $next($request)->whereHas('vehicle', function ($q) use ($user) {
+            $q->whereIn('make_code_id', $user->makeCodes()->get()->pluck('id')->all());
         });
     }
 

@@ -11,7 +11,7 @@ class OwnerFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -21,7 +21,7 @@ class OwnerFilter
         if (!request()->has('owner') || !request()->get('owner')) {
             return $next($request);
         }
-        return $next($request)->where('owner', 'LIKE', '%'.request()->input('owner').'%');
+        return $next($request)->where('owner', 'LIKE', '%' . request()->input('owner') . '%');
     }
 
 }

@@ -13,14 +13,14 @@ class UserMakeCodeFilter
 
     /**
      * @param $request
-     * @param  Closure  $next
+     * @param Closure $next
      * @return mixed
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
     public function handle($request, Closure $next): mixed
     {
-        $list  = MakeCode::query()->whereHas('users', function ($query) {
+        $list = MakeCode::query()->whereHas('users', function ($query) {
             $query->where('users.id', Auth::id());
         })->get()->pluck('id')->all();
 
