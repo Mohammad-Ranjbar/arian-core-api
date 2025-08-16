@@ -322,7 +322,31 @@ class VehicleOverviewController extends Controller
                     'title'  => 'آزمون های انتهای خط',
                     'type'   => 'table',
                     'heads'  => [],
-                    'values' => ProductionTestResult::query()->where('vin', $vehicle->vin)->get()->map(function ($record
+                    'values' => ProductionTestResult::query()
+                        ->whereHas('productionTest',function ($query) {
+                            $query->where('type','others');
+                        })
+                        ->where('vin', $vehicle->vin)->get()->map(function ($record
+                    ) {
+                        return [
+                            $record->productionTest->title,
+                            $record->user->name,
+                            $record->created_at ?
+                                jdate($record->created_at)->toDateTimeString()
+                                : '-',
+                            $record->description
+                        ];
+                    })->all()
+                ],
+                [
+                    'title'  => 'آزمون های PDI',
+                    'type'   => 'table',
+                    'heads'  => [],
+                    'values' => ProductionTestResult::query()
+                        ->whereHas('productionTest',function ($query) {
+                            $query->where('type','pdi');
+                        })
+                        ->where('vin', $vehicle->vin)->get()->map(function ($record
                     ) {
                         return [
                             $record->productionTest->title,
