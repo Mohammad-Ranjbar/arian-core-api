@@ -354,6 +354,9 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('/report-excel-tracking',
         [ProductionTrackingController::class, 'reportExcel'])->name('report-excel-tracking');
 
+    Route::get('/report-excel-change-vins',
+        [ChangeVinController::class, 'reportExcel'])->name('report-excel-change-vins');
+
     Route::get('/report-excel-tracking-exit-door',
         [ProductionTrackingController::class, 'reportExcelExitDoor'])->name('report-excel-tracking-exit-door');
 

@@ -6,7 +6,9 @@ use App\Filters\ProductionOrderNumberFilter;
 use App\Filters\VinFilter;
 use App\Http\Requests\StoreChangeVinRequest;
 use App\Http\Resources\ChangeVinResource;
+use App\Jobs\ExportJob;
 use App\Models\ChangeVin;
+use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\Tracking;
 use App\Models\Vehicle;
@@ -93,6 +95,26 @@ class ChangeVinController extends Controller
             'productionNoP' => $data['production_order_number'],
             'tempVINP' => $data['old_vin'],
             'vINP' => $data['vin'],
+        ]);
+    }
+
+
+    public function reportExcel(): JsonResponse
+    {
+        $validatedData = request()->all();
+        $validatedData['type'] = 'export-change-vins';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = request()->all();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
         ]);
     }
 }
