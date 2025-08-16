@@ -8,6 +8,7 @@ use App\Models\BillOfLadingItem;
 use App\Models\CopPlan;
 use App\Models\DWVehicleServiceHistoryTree;
 use App\Models\ErpProductItem;
+use App\Models\File;
 use App\Models\ItemInputChecklist;
 use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
@@ -348,13 +349,19 @@ class VehicleOverviewController extends Controller
                         })
                         ->where('vin', $vehicle->vin)->get()->map(function ($record
                     ) {
+                            $urls = [];
+                            foreach ((array)json_decode($record->files) as $file){
+                                $data = File::query()->where('uuid', $file)->first();
+                                $urls[] = route('dl',['path' => $data->path]);
+                            }
                         return [
                             $record->productionTest->title,
                             $record->user->name,
                             $record->created_at ?
                                 jdate($record->created_at)->toDateTimeString()
                                 : '-',
-                            $record->description
+                            $record->description,
+                            $urls,
                         ];
                     })->all()
                 ],
