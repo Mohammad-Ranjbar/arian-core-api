@@ -7,7 +7,9 @@ use App\Filters\SynchronousProductionLineIdFilter;
 use App\Filters\SynchronousTitleFilter;
 use App\Http\Requests\UpdateCrossReferenceRequest;
 use App\Http\Resources\SynchronousResource;
+use App\Jobs\ExportJob;
 use App\Models\ErpJob;
+use App\Models\Job;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Services\Erp\ErpCrossReference;
@@ -61,6 +63,25 @@ class SynchronousController extends Controller
             SynchronousTitleFilter::class
         ])->thenReturn()->paginate(request()->per_page ?? 15);
         return SynchronousResource::collection($data);
+    }
+
+    public function reportExcel(): JsonResponse
+    {
+        $validatedData = request()->all();
+        $validatedData['type'] = 'export-synchronous-engine';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = request()->all();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
     }
 
     public function closeSynchronous(Synchronous $synchronous): SynchronousResource

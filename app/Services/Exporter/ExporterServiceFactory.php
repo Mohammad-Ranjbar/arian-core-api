@@ -34,6 +34,7 @@ class ExporterServiceFactory
             'export-pallet-stocks' => new ExportPalletStockService($job),
             'export-vehicle-torque-test' => new ExportVehicleTorqueTestService($job),
             'export-change-vins' => new ExportChangeVinService($job),
+            'export-synchronous-engine' => new ExportSynchronousEngineService($job),
             default => throw  new Exception('Invalid input for type: '.$job->type),
         };
     }
