@@ -107,6 +107,7 @@ class SyncCustomerClubDataCommand extends Command
     private function addVehicles(): void
     {
         $url = config('erp.vehicles').'?$filter=VIN eq \'N5RSU7SN5S2902863\'';
+        $records = [];
         do {
             $result = $this->client->get($url);
             $list = $result->value;
@@ -115,7 +116,7 @@ class SyncCustomerClubDataCommand extends Command
             } catch (Exception $e) {
                 $url = null;
             }
-            $records = [];
+
             foreach ($list as $key => $record) {
                 if ($record->VIN and $record->Customer_No) {
                     $records[] = [
@@ -130,9 +131,12 @@ class SyncCustomerClubDataCommand extends Command
                     $records = [];
                 }
             }
-            if (count($records)) {
-                $this->sendData($records);
-            }
+
         } while ($url);
+
+        if (count($records)) {
+            $this->sendData($records);
+            $this->info('insert end of list');
+        }
     }
 }
