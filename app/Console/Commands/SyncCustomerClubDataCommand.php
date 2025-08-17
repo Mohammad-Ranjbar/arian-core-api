@@ -122,6 +122,7 @@ class SyncCustomerClubDataCommand extends Command
                     $records[] = [
                         'vin'           => $record->VIN,
                         'customer_no'   => $record->Customer_No,
+                        'Engine_No'   => $record->Engine_No,
                         'navision_data' => (array) $record
                     ];
                 }
