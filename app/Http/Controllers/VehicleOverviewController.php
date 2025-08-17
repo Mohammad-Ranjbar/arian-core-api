@@ -349,11 +349,11 @@ class VehicleOverviewController extends Controller
                         })
                         ->where('vin', $vehicle->vin)->get()->map(function ($record
                     ) {
-//                            $urls = [];
-//                            foreach ((array)json_decode($record->files) as $file){
-//                                $data = File::query()->where('uuid', $file)->first();
-//                                $urls[] = route('dl',['path' => $data->path]);
-//                            }
+                            $urls = [];
+                            foreach ((array)json_decode($record->files) as $file){
+                                $data = File::query()->where('uuid', $file)->first();
+                                $urls[] = route('dl',['path' => $data->path]);
+                            }
                         return [
                             $record->productionTest->title,
                             $record->user->name,
@@ -361,7 +361,7 @@ class VehicleOverviewController extends Controller
                                 jdate($record->created_at)->toDateTimeString()
                                 : '-',
                             $record->description,
-//                            $urls,
+                            $urls,
                         ];
                     })->all()
                 ],
