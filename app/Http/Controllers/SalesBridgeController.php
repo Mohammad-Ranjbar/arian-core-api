@@ -30,9 +30,11 @@ class SalesBridgeController extends Controller
 
     public function getUrl($prefix)
     {
-        // https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AM
+        $link1 = 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D';
+        $link2 = 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AM';
+
         $urls = [
-            'l' => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'l' => $link2,
             'd' => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p' => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
             'a' => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
