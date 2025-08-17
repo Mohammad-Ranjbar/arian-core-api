@@ -106,7 +106,7 @@ class SyncCustomerClubDataCommand extends Command
 
     private function addVehicles(): void
     {
-        $url = config('erp.vehicles');
+        $url = config('erp.vehicles').'?$filter=VIN eq \'N5RSU7SN5S2902863\'';
         $records = [];
         do {
             $result = $this->client->get($url);
