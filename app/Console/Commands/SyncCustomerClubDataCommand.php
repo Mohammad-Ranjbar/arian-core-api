@@ -106,7 +106,7 @@ class SyncCustomerClubDataCommand extends Command
 
     private function addVehicles(): void
     {
-        $url = config('erp.vehicles').'?$filter=VIN eq \'N5RSU7SN5S2902863\'';
+        $url = config('erp.vehicles');
         $records = [];
         do {
             $result = $this->client->get($url);
@@ -125,7 +125,7 @@ class SyncCustomerClubDataCommand extends Command
                         'navision_data' => (array) $record
                     ];
                 }
-                if (count($records) > 50) {
+                if (count($records) >= 50) {
                     $this->sendData($records);
                     $this->info($key);
                     $records = [];
