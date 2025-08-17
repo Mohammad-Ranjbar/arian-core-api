@@ -23,6 +23,11 @@ class SalesBridgeController extends Controller
         return Http::get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
     }
 
+    public function getSecondPayment($prefix,  $id)
+    {
+        return Http::get($this->getUrl($prefix).'/second-payment/'.$id)->json();
+    }
+
     public function getUrl($prefix)
     {
         // https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AM

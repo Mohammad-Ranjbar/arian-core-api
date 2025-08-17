@@ -495,6 +495,7 @@ Route::prefix('sb')->group(function () {
         Route::get('/', [SalesBridgeController::class, 'getOrderIds']);
         Route::get('/{id}', [SalesBridgeController::class, 'getOrderDetail']);
         Route::get('/cf/{reference}', [SalesBridgeController::class, 'getCustomerFinance']);
+        Route::get('/sp/{id}', [SalesBridgeController::class, 'getSecondPayment']);
     })->whereIn('companyPrefix', ['l', 'd', 'p', 'a']);
 });
 
