@@ -2,6 +2,7 @@
 
 namespace App\libs;
 
+use App\Filters\ActionFilter;
 use App\Filters\AllShortageDoneFilter;
 use App\Filters\BillOfLadingDriverMobileFilter;
 use App\Filters\BillOfLadingDriverNationalCodeFilter;
@@ -139,7 +140,8 @@ abstract class BaseRepository
         TestCarModelIdsFilter::class,
         BolTypeFilter::class,
         QtyFilter::class,
-        ExitTypesFilter::class
+        ExitTypesFilter::class,
+        ActionFilter::class
     ];
     public array $searchTerms = [
         'title'

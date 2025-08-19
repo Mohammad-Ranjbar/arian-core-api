@@ -22,7 +22,7 @@ class ActionLogController extends CrudController
 
     public function index(Request $request):JsonResponse|AnonymousResourceCollection
     {
-        $request->merge(['vin' => $request->route('vehicle')]);
+        $request->merge(['model_id' => $request->route('vehicle')]);
         return parent::index($request);
     }
 }
