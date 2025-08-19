@@ -15,10 +15,12 @@ class ActionLogResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'      => $this->resource->id,
-            'user_id' => $this->resource->user_id,
-            'action'  => $this->resource->action,
-            'user'    => new UserShortResource($this->resource->user)
+            'id'         => $this->resource->id,
+            'user_id'    => $this->resource->user_id,
+            'action'     => $this->resource->action,
+            'data'       => $this->resource->data,
+            'created_at' => $this->resource->created_at,
+            'user'       => new UserShortResource($this->resource->user)
         ];
     }
 }

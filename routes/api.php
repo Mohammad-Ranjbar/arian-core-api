@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccompanyingItemController;
+use App\Http\Controllers\ActionLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BasketController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitTransferController;
 use App\Http\Controllers\GeneralProductItemController;
+use App\Http\Controllers\GetQcStatusActionLogController;
 use App\Http\Controllers\IncidentCategoryController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\IncomingVehicleController;
@@ -276,6 +278,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::get('action-logs', [ActionLogController::class, 'index'])->name('vehicle.action.logs');
             Route::get('/screws', [ScrewController::class, 'listScrewsForVin'])->name('vehicles.screws');
             Route::get('/torque-tests', [ScrewController::class, 'torqueTests'])->name('vehicles.torque-tests');
             Route::post('/generate-cabin-numbers',
