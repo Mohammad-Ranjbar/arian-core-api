@@ -278,7 +278,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-            Route::get('action-logs', [ActionLogController::class, 'index'])->name('vehicle.action.logs');
+            Route::get('action-logs', [ActionLogController::class, 'getList'])->name('vehicle.action.logs');
             Route::get('/screws', [ScrewController::class, 'listScrewsForVin'])->name('vehicles.screws');
             Route::get('/torque-tests', [ScrewController::class, 'torqueTests'])->name('vehicles.torque-tests');
             Route::post('/generate-cabin-numbers',

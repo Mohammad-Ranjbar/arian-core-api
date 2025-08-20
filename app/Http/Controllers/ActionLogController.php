@@ -20,9 +20,10 @@ class ActionLogController extends CrudController
         $this->setResource(ActionLogResource::class);
     }
 
-    public function index(Request $request):JsonResponse|AnonymousResourceCollection
+    public function getList(Request $request,Vehicle $vehicle):JsonResponse|AnonymousResourceCollection
     {
-        $request->merge(['model_id' => $request->route('vehicle')]);
+        $request->merge(['model_id' => $request->route('vehicle')->vin]);
+
         return parent::index($request);
     }
 }
