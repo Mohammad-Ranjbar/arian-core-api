@@ -10,12 +10,12 @@ class SalesBridgeController extends Controller
 
     public function getOrderIds($prefix)
     {
-        return Http::get($this->getUrl($prefix))->json();
+        return Http::get($this->getOrderUrl($prefix))->json();
     }
 
     public function getOrderDetail($prefix, $id)
     {
-        return Http::get($this->getUrl($prefix).'/'.$id)->json();
+        return Http::get($this->getOrderUrl($prefix).'/'.$id)->json();
     }
 
     public function getCustomerFinance($prefix,  $invoiceReference)
@@ -28,7 +28,7 @@ class SalesBridgeController extends Controller
         return Http::get($this->getUrl($prefix).'/second-payment/'.$id)->json();
     }
 
-    public function getUrl($prefix)
+    public function getOrderUrl($prefix)
     {
         $link1 = 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D';
         $link2 = 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AM';
@@ -38,6 +38,19 @@ class SalesBridgeController extends Controller
             'd' => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p' => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
             'a' => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
+        ];
+
+        return $urls[$prefix];
+    }
+
+
+    public function getUrl($prefix)
+    {
+        $urls = [
+            'l' => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'd' => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'p' => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'a' => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
         ];
 
         return $urls[$prefix];
