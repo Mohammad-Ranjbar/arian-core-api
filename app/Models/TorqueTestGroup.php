@@ -10,7 +10,7 @@ class TorqueTestGroup extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title'];
+    protected $fillable = ['title','register_date'];
 
     public function carModels(): BelongsToMany
     {

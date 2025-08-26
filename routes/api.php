@@ -421,6 +421,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         [TorqueTestGroupController::class, 'screws'])->name('torque-group-screws');
     Route::get('/torque-test-groups/{torqueTestGroup}/get-tests',
         [TorqueTestGroupController::class, 'tests'])->name('torque-group-tests');
+
     Route::apiResources([
         'roles' => RoleController::class,
         'make-codes' => MakeCodeController::class,
