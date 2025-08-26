@@ -54,6 +54,7 @@ use App\Models\StopFact;
 use App\Models\StopReason;
 use App\Models\StopType;
 use App\Models\SynchronousType;
+use App\Models\TemporaryProduction;
 use App\Models\TorqueCoefficient;
 use App\Models\TorqueMeasuringEquipment;
 use App\Models\TorqueMeter;
@@ -136,8 +137,8 @@ class AuthServiceProvider extends ServiceProvider
         VinEngine::class=>CrudPolicy::class,
         TorqueMeter::class=>CrudPolicy::class,
         TorqueTestGroup::class=>CrudPolicy::class,
+        TemporaryProduction::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
-
     ];
 
 
