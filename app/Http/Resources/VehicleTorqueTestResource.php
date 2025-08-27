@@ -16,7 +16,7 @@ class VehicleTorqueTestResource extends JsonResource
             'screw_id' => $this->resource->screw_id,
             'screw' => new ScrewResource($this->resource->screw),
             'vin' => $this->resource->vin,
-            'vehicle' => new VehicleResource($this->resource->vehilce),
+            'vehicle' => new VehicleResource($this->resource->vehicle),
             'user_id' => $this->resource->user_id,
             'range_color' => $this->resource->range_color,
             'range_code' => $this->resource->range_code,
