@@ -15,8 +15,8 @@ class CheckTempVinEngineRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'production_order_number' => 'required|exists:vehicles,production_order_number',
-            'engine_no' => 'nullable|exists:vin_engines,engine_no',
+            'production_order_number' => 'required|string|max:255|exists:vehicles,production_order_number',
+            'engine_no' => 'nullable|string|max:255',
         ];
     }
 }
