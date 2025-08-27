@@ -15,6 +15,7 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelColorCodeController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ChangeVinController;
+use App\Http\Controllers\CheckTempVinEngineController;
 use App\Http\Controllers\ColorMapController;
 use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
@@ -421,6 +422,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         [TorqueTestGroupController::class, 'screws'])->name('torque-group-screws');
     Route::get('/torque-test-groups/{torqueTestGroup}/get-tests',
         [TorqueTestGroupController::class, 'tests'])->name('torque-group-tests');
+
+    Route::post('/get-temp-vin-engine', CheckTempVinEngineController::class);
 
     Route::apiResources([
         'roles' => RoleController::class,
