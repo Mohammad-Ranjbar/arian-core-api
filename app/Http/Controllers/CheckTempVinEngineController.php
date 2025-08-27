@@ -13,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 
 class CheckTempVinEngineController extends Controller
 {
-
     public function __invoke(CheckTempVinEngineRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
@@ -24,7 +23,8 @@ class CheckTempVinEngineController extends Controller
         $vinEngine = VinEngine::query()->where('engine_no', $validatedData['engine_no'])->first();
 
         $tempVin = TemporaryProduction::query()->where('production_order_number', $validatedData['production_order_number'])->first();
-        $prefix = collect(config('serial_barcodes.' . $vehicle->makeCode->reference))->where('type','custom_engine')->first()->prefix;
+
+        $prefix = collect(config('serial_barcodes.' . $vehicle->getRelation('makeCode')->reference))->where('type', 'custom_engine')->first()['prefix'];
         return response()->json([
             'vehicle' => !empty($vehicle) ? VehicleResource::make($vehicle) : null,
             'serial_barcodes' => $prefix,
