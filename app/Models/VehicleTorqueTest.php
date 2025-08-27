@@ -56,7 +56,7 @@ class VehicleTorqueTest extends Model
 
     public function vehicle(): BelongsTo
     {
-        return $this->belongsTo(Vehicle::class, 'vin');
+        return $this->belongsTo(Vehicle::class, 'vin','vin');
     }
 
     public function screw(): BelongsTo
