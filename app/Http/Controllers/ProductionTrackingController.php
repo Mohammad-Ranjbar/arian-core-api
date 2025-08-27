@@ -10,6 +10,7 @@ use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
 use App\Models\Job;
+use App\Models\ProductionLine;
 use App\Models\SendErp;
 use App\Models\Tracking;
 use App\Models\Vehicle;
@@ -33,6 +34,18 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
+            if ($validatedData['type'] == 'enter' && $validatedData['model_type'] == 'production_lines' ) {
+                $condition = Tracking::query()
+                    ->where('model_type',ProductionLine::class)
+                    ->where('type','enter')
+                    ->where('vin',$validatedData['vin'])
+                    ->where('model_id',$validatedData['model_id'])
+                    ->exists();
+                if ($condition){
+                    return $this->responseError('شماره وارد شده قبلا به این خط تولید وارد شده است');
+                }
+
+            }
             if ($validatedData['type'] == 'exit' && !Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists()) {
                 return $this->responseError('لطفا ابتدا ثبت ورود را انجام دهید');
             }

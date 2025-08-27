@@ -66,7 +66,7 @@ class VehicleTorqueTestController extends Controller
                 $validatedData['range_code'] = $colors['yellow'];
             }
 
-            if ($validatedData['value'] > $range[3] && $validatedData['value'] <= $range[4]) {
+            if ($validatedData['value'] >= $range[3] && $validatedData['value'] <= $range[4]) {
                 $validatedData['range_color'] = 'n';
                 $validatedData['range_code'] = $colors['green'];
             }
