@@ -162,6 +162,14 @@ class Tracking extends Model
 
     public function temporaryProduction(): HasOneThrough
     {
-        return $this->hasOneThrough(TemporaryProduction::class, Vehicle::class,'production_order_number','production_order_number');
+        return $this->hasOneThrough(
+            TemporaryProduction::class,
+            Vehicle::class,
+            'vin',
+            'production_order_number',
+            'vin',
+            'production_order_number'
+
+        );
     }
 }
