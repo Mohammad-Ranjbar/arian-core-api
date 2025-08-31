@@ -47,11 +47,12 @@ class TrackingHistoryController extends Controller
             ];
 
             $perPage = request()->input('per_page', 15);
-            $data = Pipeline::send(Tracking::query()->where($whereCondition))->through([
+            $data = Pipeline::send(Tracking::query()->with(['temporaryProduction','vehicle','model','user'])->where($whereCondition))->through([
                 CreatedAtFromFilter::class,
                 CreatedAtToFilter::class,
                 VinFilter::class
             ])->thenReturn()->latest()->paginate($perPage);
+
             return TrackingResource::collection($data);
         } else {
             return $this->responseError('ورودی باید از بین سالن - خط تولید یا ایستگاه های کاری باشد', 400);

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Tracking extends Model
@@ -157,5 +158,10 @@ class Tracking extends Model
         $this->update(['data' => $response]);
 
         TrackingEvent::dispatch(new TrackingResource($this));
+    }
+
+    public function temporaryProduction(): HasOneThrough
+    {
+        return $this->hasOneThrough(TemporaryProduction::class, Vehicle::class,'production_order_number','production_order_number');
     }
 }
