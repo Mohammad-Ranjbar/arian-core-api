@@ -36,7 +36,7 @@ class ChangeVinController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('change-vins.index');
-        $data = Pipeline::send(ChangeVin::query())->through([
+        $data = Pipeline::send(ChangeVin::query()->with('vehicle'))->through([
             VinFilter::class,
             ProductionOrderNumberFilter::class
         ])->thenReturn()->latest()->paginate(request()->input('per_page', 20));

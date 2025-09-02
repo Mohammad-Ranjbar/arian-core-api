@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChangeVin extends Model
 {
@@ -19,4 +20,9 @@ class ChangeVin extends Model
         'production_order_number',
         'data',
     ];
+
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class, 'vin', 'vin');
+    }
 }

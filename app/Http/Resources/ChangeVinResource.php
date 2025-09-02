@@ -16,6 +16,7 @@ class ChangeVinResource extends JsonResource
             'old_vin' => $this->resource->old_vin,
             'production_order_number' => $this->resource->production_order_number,
             'data' => $this->resource->data,
+            'vehicle' => VehicleResource::make($this->resource->vehicle),
             'created_at' => $this->resource->created_at,
         ];
     }
