@@ -12,10 +12,10 @@ class TemporaryProductionRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'production_order_number' => 'required|string|max:255',
+            'production_order_number' => 'required|string|max:255|exists:vehicles,production_order_number',
             'temp_vin' => 'required|string|max:255',
         ], 'update' => [
-            'production_order_number' => 'required|string|max:255',
+            'production_order_number' => 'required|string|max:255|exists:vehicles,production_order_number',
             'temp_vin' => 'required|string|max:255',
         ]
     ];

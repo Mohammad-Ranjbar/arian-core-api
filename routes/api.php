@@ -37,6 +37,7 @@ use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitTransferController;
 use App\Http\Controllers\GeneralProductItemController;
 use App\Http\Controllers\GetQcStatusActionLogController;
+use App\Http\Controllers\GetVehicleCheckListController;
 use App\Http\Controllers\IncidentCategoryController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\IncomingVehicleController;
@@ -425,6 +426,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         [TorqueTestGroupController::class, 'tests'])->name('torque-group-tests');
 
     Route::post('/get-temp-vin-engine', CheckTempVinEngineController::class);
+
+    Route::get('/vehicle/{vin}/get-check-list/{type}', GetVehicleCheckListController::class);
 
     Route::apiResources([
         'roles' => RoleController::class,
