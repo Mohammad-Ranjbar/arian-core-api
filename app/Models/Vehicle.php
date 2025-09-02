@@ -57,7 +57,8 @@ class Vehicle extends Model
         'current_location',
         'delivered_customer_at',
         'color_code',
-        'data'
+        'data',
+        'production_type'
     ];
 
 

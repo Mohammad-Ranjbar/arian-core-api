@@ -45,8 +45,7 @@ class SyncProductItemsCommand extends Command
                    if (!$record){
                        $record = new ErpProductItem($data);
                    }
-
-                   $record->setAttribute('related_to',$row->Related_Component);
+//                   $record->setAttribute('related_to',$row->Related_Component);
                    $record->save();
                     $bar->advance();
                 }
