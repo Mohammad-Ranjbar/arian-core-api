@@ -9,6 +9,7 @@ use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
 use App\Models\ActionLog;
 use App\Models\Barcode;
+use App\Models\ErpProductItem;
 use App\Models\GeneralProductItem;
 use App\Models\Job;
 use App\Models\QcCode;
@@ -20,6 +21,7 @@ use App\Repositories\MakeCodeRepository;
 use App\Repositories\VehicleRepository;
 use App\Repositories\YearMapRepository;
 use App\Services\Erp\ErpGetVehicle;
+use App\Services\Erp\ErpGetVehicleComponent;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,14 +40,16 @@ class VehicleController extends CrudController
 
 
     public function __construct(
-        private readonly MakeCodeRepository $makeCodeRepository,
-        private readonly CarModelRepository $carModelRepository,
-        private readonly VehicleRepository $vehicleRepository,
-        private readonly ErpGetVehicle $erpGetVehicle,
-        private readonly ActionLogRepository $actionLogRepository,
-        private readonly ColorMapRepository $colorMapRepository,
-        private readonly YearMapRepository $yearMapRepository,
-    ) {
+        private readonly MakeCodeRepository     $makeCodeRepository,
+        private readonly CarModelRepository     $carModelRepository,
+        private readonly VehicleRepository      $vehicleRepository,
+        private readonly ErpGetVehicle          $erpGetVehicle,
+        private readonly ActionLogRepository    $actionLogRepository,
+        private readonly ColorMapRepository     $colorMapRepository,
+        private readonly YearMapRepository      $yearMapRepository,
+        private readonly ErpGetVehicleComponent $erpGetVehicleComponent,
+    )
+    {
 
     }
 
@@ -62,7 +66,10 @@ class VehicleController extends CrudController
             throw new Exception('invalid vin number !');
         }
         $vehicle = $this->getData($vin);
-
+        if (empty($vehicle->getAttribute('production_type'))) {
+            $this->updateProductionType($vehicle);
+            $vehicle->refresh();
+        }
         if (Gate::allows('access', $vehicle)) {
             return new VehicleResource($vehicle);
         } else {
@@ -75,17 +82,17 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param  string  $inputString
+     * @param string $inputString
      * @return Model|Builder
      * @throws ValidationException
      */
     public function getData(string $inputString): Model|Builder
     {
-        if(Str::length($inputString) == 17){
+        if (Str::length($inputString) == 17) {
             $vehicleData = $this->erpGetVehicle->get($inputString);
-        }else{
-            $vehicleData = $this->erpGetVehicle->getByPo($inputString,false);
-            if (!$vehicleData){
+        } else {
+            $vehicleData = $this->erpGetVehicle->getByPo($inputString, false);
+            if (!$vehicleData) {
                 $vehicleData = $this->erpGetVehicle->getByPoFromHeader($inputString);
             }
 
@@ -96,9 +103,9 @@ class VehicleController extends CrudController
 
         if (!empty($colorMapCode = $vehicleData['color_code'])) {
             $colorMapData = [
-                'title'      => $colorMapCode,
+                'title' => $colorMapCode,
                 'color_code' => $colorMapCode,
-                'code'       => 'change-it'.$colorMapCode,
+                'code' => 'change-it' . $colorMapCode,
             ];
             $this->colorMapRepository->make($colorMapData, 'color_code');
         }
@@ -112,14 +119,14 @@ class VehicleController extends CrudController
 
         $carModel->update(['make_code_id' => $makeCode->getAttribute('id')]);
         $data = [
-            'data'                    => $vehicleData['data'],
-            'vin'                     => $vehicleData['vin'],
-            'color_code'              => $vehicleData['color_code'],
-            'production_order_number' => ($vehicleData['production_order_number']) ? $vehicleData['production_order_number'] : $vehicleData['vin'],
-            'engine_no'               => $vehicleData['engine_no'],
-            'cabin_no'                => $vehicleData['cabin_no'],
-            'make_code_id'            => $makeCode->getAttribute('id'),
-            'car_model_id'            => $carModel->getAttribute('id'),
+            'data' => $vehicleData['data'],
+            'vin' => $vehicleData['vin'],
+            'color_code' => $vehicleData['color_code'],
+            'production_order_number' => ($vehicleData['production_order_number']) ??  $vehicleData['vin'],
+            'engine_no' => $vehicleData['engine_no'],
+            'cabin_no' => $vehicleData['cabin_no'],
+            'make_code_id' => $makeCode->getAttribute('id'),
+            'car_model_id' => $carModel->getAttribute('id'),
         ];
 
 
@@ -127,14 +134,30 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param  UpdateQcStatusRequest  $request
-     * @param  Vehicle  $vehicle
+     * @throws ValidationException
+     */
+    private function updateProductionType(Model|Builder $vehicle): void
+    {
+        $components = collect($this->erpGetVehicleComponent->get($vehicle->getAttribute('production_order_number')));
+
+
+        $isCKD = ErpProductItem::query()->where('type', 'Painted Body')->whereIn('reference', $components->pluck('Item_No'))->exists();
+
+        $vehicle->update([
+            'production_type' => $isCKD ? 'ckd' : 'skd'
+        ]);
+    }
+
+    /**
+     * @param UpdateQcStatusRequest $request
+     * @param Vehicle $vehicle
      * @return JsonResponse|VehicleResource
      */
     public function updateQcStatus(
         UpdateQcStatusRequest $request,
-        Vehicle $vehicle
-    ): JsonResponse|VehicleResource {
+        Vehicle               $vehicle
+    ): JsonResponse|VehicleResource
+    {
         try {
             $validatedData = $request->validated();
             if (in_array($validatedData['qc_status'], [24, 84, 85])) {
@@ -147,8 +170,8 @@ class VehicleController extends CrudController
                     return $this->responseError('All barcodes have not been submitted yet.', 400);
                 }
             }
-            $qcCode = QcCode::query()->where('title',$validatedData['qc_status'])->first();
-            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'],$validatedData['type'],$qcCode->getAttribute('type'));
+            $qcCode = QcCode::query()->where('title', $validatedData['qc_status'])->first();
+            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type'));
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
@@ -156,10 +179,10 @@ class VehicleController extends CrudController
 
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
-                'model_id'   => $vehicle->getAttribute('vin'),
-                'action'     => ActionLog::UPDATED_QC_STATUS,
-                'user_id'    => Auth::id(),
-                'data'       => $validatedData['qc_status'],
+                'model_id' => $vehicle->getAttribute('vin'),
+                'action' => ActionLog::UPDATED_QC_STATUS,
+                'user_id' => Auth::id(),
+                'data' => $validatedData['qc_status'],
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
@@ -168,35 +191,32 @@ class VehicleController extends CrudController
         }
     }
 
-    /**
-     * @param  string  $vin
-     * @param  string  $qcStatus
-     * @return array
-     */
-    private function updateStatus(string $vin, string $qcStatus,$type,$qcType): array
+
+    private function updateStatus(string $vin, string $qcStatus, $type, $qcType): array
     {
         return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts_Zone',
-            ['vINP' => $vin, 'qCStatusP' => $qcStatus,'itemTypeP' => $type,'qCTypeP' => $qcType]);
+            ['vINP' => $vin, 'qCStatusP' => $qcStatus, 'itemTypeP' => $type, 'qCTypeP' => $qcType]);
 
     }
 
     /**
-     * @param  UpdateGradeRequest  $request
-     * @param  Vehicle  $vehicle
+     * @param UpdateGradeRequest $request
+     * @param Vehicle $vehicle
      * @return JsonResponse|VehicleResource
      */
     public function updateGradeStatus(
         UpdateGradeRequest $request,
-        Vehicle $vehicle
-    ): JsonResponse|VehicleResource {
+        Vehicle            $vehicle
+    ): JsonResponse|VehicleResource
+    {
         try {
             $validatedData = $request->validated();
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
-                'model_id'   => $vehicle->getAttribute('vin'),
-                'action'     => ActionLog::UPDATED_GRADE_STATUS[$validatedData['item_type']],
-                'user_id'    => Auth::id(),
-                'data'       => $validatedData['grade'],
+                'model_id' => $vehicle->getAttribute('vin'),
+                'action' => ActionLog::UPDATED_GRADE_STATUS[$validatedData['item_type']],
+                'user_id' => Auth::id(),
+                'data' => $validatedData['grade'],
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
@@ -206,7 +226,7 @@ class VehicleController extends CrudController
     }
 
     /**
-     * @param  Request  $request
+     * @param Request $request
      * @return JsonResponse
      */
     public function reportVehicleQc(Request $request): JsonResponse
@@ -219,20 +239,17 @@ class VehicleController extends CrudController
         ExportJob::dispatch($job->getAttribute('uuid'));
         return response()->json([
             'message' => 'export job created', 'data' => [
-                'uuid'         => $job->getAttribute('uuid'),
+                'uuid' => $job->getAttribute('uuid'),
                 'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
             ]
         ]);
     }
 
-    /**
-     * @return JsonResponse|AnonymousResourceCollection
-     */
     public function vehicleQc(): JsonResponse|AnonymousResourceCollection
     {
         try {
             $data = $this->actionLogRepository
-                ->where('action', ActionLog::UPDATED_QC_STATUS)->latest()->paginate(request()->per_page);
+                ->model->newQuery()->where('action', ActionLog::UPDATED_QC_STATUS)->latest()->paginate(request()->per_page);
 
             return VehicleQcResource::collection($data);
         } catch (Exception $exception) {
