@@ -15,6 +15,7 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelColorCodeController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ChangeVinController;
+use App\Http\Controllers\CheckListController;
 use App\Http\Controllers\CheckTempVinEngineController;
 use App\Http\Controllers\ColorMapController;
 use App\Http\Controllers\ComponentItemController;
@@ -477,6 +478,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'torque-meters' => TorqueMeterController::class,
         'torque-test-groups' => TorqueTestGroupController::class,
         'temporary-productions' => TemporaryProductionController::class,
+        'check-lists' => CheckListController::class
     ]);
 
     /*

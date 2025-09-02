@@ -12,6 +12,7 @@ use App\Models\BodyOption;
 use App\Models\CabinNumber;
 use App\Models\Car;
 use App\Models\CarModel;
+use App\Models\CheckList;
 use App\Models\ColorMap;
 use App\Models\Container;
 use App\Models\CopPlan;
@@ -133,11 +134,12 @@ class AuthServiceProvider extends ServiceProvider
         ItemTechnicalChecklist::class => CrudPolicy::class,
         ProductBom::class => CrudPolicy::class,
         ProductionControl::class => CrudPolicy::class,
-        PdiCheckList::class=>CrudPolicy::class,
-        VinEngine::class=>CrudPolicy::class,
-        TorqueMeter::class=>CrudPolicy::class,
-        TorqueTestGroup::class=>CrudPolicy::class,
+        PdiCheckList::class => CrudPolicy::class,
+        VinEngine::class => CrudPolicy::class,
+        TorqueMeter::class => CrudPolicy::class,
+        TorqueTestGroup::class => CrudPolicy::class,
         TemporaryProduction::class => CrudPolicy::class,
+        CheckList::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
