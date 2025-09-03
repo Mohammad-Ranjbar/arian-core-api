@@ -29,7 +29,7 @@ class BarcodeController extends CrudController
     /**
      * @param BarcodeRepository $repository
      */
-    public function __construct(public readonly BarcodeRepository $repository)
+    public function __construct(public readonly BarcodeRepository $repository,private readonly VehicleController $vehicleController)
     {
         $this->applyAuthorizeResource();
         $this->setResource(BarcodeResource::class);
@@ -105,6 +105,7 @@ class BarcodeController extends CrudController
 
             $data = new $this->resource($saveItem);
             DB::commit();
+            $this->vehicleController->getData($vehicle->getAttribute('vin'));
             return $data;
         } catch (Exception $exception) {
             DB::rollBack();
