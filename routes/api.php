@@ -73,6 +73,7 @@ use App\Http\Controllers\SaleInvoicesController;
 use App\Http\Controllers\SaleLocationController;
 use App\Http\Controllers\SalesBridgeController;
 use App\Http\Controllers\SalonController;
+use App\Http\Controllers\SamtController;
 use App\Http\Controllers\ScrewController;
 use App\Http\Controllers\SendSmsGatewayController;
 use App\Http\Controllers\SettingController;
@@ -130,8 +131,11 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
+
+
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
+    Route::any('/samt', SamtController::class);
     Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store']);
     Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy', 'update']);
 

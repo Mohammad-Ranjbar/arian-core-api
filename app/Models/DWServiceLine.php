@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class DWServiceLine extends Model
 {
     protected $connection = 'sqlsrv';
-    protected $table = 'ServiceLine';
+    protected $table = 'VehicleServiceHistoryAll';
 }
