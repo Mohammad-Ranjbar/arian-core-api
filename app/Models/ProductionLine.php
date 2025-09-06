@@ -138,6 +138,9 @@ class ProductionLine extends Model
     {
         return $this->tracking()
             ->where('type', $type)
+            ->whereHas('vehicle',function ($q){
+                $q->whereNotNull('production_order_number');
+            })
             ->whereBetween('created_at', [$start, $end])
             ->count();
     }
