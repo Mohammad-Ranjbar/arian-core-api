@@ -23,10 +23,10 @@ class SamtController extends Controller
     }
 
 
-    private function obj()
+    private function obj(array $vehicle)
     {
         $data = [
-            'KM' => '',
+            'KM' => $vehicle['km'],
             'MotorNo' => '',
             'VinNo' => '',
             'WarrantyEndDate' => '',
