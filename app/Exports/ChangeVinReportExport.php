@@ -42,7 +42,12 @@ class ChangeVinReportExport implements FromCollection, WithMapping, WithHeadings
         return [
             "VIN",
             "Old Vin",
+
+            "شماره موتور",
+            "رنگ",
+            "کد ساخت",
             "شماره دستور تولید",
+
             "زمان ایجاد"
         ];
     }
@@ -64,6 +69,9 @@ class ChangeVinReportExport implements FromCollection, WithMapping, WithHeadings
         $row = [
             $row->vin,
             $row->old_vin,
+            $row->vehicle->engine_no,
+            $row->vehicle->info->Variant_Code,
+            $row->vehicle->makeCode->title,
             $row->production_order_number,
             jdate($row->created_at),
         ];
