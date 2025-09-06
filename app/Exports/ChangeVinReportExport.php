@@ -70,7 +70,7 @@ class ChangeVinReportExport implements FromCollection, WithMapping, WithHeadings
             $row->vin,
             $row->old_vin,
             $row->vehicle->engine_no,
-            $row->vehicle->data->Variant_Code,
+            $row->vehicle->data['Variant_Code'],
             $row->vehicle->makeCode->title,
             $row->production_order_number,
             jdate($row->created_at),
