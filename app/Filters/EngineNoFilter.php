@@ -6,7 +6,7 @@ use Closure;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class EnginNoFilter
+class EngineNoFilter
 {
 
     /**

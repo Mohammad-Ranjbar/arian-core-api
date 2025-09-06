@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\EnginNoFilter;
+use App\Filters\EngineNoFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Http\Requests\StoreEnterEngineRequest;
 use App\Http\Resources\EnterEngineResource;
@@ -25,7 +25,7 @@ class EnterEngineController extends Controller
         $data = Pipeline::send(EnterEngine::query()->latest('updated_at'))
             ->through([
                 ProductionLineIdFilter::class,
-                EnginNoFilter::class
+                EngineNoFilter::class
             ])
             ->thenReturn()
             ->paginate(request()->input('per_page', 10));
