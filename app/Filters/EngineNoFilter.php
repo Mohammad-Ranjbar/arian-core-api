@@ -18,10 +18,10 @@ class EngineNoFilter
      */
     public function handle($request, Closure $next): mixed
     {
-        if (!request()->has('engin_no') || !request()->get('engin_no')) {
+        if (!request()->has('engine_no') || !request()->get('engine_no')) {
             return $next($request);
         }
-        return $next($request)->where('engine_no', request()->get('engin_no'));
+        return $next($request)->where('engine_no', request()->get('engine_no'));
 
     }
 
