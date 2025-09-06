@@ -10,5 +10,6 @@ class DWVehicleServiceHistoryTree extends Model
     use HasFactory;
 
     protected $connection = 'sqlsrv';
-    protected $table = 'VehicleServiceHistoryTree';
+
+    protected $table = 'VehicleServiceHistoryAll';
 }
