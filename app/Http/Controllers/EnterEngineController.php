@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\EnginNoFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Http\Requests\StoreEnterEngineRequest;
 use App\Http\Resources\EnterEngineResource;
@@ -23,7 +24,8 @@ class EnterEngineController extends Controller
         $this->authorize('enter-engines.index');
         $data = Pipeline::send(EnterEngine::query()->latest('updated_at'))
             ->through([
-                ProductionLineIdFilter::class
+                ProductionLineIdFilter::class,
+                EnginNoFilter::class
             ])
             ->thenReturn()
             ->paginate(request()->input('per_page', 10));
@@ -55,7 +57,7 @@ class EnterEngineController extends Controller
 
     public function sendPrinter($data): void
     {
-        if (!empty($data->productionLine->printer_address)){
+        if (!empty($data->productionLine->printer_address)) {
             PrintEngineLableJob::dispatch($data->engine_no, $data->vin, $data->productionLine->printer_address, $data->id);
         }
     }
