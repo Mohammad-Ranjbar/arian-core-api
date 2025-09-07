@@ -131,11 +131,11 @@ Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::get('/dl', DownloadController::class)->name('dl');
 Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
-
+Route::any('/gateway-vehicle-information', SamtController::class);
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
-    Route::any('/samt', SamtController::class);
+
     Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store']);
     Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy', 'update']);
 
