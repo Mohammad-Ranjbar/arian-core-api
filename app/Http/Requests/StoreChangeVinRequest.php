@@ -16,7 +16,7 @@ class StoreChangeVinRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vin' => 'required|string|max:255',
+            'vin' => 'required|string|max:255|unique:change_vins,vin',
             'old_vin' => 'nullable|string|max:255',
             'production_order_number' => 'required|string|max:255|exists:vehicles,production_order_number',
         ];
