@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 class SendToErpUniqueJob implements ShouldQueue,ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $tries = 1;
 
     public function __construct(public readonly string $id)
     {
