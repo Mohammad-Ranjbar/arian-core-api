@@ -19,16 +19,14 @@ class SendToErpEventService
         $model = $erpJob->model;
         if ($response['status'] !== 'ok') {
             $erpJob->setStatusFailed($response['message']);
-            logger('model is  in failed ');
-            logger($model);
+
             if ($model && method_exists($model, 'failedJob')) {
                 $model->failedJob($response);
             }
             $erpJob->setExecutionTime($startAt, microtime(true));
             return;
         }
-        logger('model is   ');
-        logger($model);
+
         if ($model && method_exists($model, 'successJob')) {
             $model->successJob($response);
         }
