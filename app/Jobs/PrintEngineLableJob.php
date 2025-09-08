@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 use Picqer\Barcode\BarcodeGeneratorPNG;
@@ -63,8 +64,19 @@ class PrintEngineLableJob implements ShouldQueue
         $mpdf->WriteHTML($content);
         $path = storage_path('engine-lable-'.$this->engineNumber.'.pdf');
         $mpdf->Output($path, 'F');
-        $socket = fsockopen($this->printerAddress, 9100);
+
+        $socket = @fsockopen($this->printerAddress, 9100, $errno, $errstr, 5);
+        if (!$socket) {
+            Log::error("Printer connection failed to $ip:9100 - $errstr ($errno)");
+            return;
+        }
         $pdf = file_get_contents($path);
+        if ($pdf === false) {
+            Log::error("Failed to read PDF file: $path");
+            fclose($socket);
+            return;
+        }
+
         fwrite($socket, $pdf);
         fclose($socket);
         unlink($path);
