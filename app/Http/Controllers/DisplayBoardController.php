@@ -17,7 +17,9 @@ class DisplayBoardController extends Controller
 
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location_code')->all();
-
+        if (!isset($data['data'])){
+            return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
+        }
         $list = collect($data['data'])->whereIn('Location', $locations);
         $result = $list->map(function ($item) use ($lines) {
 
