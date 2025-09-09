@@ -54,28 +54,29 @@ class VehicleController extends CrudController
     }
 
 
-    /**
-     * @param string $vin
-     * @return JsonResponse|VehicleResource
-     * @throws ValidationException
-     * @throws Exception
-     */
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
-        if (Str::contains($vin, 'temp')) {
-            throw new Exception('invalid vin number !');
-        }
-        $vehicle = $this->getData($vin);
-        if (empty($vehicle->getAttribute('production_type'))) {
-            $this->updateProductionType($vehicle);
-            $vehicle->refresh();
-        }
-        if (Gate::allows('access', $vehicle)) {
-            return new VehicleResource($vehicle);
-        } else {
+        try {
+            if (Str::contains($vin, 'temp')) {
+                throw new Exception('invalid vin number !', 404);
+            }
+            $vehicle = $this->getData($vin);
+            if (empty($vehicle->getAttribute('production_type'))) {
+                $this->updateProductionType($vehicle);
+                $vehicle->refresh();
+            }
+            if (Gate::allows('access', $vehicle)) {
+                return new VehicleResource($vehicle);
+            } else {
+                return new JsonResponse(
+                    data: ['message' => 'You are not authorized to access this vehicle'],
+                    status: Response::HTTP_FORBIDDEN
+                );
+            }
+        } catch (Exception $exception) {
             return new JsonResponse(
-                data: ['message' => 'You are not authorized to access this vehicle'],
-                status: Response::HTTP_FORBIDDEN
+                data: ['message' => $exception->getMessage()],
+                status: $exception->getCode()
             );
         }
 
@@ -122,7 +123,7 @@ class VehicleController extends CrudController
             'data' => $vehicleData['data'],
             'vin' => $vehicleData['vin'],
             'color_code' => $vehicleData['color_code'],
-            'production_order_number' => ($vehicleData['production_order_number']) ??  $vehicleData['vin'],
+            'production_order_number' => ($vehicleData['production_order_number']) ?? $vehicleData['vin'],
             'engine_no' => $vehicleData['engine_no'],
             'cabin_no' => $vehicleData['cabin_no'],
             'make_code_id' => $makeCode->getAttribute('id'),
