@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ModelIdFilter;
 use App\Filters\VinFilter;
 use App\Http\Requests\ReportExcelGatePermitRequest;
 use App\Http\Resources\GatePermitResource;
@@ -37,7 +38,7 @@ class GatePermitController extends CrudController
     {
         $data = $this->repository->model;
         Pipeline::send($data)->through([
-            VinFilter::class,
+            ModelIdFilter::class,
         ])->thenReturn();
             $data = $data->forAuthenticatedUser()->paginate($request->get('per_page', 15));
         return $this->collect($data);
