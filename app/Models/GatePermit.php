@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class GatePermit extends Model
 {
@@ -51,4 +52,13 @@ class GatePermit extends Model
         return $this->morphTo();
     }
 
+    public function scopeForAuthenticatedUser($query)
+    {
+        return $query->whereHas('source.users', function ($users) {
+            $users->where('users.id', Auth::id());
+        })
+            ->whereHas('location.users', function ($users) {
+                $users->where('users.id', Auth::id());
+            });
+    }
 }
