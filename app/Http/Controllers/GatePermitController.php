@@ -31,6 +31,16 @@ class GatePermitController extends CrudController
         $this->setResource(GatePermitResource::class);
     }
 
+    public function index(Request $request): JsonResponse|AnonymousResourceCollection
+    {
+        $data = $this->repository->model->newQuery()->whereHas('source',function ($source){
+            $source->users()->where('users.id', Auth::id());
+        })->whereHas('location',function ($location){
+            $location->users()->where('users.id', Auth::id());
+        })->paginate($request->get('per_page', 15));
+        return $this->collect($data);
+    }
+
     /**
      * @param Request $request
      * @return mixed
