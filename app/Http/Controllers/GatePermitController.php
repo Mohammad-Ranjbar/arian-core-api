@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\VinFilter;
 use App\Http\Requests\ReportExcelGatePermitRequest;
 use App\Http\Resources\GatePermitResource;
 use App\Jobs\ExportJob;
@@ -18,6 +19,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -33,7 +35,11 @@ class GatePermitController extends CrudController
 
     public function index(Request $request): JsonResponse|AnonymousResourceCollection
     {
-        $data = $this->repository->model->forAuthenticatedUser()->paginate($request->get('per_page', 15));
+        $data = $this->repository->model;
+        Pipeline::send($data)->through([
+            VinFilter::class,
+        ])->thenReturn();
+            $data = $data->forAuthenticatedUser()->paginate($request->get('per_page', 15));
         return $this->collect($data);
     }
 
