@@ -47,13 +47,17 @@ class MoveInvitationToSaleOnlineApplicationJob
             } else {
                 $expireDate = Carbon::today()->addDays(20);
             }
+
+            $orderId = str_replace('PARS_AM-', '', $data->Online_Contract_ID);
+            $orderId = str_replace('POOYA_AM-', '', $orderId);
+
             $sendData = [
-                'order_id'    => trim($data->Online_Contract_ID),
+                'order_id'    => trim($orderId),
                 'expire_at'   => $expireDate->toDateTimeString(),
                 'amount'      => $data->Net_To_Pay_when_issued,
                 'reference'   => $data->No,
                 'description' => 'دعوت نامه شماره '.$data->No,
-                'secret'      => md5(trim($data->Online_Contract_ID).$data->Net_To_Pay_when_issued.'xyz'),
+                'secret'      => md5(trim($orderId).$data->Net_To_Pay_when_issued.'xyz'),
                 'file_name'   => $invoice->data['file']
             ];
             $url = $company->getAttribute('site_url');
