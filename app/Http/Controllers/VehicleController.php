@@ -76,7 +76,7 @@ class VehicleController extends CrudController
         } catch (Exception $exception) {
             return new JsonResponse(
                 data: ['message' => $exception->getMessage()],
-                status: $exception->getCode()
+                status: 400
             );
         }
 
