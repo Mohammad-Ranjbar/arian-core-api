@@ -29,6 +29,7 @@ class SyncInvitationsCommand extends Command
             config('erp.workgroups'),
             config('erp.share_folder')
         );
+
         $companies = SaleCompany::query()->get();
         foreach ($companies as $company) {
             if (!empty($company->getAttribute('invitation'))) {
@@ -42,32 +43,34 @@ class SyncInvitationsCommand extends Command
 
     private function syncInvitation(SaleCompany $company): void
     {
-
         try {
-            $files = $this->share->getFiles($company->getAttribute('folder_name').'/'.$company->getAttribute('invitation'));
+            $files = $this->share->getFiles($company->getAttribute('folder_name') . '/' . $company->getAttribute('invitation'));
         } catch (Exception $exception) {
             logger($exception->getMessage());
             $files = [];
         }
         foreach ($files as $file) {
             try {
+                if (strtolower($file->getMimeType()) != 'application/pdf') {
+                    continue;
+                }
                 $content = $this->share->getFile($file->getPath());
-                $path = uniqid().$file->getName();
+                $path = uniqid() . $file->getName();
                 Storage::put($path, $content);
                 $reference = explode('.', $file->getName())[0];
 
                 fclose($content);
-                $fileName = Storage::disk('s3')->putFile('/invitations/'.$company->getAttribute('id'),
+                $fileName = Storage::disk('s3')->putFile('/invitations/' . $company->getAttribute('id'),
                     Storage::path($path));
 
                 if ($fileName) {
                     $invoice = $company->invoices()->create([
                         'reference' => $reference,
-                        'type'      => 'customer-finance',
-                        'value'     => 0,
-                        'data'      => [
+                        'type' => 'customer-finance',
+                        'value' => 0,
+                        'data' => [
                             'local_file' => $path,
-                            'file'       => $fileName
+                            'file' => $fileName
                         ]
                     ]);
                     Storage::delete($path);
@@ -86,25 +89,28 @@ class SyncInvitationsCommand extends Command
     {
 
         try {
-            $files = $this->share->getFiles($company->getAttribute('folder_name').'/'.$company->getAttribute('contract'));
+            $files = $this->share->getFiles($company->getAttribute('folder_name') . '/' . $company->getAttribute('contract'));
         } catch (Exception $exception) {
             logger($exception->getMessage());
-            logger($company->getAttribute('folder_name').'/'.$company->getAttribute('contract'));
+            logger($company->getAttribute('folder_name') . '/' . $company->getAttribute('contract'));
             $files = [];
         }
         foreach ($files as $file) {
             try {
+                if (strtolower($file->getMimeType()) != 'application/pdf') {
+                    continue;
+                }
                 $content = $this->share->getFile($file->getPath());
-                $path = uniqid().$file->getName();
+                $path = uniqid() . $file->getName();
                 Storage::put($path, $content);
                 $reference = explode('.', $file->getName())[0];
 
 
                 dispatch(new MoveContractToSaleOnlineApplicationJob([
-                    'path'       => $path,
-                    'reference'  => $reference,
+                    'path' => $path,
+                    'reference' => $reference,
                     'company_id' => $company->getAttribute('id'),
-                    'shareFile'  => $file->getPath()
+                    'shareFile' => $file->getPath()
                 ]));
 
                 fclose($content);
