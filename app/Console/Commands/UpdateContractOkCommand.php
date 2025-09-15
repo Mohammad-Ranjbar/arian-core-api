@@ -9,21 +9,20 @@ use Illuminate\Support\Facades\Http;
 
 class UpdateContractOkCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:update-contract-ok-command';
 
-    public function handle()
+    public function handle(): void
     {
         $companies = SaleCompany::query()->whereNotNull('ok_contact_list_url')->get();
         foreach ($companies as $company) {
             $this->info('Fetching data ...');
+            if (empty($company->ok_contact_list_url)) {
+                continue;
+            }
             $list = Http::get($company->ok_contact_list_url)->json();
             $count = count($list);
-            $this->info($count.' Items fetched!');
+            $this->info($count . ' Items fetched!');
             $url = $company->ok_contact_api_url;
 
             $bar = $this->output->createProgressBar($count);
