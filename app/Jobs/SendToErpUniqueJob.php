@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Mail\FailedErpJobMail;
 use App\Models\ErpJob;
 use App\Services\SendToErpEventService;
 use Illuminate\Bus\Queueable;
@@ -11,7 +10,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class SendToErpUniqueJob implements ShouldQueue, ShouldBeUnique
@@ -34,11 +32,16 @@ class SendToErpUniqueJob implements ShouldQueue, ShouldBeUnique
 
     public function failed(Throwable $exception): void
     {
-        if ($job = ErpJob::query()->find($this->id)) {
-            Mail::to([
-                'mo.ranjbar@arian-capital.com',
-                'm.fatollahzadeh@auto360.ir',
-            ])->send(new FailedErpJobMail($job, $exception));
+        $erpJob = ErpJob::query()->find($this->id);
+
+        $model = $erpJob->model;
+
+        $erpJob->setStatusFailed($exception->getMessage());
+        if ($model && method_exists($model, 'failedJob')) {
+            $model->failedJob([
+                'status' => 'error',
+                'message' => 'پاسخی از ERP دریافت نشد'
+            ]);
         }
     }
 }

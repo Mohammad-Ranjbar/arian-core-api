@@ -11,6 +11,7 @@ class SendToErpEventService
         $startAt = microtime(true);
         $erpJob->incrementTries();
         $erpJob->setEmptyDescription();
+        $erpJob->setStatusInProgress();
         $response = ErpWsdlClient::run(
             $erpJob->getAttribute('url'),
             $erpJob->getAttribute('method'),
