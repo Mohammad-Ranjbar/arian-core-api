@@ -23,7 +23,7 @@ return [
     'middleware' => ['web'],
 
     'waits' => [
-        'redis:default' => 60,
+        'redis:default' => 600,
     ],
 
 
@@ -52,7 +52,7 @@ return [
     'fast_termination' => false,
 
 
-    'memory_limit' => 8000,
+    'memory_limit' => 16000,
 
 
     'defaults' => [
@@ -61,12 +61,12 @@ return [
             'queue' => ['default','unique','parallel'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 9,
+            'maxProcesses' => 3,
             'maxTime' => 0,
-            'maxJobs' => 1,
+            'maxJobs' => 3,
             'memory' => 4096,
             'tries' => 3,
-            'timeout' => 10000,
+            'timeout' => 1000000,
             'nice' => 0,
         ],
     ],
