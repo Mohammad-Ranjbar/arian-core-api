@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 use Throwable;
 
 class SendToErpUniqueJob implements ShouldQueue, ShouldBeUnique
@@ -24,6 +25,12 @@ class SendToErpUniqueJob implements ShouldQueue, ShouldBeUnique
     public function handle(): void
     {
         SendToErpEventService::send(ErpJob::query()->find($this->id));
+    }
+    public function uniqueId(): string
+
+    {
+        return $this->id.Str::uuid()->toString();
+
     }
 
     public function failed(Throwable $exception): void
