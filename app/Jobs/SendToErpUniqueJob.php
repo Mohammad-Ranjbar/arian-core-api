@@ -16,10 +16,6 @@ class SendToErpUniqueJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 5;
-    public $maxExceptions = 2;
-    public $backoff = [30, 60, 300, 1800, 3600];
-
     public function __construct(public readonly string $id)
     {
         //
