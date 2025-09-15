@@ -61,6 +61,13 @@ class ErpJob extends Model
         ]);
     }
 
+    public function setStatusStart(): bool
+    {
+        return $this->update([
+            'status' => 'start'
+        ]);
+    }
+
     public function setStatusSuccess($response): bool
     {
         return $this->update([

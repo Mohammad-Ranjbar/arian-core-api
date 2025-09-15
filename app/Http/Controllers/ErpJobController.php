@@ -54,7 +54,7 @@ class ErpJobController extends Controller
 //            ], 422);
 //        }
 
-        $erpJob->setStatusInProgress();
+        $erpJob->setStatusStart();
 
         ErpJobEvent::dispatch($erpJob);
 
