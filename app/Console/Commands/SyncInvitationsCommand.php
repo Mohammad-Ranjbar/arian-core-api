@@ -8,6 +8,7 @@ use App\Models\SaleCompany;
 use App\Services\SMBService;
 use Exception;
 use Icewind\SMB\Exception\DependencyException;
+use Icewind\SMB\Native\NativeFileInfo;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -51,7 +52,7 @@ class SyncInvitationsCommand extends Command
         }
         foreach ($files as $file) {
             try {
-                if (strtolower($file->getMimeType()) != 'application/pdf') {
+                if (!$this->isPdfFile($file)) {
                     continue;
                 }
                 $content = $this->share->getFile($file->getPath());
@@ -97,7 +98,7 @@ class SyncInvitationsCommand extends Command
         }
         foreach ($files as $file) {
             try {
-                if (strtolower($file->getMimeType()) != 'application/pdf') {
+                if (!$this->isPdfFile($file)) {
                     continue;
                 }
                 $content = $this->share->getFile($file->getPath());
@@ -120,5 +121,15 @@ class SyncInvitationsCommand extends Command
                 logger($exception->getMessage());
             }
         }
+    }
+
+    public function isPdfFile(NativeFileInfo $fileInfo): bool
+    {
+
+        $filename = $fileInfo->getName();
+
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return $extension === 'pdf';
     }
 }
