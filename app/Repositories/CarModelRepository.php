@@ -21,6 +21,7 @@ class CarModelRepository extends BaseRepository
             'productionLines.*' => 'required|exists:production_lines,id',
             'bodyOptions' => 'nullable|array',
             'bodyOptions.*' => 'nullable|exists:body_options,id',
+            'production' => 'required|string|max:255',
         ],
         'update' => [
             'reference' => 'required|unique:car_models,reference,',
@@ -31,6 +32,7 @@ class CarModelRepository extends BaseRepository
             'productionLines.*' => 'required|exists:production_lines,id',
             'bodyOptions' => 'nullable|array',
             'bodyOptions.*' => 'nullable|exists:body_options,id',
+            'production' => 'required|string|max:255',
         ]
     ];
 

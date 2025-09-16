@@ -20,6 +20,7 @@ class CarModel extends Model
         'make_code_id',
         'cabin_serial_chr_1',
         'cabin_serial_chr_2',
+        'production',
     ];
 
     public function bodyOptions(): BelongsToMany
