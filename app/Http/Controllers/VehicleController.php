@@ -61,10 +61,10 @@ class VehicleController extends CrudController
                 throw new Exception('invalid vin number !', 404);
             }
             $vehicle = $this->getData($vin);
-            if (empty($vehicle->getAttribute('production_type'))) {
-                $this->updateProductionType($vehicle);
-                $vehicle->refresh();
-            }
+
+            $this->updateProductionType($vehicle);
+            $vehicle->refresh();
+
             if (Gate::allows('access', $vehicle)) {
                 return new VehicleResource($vehicle);
             } else {
