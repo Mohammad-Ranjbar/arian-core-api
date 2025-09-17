@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class VehicleController extends CrudController
 {
@@ -73,9 +74,9 @@ class VehicleController extends CrudController
                     status: Response::HTTP_FORBIDDEN
                 );
             }
-        } catch (Exception $exception) {
+        } catch (Throwable $throwable) {
             return new JsonResponse(
-                data: ['message' => $exception->getMessage()],
+                data: ['message' => $throwable->getMessage()],
                 status: 400
             );
         }
@@ -86,9 +87,11 @@ class VehicleController extends CrudController
      * @param string $inputString
      * @return Model|Builder
      * @throws ValidationException
+     * @throws Exception
      */
     public function getData(string $inputString): Model|Builder
     {
+        try {
         if (Str::length($inputString) == 17) {
             $vehicleData = $this->erpGetVehicle->get($inputString);
         } else {
@@ -132,6 +135,10 @@ class VehicleController extends CrudController
 
 
         return $this->vehicleRepository->make($data);
+        } catch (Exception $exception) {
+            throw new Exception('Failed to get vehicle data: ' . $exception->getMessage(), 0, $exception);
+        }
+
     }
 
     /**
