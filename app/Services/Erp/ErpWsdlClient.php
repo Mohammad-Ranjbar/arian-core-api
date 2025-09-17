@@ -35,7 +35,7 @@ class ErpWsdlClient
             if(empty($list)) {
                 return [
                     'status' => 'error',
-                    'message' => 'No response received from "Microsoft Navision"'
+                    'message' => 'هیچ پاسخی از نویژن دریافت نشد'
                 ];
             }
 
