@@ -58,7 +58,7 @@ class ErpWsdlClient
             return [
                 'status'  => 'error',
                 'message' => strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3",
-                    $exception->getResponse()->getBody()->getContents()))
+                    $exception->getMessage()))
             ];
         }
     }
