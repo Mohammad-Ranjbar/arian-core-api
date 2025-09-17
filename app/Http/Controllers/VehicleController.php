@@ -30,6 +30,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -58,6 +59,7 @@ class VehicleController extends CrudController
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
         try {
+            DB::beginTransaction();
             if (Str::contains($vin, 'temp')) {
                 throw new Exception('invalid vin number !', 404);
             }
@@ -66,6 +68,7 @@ class VehicleController extends CrudController
                 $this->updateProductionType($vehicle);
                 $vehicle->refresh();
             }
+            DB::commit();
             if (Gate::allows('access', $vehicle)) {
                 return new VehicleResource($vehicle);
             } else {
@@ -75,6 +78,7 @@ class VehicleController extends CrudController
                 );
             }
         } catch (Throwable $throwable) {
+            DB::rollBack();
             return new JsonResponse(
                 data: ['message' => $throwable->getMessage()],
                 status: 400
@@ -102,6 +106,9 @@ class VehicleController extends CrudController
 
         }
         logger($vehicleData);
+        if (empty($vehicleData['make_code']) || empty($vehicleData['car_model'])) {
+            throw new Exception('اطلاعات دریافتی فاقد مدل و نوع خودرو میباشد');
+        }
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
 
