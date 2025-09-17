@@ -4,12 +4,13 @@ namespace App\Mail;
 
 use App\Models\ErpJob;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendStatusFailedErpJobMail extends Mailable
+class SendStatusFailedErpJobMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

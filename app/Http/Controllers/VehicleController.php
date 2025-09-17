@@ -30,10 +30,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class VehicleController extends CrudController
 {
@@ -57,14 +59,16 @@ class VehicleController extends CrudController
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
         try {
+            DB::beginTransaction();
             if (Str::contains($vin, 'temp')) {
                 throw new Exception('invalid vin number !', 404);
             }
             $vehicle = $this->getData($vin);
-
-            $this->updateProductionType($vehicle);
-            $vehicle->refresh();
-
+            if (empty($vehicle->getAttribute('production_type'))) {
+                $this->updateProductionType($vehicle);
+                $vehicle->refresh();
+            }
+            DB::commit();
             if (Gate::allows('access', $vehicle)) {
                 return new VehicleResource($vehicle);
             } else {
@@ -73,9 +77,10 @@ class VehicleController extends CrudController
                     status: Response::HTTP_FORBIDDEN
                 );
             }
-        } catch (Exception $exception) {
+        } catch (Throwable $throwable) {
+            DB::rollBack();
             return new JsonResponse(
-                data: ['message' => $exception->getMessage()],
+                data: ['message' => $throwable->getMessage()],
                 status: 400
             );
         }
@@ -86,9 +91,11 @@ class VehicleController extends CrudController
      * @param string $inputString
      * @return Model|Builder
      * @throws ValidationException
+     * @throws Exception
      */
     public function getData(string $inputString): Model|Builder
     {
+        try {
         if (Str::length($inputString) == 17) {
             $vehicleData = $this->erpGetVehicle->get($inputString);
         } else {
@@ -98,7 +105,10 @@ class VehicleController extends CrudController
             }
 
         }
-
+        logger($vehicleData);
+        if (empty($vehicleData['make_code']) || empty($vehicleData['car_model'])) {
+            throw new Exception('اطلاعات دریافتی فاقد مدل و نوع خودرو میباشد');
+        }
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
 
@@ -132,6 +142,10 @@ class VehicleController extends CrudController
 
 
         return $this->vehicleRepository->make($data);
+        } catch (Exception $exception) {
+            throw new Exception( $exception->getMessage(), 0, $exception);
+        }
+
     }
 
     /**
