@@ -143,7 +143,7 @@ class VehicleController extends CrudController
 
         return $this->vehicleRepository->make($data);
         } catch (Exception $exception) {
-            throw new Exception('Failed to get vehicle data: ' . $exception->getMessage(), 0, $exception);
+            throw new Exception( $exception->getMessage(), 0, $exception);
         }
 
     }
