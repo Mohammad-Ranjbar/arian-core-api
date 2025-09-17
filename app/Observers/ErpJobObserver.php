@@ -20,14 +20,14 @@ class ErpJobObserver
         if (app()->environment('production')) {
             $users = [
                 'r.pourmehr@arian-capital.com',
+                'mo.ranjbar@arian-capital.com',
 //                'z.saffari@arian-capital.com',
 //                'h.yadegari@arian-capital.com'
 
             ];
 
             foreach ($users as $userEmail) {
-                sleep(15);
-                Mail::to($userEmail)->send(new SendStatusFailedErpJobMail($erpJob));
+                Mail::to($userEmail)->queue(new SendStatusFailedErpJobMail($erpJob));
             }
         }
     }
