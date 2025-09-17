@@ -101,7 +101,7 @@ class VehicleController extends CrudController
             }
 
         }
-
+        logger($vehicleData);
         $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
         $carModel = $this->carModelRepository->make($vehicleData['car_model']);
 
