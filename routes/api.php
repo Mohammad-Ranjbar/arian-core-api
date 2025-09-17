@@ -56,6 +56,7 @@ use App\Http\Controllers\PalletController;
 use App\Http\Controllers\PalletTransactionController;
 use App\Http\Controllers\PalletTypeController;
 use App\Http\Controllers\PdiCheckListController;
+use App\Http\Controllers\PDIController;
 use App\Http\Controllers\PendingInvoiceController;
 use App\Http\Controllers\ProductBomController;
 use App\Http\Controllers\ProductionChecklistController;
@@ -286,6 +287,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::apiResource('pdis', PDIController::class);
             Route::get('action-logs', [ActionLogController::class, 'getList'])->name('vehicle.action.logs');
             Route::get('/screws', [ScrewController::class, 'listScrewsForVin'])->name('vehicles.screws');
             Route::get('/torque-tests', [ScrewController::class, 'torqueTests'])->name('vehicles.torque-tests');
