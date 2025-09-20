@@ -32,7 +32,8 @@ class SamtController extends Controller
     public function __invoke(SamtRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
-        $vehicleInfo = DWVehicleServiceHistoryTree::query()->where('vin', $validatedData['VinNO']);
+
+        $vehicleInfo = DWVehicleServiceHistoryTree::query()->latest('date')->where('vin', $validatedData['VinNO']);
         if ($vehicleInfo->count() === 0) {
             return response()->json([
                 'resultCode' => 404,
@@ -41,16 +42,17 @@ class SamtController extends Controller
             ]);
         }
 
+      $vehicle = $vehicleInfo->first();
         $data = [
-            'KM' => intval($vehicleInfo->latest('date')->first()->km),
-            'MotorNo' => '',//not found
-            'VinNo' => $vehicleInfo->first()->getAttribute('vin'),
-            'WarrantyEndDate' => '',//not found
-            'WarrantyStartDate' => '',//not found
-            'WarrantyStatusTitle' => '',//not found
-            'WarrantyStatus' => '',
-            'WarrantyDescription' => '',//not found
-            'LastDateService' => $vehicleInfo->latest('date')->first()->date,
+            'KM' => intval($vehicle->mileage),
+            'MotorNo' => $vehicle->getAttribute('engine_no'),
+            'VinNo' => $vehicle->getAttribute('vin'),
+            'WarrantyEndDate' => $vehicle->getAttribute('beginning_of_contract'),
+            'WarrantyStartDate' => $vehicle->getAttribute('expiration_of_contract'),
+            'WarrantyStatusTitle' => $vehicle->getAttribute('reason_description'),
+            'WarrantyStatus' => intval($vehicle->getAttribute('cancel_warranty')),
+            'WarrantyDescription' => $vehicle->getAttribute('reason_description'),
+            'LastDateService' => $vehicle->date,
             'IsReplacedMotor' => false,
             'LastDateReplaceMotor' => '',
             'IsReplacedGearBox' => false,
@@ -62,25 +64,18 @@ class SamtController extends Controller
         ];
 
         $lines = $vehicleInfo->get();
-        if ($vehicleInfo->latest('date')->first()->includes_warranty == 1){
-            $data['WarrantyStatus'] = 1;
-        }elseif ($vehicleInfo->latest('date')->first()->includes_warranty !== 1){
-            //TODO need data from warehouse
-            //implement expired and canceled status and description for canceled warranty
-            $data['WarrantyStatus'] = 0;
-            $data['WarrantyDescription'] = '';//for canceled warranty
-        }
+
 
         foreach ($lines as $line) {
-            if (in_array(self::GEAR_BOX_CODES,$line->no)){
+            if (in_array( $line->document_no,self::GEAR_BOX_CODES)) {
                 $data['IsReplacedGearBox'] = true;
                 $data['LastDateReplaceGearbox'] = $line->date;
             }
-            if (in_array(self::MOTOR_CODES,$line->no)){
+            if (in_array( $line->document_no,self::MOTOR_CODES)) {
                 $data['IsReplacedMotor'] = true;
                 $data['LastDateReplaceMotor'] = $line->date;
             }
-            if (in_array(self::CASSIS_BODY_CODES,$line->no)){
+            if (in_array( $line->document_no,self::CASSIS_BODY_CODES)) {
                 $data['IsReplacedBody'] = true;
                 $data['LastDateReplaceBody'] = $line->date;
                 $data['IsReplacedCarRoom'] = true;
@@ -88,15 +83,10 @@ class SamtController extends Controller
             }
         }
 
-
-
         return response()->json([
             'resultCode' => 200,
             'resultMessage' => '',
             'Obj' => $data
         ]);
     }
-
-
-
 }
