@@ -36,7 +36,7 @@ class GatePermitController extends CrudController
 
     public function index(Request $request): JsonResponse|AnonymousResourceCollection
     {
-        $data = $this->repository->model->newQuery()->latest();
+        $data = $this->repository->model->newQuery()->latest('created_at');
         Pipeline::send($data)->through([
             ModelIdFilter::class,
         ])->thenReturn();
