@@ -10,7 +10,7 @@ class SendSmsGatewayController extends Controller
 {
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return JsonResponse
      */
     public function __invoke(Request $request): JsonResponse
@@ -19,7 +19,7 @@ class SendSmsGatewayController extends Controller
             abort(403);
         }
 
-        dispatch(new SmsJob(implode(',', $request->get('to')), $request->get('content')));
+        dispatch(new SmsJob(implode(',', (array) $request->get('to')), $request->get('content')));
 
         return response()->json(['message' => 'sms job fired']);
     }
