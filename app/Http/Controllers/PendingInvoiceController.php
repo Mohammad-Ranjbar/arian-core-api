@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PendingInvoiceController extends Controller
 {
@@ -20,7 +21,7 @@ SELECT DISTINCT
     JSON_EXTRACT(sale_invoices.data, '$.message') AS message
 FROM
     `sale_invoices`
-left join 
+left join
         sale_companies on sale_invoices.sale_company_id = sale_companies.id
 WHERE
     `payment_status` = 'paid' AND `erp_status` = 'pending';
@@ -30,7 +31,7 @@ WHERE
             if ($row->sale_company_id === 3) {
                 $row->url = 'https://sales.lamari.ir/api/check-customer-finance/'.$row->reference;
             }
-            if ($row->sale_company_id === 2) {
+            if ($row->sale_company_id === 2 or Str::contains($row->online_order_id,'_AM')) {
                 $row->url = 'https://sales.arian-motor.com/api/check-customer-finance/'.$row->reference;
             }
             if ($row->sale_company_id === 1) {
