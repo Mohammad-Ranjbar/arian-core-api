@@ -24,6 +24,10 @@ use Illuminate\Support\Facades\DB;
 class ProductionTrackingController extends Controller
 {
 
+    public function __construct(private readonly VehicleController $vehicleController)
+    {
+    }
+
     /**
      * @param TrackingRequest $request
      * @param Vehicle $vehicle
@@ -35,6 +39,7 @@ class ProductionTrackingController extends Controller
         $validatedData = $request->validated();
         try {
             if ($validatedData['type'] == 'enter' && $validatedData['model_type'] == 'production_lines' ) {
+                $this->vehicleController->getData($validatedData['vin']);
                 $condition = Tracking::query()
                     ->where('model_type',ProductionLine::class)
                     ->where('type','enter')
