@@ -17,6 +17,7 @@ class PendingInvoiceController extends Controller
 SELECT DISTINCT
     sale_companies.title,
     sale_invoices.sale_company_id,
+    sale_invoices.online_order_id,
     sale_invoices.reference,
     JSON_EXTRACT(sale_invoices.data, '$.message') AS message
 FROM
