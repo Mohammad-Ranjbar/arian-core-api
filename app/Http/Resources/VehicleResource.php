@@ -40,6 +40,7 @@ class VehicleResource extends JsonResource
                 'id' => (int)$this->resource->carModel->id,
                 'title' => $this->resource->carModel->title,
                 'reference' => $this->resource->carModel->reference,
+                'production' => $this->resource->carModel->production,
             ],
             'serial_barcodes' => config('serial_barcodes.'.$this->resource->makeCode->reference),
             'info' => $this->resource->data,
