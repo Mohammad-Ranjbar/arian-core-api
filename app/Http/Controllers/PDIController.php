@@ -30,7 +30,7 @@ class PDIController extends CrudController
      */
     public function store(Request $request)
     {
-        $vehicle = Vehicle::query()->where('vin', $validatedData['vin'])->first();
+        $vehicle = Vehicle::query()->where('vin', $request->input('vehicle'))->first();
         if (!$vehicle) {
             throw new ValidationException('شماره VIN وارد شده یافت نشد');
         }
@@ -38,10 +38,10 @@ class PDIController extends CrudController
             throw new Exception("لطفا برای مدل خودرو {$vehicle->getAttribute('carModel')->title} نوع تولید را مشخص کنید. ");
         }
         $rules = [
-            'pdi_result' => 'required|string|max:255',
-            'pdi_result_description' => 'required|string|max:250',
+            'pdi_result'               => 'required|string|max:255',
+            'pdi_result_description'   => 'required|string|max:250',
             'pdi_result_description_2' => 'nullable|string|max:100',
-            'police_inspection_date' => 'required|string|max:255'
+            'police_inspection_date'   => 'required|string|max:255'
         ];
         if ($vehicle->carModel->production == 'imported') {
             $rules['model_year'] = 'required|string|max:255';
@@ -55,7 +55,7 @@ class PDIController extends CrudController
 
         try {
             DB::beginTransaction();
-            $response = $this->sendPDIToErp($vehicle->getAttribute('vin'),$validatedData);
+            $response = $this->sendPDIToErp($vehicle->getAttribute('vin'), $validatedData);
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
@@ -71,16 +71,16 @@ class PDIController extends CrudController
         }
     }
 
-    private function sendPDIToErp(string $vin,array $data): array
+    private function sendPDIToErp(string $vin, array $data): array
     {
         return ErpWsdlClient::run(config('erp.pdi_result'), 'ImportVehicleInformation',
             [
-                'vINP' => $vin,
-                'pDIResultP' => $data['pdi_result'],
-                'pDIDescriptionP' => $data['pdi_result_description'],
-                'pDIResultDescP' => $data['pdi_result_description_2'],
-                'engineNoP' => $data['engine_no'] ?? '',
-                'modelYearP' => $data['model_year'] ?? '',
+                'vINP'                  => $vin,
+                'pDIResultP'            => $data['pdi_result'],
+                'pDIDescriptionP'       => $data['pdi_result_description'],
+                'pDIResultDescP'        => $data['pdi_result_description_2'],
+                'engineNoP'             => $data['engine_no'] ?? '',
+                'modelYearP'            => $data['model_year'] ?? '',
                 'policeInspectionDateP' => $data['police_inspection_date'],
             ]);
 
