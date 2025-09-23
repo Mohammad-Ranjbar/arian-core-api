@@ -36,7 +36,6 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\GatePermitController;
 use App\Http\Controllers\GatePermitTransferController;
 use App\Http\Controllers\GeneralProductItemController;
-use App\Http\Controllers\GetQcStatusActionLogController;
 use App\Http\Controllers\GetVehicleCheckListController;
 use App\Http\Controllers\IncidentCategoryController;
 use App\Http\Controllers\IncidentController;
