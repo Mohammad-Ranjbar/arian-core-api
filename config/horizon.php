@@ -23,7 +23,7 @@ return [
     'middleware' => ['web'],
 
     'waits' => [
-        'redis:default' => 600,
+        'redis:default' => 6000,
     ],
 
 
@@ -52,7 +52,7 @@ return [
     'fast_termination' => false,
 
 
-    'memory_limit' => 16000,
+    'memory_limit' => 20000,
 
 
     'defaults' => [
@@ -61,11 +61,11 @@ return [
             'queue' => ['default','unique','parallel'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 3,
+            'maxProcesses' => 5,
             'maxTime' => 0,
-            'maxJobs' => 3,
-            'memory' => 4096,
-            'tries' => 3,
+            'maxJobs' => 5,
+            'memory' => 8192,
+            'tries' => 2,
             'timeout' => 1000000,
             'nice' => 0,
         ],
@@ -74,9 +74,9 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 20,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
+                'maxProcesses' => 5,
+                'balanceMaxShift' => 2,
+                'balanceCooldown' => 4,
             ],
         ],
 
