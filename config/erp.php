@@ -25,6 +25,8 @@ return [
 
     'display_board'    => env('WSDL_DISPLAY_BOARD',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'pdi_result'    => env('WSDL_PDI',
+        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'synchronous_v2'    => env('SYNCHRONOUS_V2',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'barcode'    => env('WSDL_BARCODE',

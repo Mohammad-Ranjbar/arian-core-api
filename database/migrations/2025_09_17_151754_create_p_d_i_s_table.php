@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('pdi_result');
             $table->string('pdi_result_description',250);
             $table->string('pdi_result_description_2',100)->nullable();
-            $table->string('model_year');
-            $table->string('engine_no');
+            $table->string('model_year')->nullable();
+            $table->string('engine_no')->nullable();
             $table->string('police_inspection_date');
             $table->timestamps();
         });
