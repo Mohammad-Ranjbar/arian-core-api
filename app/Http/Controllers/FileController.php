@@ -7,9 +7,11 @@ use App\Repositories\FileRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+use Throwable;
 
 class FileController extends CrudController
 {
@@ -20,36 +22,38 @@ class FileController extends CrudController
     }
 
 
-    /**
-     * @throws UploadMissingFileException
-     */
     public function upload(FileReceiver $receiver): JsonResponse
     {
+        try {
+            if ($receiver->isUploaded() === false) {
+                throw new UploadMissingFileException();
+            }
 
-        if ($receiver->isUploaded() === false) {
-            throw new UploadMissingFileException();
+            $save = $receiver->receive();
+
+            if ($save->isFinished()) {
+
+                $data = $this->saveFile($save->getFile());
+
+                $file = $this->repository->store([
+                    'user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']
+                ]);
+                $data['file'] = new FileResource($file);
+                $data['status'] = 'done';
+                $data['percent'] = 100;
+
+                return response()->json($data);
+
+            }
+
+            $handler = $save->handler();
+
+            return response()->json(["percent" => $handler->getPercentageDone(), "status" => 'pending']);
+        } catch (Throwable $e) {
+            Log::error($e->getMessage());
+            return response()->json(["percent" => $e->getMessage(), "status" => 'error']);
         }
 
-        $save = $receiver->receive();
-
-        if ($save->isFinished()) {
-
-            $data = $this->saveFile($save->getFile());
-
-            $file = $this->repository->store([
-                'user_id' => Auth::id(), 'mime' => $data['mime_type'], 'path' => $data['path'] . '/' . $data['name']
-            ]);
-            $data['file'] = new FileResource($file);
-            $data['status'] = 'done';
-            $data['percent'] = 100;
-
-            return response()->json($data);
-
-        }
-
-        $handler = $save->handler();
-
-        return response()->json(["percent" => $handler->getPercentageDone(), "status" => 'pending']);
     }
 
 
