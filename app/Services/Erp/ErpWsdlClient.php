@@ -12,7 +12,7 @@ class ErpWsdlClient
     /**
      * @param $url
      * @param $method
-     * @param  array  $params
+     * @param array $params
      * @return array
      */
     public static function run($url, $method, array $params = []): array
@@ -23,16 +23,16 @@ class ErpWsdlClient
         try {
             $request = new Request('POST', $url, [
                 'Content-Type' => 'application/xml',
-                "soapaction"   => "\"urn:microsoft-dynamics-schemas/codeunit/$api:$method\""
+                "soapaction" => "\"urn:microsoft-dynamics-schemas/codeunit/$api:$method\""
             ], self::getBodyXML($api, $method, $params));
 
             $response = $client->sendAsync($request, [
                 'auth' => config('erp.auth')
             ])->wait();
 
-            $list = (array) json_decode(trim(strip_tags($response->getBody()->getContents())));
+            $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
 
-            if(empty($list)) {
+            if (empty($list)) {
                 return [
                     'status' => 'error',
                     'message' => 'هیچ پاسخی از نویژن دریافت نشد'
@@ -56,9 +56,11 @@ class ErpWsdlClient
 
         } catch (Exception $exception) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
+
                 'message' => strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3",
-                    $exception->getMessage()))
+
+                    $exception->getResponse()->getBody()->getContents()))
             ];
         }
     }
@@ -79,9 +81,9 @@ class ErpWsdlClient
         return
             '<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
     <Body>
-        <'.$method.' xmlns="urn:microsoft-dynamics-schemas/codeunit/'.$api.'">
-            '.$string.'
-        </'.$method.'>
+        <' . $method . ' xmlns="urn:microsoft-dynamics-schemas/codeunit/' . $api . '">
+            ' . $string . '
+        </' . $method . '>
     </Body>
 </Envelope>';
     }
