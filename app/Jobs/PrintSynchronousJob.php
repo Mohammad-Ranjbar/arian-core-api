@@ -34,7 +34,7 @@ class PrintSynchronousJob implements ShouldQueue
     public function handle(): void
     {
         /** @var Synchronous $synchronous */
-        $synchronous = Synchronous::query()->find($this->id);
+        $synchronous = Synchronous::query()->findOrFail($this->id);
         $ip = $synchronous->getAttribute('synchronousType')->printer_ip;
         $type = $synchronous->getAttribute('synchronousType')->type;
 
