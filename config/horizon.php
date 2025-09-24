@@ -77,6 +77,7 @@ return [
                 'maxProcesses' => 5,
                 'balanceMaxShift' => 2,
                 'balanceCooldown' => 4,
+                'processes' => 4,
             ],
         ],
 
