@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filters\EngineNoFilter;
+use App\Filters\MakeCodeFilter;
 use App\Filters\ProductionLineIdFilter;
 use App\Http\Requests\StoreEnterEngineRequest;
 use App\Http\Resources\EnterEngineResource;
@@ -25,7 +26,8 @@ class EnterEngineController extends Controller
         $data = Pipeline::send(EnterEngine::query()->latest('updated_at')->with('makeCode'))
             ->through([
                 ProductionLineIdFilter::class,
-                EngineNoFilter::class
+                EngineNoFilter::class,
+                MakeCodeFilter::class,
             ])
             ->thenReturn()
             ->paginate(request()->input('per_page', 10));
