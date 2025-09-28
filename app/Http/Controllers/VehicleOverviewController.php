@@ -285,7 +285,7 @@ class VehicleOverviewController extends Controller
                                 : '-'
                             ,
                             $record->code,
-                            $record->user->name,
+                            $record->user?->name ?? 'نامشخص',
                             $record->generalProductItem?->title,
                         ];
                     })->all()
