@@ -18,28 +18,31 @@ class SyncInvitationsCommand extends Command
     public $share;
     protected $signature = 'app:sync-invitations-command';
 
-    /**
-     * @throws DependencyException
-     */
+
     public function handle(): void
     {
-        $this->share = new SMBService(
-            config('erp.share_server'),
-            config('erp.auth')[0],
-            config('erp.auth')[1],
-            config('erp.workgroups'),
-            config('erp.share_folder')
-        );
+        try {
+            $this->share = new SMBService(
+                config('erp.share_server'),
+                config('erp.auth')[0],
+                config('erp.auth')[1],
+                config('erp.workgroups'),
+                config('erp.share_folder')
+            );
 
-        $companies = SaleCompany::query()->get();
-        foreach ($companies as $company) {
-            if (!empty($company->getAttribute('invitation'))) {
-                $this->syncInvitation($company);
+            $companies = SaleCompany::query()->get();
+            foreach ($companies as $company) {
+                if (!empty($company->getAttribute('invitation'))) {
+                    $this->syncInvitation($company);
+                }
+                if (!empty($company->getAttribute('contract'))) {
+                    $this->syncContract($company);
+                }
             }
-            if (!empty($company->getAttribute('contract'))) {
-                $this->syncContract($company);
-            }
+        }catch (Exception $exception) {
+            $this->error($exception->getMessage());
         }
+
     }
 
     private function syncInvitation(SaleCompany $company): void

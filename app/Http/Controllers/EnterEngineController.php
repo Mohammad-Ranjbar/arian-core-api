@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
 
 class EnterEngineController extends Controller
@@ -23,7 +24,11 @@ class EnterEngineController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('enter-engines.index');
-        $data = Pipeline::send(EnterEngine::query()->latest('updated_at')->with('makeCode'))
+        $data = Pipeline::send(EnterEngine::query()->latest('updated_at')
+            ->with('makeCode')->whereHas('makeCode', function ($query) {
+                $query->whereIn('makeCode.id',Auth::user()->makeCodes()->pluck('id'));
+            })
+        )
             ->through([
                 ProductionLineIdFilter::class,
                 EngineNoFilter::class,
