@@ -13,11 +13,7 @@ class UpdateOnlineOrdersCommand extends Command
 
     protected $signature = 'app:update-online-orders-command';
 
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): void
     {
         $companies = SaleCompany::query()->get();
         foreach ($companies as $company) {
@@ -32,7 +28,8 @@ class UpdateOnlineOrdersCommand extends Command
                     ])->withOptions([
                         'auth'    => config('erp.auth'),
                     ])->get($url)->json();
-                } catch (Exception $exception) {
+                }
+                catch (Exception $exception) {
                     $this->warn($exception->getMessage());
                     $this->warn($url);
                 }
@@ -61,19 +58,24 @@ class UpdateOnlineOrdersCommand extends Command
                         }
                         $bar->advance();
                     }
-                    if (count($list)) {
-                        Http::post($company->sync_order_url, [
-                            'items'  => $list,
-                            'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
-                        ]);
+                    try {
+                        if (count($list)) {
+                            Http::post($company->sync_order_url, [
+                                'items'  => $list,
+                                'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
+                            ]);
+                        }
+                        if (count($parsList)) {
+                            $parsUrl = 'https://sales.arian-motor.com/api/sync-orders-erp' ;
+                            Http::post($parsUrl, [
+                                'items'  => $parsList,
+                                'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
+                            ]);
+                        }
+                    }catch (Exception $exception) {
+                        $this->error($exception->getMessage());
                     }
-                    if (count($parsList)) {
-                        $parsUrl = 'https://sales.arian-motor.com/api/sync-orders-erp' ;
-                        Http::post($parsUrl, [
-                            'items'  => $parsList,
-                            'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
-                        ]);
-                    }
+
                     $bar->finish();
                 }
 
