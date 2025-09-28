@@ -38,4 +38,9 @@ class EnterEngine extends Model
     {
         return Attribute::get(fn() => $this->reserveVehicle?->vin ?? '');
     }
+
+    public function makeCode(): BelongsTo
+    {
+        return $this->belongsTo(MakeCode::class);
+    }
 }

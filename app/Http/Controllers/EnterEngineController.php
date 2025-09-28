@@ -22,7 +22,7 @@ class EnterEngineController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('enter-engines.index');
-        $data = Pipeline::send(EnterEngine::query()->latest('updated_at'))
+        $data = Pipeline::send(EnterEngine::query()->latest('updated_at')->with('makeCode'))
             ->through([
                 ProductionLineIdFilter::class,
                 EngineNoFilter::class

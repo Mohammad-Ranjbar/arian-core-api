@@ -15,8 +15,10 @@ class EnterEngineResource extends JsonResource
             'production_line_id' => $this->resource->production_line_id,
             'productionLine' => ProductionLineResource::make($this->resource->productionLine),
             'user_id' => $this->resource->user_id,
+            'make_code_id' => $this->resource->make_code_id,
             'vin' => $this->resource->vin,
             'user' => UserResource::make($this->resource->user),
+            'make_code' => MakeCodeResource::make($this->resource->makeCode),
             'created_at' => $this->resource->created_at,
         ];
     }
