@@ -25,10 +25,8 @@ class EnterEngineController extends Controller
     {
         $this->authorize('enter-engines.index');
         $data = Pipeline::send(EnterEngine::query()->latest('updated_at')
-            ->with('makeCode')->whereHas('makeCode', function ($query) {
-                $query->whereIn('make_code_id',Auth::user()->makeCodes()->pluck('id'));
-            })
-        )
+            ->with('makeCode')
+            ->whereIn('make_code_id',Auth::user()->makeCodes()->pluck('id')->toArray()))
             ->through([
                 ProductionLineIdFilter::class,
                 EngineNoFilter::class,
