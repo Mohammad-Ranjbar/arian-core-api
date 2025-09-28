@@ -14,7 +14,8 @@ class EnterEngine extends Model
     protected $fillable = [
         'engine_no',
         'production_line_id',
-        'user_id'
+        'user_id',
+        'make_code_id'
     ];
 
     public function productionLine(): BelongsTo

@@ -18,7 +18,8 @@ class StoreEnterEngineRequest extends FormRequest
         return [
             'engine_no' => 'required|string|unique:enter_engines,engine_no',
             'production_line_id' => 'required|exists:production_lines,id',
-            'user_id' => 'nullable'
+            'user_id' => 'nullable',
+            'make_code_id' => 'nullable|exists:make_codes,id',
         ];
     }
 
