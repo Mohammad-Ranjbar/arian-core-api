@@ -64,7 +64,7 @@ class PDIController extends Controller
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
-            PDI::query()->create($validatedData);
+            $saveItem = PDI::query()->create($validatedData);
 
 
             DB::commit();
