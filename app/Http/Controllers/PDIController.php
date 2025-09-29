@@ -37,11 +37,11 @@ class PDIController extends Controller
             'pdi_result' => 'required|string|max:255',
             'pdi_result_description' => 'required|string|max:250',
             'pdi_result_description_2' => 'nullable|string|max:100',
-            'police_inspection_date' => 'required|string|max:255'
+            'police_inspection_date' => 'nullable|string|max:255'
         ];
         if ($vehicle->carModel->production == 'imported') {
-            $rules['model_year'] = 'required|string|max:255';
-            $rules['engine_no'] = 'required|string|max:255';
+            $rules['model_year'] = 'nullable|string|max:255';
+            $rules['engine_no'] = 'nullable|string|max:255';
         }
         $validatedData = $request->validate($rules);
 
