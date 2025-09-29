@@ -34,8 +34,8 @@ class PDIController extends Controller
             throw new Exception("لطفا برای مدل خودرو {$vehicle->getAttribute('carModel')->title} نوع تولید را مشخص کنید. ");
         }
         $rules = [
-            'pdi_result' => 'required|string|max:255',
-            'pdi_result_description' => 'required|string|max:250',
+            'pdi_result' => 'required_if:pdi_result_description|required_if:pdi_result_description_2|string|max:255',
+            'pdi_result_description' => 'required_if:pdi_result|string|max:250',
             'pdi_result_description_2' => 'nullable|string|max:100',
             'police_inspection_date' => 'nullable|string|max:255'
         ];
@@ -43,8 +43,14 @@ class PDIController extends Controller
             $rules['model_year'] = 'nullable|string|max:255';
             $rules['engine_no'] = 'nullable|string|max:255';
         }
+
         $validatedData = $request->validate($rules);
 
+        if (empty(array_values($validatedData))) {
+            return response()->json([
+                'message' => 'مقادیر وارد شده معتبر نمیباشد'
+            ], 422);
+        }
         $validatedData['vin'] = $request->input('vehicle');
 
         $validatedData['user_id'] = Auth::id();
