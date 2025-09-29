@@ -34,8 +34,8 @@ class PDIController extends Controller
             throw new Exception("لطفا برای مدل خودرو {$vehicle->getAttribute('carModel')->title} نوع تولید را مشخص کنید. ");
         }
         $rules = [
-            'pdi_result' => 'required_if:pdi_result_description|required_if:pdi_result_description_2|string|max:255',
-            'pdi_result_description' => 'required_if:pdi_result|string|max:250',
+            'pdi_result' => 'required_with:pdi_result_description|required_with:pdi_result_description_2|string|max:255',
+            'pdi_result_description' => 'required_with:pdi_result|string|max:250',
             'pdi_result_description_2' => 'nullable|string|max:100',
             'police_inspection_date' => 'nullable|string|max:255'
         ];
