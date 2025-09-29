@@ -24,7 +24,7 @@ class EnterEngineController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('enter-engines.index');
-        $data = Pipeline::send(EnterEngine::query()->latest('updated_at')
+        $data = Pipeline::send(EnterEngine::query()->latest('counter')
             ->with('makeCode')
             ->whereIn('make_code_id',Auth::user()->makeCodes()->pluck('make_code_id')->toArray()))
             ->through([
