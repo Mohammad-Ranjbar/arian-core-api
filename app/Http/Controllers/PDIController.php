@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
+use Laravel\Octane\Exceptions\DdException;
 use Throwable;
 
 class PDIController extends Controller
@@ -26,7 +26,7 @@ class PDIController extends Controller
     }
 
     /**
-     * @throws ValidationException
+     * @throws DdException
      * @throws Exception
      */
     public function store(Vehicle $vehicle, Request $request): PDIResource|JsonResponse
@@ -38,6 +38,7 @@ class PDIController extends Controller
             'pdi_result' => 'required_with:pdi_result_description|required_with:pdi_result_description_2|string|max:255',
             'pdi_result_description' => 'required_with:pdi_result|string|max:250',
             'pdi_result_description_2' => 'nullable|string|max:100',
+
             'police_inspection_date' => 'nullable|string|max:255'
         ];
         if ($vehicle->carModel->production == 'imported') {
@@ -52,7 +53,7 @@ class PDIController extends Controller
                 'message' => 'مقادیر وارد شده معتبر نمیباشد'
             ], 422);
         }
-        $validatedData['vin'] = $request->input('vehicle');
+        $validatedData['vin'] = $vehicle->vin;
 
         $validatedData['user_id'] = Auth::id();
 
@@ -85,7 +86,7 @@ class PDIController extends Controller
                 'pDIResultDescP' => $data['pdi_result_description_2'],
                 'engineNoP' => $data['engine_no'] ?? '',
                 'modelYearP' => $data['model_year'] ?? '',
-                'policeInspectionDateP' => $data['police_inspection_date'],
+                'policeInspectionDateP' => $data['police_inspection_date'] ?? '',
             ]);
 
     }
