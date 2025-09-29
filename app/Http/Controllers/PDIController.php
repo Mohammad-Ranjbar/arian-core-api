@@ -7,6 +7,7 @@ use App\Models\PDI;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +29,7 @@ class PDIController extends Controller
      * @throws ValidationException
      * @throws Exception
      */
-    public function store(Vehicle $vehicle, Request $request)
+    public function store(Vehicle $vehicle, Request $request): PDIResource|JsonResponse
     {
         if (empty($vehicle->carModel->production)) {
             throw new Exception("لطفا برای مدل خودرو {$vehicle->getAttribute('carModel')->title} نوع تولید را مشخص کنید. ");
@@ -62,11 +63,12 @@ class PDIController extends Controller
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
+            PDI::query()->create($validatedData);
 
-            $saveItem = $this->repository->store($validatedData);
 
             DB::commit();
-            return new $this->resource($saveItem);
+
+            return PDIResource::make($saveItem);
         } catch (Throwable $exception) {
             DB::rollBack();
             return response()->json(['message' => $exception->getMessage()], 500);
