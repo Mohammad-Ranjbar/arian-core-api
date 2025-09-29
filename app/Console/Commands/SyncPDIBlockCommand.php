@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\BlockItemController;
-use App\Http\Controllers\VehicleController;
 use App\Jobs\CheckVehicleJob;
 use App\Models\BlockReason;
 use App\Models\Vehicle;
@@ -27,7 +26,7 @@ class SyncPDIBlockCommand extends Command
     public function handle(): void
     {
 
-       $reasonId = BlockReason::query()->where('id',config('erp.pdi_block_reason_id'))->firstOrCreate([
+        $reasonId = BlockReason::query()->where('id', config('erp.pdi_block_reason_id'))->firstOrCreate([
             'title' => 'PDI BLOCK',
             'block_type' => 'critical',
         ])->getAttribute('id');
@@ -45,9 +44,9 @@ class SyncPDIBlockCommand extends Command
                 $bar->start();
                 $count = 0;
                 foreach ($content->value as $row) {
-                    if (!Vehicle::query()->where('vin', $row->VIN)->exists() ) {
-                            CheckVehicleJob::dispatch($row->VIN);
-                            continue;
+                    if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
+                        CheckVehicleJob::dispatch($row->VIN);
+                        continue;
 
                     }
 

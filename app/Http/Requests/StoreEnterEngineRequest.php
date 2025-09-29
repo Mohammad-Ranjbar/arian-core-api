@@ -19,14 +19,14 @@ class StoreEnterEngineRequest extends FormRequest
             'engine_no' => 'required|string|unique:enter_engines,engine_no',
             'production_line_id' => 'required|exists:production_lines,id',
             'user_id' => 'nullable',
-            'make_code_id' => 'nullable|exists:make_codes,id',
+            'make_code_id' => 'required|exists:make_codes,id',
         ];
     }
 
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'user_id' => Auth::id()
+            'user_id' => Auth::id(),
         ]);
     }
 }

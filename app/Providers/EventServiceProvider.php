@@ -5,10 +5,12 @@ namespace App\Providers;
 use App\Events\ErpJobEvent;
 use App\Listeners\SendErpJobListener;
 use App\Models\BlockItem;
+use App\Models\EnterEngine;
 use App\Models\ErpJob;
 use App\Models\Tracking;
 use App\Models\User;
 use App\Observers\BlockItemObserver;
+use App\Observers\EnterEngineObserver;
 use App\Observers\ErpJobObserver;
 use App\Observers\TrackingObserver;
 use App\Observers\UserObserver;
@@ -38,6 +40,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         User::observe(UserObserver::class);
+        EnterEngine::observe(EnterEngineObserver::class);
         ErpJob::observe(ErpJobObserver::class);
         Tracking::observe(TrackingObserver::class);
     }

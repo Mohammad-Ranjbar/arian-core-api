@@ -2,25 +2,23 @@
 
 namespace App\Console\Commands;
 
-use App\Models\SaleCompany;
 use App\Models\SaleInvoice;
 use App\Services\Erp\ErpOdataClient;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 
 class SendInvitationToSalesWebsiteCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:send-invitation-to-sales-website-command';
 
 
-    public function handle()
+    /**
+     * @throws BindingResolutionException
+     */
+    public function handle(): void
     {
         ini_set('max_execution_time', 10000);
         $today = Carbon::today();
@@ -31,27 +29,27 @@ class SendInvitationToSalesWebsiteCommand extends Command
             ->get();
         $progress = $this->output->createProgressBar($list->count());
         $progress->start();
-        foreach ($list as $key=>$row) {
+        foreach ($list as $row) {
             $url = $row->saleCompany->getAttribute('erp_url');
-            $url .= '?$filter=No eq \''.$row->reference.'\'';
+            $url .= '?$filter=No eq \'' . $row->reference . '\'';
             $data = $erpOdataClient->getOne($url);
 
-            if (Carbon::make($data->Due_Date)->greaterThan($today)){
+            if (Carbon::make($data->Due_Date)->greaterThan($today)) {
                 $expireDate = Carbon::make($data->Due_Date);
-            }elseif(Carbon::make($data->Due_Date)->addDays(15)->greaterThan($today)){
+            } elseif (Carbon::make($data->Due_Date)->addDays(15)->greaterThan($today)) {
                 $expireDate = Carbon::make($data->Due_Date)->addDays(15);
-            }else{
+            } else {
                 $expireDate = Carbon::today()->addDays(15);
             }
 
             $sendData = [
-                'order_id'    => trim($data->Online_Contract_ID),
-                'expire_at'   => $expireDate->toDateTimeString(),
-                'amount'      => $data->Net_To_Pay_when_issued,
-                'reference'   => $data->No,
-                'description' => 'دعوت نامه شماره '.$data->No,
-                'secret'      => md5(trim($data->Online_Contract_ID).$data->Net_To_Pay_when_issued.'xyz'),
-                'file_name'   => $row->data['file']
+                'order_id' => trim($data->Online_Contract_ID),
+                'expire_at' => $expireDate->toDateTimeString(),
+                'amount' => $data->Net_To_Pay_when_issued,
+                'reference' => $data->No,
+                'description' => 'دعوت نامه شماره ' . $data->No,
+                'secret' => md5(trim($data->Online_Contract_ID) . $data->Net_To_Pay_when_issued . 'xyz'),
+                'file_name' => $row->data['file']
             ];
 
             $response = Http::post($row->saleCompany->getAttribute('site_url'), $sendData);

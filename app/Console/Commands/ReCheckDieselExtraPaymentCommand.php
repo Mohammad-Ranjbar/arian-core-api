@@ -12,7 +12,7 @@ class ReCheckDieselExtraPaymentCommand extends Command
 
 
 
-    public function handle()
+    public function handle(): void
     {
         $id = $this->argument('id');
         $service  = new DieselExtraPaymentService();

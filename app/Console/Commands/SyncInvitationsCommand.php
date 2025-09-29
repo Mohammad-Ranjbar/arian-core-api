@@ -7,7 +7,6 @@ use App\Jobs\MoveInvitationToSaleOnlineApplicationJob;
 use App\Models\SaleCompany;
 use App\Services\SMBService;
 use Exception;
-use Icewind\SMB\Exception\DependencyException;
 use Icewind\SMB\Native\NativeFileInfo;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +38,7 @@ class SyncInvitationsCommand extends Command
                     $this->syncContract($company);
                 }
             }
-        }catch (Exception $exception) {
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
 
@@ -89,6 +88,16 @@ class SyncInvitationsCommand extends Command
         }
     }
 
+    public function isPdfFile(NativeFileInfo $fileInfo): bool
+    {
+
+        $filename = $fileInfo->getName();
+
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return $extension === 'pdf';
+    }
+
     private function syncContract(SaleCompany $company): void
     {
 
@@ -124,15 +133,5 @@ class SyncInvitationsCommand extends Command
                 logger($exception->getMessage());
             }
         }
-    }
-
-    public function isPdfFile(NativeFileInfo $fileInfo): bool
-    {
-
-        $filename = $fileInfo->getName();
-
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        return $extension === 'pdf';
     }
 }

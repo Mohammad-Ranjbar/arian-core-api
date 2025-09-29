@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a30c3ad43e7a76fa13afbb27a2f540d8",
+    "content-hash": "8730d04a1fa7e1d8fbdd53e31c93e686",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -1701,6 +1701,78 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "icewind/smb",
+            "version": "v3.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://codeberg.org/icewind/SMB",
+                "reference": "e6904cbe75f678335092f4861c60c656b1a99e84"
+            },
+            "require": {
+                "icewind/streams": ">=0.7.3",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpstan/phpstan": "^0.12.57",
+                "phpunit/phpunit": "^8.5|^9.3.8",
+                "psalm/phar": "^4.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Icewind\\SMB\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Robin Appelman",
+                    "email": "icewind@owncloud.com"
+                }
+            ],
+            "description": "php wrapper for smbclient and libsmbclient-php",
+            "time": "2024-11-11T14:08:34+00:00"
+        },
+        {
+            "name": "icewind/streams",
+            "version": "v0.7.8",
+            "source": {
+                "type": "git",
+                "url": "https://codeberg.org/icewind/streams",
+                "reference": "cb2bd3ed41b516efb97e06e8da35a12ef58ba48b"
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Icewind\\Streams\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Robin Appelman",
+                    "email": "icewind@owncloud.com"
+                }
+            ],
+            "description": "A set of generic stream wrappers",
+            "time": "2024-12-05T14:36:22+00:00"
         },
         {
             "name": "jean85/pretty-package-versions",
@@ -11222,16 +11294,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.57",
+            "version": "10.5.58",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "8e7598bbb17bb5cd80728f4831d3f83223d3a6b3"
+                "reference": "e24fb46da450d8e6a5788670513c1af1424f16ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/8e7598bbb17bb5cd80728f4831d3f83223d3a6b3",
-                "reference": "8e7598bbb17bb5cd80728f4831d3f83223d3a6b3",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e24fb46da450d8e6a5788670513c1af1424f16ca",
+                "reference": "e24fb46da450d8e6a5788670513c1af1424f16ca",
                 "shasum": ""
             },
             "require": {
@@ -11303,7 +11375,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.57"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.58"
             },
             "funding": [
                 {
@@ -11327,7 +11399,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-24T06:30:38+00:00"
+            "time": "2025-09-28T12:04:46+00:00"
         },
         {
             "name": "sebastian/cli-parser",

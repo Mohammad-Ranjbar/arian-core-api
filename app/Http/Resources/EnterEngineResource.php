@@ -11,6 +11,7 @@ class EnterEngineResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
+            'counter' => $this->resource->counter,
             'engine_no' => $this->resource->engine_no,
             'production_line_id' => $this->resource->production_line_id,
             'productionLine' => ProductionLineResource::make($this->resource->productionLine),

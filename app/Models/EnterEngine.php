@@ -15,7 +15,8 @@ class EnterEngine extends Model
         'engine_no',
         'production_line_id',
         'user_id',
-        'make_code_id'
+        'make_code_id',
+        'counter'
     ];
 
     public function productionLine(): BelongsTo
@@ -42,5 +43,10 @@ class EnterEngine extends Model
     public function makeCode(): BelongsTo
     {
         return $this->belongsTo(MakeCode::class);
+    }
+
+    public static function computeSynchronousCounter(int $makeCodeId):int
+    {
+      return  self::query()->where('make_code_id',$makeCodeId)->max('counter') + 1 ;
     }
 }
