@@ -30,7 +30,8 @@ class Tracking extends Model
         'type',
         'vin',
         'data',
-        'created_at'
+        'is_systemic',
+        'created_at',
     ];
 
     /**
