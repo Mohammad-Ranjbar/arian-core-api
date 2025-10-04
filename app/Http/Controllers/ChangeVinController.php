@@ -71,6 +71,7 @@ class ChangeVinController extends Controller
                 'model_type' => ProductionLine::class,
                 'model_id' => $tracking->model_id,
                 'user_id' => Auth::id(),
+                'is_systemic' => true,
             ]);
             $changeVin = ChangeVin::query()->create($data);
             VinEngine::query()
