@@ -138,6 +138,7 @@ class ProductionLine extends Model
     {
         return $this->tracking()
             ->where('type', $type)
+            ->where('is_systemic',false)
             ->whereHas('vehicle',function ($q){
                 $q->where('production_order_number','!=','')->whereNotNull('production_order_number');
             })
