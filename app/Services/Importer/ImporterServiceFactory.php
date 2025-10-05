@@ -20,6 +20,8 @@ class ImporterServiceFactory
             'import-bill_of_ladings' => new ImportBillOfLadingService(),
             'import-vin_engines' => new ImportVinEnginesService(),
             'import-engine' => new ImportEngineService(),
+            'import-police' => new ImportPoliceService(),
+            'import-pdi' => new ImportPoliceService(),
             default => throw new \Exception('not found importer'),
         };
     }

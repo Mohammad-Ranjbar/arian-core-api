@@ -140,7 +140,10 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::post('/import-engines', [PDIController::class, 'importEngine'])->name('import-engines');
 
     Route::get('/get-template-police', [PDIController::class, 'getTemplatePolice'])->name('get-template-police');
+    Route::post('/import-police', [PDIController::class, 'importPolice'])->name('import-police');
+
     Route::get('/get-template-pdi', [PDIController::class, 'getTemplatePdi'])->name('get-template-pdi');
+    Route::post('/import-pdi', [PDIController::class, 'importPdi'])->name('import-pdi');
 
     Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store']);
     Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy', 'update']);
