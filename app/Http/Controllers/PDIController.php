@@ -124,6 +124,48 @@ class PDIController extends Controller
         ]);
     }
 
+    public function importPolice(ImportFileRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'import-police';
+        $validatedData['data'] = [
+            'file' => $validatedData['file'],
+        ];
+        $job = Job::query()->create($validatedData);
+
+        ImportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'import job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
+
+    public function importPdi(ImportFileRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'import-pdi';
+        $validatedData['data'] = [
+            'file' => $validatedData['file'],
+        ];
+        $job = Job::query()->create($validatedData);
+
+        ImportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'import job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
+
     public function getTemplatePolice(): BinaryFileResponse
     {
         $headers = PDI::HEADING_POLICE;
