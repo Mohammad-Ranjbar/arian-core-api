@@ -25,9 +25,6 @@ class ImportJob implements ShouldQueue
     }
 
 
-    /**
-     * @return void
-     */
     public function handle(): void
     {
         /** @var Job $job */

@@ -19,6 +19,7 @@ class ImporterServiceFactory
             'import-block_items' => new ImportBlockItemsService(),
             'import-bill_of_ladings' => new ImportBillOfLadingService(),
             'import-vin_engines' => new ImportVinEnginesService(),
+            'import-engine' => new ImportEngineService(),
             default => throw new \Exception('not found importer'),
         };
     }

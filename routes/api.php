@@ -136,6 +136,12 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
 
+    Route::get('/get-template-engine', [PDIController::class, 'getTemplateEngine'])->name('get-template-engine');
+    Route::post('/import-engines', [PDIController::class, 'importEngine'])->name('import-engines');
+
+    Route::get('/get-template-police', [PDIController::class, 'getTemplatePolice'])->name('get-template-police');
+    Route::get('/get-template-pdi', [PDIController::class, 'getTemplatePdi'])->name('get-template-pdi');
+
     Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store']);
     Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy', 'update']);
 
@@ -286,7 +292,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
-            Route::apiResource('pdis', PDIController::class)->only(['index','store']);
+            Route::apiResource('pdis', PDIController::class)->only(['index', 'store']);
             Route::get('action-logs', [ActionLogController::class, 'getList'])->name('vehicle.action.logs');
             Route::get('/screws', [ScrewController::class, 'listScrewsForVin'])->name('vehicles.screws');
             Route::get('/torque-tests', [ScrewController::class, 'torqueTests'])->name('vehicles.torque-tests');
