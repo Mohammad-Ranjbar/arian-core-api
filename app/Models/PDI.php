@@ -11,6 +11,22 @@ class PDI extends Model
     use HasFactory;
 
     protected $table = 'p_d_i_s';
+    const  array HEADING_POLICE = [
+        'vin',
+        'police_inspection_date',
+    ];
+    const  array HEADING_PDI = [
+        'vin',
+        'pdi_result',
+        'pdi_result_description',
+        'pdi_result_description_2',
+
+    ];
+    const  array HEADING_ENGINE = [
+        'vin',
+        'model_year',
+        'engine_no',
+    ];
 
     protected $fillable = [
         'user_id',

@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TemplateExport;
+use App\Http\Requests\ImportFileRequest;
 use App\Http\Resources\PDIResource;
+use App\Jobs\ImportJob;
+use App\Models\Job;
 use App\Models\PDI;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpWsdlClient;
@@ -13,6 +17,8 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Octane\Exceptions\DdException;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 class PDIController extends Controller
@@ -59,7 +65,7 @@ class PDIController extends Controller
 
         try {
             DB::beginTransaction();
-            $response = $this->sendPDIToErp($vehicle->getAttribute('vin'), $validatedData);
+            $response = self::sendPDIToErp($vehicle->getAttribute('vin'), $validatedData);
 
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
@@ -76,7 +82,7 @@ class PDIController extends Controller
         }
     }
 
-    private function sendPDIToErp(string $vin, array $data): array
+    public static function sendPDIToErp(string $vin, array $data): array
     {
         return ErpWsdlClient::run(config('erp.pdi_result'), 'ImportVehicleInformation',
             [
@@ -88,7 +94,47 @@ class PDIController extends Controller
                 'modelYearP' => $data['model_year'] ?? '',
                 'policeInspectionDateP' => $data['police_inspection_date'] ?? '',
             ]);
-
     }
 
+    public function getTemplateEngine(): BinaryFileResponse
+    {
+        $headers = PDI::HEADING_ENGINE;
+        $export = new TemplateExport($headers);
+        return Excel::download($export, 'template-for-engines' . time() . '.xlsx');
+    }
+
+    public function importEngine(ImportFileRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['type'] = 'import-engine';
+        $validatedData['data'] = [
+            'file' => $validatedData['file'],
+        ];
+        $job = Job::query()->create($validatedData);
+
+        ImportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'import job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
+    }
+
+    public function getTemplatePolice(): BinaryFileResponse
+    {
+        $headers = PDI::HEADING_POLICE;
+        $export = new TemplateExport($headers);
+        return Excel::download($export, 'template-for-police' . time() . '.xlsx');
+    }
+
+    public function getTemplatePdi(): BinaryFileResponse
+    {
+        $headers = PDI::HEADING_PDI;
+        $export = new TemplateExport($headers);
+        return Excel::download($export, 'template-for-PDI' . time() . '.xlsx');
+    }
 }
