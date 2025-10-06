@@ -20,7 +20,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class PdiImport implements ToCollection, WithStartRow, WithMapping
 {
 
-    public function __construct(public $data,private readonly VehicleController $vehicleController)
+    public function __construct(public $data)
     {
 
     }
@@ -47,7 +47,8 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
         $this->data['total'] = $collection->count();
         $this->sendEvent();
         $userId = $this->data['user_id'];
-        $vehicleController = $this->vehicleController;
+        $vehicleController = app(VehicleController::class);
+
         $collection->each(function ($row) use ($userId,$vehicleController) {
             try {
                 $vehicleController->getByVin($row['vin']);
