@@ -110,6 +110,7 @@ class PDIController extends Controller
         $validatedData['type'] = 'import-engine';
         $validatedData['data'] = [
             'file' => $validatedData['file'],
+            'user_id' => Auth::id(),
         ];
         $job = Job::query()->create($validatedData);
 
@@ -131,6 +132,7 @@ class PDIController extends Controller
         $validatedData['type'] = 'import-police';
         $validatedData['data'] = [
             'file' => $validatedData['file'],
+            'user_id' => Auth::id(),
         ];
         $job = Job::query()->create($validatedData);
 
@@ -152,6 +154,7 @@ class PDIController extends Controller
         $validatedData['type'] = 'import-pdi';
         $validatedData['data'] = [
             'file' => $validatedData['file'],
+            'user_id' => Auth::id(),
         ];
         $job = Job::query()->create($validatedData);
 

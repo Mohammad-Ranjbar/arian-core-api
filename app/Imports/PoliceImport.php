@@ -51,6 +51,7 @@ class PoliceImport implements ToCollection, WithStartRow, WithMapping
                $data = PDI::query()->create([
                    'vin' => $row['vin'],
                    'police_inspection_date' => $row['police_inspection_date'],
+                   'user_id' => $this->data['user_id'],
                 ]);
 
                PDIController::sendPDIToErp($row['vin'],$data);
