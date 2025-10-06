@@ -45,15 +45,15 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
     {
         $this->data['total'] = $collection->count();
         $this->sendEvent();
-
-        $collection->each(function ($row) {
+        $userId = $this->data['user_id'];
+        $collection->each(function ($row) use ($userId) {
             try {
                $data = PDI::query()->create([
                    'vin' => $row['vin'],
                    'pdi_result' => $row['pdi_result'],
                    'pdi_result_description' => $row['pdi_result_description'],
                    'pdi_result_description_2' => $row['pdi_result_description_2'],
-                   'user_id' => $this->data['user_id'],
+                   'user_id' => $userId,
                 ]);
 
                PDIController::sendPDIToErp($row['vin'],$data);
