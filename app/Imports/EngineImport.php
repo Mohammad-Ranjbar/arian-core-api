@@ -28,6 +28,8 @@ class EngineImport implements ToCollection, WithStartRow, WithMapping
     public function map($row): array
     {
         $columns = [];
+
+        logger(PDI::HEADING_ENGINE);
         foreach (PDI::HEADING_ENGINE as $key => $value) {
             $columns[$value] = $row[$key];
         }
