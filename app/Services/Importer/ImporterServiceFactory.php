@@ -3,14 +3,17 @@
 namespace App\Services\Importer;
 
 
+use Exception;
+
 class ImporterServiceFactory
 {
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function getInstance($type
-    ){
+    )
+    {
         return match ($type) {
             'import-incidents' => new ImportIncidentService(),
             'import-elements' => new ImportElementService(),
@@ -21,8 +24,8 @@ class ImporterServiceFactory
             'import-vin_engines' => new ImportVinEnginesService(),
             'import-engine' => new ImportEngineService(),
             'import-police' => new ImportPoliceService(),
-            'import-pdi' => new ImportPoliceService(),
-            default => throw new \Exception('not found importer'),
+            'import-pdi' => new ImportPdiService(),
+            default => throw new Exception('not found importer'),
         };
     }
 }

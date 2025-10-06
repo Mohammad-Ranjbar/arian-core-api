@@ -55,7 +55,7 @@ class EngineImport implements ToCollection, WithStartRow, WithMapping
                     'user_id' => $this->data['user_id'],
                 ]);
 
-                PDIController::sendPDIToErp($row['vin'], $data);
+                PDIController::sendPDIToErp($row['vin'], $data->toArray());
             } catch (Exception $exception) {
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
