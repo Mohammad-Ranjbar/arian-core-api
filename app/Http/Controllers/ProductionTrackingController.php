@@ -50,10 +50,15 @@ class ProductionTrackingController extends Controller
                 return $this->responseError('لطفا ابتدا ثبت ورود را انجام دهید');
             }
             Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists();
+
             DB::beginTransaction();
-            $vehicle->newQuery()->update([
-                'grade' => $validatedData['grade']
-            ]);
+
+            if ($validatedData['type'] == 'enter') {
+                $vehicle->newQuery()->update([
+                    'grade' => $validatedData['grade']
+                ]);
+            }
+
             if ($validatedData['type'] === 'enter' && $validatedData['model_type']) {
                 $this->authorize('production-tracking.' . $validatedData['model_type'] . '.enter');
             }
