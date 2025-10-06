@@ -13,7 +13,7 @@ class TrackingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('production-tracking.'.$this->input('model_type'));
+        return $this->user()->can('production-tracking.' . $this->input('model_type'));
     }
 
 
@@ -25,10 +25,11 @@ class TrackingRequest extends FormRequest
 
         return [
             'model_type' => 'bail|required|in:salons,production_lines,stations,inventories,sale_locations,locations',
-            'model_id'   => 'required_if:model_type,!=,""|exists:'.$this->input('model_type').',id',
-            'type'       => 'required|in:enter,exit',
-            'vin'        => 'nullable',
-            'user_id'    => 'nullable',
+            'model_id' => 'required_if:model_type,!=,""|exists:' . $this->input('model_type') . ',id',
+            'type' => 'required|in:enter,exit',
+            'vin' => 'nullable',
+            'user_id' => 'nullable',
+            'grade' => 'required|in:1,2',
         ];
     }
 
@@ -38,7 +39,7 @@ class TrackingRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
-            'vin'     => $this->route()->parameter('vehicle')->vin,
+            'vin' => $this->route()->parameter('vehicle')->vin,
             'user_id' => Auth::id()
         ]);
     }
