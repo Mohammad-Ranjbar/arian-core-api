@@ -45,14 +45,14 @@ class EngineImport implements ToCollection, WithStartRow, WithMapping
     {
         $this->data['total'] = $collection->count();
         $this->sendEvent();
-
-        $collection->each(function ($row) {
+        $userId = $this->data['user_id'];
+        $collection->each(function ($row) use ($userId) {
             try {
                 $data = PDI::query()->create([
                     'vin' => $row['vin'],
                     'model_year' => $row['model_year'],
                     'engine_no' => $row['engine_no'],
-                    'user_id' => $this->data['user_id'],
+                    'user_id' => $userId,
                 ]);
 
                 PDIController::sendPDIToErp($row['vin'], $data->toArray());
