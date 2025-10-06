@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Http\Controllers\PDIController;
+use App\Http\Controllers\VehicleController;
 use App\Models\Job;
 use App\Models\PDI;
 use Exception;
@@ -46,8 +47,10 @@ class PoliceImport implements ToCollection, WithStartRow, WithMapping
         $this->data['total'] = $collection->count();
         $this->sendEvent();
         $userId = $this->data['user_id'];
-        $collection->each(function ($row) use ($userId) {
+        $vehicleController = app(VehicleController::class);
+        $collection->each(function ($row) use ($userId, $vehicleController) {
             try {
+                $vehicleController->getByVin($row['vin']);
                 $data = PDI::query()->create([
                     'vin' => $row['vin'],
                     'police_inspection_date' => $row['police_inspection_date'],
