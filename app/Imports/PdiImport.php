@@ -60,7 +60,11 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
                    'user_id' => $userId,
                 ]);
 
-               PDIController::sendPDIToErp($row['vin'],$data->toArray());
+                $response =  PDIController::sendPDIToErp($row['vin'],$data->toArray());
+
+                if ($response['status'] !== 'ok') {
+                    throw new Exception($response['message'], 400);
+                }
             } catch (Exception $exception) {
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
