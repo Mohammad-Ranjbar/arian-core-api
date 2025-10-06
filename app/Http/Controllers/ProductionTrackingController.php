@@ -54,7 +54,7 @@ class ProductionTrackingController extends Controller
             DB::beginTransaction();
 
             if ($validatedData['type'] == 'enter') {
-                $vehicle->newQuery()->update([
+                $vehicle->update([
                     'grade' => $validatedData['grade']
                 ]);
             }
