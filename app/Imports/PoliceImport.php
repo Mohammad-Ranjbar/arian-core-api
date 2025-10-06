@@ -45,16 +45,16 @@ class PoliceImport implements ToCollection, WithStartRow, WithMapping
     {
         $this->data['total'] = $collection->count();
         $this->sendEvent();
-
-        $collection->each(function ($row) {
+        $userId = $this->data['user_id'];
+        $collection->each(function ($row) use ($userId) {
             try {
-               $data = PDI::query()->create([
-                   'vin' => $row['vin'],
-                   'police_inspection_date' => $row['police_inspection_date'],
-                   'user_id' => $this->data['user_id'],
+                $data = PDI::query()->create([
+                    'vin' => $row['vin'],
+                    'police_inspection_date' => $row['police_inspection_date'],
+                    'user_id' => $userId,
                 ]);
 
-               PDIController::sendPDIToErp($row['vin'],$data);
+                PDIController::sendPDIToErp($row['vin'], $data);
             } catch (Exception $exception) {
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
