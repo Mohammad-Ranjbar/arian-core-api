@@ -53,6 +53,7 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
                    'pdi_result' => $row['pdi_result'],
                    'pdi_result_description' => $row['pdi_result_description'],
                    'pdi_result_description_2' => $row['pdi_result_description_2'],
+                   'user_id' => $this->data['user_id'],
                 ]);
 
                PDIController::sendPDIToErp($row['vin'],$data);
