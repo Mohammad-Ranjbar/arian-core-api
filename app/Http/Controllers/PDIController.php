@@ -87,9 +87,9 @@ class PDIController extends Controller
         return ErpWsdlClient::run(config('erp.pdi_result'), 'ImportVehicleInformation',
             [
                 'vINP' => $vin,
-                'pDIResultP' => $data['pdi_result'],
-                'pDIDescriptionP' => $data['pdi_result_description'],
-                'pDIResultDescP' => $data['pdi_result_description_2'],
+                'pDIResultP' => $data['pdi_result'] ?? '',
+                'pDIDescriptionP' => $data['pdi_result_description'] ?? '',
+                'pDIResultDescP' => $data['pdi_result_description_2'] ?? '',
                 'engineNoP' => $data['engine_no'] ?? '',
                 'modelYearP' => $data['model_year'] ?? '',
                 'policeInspectionDateP' => $data['police_inspection_date'] ?? '',
