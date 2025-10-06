@@ -57,7 +57,7 @@ class PoliceImport implements ToCollection, WithStartRow, WithMapping
                     'user_id' => $userId,
                 ]);
 
-                PDIController::sendPDIToErp($row['vin'], $data);
+                PDIController::sendPDIToErp($row['vin'], $data->toArray());
             } catch (Exception $exception) {
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
