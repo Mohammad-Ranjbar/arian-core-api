@@ -65,7 +65,7 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
             $this->sendEvent();
         });
         $uuid = Str::uuid();
-        Excel::store(new ResultExport($collection->prepend(PDI::HEADING_ENGINE)), 'public/results/' . $uuid . '.xlsx');
+        Excel::store(new ResultExport($collection->prepend(PDI::HEADING_PDI)), 'public/results/' . $uuid . '.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [
                 'file' => route('dl', ['path' => 'results/' . $uuid . '.xlsx']),
