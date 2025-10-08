@@ -27,12 +27,14 @@ class VehicleTorqueTestReportExport implements FromCollection, WithMapping, With
         $t = $this->data;
         if (!$t){
             $this->screws = collect();
+        }else{
+            $this->screws = Screw::query()
+                ->whereHas('carModels', function ($query) use ($t) {
+                    $query->where('id', $t->first()->vehicle->car_model_id);
+                })
+                ->get();
         }
-        $this->screws = Screw::query()
-            ->whereHas('carModels', function ($query) use ($t) {
-                $query->where('id', $t->first()->vehicle->car_model_id);
-            })
-            ->get();
+
 
         foreach ($this->data as $item) {
             $this->colorMapping[$item->screw_id] = [
