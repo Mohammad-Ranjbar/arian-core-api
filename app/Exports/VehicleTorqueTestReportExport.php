@@ -25,7 +25,7 @@ class VehicleTorqueTestReportExport implements FromCollection, WithMapping, With
     public function __construct(private readonly Collection $data, private array $eventData)
     {
         $t = $this->data;
-        if (!$t){
+        if ($t->count() == 0){
             $this->screws = collect();
         }else{
             $this->screws = Screw::query()
