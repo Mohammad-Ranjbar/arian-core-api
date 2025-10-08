@@ -41,6 +41,7 @@ class ExportVehicleTorqueTestService extends BaseExporterService
 
         $fileName = 'vehicleTorqueTest-' . Str::uuid() . '.xlsx';
         $path = '/public/exports/' . $fileName;
+
         Excel::store(new VehicleTorqueTestReportExport($rows, $eventData), $path);
         return $fileName;
     }
