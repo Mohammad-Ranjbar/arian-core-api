@@ -28,11 +28,9 @@ class VehicleTorqueTest extends Model
 
     public static function getReportData($data)
     {
-        $query = self::query()->with(['vehicle', 'screw', 'user'])->whereIn('id', function ($query) {
-            $query->selectRaw('MIN(id)')
-                ->from('vehicle_torque_tests')
-                ->groupBy('screw_id');
-        });
+        $query = self::query()
+            ->with(['vehicle', 'screw', 'user']);
+
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
         }
