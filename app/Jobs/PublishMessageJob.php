@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\SaleCompany;
 use App\Services\CustomerFinance\CustomerFinanceFactory;
 use App\Services\CustomerFinance\DieselExtraPaymentService;
+use App\Services\CustomerFinance\ExtraPaymentFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -34,9 +35,8 @@ class PublishMessageJob implements ShouldQueue
         $saleCompany = SaleCompany::query()->find($data['sale_company_id']);
 
         if ($this->data['action'] === 'extra-payment-paid') {
-            $service  = new DieselExtraPaymentService();
+            $service = ExtraPaymentFactory::make($saleCompany->getAttribute('reference'));
             $result = $service->process($this->data['online_order_id']);
-
             $responseData = [
                 'reference' => $data['reference'],
                 'order_id'  => $data['online_order_id'],
