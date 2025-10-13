@@ -30,6 +30,7 @@ use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
 use App\Models\LocationAttribute;
 use App\Models\MakeCode;
+use App\Models\NavColor;
 use App\Models\Pallet;
 use App\Models\PalletType;
 use App\Models\PDI;
@@ -142,6 +143,7 @@ class AuthServiceProvider extends ServiceProvider
         TemporaryProduction::class => CrudPolicy::class,
         CheckList::class => CrudPolicy::class,
         PDI::class=>CrudPolicy::class,
+        NavColor::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
