@@ -50,6 +50,7 @@ use App\Http\Controllers\LineActivityStartStopController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationVehicleController;
 use App\Http\Controllers\MakeCodeController;
+use App\Http\Controllers\NavColorController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PalletController;
 use App\Http\Controllers\PalletTransactionController;
@@ -495,7 +496,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'torque-meters' => TorqueMeterController::class,
         'torque-test-groups' => TorqueTestGroupController::class,
         'temporary-productions' => TemporaryProductionController::class,
-        'check-lists' => CheckListController::class
+        'check-lists' => CheckListController::class,
+        'nav-colors' => NavColorController::class,
     ]);
 
     /*
