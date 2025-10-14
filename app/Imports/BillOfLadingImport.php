@@ -255,9 +255,6 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
         if (empty($row['vehicle_title'])) {
             throw new Exception('vehicle_title is empty');
         }
-        if (empty($row['number_plates'])) {
-            throw new Exception('number_plates is empty');
-        }
         if (empty($row['plate_area'])) {
             throw new Exception('plate_area is empty');
         }
