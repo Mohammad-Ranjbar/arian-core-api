@@ -26,7 +26,9 @@ class BillOfLading extends Model
         'shipping_company',
         'vehicle_title',
         'number_plates',
-        'plate_area',
+        '3_digit_plate',
+        'char_plate',
+        '2_digit_plate',
         'driver_name',
         'driver_mobile',
         'driver_national_code',
@@ -80,18 +82,18 @@ class BillOfLading extends Model
         }
         if (!empty($data['type'])) {
             if ($data['type'] == 'containers') {
-                $query = $query->whereHas('containers',function ($q){
-                    $q->where('type','containers');
+                $query = $query->whereHas('containers', function ($q) {
+                    $q->where('type', 'containers');
                 });
             }
             if ($data['type'] == 'vehicles') {
-                $query = $query->whereHas('vehicles',function ($q){
-                    $q->where('type','vehicles');
+                $query = $query->whereHas('vehicles', function ($q) {
+                    $q->where('type', 'vehicles');
                 });
             }
             if ($data['type'] == 'bodies') {
-                $query = $query->whereHas('vehicles',function ($q){
-                    $q->where('type','bodies');
+                $query = $query->whereHas('vehicles', function ($q) {
+                    $q->where('type', 'bodies');
                 });
             }
 
@@ -136,14 +138,6 @@ class BillOfLading extends Model
     /**
      * @return MorphMany
      */
-    public function actionLogs(): MorphMany
-    {
-        return $this->morphMany(ActionLog::class, 'model');
-    }
-
-    /**
-     * @return MorphMany
-     */
     public function permits(): MorphMany
     {
         return $this->morphMany(GatePermit::class, 'owner');
@@ -152,7 +146,7 @@ class BillOfLading extends Model
     /**
      * @throws Exception
      */
-    public function createAutoGatePermit($items,$itemType = null , $batch = false): void
+    public function createAutoGatePermit($items, $itemType = null, $batch = false): void
     {
         $exitIds = Location::query()->whereHas('attributes', function ($q) {
             $q->where('attribute', 'autoExitPermit')->where('value', 'true');
@@ -194,17 +188,17 @@ class BillOfLading extends Model
                     ]);
 
                     if ($type == 'exit') {
-                        if (!$batch){
+                        if (!$batch) {
                             $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
-                                $gate->getAttribute('location')->code,$itemType);
+                                $gate->getAttribute('location')->code, $itemType);
                             if ($response['status'] !== 'ok') {
                                 throw new Exception($response['message']);
                             }
                         }
 
                     } else {
-                        if (!$batch){
-                            $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code,$itemType);
+                        if (!$batch) {
+                            $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
                             if ($response['status'] !== 'ok') {
                                 throw new Exception($response['message']);
                             }
@@ -212,15 +206,15 @@ class BillOfLading extends Model
                     }
                 }
 
-                if ($batch){
-                    if ($type == 'enter'){
-                        $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code,$itemType);
+                if ($batch) {
+                    if ($type == 'enter') {
+                        $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code, $itemType);
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }
-                    }elseif($type == 'exit'){
+                    } elseif ($type == 'exit') {
                         $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
-                            $gate->getAttribute('location')->code,$itemType);
+                            $gate->getAttribute('location')->code, $itemType);
                         if ($response['status'] !== 'ok') {
                             throw new Exception($response['message']);
                         }
@@ -228,6 +222,24 @@ class BillOfLading extends Model
                 }
             }
         }
+    }
+
+    public function canReturn(): bool
+    {
+        return $this->actionLogs()->where('action', 'discharge')->exists() && !$this->actionLogs()->where('action', ActionLog::RETURN_CONTAINER_AT)->exists();
+    }
+
+    /**
+     * @return MorphMany
+     */
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'model');
+    }
+
+    public function statusTime(string $status)
+    {
+        return $this->actionLogs()->where('action', $status)->first()?->getAttribute('created_at') ?? false;
     }
 
     /**
@@ -276,13 +288,13 @@ class BillOfLading extends Model
     {
         return Attribute::make(
             get: function () {
-                if ($this->containers()->wherePivot('type','containers')->count()) {
+                if ($this->containers()->wherePivot('type', 'containers')->count()) {
                     return 'containers';
                 }
-                if ($this->vehicles()->wherePivot('type','bodies')->count()) {
+                if ($this->vehicles()->wherePivot('type', 'bodies')->count()) {
                     return 'bodies';
                 }
-                if ($this->vehicles()->wherePivot('type','vehicles')->count()) {
+                if ($this->vehicles()->wherePivot('type', 'vehicles')->count()) {
                     return 'vehicles';
                 }
                 return 'unknown';
@@ -305,17 +317,6 @@ class BillOfLading extends Model
             'model',
             'bill_of_lading_item'
         )->withPivot(['type']);
-    }
-
-    public function canReturn(): bool
-    {
-        return $this->actionLogs()->where('action','discharge')->exists() && ! $this->actionLogs()->where('action',ActionLog::RETURN_CONTAINER_AT)->exists();
-    }
-
-
-    public function statusTime(string $status)
-    {
-        return $this->actionLogs()->where('action',$status)->first()?->getAttribute('created_at') ?? false;
     }
 
 }
