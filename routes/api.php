@@ -146,7 +146,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('/get-template-pdi', [PDIController::class, 'getTemplatePdi'])->name('get-template-pdi');
     Route::post('/import-pdi', [PDIController::class, 'importPdi'])->name('import-pdi');
 
-    Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store']);
+    Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store','destroy']);
     Route::apiResource('enter-engines', EnterEngineController::class)->except(['destroy', 'update']);
 
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');

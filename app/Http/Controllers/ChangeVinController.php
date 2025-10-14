@@ -118,4 +118,19 @@ class ChangeVinController extends Controller
             ]
         ]);
     }
+
+    public function destroy(ChangeVin $changeVin): JsonResponse
+    {
+        try {
+            $changeVin->delete();
+
+            return response()->json([
+                'message' => 'با موفقیت حذف شد'
+            ]);
+        }catch (Exception $exception){
+            return response()->json([
+                'message' => $exception->getMessage()
+            ]);
+        }
+    }
 }
