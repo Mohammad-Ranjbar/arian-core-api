@@ -86,7 +86,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 
                 try {
                     /** @var BillOfLading $billOfLading */
-                    $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->first();
+                    $billOfLading = BillOfLading::query()->where('code', $row['freight_number'])->where('batch',$row['batch'])->first();
                     if (!empty($row['VIN'])) {
                         $this->checkingData($row);
                     }
