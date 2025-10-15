@@ -38,6 +38,7 @@ class SalesBridgeController extends Controller
             'd' => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p' => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
             'a' => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
+            'test' => 'http://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
@@ -51,6 +52,7 @@ class SalesBridgeController extends Controller
             'd' => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p' => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
             'a' => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'test' => 'http://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
