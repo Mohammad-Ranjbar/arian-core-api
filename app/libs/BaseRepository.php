@@ -4,6 +4,7 @@ namespace App\libs;
 
 use App\Filters\ActionFilter;
 use App\Filters\AllShortageDoneFilter;
+use App\Filters\BatchFilter;
 use App\Filters\BillOfLadingDriverMobileFilter;
 use App\Filters\BillOfLadingDriverNationalCodeFilter;
 use App\Filters\BlockByFilter;
@@ -83,6 +84,7 @@ abstract class BaseRepository
      */
     public array $filters = [
         ProductionOrderNumberFilter::class,
+        BatchFilter::class,
         QcMakeCodeFilter::class,
         ModelIdFilter::class,
         QcCarModelFilter::class,
