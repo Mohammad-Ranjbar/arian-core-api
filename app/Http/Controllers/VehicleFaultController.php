@@ -264,8 +264,8 @@ class VehicleFaultController extends Controller
        "));
 
 
-        $vehicleCount = collect(DB::select(/** @lang text */ "        
-            SELECT 
+        $vehicleCount = collect(DB::select(/** @lang text */ "
+            SELECT
                 count(DISTINCT vehicle_incidents.vin) as vehicleCount
             FROM
                vehicle_incidents
@@ -288,14 +288,20 @@ class VehicleFaultController extends Controller
             [
                 'label' => "Vehicles",
                 'data'  => $result->pluck('vehicles')->all(),
+                'backgroundColor' => '#ff6600',
+                'borderColor' => '#ff6600',
             ],
             [
                 'label' => "Incidents",
                 'data'  => $result->pluck('incidents')->all(),
+                'backgroundColor' => '#ff6600',
+                'borderColor' => '#ff6600',
             ],
             [
                 'label' => "DPU-OFF",
                 'data'  => $result->pluck('dpuoff')->all(),
+                'backgroundColor' => '#ff6600',
+                'borderColor' => '#ff6600',
             ]
         ];
 
