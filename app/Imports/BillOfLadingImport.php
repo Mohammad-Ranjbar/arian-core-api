@@ -121,7 +121,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
 //                            "number2" => $second,
 //                            "number3" => $row['plate_area']
 //                        ];
-                        if (in_array($row['char_plate'],[
+                        if (!in_array($row['char_plate'],[
                             'ب', 'ج', 'س', 'ص', 'ط', 'ق', 'ل', 'م', 'ن', 'و', 'ه', 'ی',
                             'الف', 'پ', 'ت', 'ث', 'ز', 'ژ', 'ش', 'ع', 'ف', 'ک', 'گ', 'D', 'S'
                         ])){
