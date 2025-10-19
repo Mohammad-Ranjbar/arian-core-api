@@ -14,8 +14,12 @@ class GeneralProductItem extends Model
         'title',
         'priority',
         'height',
-        'type'
-    ];
+        'type',
+        'part_type',
+        'label_status',
+        'hack_status',
+        'count_lable',
+        ];
 
     /**
      * @var string[]
@@ -28,5 +32,10 @@ class GeneralProductItem extends Model
     public function carModels(): BelongsToMany
     {
         return $this->BelongsToMany(CarModel::class);
+    }
+
+    public function stations(): BelongsToMany
+    {
+        return $this->BelongsToMany(Station::class);
     }
 }

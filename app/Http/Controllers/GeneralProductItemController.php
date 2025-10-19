@@ -7,6 +7,8 @@ use App\Models\Vehicle;
 use App\Repositories\GeneralProductItemRepository;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class GeneralProductItemController extends CrudController
 {
@@ -28,8 +30,11 @@ class GeneralProductItemController extends CrudController
         );
     }
 
+
     /**
+     * @throws NotFoundExceptionInterface
      * @throws AuthorizationException
+     * @throws ContainerExceptionInterface
      */
     public function vehicleItems(Vehicle $vehicle): JsonResponse
     {

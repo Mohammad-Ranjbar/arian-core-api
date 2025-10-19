@@ -17,11 +17,16 @@ class GeneralProductItemResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
-            'created_at' => $this->resource->created_at,
             'carModels' => CarModelResource::collection($this->resource->carModels),
             'height' => $this->resource->height,
             'priority' => $this->resource->priority,
             'type' => $this->resource->type,
+            'stations' => StationResource::collection($this->resource->stations),
+            'part_type' => $this->resource->part_type,
+            'label_status' => $this->resource->label_status,
+            'hack_status' => $this->resource->hack_status,
+            'count_lable' => $this->resource->count_lable,
+            'created_at' => $this->resource->created_at,
         ];
     }
 }
