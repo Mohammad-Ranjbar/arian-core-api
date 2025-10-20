@@ -15,6 +15,7 @@ class SynchronousItemResource extends JsonResource
             'id'                  => $this->resource->id,
             'synchronous_id'      => $this->resource->synchronous_id,
             'vin'                 => $this->resource->vin,
+            'checked'                 => $this->resource->checked,
             'vehicle'             => new VehicleResource($this->resource->vehicle),
             'cross_reference'     => $this->resource->cross_reference,
             'erp_product_item_id' => $this->resource->erp_product_item_id,
