@@ -294,8 +294,8 @@ class VehicleFaultController extends Controller
             [
                 'label' => "Incidents",
                 'data'  => $result->pluck('incidents')->all(),
-                'backgroundColor' => '#FF0000',
-                'borderColor' => '#FF0000',
+                'backgroundColor' => '#F7FF00',
+                'borderColor' => '#F7FF00',
             ],
             [
                 'label' => "DPU-OFF",
