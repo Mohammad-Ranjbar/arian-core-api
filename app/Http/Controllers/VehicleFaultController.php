@@ -288,20 +288,20 @@ class VehicleFaultController extends Controller
             [
                 'label' => "Vehicles",
                 'data'  => $result->pluck('vehicles')->all(),
-                'backgroundColor' => '#FB2C36',
-                'borderColor' => '#FB2C36',
+                'backgroundColor' => '#000000',
+                'borderColor' => '#000000',
             ],
             [
                 'label' => "Incidents",
                 'data'  => $result->pluck('incidents')->all(),
-                'backgroundColor' => '#FB9A00',
-                'borderColor' => '#FB9A00',
+                'backgroundColor' => '#FF0000',
+                'borderColor' => '#FF0000',
             ],
             [
                 'label' => "DPU-OFF",
                 'data'  => $result->pluck('dpuoff')->all(),
-                'backgroundColor' => '#FFDF20',
-                'borderColor' => '#FFDF20',
+                'backgroundColor' => '#2f54EB',
+                'borderColor' => '#2f54EB',
             ]
         ];
 
@@ -327,15 +327,25 @@ class VehicleFaultController extends Controller
             GROUP BY
                 DATE($dateField), `$column`
         "));
-
+                $colors = [
+                    'V1' => '#FB2C36',
+                    '(V1)' => '#FB2C36',
+                    'V2' => '#FE9A00',
+                    '(V2)' => '#FE9A00',
+                    'V3' => '#FFDF20',
+                    '(V3)' => '#FFDF20',
+                    'V1+' => '#82181A',
+                    'SAVES' => '#7900FF',
+                ];
                 foreach ($temp->groupBy($column) as $value => $items) {
                     $x = $items->pluck('count', 'date');
                     $dataSet = [];
                     foreach ($labels as $date) {
                         $dataSet[$date] = isset($x[$date]) ? $x[$date] : 0;
                     }
-
-                    $datasets[] = ['label' => $value, 'data' => array_values($dataSet),];
+                    $color = isset($colors[$value]) ? $colors[$value] : '#757575';
+                    $datasets[] = ['label' => $value, 'data' => array_values($dataSet), 'backgroundColor' => $color,
+                        'borderColor' => $color,];
                 }
             }
         }
