@@ -127,10 +127,11 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
                         ])){
                             throw new Exception('حرف پلاک نامجاز است');
                         }
+
                         $plate = [
                             "char" => $row['char_plate'],
-                            "number1" => $row['3_digit_plate'],
-                            "number2" => $row['2_digit_plate'],
+                            "number1" => $row['2_digit_plate'],
+                            "number2" => $row['3_digit_plate'],
                             "number3" => $row['plate_area']
                         ];
 
