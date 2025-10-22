@@ -33,6 +33,7 @@ class NavColorRepository extends BaseRepository
         return [
             'color' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', Rule::unique('nav_colors')->where('color', request()->input('color'))],
+            'car_model_id' => ['required','exists:car_models,id'],
         ];
     }
 
