@@ -4,14 +4,16 @@ namespace App\Models;
 
 use App\Services\ResponseTimeService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class ErpJob extends Model
 {
-
+    use Prunable;
     const string QUEUE_UNIQUE = 'unique';
-    const string QUEUE_  = 'parallel';
+    const string QUEUE_ = 'parallel';
 
     const string BLOCK_ITEM = 'block-item';
 
@@ -45,13 +47,13 @@ class ErpJob extends Model
         return $this->morphTo();
     }
 
-    public function setExecutionTime($startTime,$endTime): void
+    public function setExecutionTime($startTime, $endTime): void
     {
-       $executeTime =  ResponseTimeService::getResponseTime($startTime,$endTime);
+        $executeTime = ResponseTimeService::getResponseTime($startTime, $endTime);
 
-       $this->update([
-           'execute_time' => $executeTime
-       ]);
+        $this->update([
+            'execute_time' => $executeTime
+        ]);
     }
 
     public function setStatusInProgress(): bool
@@ -90,9 +92,15 @@ class ErpJob extends Model
             'description' => ''
         ]);
     }
+
     public function incrementTries(): void
     {
         $this->increment('tries');
+    }
+
+    protected function prunable(): Builder
+    {
+        return static::query()->where('created_at', '<=', now()->subDays(5));
     }
 
 }
