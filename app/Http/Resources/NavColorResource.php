@@ -18,6 +18,8 @@ class NavColorResource extends JsonResource
             'id' => $this->resource->id,
             'color' => $this->resource->color,
             'code' => $this->resource->code,
+            'car_model_id' => $this->resource->car_model_id,
+            'carModel' => CarModelResource::make($this->resource->carModel),
             'created_at' => $this->resource->created_at,
         ];
     }
