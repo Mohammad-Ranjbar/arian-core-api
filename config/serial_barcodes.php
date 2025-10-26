@@ -46,6 +46,28 @@ return [
             'type' => 'gearbox',
         ]
     ],
+    'LMR-TRUCKS' => [
+        [
+            'type' => 'engine',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
+    ],
+    'MITSUBISHI' => [
+        [
+            'type' => 'engine',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
+    ],
     'XGMA'     => [
         [
             'type' => 'engine',
