@@ -12,19 +12,12 @@ class TorqueTestGroupRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-            'title' => 'required|string|max:255',
-            'register_date' => 'required|date_format:Y-m-d',
-            'carModels' => 'required|array',
-            'carModels.*' => 'integer|exists:car_models,id',
-            'torqueMeasuringEquipments' => 'required|array',
-            'torqueMeasuringEquipments.*' => 'required|exists:torque_measuring_equipment,id',
+
         ], 'update' => [
-            'title' => 'required|string|max:255',
-            'register_date' => 'required|date_format:Y-m-d',
-            'carModels' => 'required|array',
-            'carModels.*' => 'integer|exists:car_models,id',
-            'torqueMeasuringEquipments' => 'required|array',
-            'torqueMeasuringEquipments.*' => 'required|exists:torque_measuring_equipment,id',
+            'date' => 'required|date_format:Y-m-d',
+            'car_model_id' => 'required|exists:car_models,id',
+            'torqueMeters' => 'required|array',
+            'torqueMeters.*' => 'required|exists:torque_meters,id',
         ]
     ];
 

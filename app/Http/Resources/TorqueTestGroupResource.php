@@ -16,10 +16,12 @@ class TorqueTestGroupResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
-            'title' => $this->resource->title,
-            'register_date' => $this->resource->register_date,
-            'carModels' => CarModelResource::collection($this->resource->carModels),
-            'torqueMeasuringEquipments' => TorqueMeasuringEquipmentResource::collection($this->resource->torqueMeasuringEquipments),
+            'date' => $this->resource->date,
+            'carModel' => CarModelResource::make($this->resource->carModel),
+            'car_model_id' => $this->resource->car_model_id,
+            'torqueMeters' => TorqueMeterResource::collection($this->resource->torqueMeters),
+            'user_id' => $this->resource->user_id,
+            'user' => UserResource::make($this->resource->user),
             'created_at' => $this->resource->created_at,
         ];
     }
