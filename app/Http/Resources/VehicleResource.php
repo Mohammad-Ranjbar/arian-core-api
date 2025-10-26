@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\NavColor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +23,10 @@ class VehicleResource extends JsonResource
         return [
             'vin' => $this->resource->vin,
             'color_code' => $this->resource->color_code,
-            'color_code_map' => $this->resource->colorCodeMap,
+            'color_code_map' =>  NavColor::query()
+                    ->where('car_model_id',$this->resource->car_model_id)
+                    ->where('color',$this->resource->color_code)
+                    ->first()?->getAttribute('code') ?? 'unknown',
             'grade' => $this->resource->grade,
             'production_order_number' => $this->resource->production_order_number,
             'engine_no' => $this->resource->engine_no,
