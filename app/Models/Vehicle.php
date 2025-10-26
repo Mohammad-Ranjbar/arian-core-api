@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -170,5 +171,15 @@ class Vehicle extends Model
     {
         return $this->belongsToMany(BillOfLading::class, 'bill_of_lading_item', 'model_id')
             ->where('model_type', self::class);
+    }
+
+    public function colorCodeMap(): Attribute
+    {
+        return Attribute::get(function (Vehicle $vehicle) {
+            NavColor::query()
+                ->where('car_model_id',$vehicle->getAttribute('car_model_id'))
+                ->where('color',$vehicle->getAttribute('color_code'))
+                ->first()?->getAttribute('code') ?? 'unknown';
+        });
     }
 }
