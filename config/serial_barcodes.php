@@ -57,6 +57,17 @@ return [
             'type' => 'gearbox',
         ]
     ],
+    'MITSUBISHI' => [
+        [
+            'type' => 'engine',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
+    ],
     'XGMA'     => [
         [
             'type' => 'engine',
