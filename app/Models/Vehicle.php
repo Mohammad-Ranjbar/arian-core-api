@@ -175,10 +175,10 @@ class Vehicle extends Model
 
     public function colorCodeMap(): Attribute
     {
-        return Attribute::get(function (Vehicle $vehicle) {
+        return Attribute::get(function () {
             NavColor::query()
-                ->where('car_model_id',$vehicle->getAttribute('car_model_id'))
-                ->where('color',$vehicle->getAttribute('color_code'))
+                ->where('car_model_id',$this->getAttribute('car_model_id'))
+                ->where('color',$this->getAttribute('color_code'))
                 ->first()?->getAttribute('code') ?? 'unknown';
         });
     }
