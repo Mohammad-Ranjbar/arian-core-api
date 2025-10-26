@@ -172,14 +172,4 @@ class Vehicle extends Model
         return $this->belongsToMany(BillOfLading::class, 'bill_of_lading_item', 'model_id')
             ->where('model_type', self::class);
     }
-
-    public function colorCodeMap(): Attribute
-    {
-        return Attribute::get(function () {
-            NavColor::query()
-                ->where('car_model_id',$this->getAttribute('car_model_id'))
-                ->where('color',$this->getAttribute('color_code'))
-                ->first()?->getAttribute('code') ?? 'unknown';
-        });
-    }
 }
