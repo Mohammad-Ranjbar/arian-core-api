@@ -17,6 +17,8 @@ class ScrewRepository extends BaseRepository
             'max' => 'required|numeric',
             'carModels' => 'required|array',
             'carModels.*' => 'required|exists:car_models,id',
+            'salon_id' => 'required|exists:salons,id',
+            'torque_measuring_equipment_id' => 'required|exists:torque_measuring_equipment,id',
 
         ], 'update' => [
             'title' => 'required|string|max:255',
@@ -24,6 +26,8 @@ class ScrewRepository extends BaseRepository
             'max' => 'required|numeric',
             'carModels' => 'required|array',
             'carModels.*' => 'required|exists:car_models,id',
+            'salon_id' => 'required|exists:salons,id',
+            'torque_measuring_equipment_id' => 'required|exists:torque_measuring_equipment,id',
         ]
     ];
 
