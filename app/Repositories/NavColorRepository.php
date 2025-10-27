@@ -32,8 +32,8 @@ class NavColorRepository extends BaseRepository
     {
         return [
             'color' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', Rule::unique('nav_colors')->where('color', request()->input('color'))],
-            'car_model_id' => ['required','exists:car_models,id'],
+            'code' => ['required', 'string'],
+            'car_model_id' => ['required','exists:car_models,id',Rule::unique('nav_colors')->where('car_model_id', request()->input('car_model_id'))],
         ];
     }
 
@@ -41,8 +41,8 @@ class NavColorRepository extends BaseRepository
     {
         return [
             'color' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string',         Rule::unique('nav_colors')->where('color', request()->input('color'))->ignore(request()->route('nav_color'))],
-            'car_model_id' => ['required','exists:car_models,id'],
+            'code' => ['required', 'string'],
+            'car_model_id' => ['required','exists:car_models,id',Rule::unique('nav_colors')->where('car_model_id', request()->input('car_model_id'))],
         ];
     }
 
