@@ -13,7 +13,6 @@ return new class extends Migration
             $table->id();
             $table->string('color');
             $table->string('code');
-            $table->unique(['color','code']);
             $table->timestamps();
         });
     }
