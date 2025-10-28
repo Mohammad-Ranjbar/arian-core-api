@@ -16,8 +16,6 @@ class TorqueTestGroupRepository extends BaseRepository
         ], 'update' => [
             'date' => 'required|date_format:Y-m-d',
             'car_model_id' => 'required|exists:car_models,id',
-            'torqueMeters' => 'required|array',
-            'torqueMeters.*' => 'required|exists:torque_meters,id',
         ]
     ];
 

@@ -52,8 +52,6 @@ class TorqueTestGroupController extends CrudController
                         ->where('car_model_id', request()->input('car_model_id'));
                 })->ignore(request()->input('{torque_test_group'))
             ],
-            'torqueMeters' => 'required|array',
-            'torqueMeters.*' => 'required|exists:torque_meters,id',
         ];
     }
 
