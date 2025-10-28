@@ -118,7 +118,6 @@ class BarcodeController extends CrudController
 
     public function submitSerialBarcode($vin, $barcode, $erpCode): array
     {
-        dd($barcode, $erpCode);
         return ErpWsdlClient::run(config('erp.barcode'), 'SetTracking', [
             'vINP' => $vin,
             'barCodeP' => $barcode,

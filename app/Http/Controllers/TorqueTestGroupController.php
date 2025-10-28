@@ -55,9 +55,9 @@ class TorqueTestGroupController extends CrudController
 
     public function screws(TorqueTestGroup $torqueTestGroup): AnonymousResourceCollection
     {
-        $carModelsId = $torqueTestGroup->carModels()->pluck('id');
-        $screws = Screw::query()->whereHas('carModels', function ($q) use ($carModelsId) {
-            $q->whereIn('car_models.id', $carModelsId);
+
+        $screws = Screw::query()->whereHas('carModels', function ($q) use ($torqueTestGroup) {
+            $q->whereIn('car_models.id', $torqueTestGroup->getAttribute('car_model_id'));
         })->get();
 
         return ScrewResource::collection($screws);
