@@ -35,8 +35,6 @@ class TorqueTestGroupController extends CrudController
                         ->where('car_model_id', request()->input('car_model_id'));
                 })
             ],
-            'torqueMeters' => 'required|array',
-            'torqueMeters.*' => 'required|exists:torque_meters,id',
         ];
     }
 
@@ -50,7 +48,7 @@ class TorqueTestGroupController extends CrudController
                 Rule::unique('torque_test_groups')->where(function ($query) {
                     return $query->where('date', request()->input('date'))
                         ->where('car_model_id', request()->input('car_model_id'));
-                })->ignore(request()->input('{torque_test_group'))
+                })->ignore(request()->input('torque_test_group'))
             ],
         ];
     }
