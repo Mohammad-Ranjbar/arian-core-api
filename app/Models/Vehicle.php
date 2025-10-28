@@ -172,4 +172,14 @@ class Vehicle extends Model
         return $this->belongsToMany(BillOfLading::class, 'bill_of_lading_item', 'model_id')
             ->where('model_type', self::class);
     }
+
+    public function prefix(): Attribute
+    {
+        $prefix = config('serial_barcodes.'.$this->makeCode->reference)[0]['prefix'];
+
+        if (is_array($prefix)) {
+            $prefix = $prefix[$this->carModel->reference];
+        }
+        return Attribute::get(fn () => $prefix);
+    }
 }
