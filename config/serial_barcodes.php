@@ -14,7 +14,14 @@ return [
     'LAMARI'   => [
         [
             'type'   => 'custom_engine',
-            'prefix' => '4A95TD',
+
+            'prefix' => [
+             'ESPSE010DP' => '',//echo without prefix - check * in middle and end
+             'DSPCO010DP' => '4A95TD',//ima
+             'KSPCO020DP' => '',//hirkani
+             'KSPCO010CP' => '',//neo
+             'DSPCO020DP' => '',//lamariX
+            ]
         ],
         [
             'type' => 'body',

@@ -24,7 +24,11 @@ class CheckTempVinEngineController extends Controller
 
         $tempVin = TemporaryProduction::query()->where('production_order_number', $validatedData['production_order_number'])->first();
 
-        $prefix = collect(config('serial_barcodes.' . $vehicle->getRelation('makeCode')->reference))->where('type', 'custom_engine')->first()['prefix'];
+        $makeCodePrefix = collect(config('serial_barcodes.' . $vehicle->getRelation('makeCode')->reference));
+        $data = $makeCodePrefix->where('type', 'custom_engine')->first();
+
+      $prefix =  is_array($data['prefix']) ? $data['prefix'][$vehicle->getRelation('carModel')] : $data['prefix'];
+
         return response()->json([
             'vehicle' => !empty($vehicle) ? VehicleResource::make($vehicle) : null,
             'serial_barcodes' => $prefix,

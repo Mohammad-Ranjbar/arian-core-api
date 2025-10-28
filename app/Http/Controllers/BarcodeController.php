@@ -52,7 +52,10 @@ class BarcodeController extends CrudController
         }
 
         $vehicle = Vehicle::query()->find($validatedData['vin']);
-
+        if ($vehicle->getRelation('carModel')->reference == 'ESPSE010DP') {
+            $validatedData['code'] = str_replace(' ','*',$validatedData['code']);
+            $validatedData['code'] = $validatedData['code'].'*';
+        }
         if (!empty($validatedData['general_product_item_id'])) {
             $x = $validatedData['general_product_item_id'] ;
             $generalProductItem = GeneralProductItem::query()->find( $validatedData['general_product_item_id']);
