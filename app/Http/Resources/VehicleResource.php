@@ -47,7 +47,7 @@ class VehicleResource extends JsonResource
                 'reference' => $this->resource->carModel->reference,
                 'production' => $this->resource->carModel->production,
             ],
-            'serial_barcodes' => $this->resource->prefix,
+            'serial_barcodes' => $this->resource->serialBarcodes,
             'info' => $this->resource->data,
             'shortage_count' => $this->resource->shortageItems->count(),
             'shortage_done_count' => $this->resource->shortageItems->where('status','done')->count(),

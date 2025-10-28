@@ -173,13 +173,17 @@ class Vehicle extends Model
             ->where('model_type', self::class);
     }
 
-    public function prefix(): Attribute
+    public function serialBarcodes(): Attribute
     {
-        $prefix = config('serial_barcodes.'.$this->makeCode->reference)[0]['prefix'];
+        $serials = array_map(function ($item){
+            if (isset($item['prefix'])){
+                if (is_array($item['prefix'])){
+                    $item['prefix'] = $item['prefix'][$this->carModel->reference] ?? '';
+                }
+            }
+            return $item;
+        },config('serial_barcodes.'.$this->makeCode->reference));
 
-        if (is_array($prefix)) {
-            $prefix = $prefix[$this->carModel->reference];
-        }
-        return Attribute::get(fn () => $prefix);
+        return Attribute::get(fn () => $serials);
     }
 }
