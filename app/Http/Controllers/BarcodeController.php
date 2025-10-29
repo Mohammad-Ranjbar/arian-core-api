@@ -52,7 +52,7 @@ class BarcodeController extends CrudController
         }
 
         $vehicle = Vehicle::query()->find($validatedData['vin']);
-        if ($vehicle->getRelation('carModel')->reference == 'ESPSE010DP') {
+        if ($vehicle->getRelation('carModel')->reference == 'ESPSE010DP' and $request->get('type') === 'custom_engine') {
             $validatedData['code'] = str_replace(' ','*',$validatedData['code']);
             $validatedData['code'] = '*'.$validatedData['code'];
         }
