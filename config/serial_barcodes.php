@@ -2,7 +2,8 @@
 return [
     'JAC'      => [
         [
-            'type' => 'engine',
+            'type'   => 'custom_engine',
+            'prefix' => ''
         ],
         [
             'type' => 'body',
@@ -44,7 +45,8 @@ return [
     ],
     'SHACMOTO' => [
         [
-            'type' => 'engine',
+            'type'   => 'custom_engine',
+            'prefix' => ''
         ],
         [
             'type' => 'body',
@@ -55,7 +57,8 @@ return [
     ],
     'LMR-TRUCKS' => [
         [
-            'type' => 'engine',
+            'type'   => 'custom_engine',
+            'prefix' => ''
         ],
         [
             'type' => 'body',
@@ -66,7 +69,8 @@ return [
     ],
     'MITSUBISHI' => [
         [
-            'type' => 'engine',
+            'type'   => 'custom_engine',
+            'prefix' => ''
         ],
         [
             'type' => 'body',
@@ -77,7 +81,8 @@ return [
     ],
     'XGMA'     => [
         [
-            'type' => 'engine',
+            'type'   => 'custom_engine',
+            'prefix' => ''
         ],
         [
             'type' => 'body',
