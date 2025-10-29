@@ -31,7 +31,7 @@ class CheckTempVinEngineController extends Controller
 
         return response()->json([
             'vehicle' => !empty($vehicle) ? VehicleResource::make($vehicle) : null,
-            'serial_barcodes' => $vehicle->getAttribute('serialBarcodes'),
+            'serial_barcodes' => $vehicle->getAttribute('serialBarcodes')['prefix'],
             'vinEngine' => !empty($vinEngine) ? VinEngineResource::make($vinEngine) : null,
             'tempVin' => !empty($tempVin) ? TemporaryProductionResource::make($tempVin) : null,
         ]);
