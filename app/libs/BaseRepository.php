@@ -61,6 +61,7 @@ use App\Filters\UnblockedAtFromFilter;
 use App\Filters\UnblockedAtToFilter;
 use App\Filters\UserAccessToResourceFilter;
 use App\Filters\UserIdFilter;
+use App\Filters\VinBillOfLadingFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
 use Exception;
@@ -83,6 +84,7 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        VinBillOfLadingFilter::class,
         ProductionOrderNumberFilter::class,
         BatchFilter::class,
         QcMakeCodeFilter::class,
