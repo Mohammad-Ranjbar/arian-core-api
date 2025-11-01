@@ -21,7 +21,10 @@ class VinBillOfLadingFilter
         if (!request()->has('vin_bill_of_lading') || !request()->get('vin_bill_of_lading')) {
             return $next($request);
         }
-        return $next($request)->vehicles()->where('vin',request()->get('vin_bill_of_lading'));
+
+        return $next($request)->whereHas('vehicles', function ($query) {
+            $query->where('vin', request()->get('vin_bill_of_lading'));
+        });
     }
 
 }

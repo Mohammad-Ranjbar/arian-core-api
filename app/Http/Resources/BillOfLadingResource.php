@@ -33,24 +33,24 @@ class BillOfLadingResource extends JsonResource
             'locationDestination' => new LocationResource($this->resource->locationDestination),
             'car' => new CarResource($this->resource->car),
             'type' => $this->resource->type,
-//            'items' => $this->resource->type === 'containers' ?
-//                $this->resource->containers()->get()->map(function ($item) {
-//                    return [
-//                        'code' => $item->code,
-//                        'destination' => ''
-//                    ];
-//                }) :
-//                $this->resource->vehicles()->get()->map(function ($item) {
-//                    return [
-//                        'code' => $item->vin,
-//                        'info'=>$item->data,
-//                        'destination' => GatePermit::withTrashed()
-//                            ->where('model_id',$item->vin)
-//                            ->where('created_at','<=',$this->resource->created_at)
-//                            ->latest()
-//                            ->first()?->location->title ?? ''
-//                    ];
-//                }),
+            'items' => $this->resource->type === 'containers' ?
+                $this->resource->containers()->get()->map(function ($item) {
+                    return [
+                        'code' => $item->code,
+                        'destination' => ''
+                    ];
+                }) :
+                $this->resource->vehicles()->get()->map(function ($item) {
+                    return [
+                        'code' => $item->vin,
+                        'info'=>$item->data,
+                        'destination' => GatePermit::withTrashed()
+                            ->where('model_id',$item->vin)
+                            ->where('created_at','<=',$this->resource->created_at)
+                            ->latest()
+                            ->first()?->location->title ?? ''
+                    ];
+                }),
             'actionLogs' => ActionLogResource::collection($this->resource->actionLogs),
             'actions' => $this->resource->action,
             'can_return' => $this->resource->canReturn()
