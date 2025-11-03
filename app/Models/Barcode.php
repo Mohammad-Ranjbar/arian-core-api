@@ -29,6 +29,8 @@ class Barcode extends Model
     {
 
         $query = self::query()->with('user');
+
+
         if (!empty($data['vin'])) {
             $query = $query->where('vin' , $data['vin']);
         }

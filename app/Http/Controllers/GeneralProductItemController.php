@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GeneralProductItemResource;
+use App\Jobs\ExportJob;
+use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\GeneralProductItemRepository;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -28,6 +32,28 @@ class GeneralProductItemController extends CrudController
         return new JsonResponse(
             data: GeneralProductItemResource::collection($items),
         );
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function reportExcel(Request $request): JsonResponse
+    {
+        $this->authorize('export-general-product-items');
+        $validatedData['type'] = 'export-general-product-items';
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['data'] = request()->all();
+        $job = Job::query()->create($validatedData);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data'    => [
+                'uuid'         => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid'))
+            ]
+        ]);
     }
 
 

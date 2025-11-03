@@ -425,6 +425,10 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::get('/report-excel-cabin-numbers',
         [CabinNumberController::class, 'reportExcel'])->name('export-cabin-numbers');
+
+    Route::get('/report-general-product-items',
+        [GeneralProductItemController::class, 'reportExcel'])->name('export-general-product-items');
+
     Route::get('/report-excel-pallet-transactions',
         [PalletController::class, 'reportExcelTransactions'])->name('export-pallet-transactions');
     Route::get('/report-excel-pallet-stocks',

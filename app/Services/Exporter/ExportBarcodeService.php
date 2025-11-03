@@ -4,8 +4,10 @@ namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
 use App\Exports\BarcodeCsvExport;
+use App\Exports\BarcodeReportExport;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExportBarcodeService extends BaseExporterService
 {
@@ -41,7 +43,7 @@ class ExportBarcodeService extends BaseExporterService
 
         $exporter->make((array)$this->job->getAttribute('data'), $path, $eventData);
 
-//        Excel::store(new BarcodeReportExport((array)$this->job->getAttribute('data'), $eventData), $path);
+        Excel::store(new BarcodeReportExport((array)$this->job->getAttribute('data'), $eventData), $path);
         return $fileName;
 
     }
