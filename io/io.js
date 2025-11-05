@@ -35,6 +35,7 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
     io.use((socket, next) => {
         console.log(4)
         const token = getToken(socket)
+        console.log('token:',token)
         if(!token) {
             next(new Error('Token required'));
             console.log(5)
@@ -49,8 +50,9 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
                 socket.join(response.data[i])
             }
             next()
-        }).catch(() => {
+        }).catch((e) => {
             console.log(7)
+            console.log(e)
             next(new Error('Authentication failed'));
         })
 
