@@ -23,31 +23,39 @@ const getToken = (socket) => {
 }
 
 Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+    console.log(1)
     io.adapter(createAdapter(pubClient, subClient));
     subClient.pSubscribe('laravel*', (message, channel) => {
         const json = JSON.parse(message)
         const room = channel.replace('laravel_database_private-', '').replace('laravel_database_', '');
         io.to(room).emit(json.event, json.data)
+        console.log(2)
     })
+    console.log(3)
     io.use((socket, next) => {
+        console.log(4)
         const token = getToken(socket)
         if(!token) {
             next(new Error('Token required'));
+            console.log(5)
         }
         axios.get('https://ariancore.arian-capital.ir/api/channels', {
             headers: {
                 'Authorization': 'Bearer ' + token,
             }
         }).then((response) => {
+            console.log(6)
             for (let i in response.data) {
                 socket.join(response.data[i])
             }
             next()
         }).catch(() => {
+            console.log(7)
             next(new Error('Authentication failed'));
         })
 
     }).on('connection', (socket) => {
+        console.log(8)
         console.log('new user connected')
     })
     io.listen(3000);
