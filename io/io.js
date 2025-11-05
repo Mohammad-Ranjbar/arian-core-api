@@ -34,7 +34,7 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
         if(!token) {
             next(new Error('Token required'));
         }
-        axios.get('http://web/api/channels', {
+        axios.get('https://web/api/channels', {
             headers: {
                 'Authorization': 'Bearer ' + token,
             }
