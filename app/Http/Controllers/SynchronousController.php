@@ -8,8 +8,10 @@ use App\Filters\SynchronousTitleFilter;
 use App\Http\Requests\UpdateCrossReferenceRequest;
 use App\Http\Resources\SynchronousResource;
 use App\Jobs\ExportJob;
+use App\Models\ColorMap;
 use App\Models\ErpJob;
 use App\Models\Job;
+use App\Models\NavColor;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Services\Erp\ErpCrossReference;
@@ -161,8 +163,12 @@ class SynchronousController extends Controller
             $newLocationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->location;
 
             $variantCodeP = $items->map(function ($item) {
-                return $item->vehicle->color_code;
+
+               return NavColor::query()->where('color',$item->vehicle->color_code)->first()->getAttribute('code');
+
             })->implode(',');
+
+
             $numberP = $items->count();
             $batchNoP = Carbon::now()->toDateTimeString();
 
