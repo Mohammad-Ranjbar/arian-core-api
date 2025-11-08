@@ -9,9 +9,9 @@ class LamariCustomerFinanceService
 
     public function process($data): array
     {
-        $url = url('/api/sb/l/cf/'.$data['reference']);
+        $url = 'http://172.16.0.130:8080/api/sb/l/cf/'.$data['reference'];
         if (isset($data['target']) && $data['target'] == 'PARS_AM') {
-            $url = url('/api/sb/p/cf/'.$data['reference']);
+            $url = 'http://172.16.0.130:8080/api/sb/p/cf/'.$data['reference'];
         }
         logger($url);
         return ErpWsdlClient::run(

@@ -12,7 +12,7 @@ class DieselCustomerFinanceService
         $url = 'http://172.16.0.17:7047/ArianVeh/WS/ArianPars/Codeunit/OnlineSales';
          return ErpWsdlClient::run($url,'CustomerFinanceIsReady',[
             'customerFinanceNoP' => $data['reference'],
-             'uRLAddressP' => url('/api/sb/d/cf/'.$data['reference']),
+             'uRLAddressP' => 'http://172.16.0.130:8080/api/sb/d/cf/'.$data['reference'],
             'goldenCardP' => $data['golden_warranty'],
         ]);
     }
