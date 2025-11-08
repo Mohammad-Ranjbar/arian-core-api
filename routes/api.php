@@ -126,7 +126,7 @@ Route::put('/synchronous-items/{synchronousItem}',
 
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
-Route::post('auth/login', [AuthController::class, 'login']);
+Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::get('auth/check-username', [AuthController::class, 'checkUserName']);
 Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
