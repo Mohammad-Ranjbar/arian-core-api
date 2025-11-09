@@ -60,6 +60,7 @@ return [
             'connection' => 'redis',
             'queue' => ['default','unique','parallel'],
             'balance' => 'auto',
+            'processes' => 8,
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 10,
             'maxTime' => 0,
