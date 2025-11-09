@@ -57,7 +57,7 @@ class ContentProductionLineActivitySmsService
 
 
         foreach ($phones as $phone) {
-            SmsService::sendSms($phone, implode("\n", $content));
+            SmsService::jsonSend($phone, implode("\n", $content));
         }
     }
 }

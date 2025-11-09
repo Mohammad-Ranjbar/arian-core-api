@@ -6,10 +6,8 @@ use App\Jobs\SmsJob;
 use App\Repositories\SmsServiceRepository;
 use Illuminate\Foundation\Bus\PendingClosureDispatch;
 use Illuminate\Foundation\Bus\PendingDispatch;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class SmsService
 {
@@ -18,18 +16,6 @@ class SmsService
     public function __construct(SmsServiceRepository $repository)
     {
         $this->repository = $repository;
-    }
-
-    public static function sendSms($to, string $content): Response
-    {
-        $data = [
-            'username' => config('sms.tsms.username'),
-            'password' => config('sms.tsms.password'),
-            'from'     => config('sms.tsms.from'),
-            'to'       => $to,
-            'message'  => urlencode($content)
-        ];
-        return Http::get(config('sms.tsms.url'), $data);
     }
 
     public static function jsonSend($to, $text)
@@ -60,8 +46,6 @@ class SmsService
         if (app()->environment() == 'production') {
             return dispatch(new SmsJob($number, $content));
         }
-        Log::info($number);
-        Log::info($content);
         return true;
 
     }
