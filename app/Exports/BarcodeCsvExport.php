@@ -46,14 +46,14 @@ class BarcodeCsvExport
                 }
                 fputcsv($this->handle, [
                     $row->user?->name ?? 'unknown user',
-                    $row->vin,
-                    $row->code,
+                    $row->vin ?? '-',
+                    $row->code ?? '-',
                     $row->generalProductItem?->id ?? '-',
                     $row->generalProductItem?->title ?? '-',
                     $trackable,
-                    jdate($row->created_at)->format('Y-m-d'),
-                    jdate($row->created_at)->format('H:i'),
-                    $row->type,
+                    jdate($row->created_at)->format('Y-m-d') ?? '-',
+                    jdate($row->created_at)->format('H:i') ?? '-',
+                    $row->type ?? '-',
                 ]);
                 $this->eventData['done']++;
                 $this->eventData['success']++;
