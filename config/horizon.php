@@ -52,7 +52,7 @@ return [
     'fast_termination' => false,
 
 
-    'memory_limit' => 20000,
+    'memory_limit' => 16000,
 
 
     'defaults' => [
@@ -65,7 +65,7 @@ return [
             'maxTime' => 0,
             'maxJobs' => 10,
             'memory' => 16000,
-            'tries' => 5,
+            'tries' => 3,
             'timeout' => 10000000,
             'nice' => 0,
         ],
@@ -77,13 +77,13 @@ return [
                 'maxProcesses' => 10,
                 'balanceMaxShift' => 2,
                 'balanceCooldown' => 4,
-                'processes' => 4,
+                'processes' => 8,
             ],
         ],
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 5,
+                'maxProcesses' => 8,
             ],
         ],
     ],
