@@ -58,7 +58,7 @@ class VehicleController extends CrudController
 
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
-        try {
+//        try {
             DB::beginTransaction();
             if (Str::contains($vin, 'temp')) {
                 throw new Exception('invalid vin number !', 404);
@@ -77,13 +77,13 @@ class VehicleController extends CrudController
                     status: Response::HTTP_FORBIDDEN
                 );
             }
-        } catch (Throwable $throwable) {
-            DB::rollBack();
-            return new JsonResponse(
-                data: ['message' => $throwable->getMessage()],
-                status: 400
-            );
-        }
+//        } catch (Throwable $throwable) {
+//            DB::rollBack();
+//            return new JsonResponse(
+//                data: ['message' => $throwable->getMessage()],
+//                status: 400
+//            );
+//        }
 
     }
 
@@ -95,7 +95,7 @@ class VehicleController extends CrudController
      */
     public function getData(string $inputString): Model|Builder
     {
-        try {
+//        try {
         if (Str::length($inputString) == 17) {
             $vehicleData = $this->erpGetVehicle->get($inputString);
         } else {
@@ -105,7 +105,7 @@ class VehicleController extends CrudController
             }
 
         }
-        logger($vehicleData);
+
         if (empty($vehicleData['make_code']) || empty($vehicleData['car_model'])) {
             throw new Exception('اطلاعات دریافتی فاقد مدل و نوع خودرو میباشد');
         }
@@ -142,9 +142,9 @@ class VehicleController extends CrudController
 
 
         return $this->vehicleRepository->make($data);
-        } catch (Exception $exception) {
-            throw new Exception( $exception->getMessage(), 0, $exception);
-        }
+//        } catch (Exception $exception) {
+//            throw new Exception( $exception->getMessage(), 0, $exception);
+//        }
 
     }
 
