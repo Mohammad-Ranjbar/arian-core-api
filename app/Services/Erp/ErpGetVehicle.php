@@ -27,7 +27,7 @@ class ErpGetVehicle
         $vin = trim($vin, '* ');
         $url = config('erp.vehicles') . '?$filter=VIN eq \'' . $vin . '\'';
         $result = $this->client->getOne($url);
-
+        dd($result);
         if (!$result) {
             Log::info('get VIN: ' . $vin . 'by User:' . Auth::id() . ' not found');
 
@@ -119,7 +119,7 @@ class ErpGetVehicle
     {
         return [
             'vin' => 'temp-'.$result->No,
-            'color_code' => $result->Variant_Code,
+            'color_code' => $result->VariantCode,
             'production_order_number' => $result->No,
             'engine_no' => '',
             'cabin_no' => '',
