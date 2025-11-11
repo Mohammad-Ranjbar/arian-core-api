@@ -103,15 +103,14 @@ class ErpGetVehicle
 
     private function getResult($result): array
     {
-        dd($result);
         return [
             'vin' => $result->VIN,
-            'color_code' => $result->Color_Code,
-            'production_order_number' => $result->Production_Order,
+            'color_code' => $result->ColorCode,
+            'production_order_number' => $result->ProductionOrder,
             'engine_no' => $result->Engine_No,
             'cabin_no' => $result->Cabin_No,
-            'make_code' => $this->getMakeCode($result->Make_Code),
-            'car_model' => $this->getCarModel($result->Model_No),
+            'make_code' => $this->getMakeCode($result->MakeCode),
+            'car_model' => $this->getCarModel($result->ModelNo),
             'is_blocked' => $result->Blocked,
             'data' => $result
         ];
