@@ -103,6 +103,7 @@ class ErpGetVehicle
 
     private function getResult($result): array
     {
+        dd($result);
         return [
             'vin' => $result->VIN,
             'color_code' => $result->Color_Code,
