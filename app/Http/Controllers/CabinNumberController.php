@@ -34,7 +34,7 @@ class CabinNumberController extends CrudController
             return $this->responseError('body option chr in invalid');
         }
 
-        if (empty($vehicle->getAttribute('data')['Color_Code'])) {
+        if (empty($vehicle->getAttribute('data')['ColorCode'])) {
             return $this->responseError('Color code not exists in vehicle');
         }
         $yearMap = YearMap::query()->where('year', $vehicle->getAttribute('data')['Model_Year'])->first();
