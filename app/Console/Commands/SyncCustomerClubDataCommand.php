@@ -118,11 +118,11 @@ class SyncCustomerClubDataCommand extends Command
             }
 
             foreach ($list as $key => $record) {
-                if ($record->VIN and $record->Customer_No) {
+                if ($record->VIN and $record->CustomerNo) {
                     $records[] = [
                         'vin'           => $record->VIN,
-                        'customer_no'   => $record->Customer_No,
-                        'Engine_No'   => $record->Engine_No,
+                        'customer_no'   => $record->CustomerNo,
+                        'Engine_No'   => $record->EngineNo,
                         'navision_data' => (array) $record
                     ];
                 }
