@@ -16,7 +16,7 @@ class ErpOdataClient
     public function getOne(string $url)
     {
         $result = $this->getValue($url);
-
+        dd($result);
         return (empty($result)) ? false : $result[0];
     }
 
