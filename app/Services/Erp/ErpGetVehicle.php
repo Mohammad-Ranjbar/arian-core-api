@@ -57,7 +57,8 @@ class ErpGetVehicle
     {
         $url = config('erp.items') . '?$filter=No eq \'' . $modelNo . '\'';
         $result = $this->client->getOne($url);
-        dd($result);
+
+        logger('in controller:',[$result]);
         return $result ? [
             'reference' => $result->No,
             'title' => $result->No
