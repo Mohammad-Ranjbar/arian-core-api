@@ -26,7 +26,9 @@ class ErpGetVehicleComponent
     public function get($productionOrderNumber): array
     {
         $url = config('erp.component') . '?$filter=Prod_Order_No eq \'' . $productionOrderNumber . '\'';
+        dd($url);
         $result = $this->client->get($url);
+
         if (!$result) {
             Log::info('get Component: ' . $productionOrderNumber . 'by User:' . Auth::id() . ' not found');
             throw ValidationException::withMessages(['message' => 'component not found']);
