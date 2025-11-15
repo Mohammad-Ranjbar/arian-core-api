@@ -187,7 +187,7 @@ class VehicleController extends CrudController
             }
             $qcCode = QcCode::query()->where('title', $validatedData['qc_status'])->first();
             $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type'));
-            dd($response);
+
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
