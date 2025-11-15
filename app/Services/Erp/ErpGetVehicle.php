@@ -26,6 +26,7 @@ class ErpGetVehicle
     {
         $vin = trim($vin, '* ');
         $url = config('erp.vehicles') . '?$filter=VIN eq \'' . $vin . '\'';
+        dd($url);
         $result = $this->client->getOne($url);
         if (!$result) {
             Log::info('get VIN: ' . $vin . 'by User:' . Auth::id() . ' not found');
@@ -115,7 +116,7 @@ class ErpGetVehicle
             'is_blocked' => $result->Blocked,
             'data' => $result
         ];
-        dd($data,$result);
+
         return $data;
     }
     private function getResult2($result): array
