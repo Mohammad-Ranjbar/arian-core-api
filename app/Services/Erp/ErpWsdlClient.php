@@ -27,9 +27,9 @@ class ErpWsdlClient
                 "soapaction" => "\"urn:microsoft-dynamics-schemas/codeunit/$api:$method\""
             ], self::getBodyXML($api, $method, $params));
             logger('2');
-            $response = $client->sendAsync($request, [
+            $response = $client->send($request, [
                 'auth' => config('erp.auth')
-            ])->wait();
+            ]);
             logger('3');
             logger($response->getBody()->getContents());
             $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
