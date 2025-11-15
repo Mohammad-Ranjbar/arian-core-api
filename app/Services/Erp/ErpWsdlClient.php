@@ -29,7 +29,7 @@ class ErpWsdlClient
             $response = $client->sendAsync($request, [
                 'auth' => config('erp.auth')
             ])->wait();
-            dd($response);
+            dd($response->getBody()->getContents());
             $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
 
             if (empty($list)) {
