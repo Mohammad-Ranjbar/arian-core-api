@@ -173,7 +173,7 @@ class VehicleController extends CrudController
         Vehicle               $vehicle
     ): JsonResponse|VehicleResource
     {
-        try {
+//        try {
             $validatedData = $request->validated();
             if (in_array($validatedData['qc_status'], [24, 84, 85])) {
                 $generalItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($vehicle) {
@@ -201,9 +201,9 @@ class VehicleController extends CrudController
             ]);
             $this->vehicleRepository->update($vehicle->vin, $validatedData);
             return new VehicleResource($vehicle);
-        } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(), 500);
-        }
+//        } catch (Exception $exception) {
+//            return $this->responseError($exception->getMessage(), 500);
+//        }
     }
 
 
