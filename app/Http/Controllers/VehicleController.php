@@ -209,6 +209,7 @@ class VehicleController extends CrudController
 
     private function updateStatus(string $vin, string $qcStatus, $type, $qcType): array
     {
+        logger('is done');
         return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts_Zone',
             ['vINP' => $vin, 'qCStatusP' => $qcStatus, 'itemTypeP' => $type, 'qCTypeP' => $qcType]);
 
