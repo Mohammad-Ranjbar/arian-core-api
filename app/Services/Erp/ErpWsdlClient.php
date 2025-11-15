@@ -21,11 +21,12 @@ class ErpWsdlClient
 
         $client = new Client();
         try {
+            logger('1');
             $request = new Request('POST', $url, [
                 'Content-Type' => 'application/xml',
                 "soapaction" => "\"urn:microsoft-dynamics-schemas/codeunit/$api:$method\""
             ], self::getBodyXML($api, $method, $params));
-
+            logger('2');
             $response = $client->sendAsync($request, [
                 'auth' => config('erp.auth')
             ])->wait();
