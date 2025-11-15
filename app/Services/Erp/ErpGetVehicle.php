@@ -43,6 +43,7 @@ class ErpGetVehicle
     {
         $url = config('erp.make_codes') . '?$filter=Code eq \'' . $makeCode . '\'';
         $result = $this->client->getOne($url);
+        dd($result);
         return $result ? [
             'reference' => $result->Code,
             'title' => $result->Code
@@ -102,7 +103,6 @@ class ErpGetVehicle
 
     private function getResult($result): array
     {
-        dd($result);
         return [
             'vin' => $result->VIN,
             'color_code' => $result->ColorCode,
