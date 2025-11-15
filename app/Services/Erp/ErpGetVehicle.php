@@ -115,7 +115,7 @@ class ErpGetVehicle
             'is_blocked' => $result->Blocked,
             'data' => $result
         ];
-        dd($data);
+        dd($data,$result);
         return $data;
     }
     private function getResult2($result): array
