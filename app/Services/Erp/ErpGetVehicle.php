@@ -104,7 +104,7 @@ class ErpGetVehicle
 
     private function getResult($result): array
     {
-        return [
+        $data = [
             'vin' => $result->VIN,
             'color_code' => $result->ColorCode,
             'production_order_number' => $result->ProductionOrder,
@@ -115,6 +115,8 @@ class ErpGetVehicle
             'is_blocked' => $result->Blocked,
             'data' => $result
         ];
+        dd($data);
+        return $data;
     }
     private function getResult2($result): array
     {
