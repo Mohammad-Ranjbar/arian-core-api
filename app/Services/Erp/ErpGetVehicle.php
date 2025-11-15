@@ -55,6 +55,7 @@ class ErpGetVehicle
      */
     private function getCarModel($modelNo): ?array
     {
+        dd($modelNo);
         $url = config('erp.items') . '?$filter=No eq \'' . $modelNo . '\'';
         $result = $this->client->getOne($url);
         dd($result);
