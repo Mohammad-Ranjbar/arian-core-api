@@ -20,20 +20,19 @@ class ErpWsdlClient
         $api = array_reverse(explode('/', parse_url($url)['path']))[0];
 
         $client = new Client();
-//        try {
-            logger('1');
+        try {
+
             $request = new Request('POST', $url, [
                 'Content-Type' => 'application/xml',
                 "soapaction" => "\"urn:microsoft-dynamics-schemas/codeunit/$api:$method\""
             ], self::getBodyXML($api, $method, $params));
-            logger('2');
+
             $response = $client->sendAsync($request, [
                 'auth' => config('erp.auth')
             ])->wait();
-            logger('3');
-            logger($response->getBody()->getContents());
-            $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
 
+            $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
+            logger($list);
             if (empty($list)) {
                 return [
                     'status' => 'error',
@@ -56,15 +55,15 @@ class ErpWsdlClient
 
             return $output;
 
-//        } catch (Exception $exception) {
-//            return [
-//                'status' => 'error',
-//
-//                'message' => strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3",
-//
-//                    $exception->getResponse()->getBody()->getContents()))
-//            ];
-//        }
+        } catch (Exception $exception) {
+            return [
+                'status' => 'error',
+
+                'message' => strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3",
+
+                    $exception->getResponse()->getBody()->getContents()))
+            ];
+        }
     }
 
     /**
