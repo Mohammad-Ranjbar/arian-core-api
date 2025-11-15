@@ -18,7 +18,7 @@ class ErpOdataClient
         $result = $this->getValue($url);
 
         $result = (empty($result)) ? false : $result[0];
-
+        logger($result);
         return $result;
     }
 
