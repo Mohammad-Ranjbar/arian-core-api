@@ -53,7 +53,6 @@ class ProductionLineTrackingService extends BaseTrackingService
                 $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
 
             if (!$item) {
-                logger('enf');
                 continue;
             }
             if (!$synchronous) {
@@ -76,8 +75,6 @@ class ProductionLineTrackingService extends BaseTrackingService
             ]);
             $synchronous->decrement('capacity');
 
-
-            logger('capacity is:'.$synchronous->getAttribute('capacity'));
             dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
 
         }
