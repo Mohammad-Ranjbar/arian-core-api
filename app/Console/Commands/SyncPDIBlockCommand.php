@@ -38,7 +38,7 @@ class SyncPDIBlockCommand extends Command
             $this->info($url);
 
             $content = $this->erpOdataClient->get($url);
-            dd($content,$url);
+
             if (isset($content->value)) {
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
@@ -50,7 +50,7 @@ class SyncPDIBlockCommand extends Command
 
                     }
 
-//                    $dateString = $row->Last_PDI_Date;
+                    $dateString = $row->Last_PDI_Date;
 
                     $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
 
