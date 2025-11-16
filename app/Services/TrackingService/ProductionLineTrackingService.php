@@ -27,7 +27,7 @@ class ProductionLineTrackingService extends BaseTrackingService
      */
     public function enter($data): array|false
     {
-        logger('start');
+
         $productionLine = ProductionLine::query()->find($data['model_id']);
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $productionLine->getAttribute('id'),
             $data['vin']);
@@ -42,16 +42,18 @@ class ProductionLineTrackingService extends BaseTrackingService
 
     public function submitSynchronous(string $vin, $productionLineId): void
     {
-        logger(1);
+
         $synchronousTypes = SynchronousType::query()->where('production_line_id', $productionLineId)->get();
         $vehicle = Vehicle::query()->find($vin);
-        logger($synchronousTypes->count());
+
         foreach ($synchronousTypes as $synchronousType) {
             $synchronous = Synchronous::query()->where('capacity', '>', 0)
                 ->where('synchronous_type_id', $synchronousType->id)->first();
             $item = $synchronousType->items()->where('car_model_id',
                 $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
+
             if (!$item) {
+                logger('enf');
                 continue;
             }
             if (!$synchronous) {
@@ -75,11 +77,11 @@ class ProductionLineTrackingService extends BaseTrackingService
             $synchronous->decrement('capacity');
 
 
-            logger($synchronous);
+            logger('capacity is:'.$synchronous->getAttribute('capacity'));
             dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
 
         }
-        logger(3);
+
 
     }
 
