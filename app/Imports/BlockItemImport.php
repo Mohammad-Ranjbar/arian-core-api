@@ -91,7 +91,6 @@ class BlockItemImport implements ToCollection, WithStartRow
             } catch (Exception $exception) {
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
-                logger($exception->getMessage());
             }
 
 

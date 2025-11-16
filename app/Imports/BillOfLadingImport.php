@@ -248,7 +248,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
             DB::commit();
         }catch (Exception $exception){
             DB::rollBack();
-            logger($exception->getMessage());
+            logger()->error($exception->getMessage());
         }
 
 

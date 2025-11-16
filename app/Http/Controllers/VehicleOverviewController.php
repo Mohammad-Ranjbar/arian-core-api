@@ -46,7 +46,7 @@ class VehicleOverviewController extends Controller
         if ($fileRecord) {
             $list1 = [
                 [
-                    'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                    'file' => route('dl', ['path' => $fileRecord->file->path]),
                     'title' => $fileRecord->getAttribute('title')
                 ],
             ];
@@ -62,7 +62,7 @@ class VehicleOverviewController extends Controller
         if ($fileRecord) {
             $list2 = [
                 [
-                    'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                    'file' => route('dl', ['path' => $fileRecord->file->path]),
                     'title' => $fileRecord->getAttribute('title')
                 ],
             ];
@@ -78,7 +78,7 @@ class VehicleOverviewController extends Controller
             foreach ($pdiCheckLists as $fileRecord) {
                 $pdiCheckData[] =
                     [
-                        'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                        'file' => route('dl', ['path' => $fileRecord->file->path]),
                         'title' => $fileRecord->getAttribute('title')
                     ];
             }
@@ -95,7 +95,7 @@ class VehicleOverviewController extends Controller
             foreach ($fileRecords as $fileRecord) {
                 $controlList[] =
                     [
-                        'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                        'file' => route('dl', ['path' => $fileRecord->file->path]),
                         'title' => $fileRecord->getAttribute('title')
                     ];
             }
@@ -107,13 +107,13 @@ class VehicleOverviewController extends Controller
         })->latest()->first();
         $list3 = [
             [
-                'file'  => 'https://qr.arian-dev.ir/',
+                'file' => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
             ],
         ];
         if ($fileRecord) {
             $list3[] = [
-                'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                'file' => route('dl', ['path' => $fileRecord->file->path]),
                 'title' => $fileRecord->getAttribute('title')
             ];
         }
@@ -127,7 +127,7 @@ class VehicleOverviewController extends Controller
         $list4 = [];
         if ($fileRecord) {
             $list4[] = [
-                'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                'file' => route('dl', ['path' => $fileRecord->file->path]),
                 'title' => $fileRecord->getAttribute('title')
             ];
         }
@@ -139,30 +139,30 @@ class VehicleOverviewController extends Controller
         $list5 = [];
         if ($fileRecord) {
             $list5[] = [
-                'file'  => route('dl', ['path' => $fileRecord->file->path]),
+                'file' => route('dl', ['path' => $fileRecord->file->path]),
                 'title' => $fileRecord->getAttribute('title')
             ];
         }
 
         $incidents = VehicleIncident::query()
-            ->where('type', '!=','pdi')
+            ->where('type', '!=', 'pdi')
             ->where('vin', $vehicle->getAttribute('vin'));
         $pdiIncidents = VehicleIncident::query()
-            ->where('type','pdi')
+            ->where('type', 'pdi')
             ->where('vin', $vehicle->getAttribute('vin'));
 
         $qcCheckedAt = $incidents->max('checked_at');
         $qcChecked = '';
         if ($qcCheckedAt) {
-            $qcChecked = '(تاریخ بررسی و رفع ایراد '.jdate($qcCheckedAt)->addDays(3)->toDateString().') ';
+            $qcChecked = '(تاریخ بررسی و رفع ایراد ' . jdate($qcCheckedAt)->addDays(3)->toDateString() . ') ';
         }
 
 
         try {
             $police = [
-                'title'  => 'اطلاعات شماره گذاری',
-                'type'   => 'table',
-                'heads'  => [],
+                'title' => 'اطلاعات شماره گذاری',
+                'type' => 'table',
+                'heads' => [],
                 'values' => [
                     [
                         'تاریخ بررسی پلیس',
@@ -192,8 +192,7 @@ class VehicleOverviewController extends Controller
             ];
         } catch (Exception $exception) {
             $police = null;
-            logger($vehicle->getAttribute('data'));
-            logger()->error($exception);
+            logger()->error($exception->getMessage());
         }
         $result = DWVehicleServiceHistoryTree::query()
             ->groupBy(['VIN', 'Document_No'])
@@ -210,18 +209,18 @@ class VehicleOverviewController extends Controller
 
             $items = [];
             foreach ($list as $item) {
-                if ((int) $item->Quantity) {
+                if ((int)$item->Quantity) {
                     $items[] = [
-                        $item->Description.' '.$item->{'Description2'},
-                        (int) $item->Quantity,
+                        $item->Description . ' ' . $item->{'Description2'},
+                        (int)$item->Quantity,
                     ];
                 }
             }
             if (!empty($items)) {
                 $services[] = [
-                    'title'  => 'سابقه تعمیرگاهی: '.$row->document_no,
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'سابقه تعمیرگاهی: ' . $row->document_no,
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => $items
                 ];
             }
@@ -244,9 +243,9 @@ class VehicleOverviewController extends Controller
             });
 
             $componentItems = [
-                'title'  => 'فهرست قطعات ورودی - (BOM)',
-                'type'   => 'table',
-                'heads'  => [],
+                'title' => 'فهرست قطعات ورودی - (BOM)',
+                'type' => 'table',
+                'heads' => [],
                 'dl' => route('dl.bom', ['po' => $vehicle->getAttribute('production_order_number')]),
                 'values' => array_values($components->map(function ($item) {
                     return [
@@ -259,7 +258,7 @@ class VehicleOverviewController extends Controller
             ];
         } catch (Exception $exception) {
             $componentItems = null;
-            logger($exception);
+            logger()->error($exception->getMessage());
         }
 
 
@@ -267,15 +266,15 @@ class VehicleOverviewController extends Controller
             'items' => array_values(array_filter(array_merge([
                 $componentItems,
                 [
-                    'title'  => 'کنترل اقلام ورودی',
-                    'type'   => 'download-list',
-                    'heads'  => [],
+                    'title' => 'کنترل اقلام ورودی',
+                    'type' => 'download-list',
+                    'heads' => [],
                     'values' => $list5
                 ],
                 [
-                    'title'  => 'بارکد قطعات',
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'بارکد قطعات',
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => Barcode::query()->where('vin', $vehicle->getAttribute('vin'))->get()->map(function (
                         $record
                     ) {
@@ -291,21 +290,21 @@ class VehicleOverviewController extends Controller
                     })->all()
                 ],
                 [
-                    'title'  => 'کنترل حین تولید',
-                    'type'   => 'download-list',
-                    'heads'  => [],
+                    'title' => 'کنترل حین تولید',
+                    'type' => 'download-list',
+                    'heads' => [],
                     'values' => $controlList
                 ],
                 [
-                    'title'  => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
-                    'type'   => 'download-list',
-                    'heads'  => [],
+                    'title' => 'چک لیست های کنترل حین تولید و کنترل نهایی محصول',
+                    'type' => 'download-list',
+                    'heads' => [],
                     'values' => $list2
                 ],
                 [
-                    'title'  => 'ایرادات کیفی حین تولید و کنترل نهایی محصول '.$qcChecked,
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'ایرادات کیفی حین تولید و کنترل نهایی محصول ' . $qcChecked,
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => $incidents->get()->map(function ($record) {
                         return [
                             jdate($record->checked_at)->toDateString(),
@@ -314,61 +313,61 @@ class VehicleOverviewController extends Controller
                             $record->method,
                             $record->intensity,
                             $record->user->name,
-                            $record->element->title.' ('.$record->element->code.')',
-                            $record->incident->title.' ('.$record->element->code.')'
+                            $record->element->title . ' (' . $record->element->code . ')',
+                            $record->incident->title . ' (' . $record->element->code . ')'
                         ];
                     })->all()
                 ],
                 [
-                    'title'  => 'آزمون های انتهای خط',
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'آزمون های انتهای خط',
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => ProductionTestResult::query()
-                        ->whereHas('productionTest',function ($query) {
-                            $query->where('type','others');
+                        ->whereHas('productionTest', function ($query) {
+                            $query->where('type', 'others');
                         })
                         ->where('vin', $vehicle->vin)->get()->map(function ($record
-                    ) {
-                        return [
-                            $record->productionTest->title,
-                            $record->user->name,
-                            $record->created_at ?
-                                jdate($record->created_at)->toDateTimeString()
-                                : '-',
-                            $record->description
-                        ];
-                    })->all()
+                        ) {
+                            return [
+                                $record->productionTest->title,
+                                $record->user->name,
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-',
+                                $record->description
+                            ];
+                        })->all()
                 ],
                 [
-                    'title'  => 'آزمون های PDI',
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'آزمون های PDI',
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => ProductionTestResult::query()
-                        ->whereHas('productionTest',function ($query) {
-                            $query->where('type','pdi');
+                        ->whereHas('productionTest', function ($query) {
+                            $query->where('type', 'pdi');
                         })
                         ->where('vin', $vehicle->vin)->get()->map(function ($record
-                    ) {
+                        ) {
                             $urls = [];
-                            foreach ((array)json_decode($record->files) as $file){
+                            foreach ((array)json_decode($record->files) as $file) {
                                 $data = File::query()->where('uuid', $file)->first();
-                                $urls[] = route('dl',['path' => $data->path]);
+                                $urls[] = route('dl', ['path' => $data->path]);
                             }
-                        return [
-                            $record->productionTest->title,
-                            $record->user->name,
-                            $record->created_at ?
-                                jdate($record->created_at)->toDateTimeString()
-                                : '-',
-                            $record->description,
-                            $urls,
-                        ];
-                    })->all()
+                            return [
+                                $record->productionTest->title,
+                                $record->user->name,
+                                $record->created_at ?
+                                    jdate($record->created_at)->toDateTimeString()
+                                    : '-',
+                                $record->description,
+                                $urls,
+                            ];
+                        })->all()
                 ],
                 [
-                    'title'  => 'کنترل کیفیت',
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'کنترل کیفیت',
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => ActionLog::query()
                         ->where('model_id', $vehicle->getAttribute('vin'))
                         ->where('action', 'update_qc_status')
@@ -379,23 +378,23 @@ class VehicleOverviewController extends Controller
                                     : '-'
                                 ,
                                 $record->user->name,
-                                (string) $record->data,
+                                (string)$record->data,
                             ];
                         })->all()
                 ],
                 [
-                    'title'  => 'اطلاعات PDI',
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'اطلاعات PDI',
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => [
                         [
                             $vehicle->getAttribute('data')['PDI_Result'],
-                            $vehicle->getAttribute('data')['PDI_Result_Description'].' '.$vehicle->getAttribute('data')['PDI_Result_Description_2'],
+                            $vehicle->getAttribute('data')['PDI_Result_Description'] . ' ' . $vehicle->getAttribute('data')['PDI_Result_Description_2'],
                             (is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'],
                                     'Y')) or is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'], 'G'))) ?
                                 ($r = $vehicle->tracking()->where('model_type',
                                     SaleLocation::class)->latest()->first()) ?
-                                    'تاریخ بررسی و رفع ایراد: '.
+                                    'تاریخ بررسی و رفع ایراد: ' .
                                     jdate($r->getAttribute('created_at'))->toDateString()
                                     : ''
                                 : ''
@@ -403,15 +402,15 @@ class VehicleOverviewController extends Controller
                     ]
                 ],
                 [
-                    'title'  => 'چک لیست های PDI',
-                    'type'   => 'download-list',
-                    'heads'  => [],
+                    'title' => 'چک لیست های PDI',
+                    'type' => 'download-list',
+                    'heads' => [],
                     'values' => $pdiCheckData
                 ],
                 [
-                    'title'  => 'ایرادات PDI',
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'ایرادات PDI',
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => $pdiIncidents->get()->map(function ($record) {
                         return [
                             jdate($record->checked_at)->toDateString(),
@@ -420,8 +419,8 @@ class VehicleOverviewController extends Controller
                             $record->method,
                             $record->intensity,
                             $record->user->name,
-                            $record->element->title.' ('.$record->element->code.')',
-                            $record->incident->title.' ('.$record->element->code.')'
+                            $record->element->title . ' (' . $record->element->code . ')',
+                            $record->incident->title . ' (' . $record->element->code . ')'
                         ];
                     })->all()
                 ],
@@ -448,9 +447,9 @@ class VehicleOverviewController extends Controller
                   ],
   */
                 [
-                    'title'  => 'رهگیری محصول - تاریخ تولید',
-                    'type'   => 'table',
-                    'heads'  => [
+                    'title' => 'رهگیری محصول - تاریخ تولید',
+                    'type' => 'table',
+                    'heads' => [
                         'ثبت شده توسط',
                         'زمان',
                         'مکان',
@@ -476,9 +475,9 @@ class VehicleOverviewController extends Controller
                     })->all()))
                 ],
                 [
-                    'title'  => 'حمل و نقل',
-                    'type'   => 'table',
-                    'heads'  => [],
+                    'title' => 'حمل و نقل',
+                    'type' => 'table',
+                    'heads' => [],
                     'values' => array_values(array_filter(BillOfLadingItem::query()
                         ->where('model_id', $vehicle->getAttribute('vin'))
 //                        ->whereDoesntHave('billOfLading', function ($q) {
@@ -494,30 +493,30 @@ class VehicleOverviewController extends Controller
 //                            }
                             return [
                                 jdate($record->billOfLading->created_at)->toDateTimeString(),
-                                'شماره بارنامه: '.$record->billOfLading->code,
-                                'مبدا: '.$record->billOfLading->locationSource->title,
-                                'مقصد: '.$record->billOfLading->locationDestination->title
+                                'شماره بارنامه: ' . $record->billOfLading->code,
+                                'مبدا: ' . $record->billOfLading->locationSource->title,
+                                'مقصد: ' . $record->billOfLading->locationDestination->title
                             ];
                         })->all()
                     ))
                 ],
                 [
-                    'title'  => 'آرشیو فنی محصولات',
-                    'type'   => 'download-list',
-                    'heads'  => [],
+                    'title' => 'آرشیو فنی محصولات',
+                    'type' => 'download-list',
+                    'heads' => [],
                     'values' => $list4
                 ],
                 [
-                    'title'  => 'شناسنامه فنی قطعات',
-                    'type'   => 'download-list',
-                    'heads'  => [],
+                    'title' => 'شناسنامه فنی قطعات',
+                    'type' => 'download-list',
+                    'heads' => [],
                     'values' => $list1
                 ],
                 $police,
                 [
-                    'title'  => 'ویژگی های فنی و عمومی محصول',
-                    'type'   => 'download-list',
-                    'heads'  => [],
+                    'title' => 'ویژگی های فنی و عمومی محصول',
+                    'type' => 'download-list',
+                    'heads' => [],
                     'values' => $list3
                 ],
             ], $services)))

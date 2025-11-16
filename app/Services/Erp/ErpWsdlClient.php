@@ -32,7 +32,7 @@ class ErpWsdlClient
             ])->wait();
 
             $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
-            logger($list);
+
             if (empty($list)) {
                 return [
                     'status' => 'error',

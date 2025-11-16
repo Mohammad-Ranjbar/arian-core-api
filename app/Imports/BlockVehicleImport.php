@@ -61,7 +61,6 @@ class BlockVehicleImport implements ToCollection, WithStartRow, WithMapping
             }catch (Exception $exception){
                 $this->data['error']++;
                 $row['result'] = $exception->getMessage();
-                logger($exception->getMessage());
             }
 
             $this->data['done']++;

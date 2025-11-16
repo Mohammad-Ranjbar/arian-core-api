@@ -67,7 +67,7 @@ class SyncPDIBlockCommand extends Command
                             $this->blockItemController->createBlock($data);
                             $count++;
                         } catch (Exception $exception) {
-                            logger($exception);
+                            logger()->error($exception->getMessage());
                         }
 
                     }

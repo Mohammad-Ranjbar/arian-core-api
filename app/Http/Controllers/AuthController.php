@@ -177,9 +177,9 @@ class AuthController extends Controller
                 ->firstOrFail();
             return new UserResource($user);
         }catch (Exception $exception) {
-            logger($exception);
             return response()->json(['data' =>[
-                'message' => 'نام کاربری '.$validatedData['username'].' یافت نشد.'
+                'message' => 'نام کاربری '.$validatedData['username'].' یافت نشد.',
+                'exception' => $exception->getMessage()
             ]
             ],400);
         }

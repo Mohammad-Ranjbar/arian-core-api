@@ -38,7 +38,7 @@ class AssignMakeCodeToElementIncidentCommand extends Command
                 }
             }
         } catch (Exception $exception) {
-            logger($exception);
+            logger()->error($exception);
         }
     }
 }

@@ -25,8 +25,6 @@ class SendErpJobListener
         if ($jobClass) {
             dispatch(new $jobClass($event->erpJob->getAttribute('id')))
                 ->onQueue($event->erpJob->getAttribute('queue'));
-        } else {
-            logger('not found listener');
         }
     }
 }

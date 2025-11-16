@@ -130,7 +130,7 @@ class GatePermitController extends CrudController
         try {
             $this->vehicleController->getData($gatePermit->getAttribute('model_id'));
         } catch (Exception $exception) {
-            logger($exception->getMessage());
+            logger()->error($exception->getMessage());
         }
         return new JsonResponse(
             data: new GatePermitResource($gatePermit)

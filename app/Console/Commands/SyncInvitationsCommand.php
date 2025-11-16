@@ -104,8 +104,6 @@ class SyncInvitationsCommand extends Command
         try {
             $files = $this->share->getFiles($company->getAttribute('folder_name') . '/' . $company->getAttribute('contract'));
         } catch (Exception $exception) {
-            logger($exception->getMessage());
-            logger($company->getAttribute('folder_name') . '/' . $company->getAttribute('contract'));
             $files = [];
         }
         foreach ($files as $file) {
@@ -130,7 +128,7 @@ class SyncInvitationsCommand extends Command
 
 
             } catch (Exception $exception) {
-                logger($exception->getMessage());
+                logger()->error($exception->getMessage());
             }
         }
     }

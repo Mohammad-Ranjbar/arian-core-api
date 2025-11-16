@@ -71,7 +71,6 @@ class SubmitEngineBarcodeController extends Controller
 
         } catch (Exception $exception) {
             DB::rollBack();
-            logger($exception->getMessage());
             return new JsonResponse(
                 data: ['message' => $exception->getMessage()],
                 status: Response::HTTP_INTERNAL_SERVER_ERROR
