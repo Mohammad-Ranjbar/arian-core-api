@@ -71,6 +71,9 @@ class ProductionLineTrackingService extends BaseTrackingService
                 'cross_reference'     => $item->getAttribute('cross_reference'),
             ]);
             $synchronous->decrement('capacity');
+
+
+            logger($synchronous);
             dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
 
         }
