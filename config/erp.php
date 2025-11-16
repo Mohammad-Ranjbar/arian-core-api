@@ -10,7 +10,7 @@ return [
     'cross_reference'  => env('ERP_URL_CROSS_REFERENCE',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/Item_Cross_Reference_API"),
     'block_pdi'  => env('ERP_URL_BLOCK_PDI',
-        "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/PDI_Block_API"),
+        "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company('Pars')/PDI_Block_API"),
     'items'     => env('ARIAN_URL_ITEMS',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/ItemQuery"),
     'service_items'     => env('ARIAN_URL_SERVICE_ITEMS',
