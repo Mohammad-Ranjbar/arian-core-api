@@ -27,7 +27,7 @@ class ProductionLineTrackingService extends BaseTrackingService
      */
     public function enter($data): array|false
     {
-
+        logger('start');
         $productionLine = ProductionLine::query()->find($data['model_id']);
         $tracking = $this->getLatestRecord(self::MODEL_TYPE, $productionLine->getAttribute('id'),
             $data['vin']);
