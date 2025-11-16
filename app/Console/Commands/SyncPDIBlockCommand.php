@@ -38,7 +38,7 @@ class SyncPDIBlockCommand extends Command
             $this->info($url);
 
             $content = $this->erpOdataClient->get($url);
-            dd($content->value[0]);
+            dd($content->value[0],$url);
             if (isset($content->value)) {
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
