@@ -40,10 +40,10 @@ class SmsService
         $number,
         $template,
         $params = []
-    ): bool|PendingDispatch|PendingClosureDispatch {
+    )
+    {
         $template = $this->repository->findBy($template, 'type');
         $content = Blade::render(trim($template->getAttribute('text')), $params);
-        dd($content);
         if (app()->environment() == 'production') {
             return dispatch(new SmsJob($number, $content));
         }
