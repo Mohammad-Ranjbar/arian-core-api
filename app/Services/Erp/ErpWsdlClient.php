@@ -32,7 +32,7 @@ class ErpWsdlClient
             ])->wait();
 
             $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
-
+            dd($list);
             if (empty($list)) {
                 return [
                     'status' => 'error',
@@ -47,9 +47,6 @@ class ErpWsdlClient
             if (isset($output['status']) and in_array(strtolower($output['status']),
                     ['ok', 'done', 'success', '1', 'true'])) {
                 $output['status'] = 'ok';
-            }
-            if (isset($output['Data'])){
-                $output['data'] = $output['Data'];
             }
             if (isset($output['status']) and in_array(strtolower($output['status']),
                     ['error', 'fail', '0', 'false', 'not'])) {
