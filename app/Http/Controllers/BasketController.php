@@ -67,7 +67,7 @@ class BasketController extends CrudController
 
     public function checkBasketBarcode($barcode): array
     {
-        return ErpWsdlClient::run(config('erp.basket'), 'GetValidationItem_No', [
+        return ErpWsdlClient::run(config('erp.check_basket'), 'GetValidationItem_No', [
             'barcodeInfoP' => $barcode
         ]);
     }
