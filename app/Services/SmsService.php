@@ -4,8 +4,6 @@ namespace App\Services;
 
 use App\Jobs\SmsJob;
 use App\Repositories\SmsServiceRepository;
-use Illuminate\Foundation\Bus\PendingClosureDispatch;
-use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 
@@ -28,30 +26,31 @@ class SmsService
         $smsNumberArray = [config('sms.tsms.from')];
 
         return Http::post(config('sms.tsms.json_url'), [
-            'method'     => 'sendSms',
-            'username'   => $username,
-            'password'   => $password,
+            'method' => 'sendSms',
+            'username' => $username,
+            'password' => $password,
             'sms_number' => $smsNumberArray,
-            'mobile'     => $mobileArray,
-            'msg'        => $msgArray
+            'mobile' => $mobileArray,
+            'msg' => $msgArray
         ])->json('rezult')[0];
     }
+
     public function send(
         $number,
         $template,
         $params = []
-    )
+    ): bool
     {
         $template = $this->repository->findBy($template, 'type');
         $content = Blade::render(trim($template->getAttribute('text')), $params);
         if (app()->environment() == 'production') {
-            return dispatch(new SmsJob($number, $content));
+
+            dispatch(new SmsJob($number, $content));
+
         }
         return true;
 
     }
-
-
 
 
 }
