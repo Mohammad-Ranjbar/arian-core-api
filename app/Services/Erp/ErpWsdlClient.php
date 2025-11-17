@@ -48,6 +48,9 @@ class ErpWsdlClient
                     ['ok', 'done', 'success', '1', 'true'])) {
                 $output['status'] = 'ok';
             }
+            if (isset($output['Data'])){
+                $output['data'] = $output['Data'];
+            }
             if (isset($output['status']) and in_array(strtolower($output['status']),
                     ['error', 'fail', '0', 'false', 'not'])) {
                 $output['status'] = 'error';
