@@ -3,7 +3,7 @@ return [
     'pdi_block_reason_id' =>env('PDI_BLOCK_REASON_ID'),
     'vehicles'  => env('ERP_URL_VEHICLES',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/Vehicle_List_API"),
-    'vehicle_change'  => env('ERP_URL_VEHICLE_CHANGE',
+    'vehicle_change'  => env('GENERAL_API',
         "http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI"),
     'production_header'  => env('ERP_URL_PRODUCTION_HEADER',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company('Pars')/ProductionHeader"),
@@ -20,48 +20,45 @@ return [
 
     'make_codes'       => env('ARIAN_URL_MAKE_CODES',
         "http://172.16.0.58:7048/Pars_Pregolive/ODataV4/Company(%27Pars%27)/Make_List_API"),
-    'basket'           => env('WSDL_BASKET', 'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/Item_Reclass_Journal_API'),
+    'basket'           => env('GENERAL_API', 'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/Item_Reclass_Journal_API'),
     'check_basket'           => env('GENERAL_API', 'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'basket_batch'           => env('WSDL_BASKET_BATCH', 'http://172.16.0.58:7047/Pars_pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'basket_batch'           => env('GENERAL_API', 'http://172.16.0.58:7047/Pars_pregolive/WS/Pars/Codeunit/GeneralAPI'),
 
-    'display_board'    => env('WSDL_DISPLAY_BOARD',
+    'display_board'    => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'pdi_result'    => env('WSDL_PDI',
+    'pdi_result'    => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'synchronous_v2'    => env('SYNCHRONOUS_V2',
-        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'barcode'    => env('WSDL_BARCODE',
-        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'post_production'  => env('WSDL_POST_PRODUCTION',
+
+        'synchronous_v2'    => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
 
 
-//    'block_unblock'    => env('WSDL_BLOCK_UNBLOCK',
-//        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+
+    'barcode'    => env('GENERAL_API',
+        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+
+    'post_production'  => env('GENERAL_API',
+        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'block_unblock'    => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
 
-
-
-
-
-    'shortage'    => env('WSDL_BLOCK_UNBLOCK',
+    'shortage'    => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'transfer_vehicle' => env('WSDL_TRANSFER_VEHICLE',
+    'transfer_vehicle' => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'update_qc_status' => env('WSDL_UPDATE_QC',
+    'update_qc_status' => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'gate'             => env('WSDL_GATE',
+    'gate'             => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'exit_request'     => env('WSDL_EXIT_REQUEST',
+    'exit_request'     => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'approve'          => env('WSDL_APPROVE',
+    'approve'          => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'return_request'   => env('WSDL_RETURN_REQUEST',
+    'return_request'   => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'old_gate'         => env('WSDL_OLD_GATE',
+    'old_gate'         => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'print'         => env('WSDL_PRINT',
+    'print'         => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'auth'             => [
         env('LDAP_USERNAME', ''),
