@@ -34,8 +34,17 @@ return [
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'post_production'  => env('WSDL_POST_PRODUCTION',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
-    'block_unblock'    => env('WSDL_BLOCK_UNBLOCK',
+
+
+//    'block_unblock'    => env('WSDL_BLOCK_UNBLOCK',
+//        'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+    'block_unblock'    => env('GENERAL_API',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
+
+
+
+
+
     'shortage'    => env('WSDL_BLOCK_UNBLOCK',
         'http://172.16.0.58:7047/Pars_Pregolive/WS/Pars/Codeunit/GeneralAPI'),
     'transfer_vehicle' => env('WSDL_TRANSFER_VEHICLE',
