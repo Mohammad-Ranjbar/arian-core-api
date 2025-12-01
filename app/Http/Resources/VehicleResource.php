@@ -23,7 +23,7 @@ class VehicleResource extends JsonResource
         return [
             'vin' => $this->resource->vin,
             'color_code' => $this->resource->color_code,
-            'color_code_map' =>  NavColor::query()
+            'color_code_map' => !empty($this->resource->color_code) ? $this->resource->color_code : NavColor::query()
                     ->where('car_model_id',$this->resource->car_model_id)
                     ->where('color',$this->resource->color_code)
                     ->first()?->getAttribute('code') ?? 'unknown',
