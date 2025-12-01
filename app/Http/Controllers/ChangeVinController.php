@@ -11,6 +11,7 @@ use App\Models\ChangeVin;
 use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\Tracking;
+use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\VinEngine;
 use App\Services\Erp\ErpWsdlClient;
@@ -36,8 +37,9 @@ class ChangeVinController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('change-vins.index');
-        $data = Pipeline::send(ChangeVin::query()->with('vehicle')->whereHas('vehicle',function ($vehicle){
-            $vehicle->whereIn('make_code_id',Auth::user()->makeCodes()->pluck('id')->toArray());
+        $makeCodes = User::query()->find(Auth::id())->makeCodes->pluck('id')->toArray();
+        $data = Pipeline::send(ChangeVin::query()->with('vehicle')->whereHas('vehicle',function ($vehicle) use ($makeCodes){
+            $vehicle->whereIn('make_code_id',$makeCodes);
         }))->through([
             VinFilter::class,
             ProductionOrderNumberFilter::class
