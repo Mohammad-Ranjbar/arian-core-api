@@ -120,7 +120,6 @@ class ErpGetVehicle
     }
     private function getResult2($result): array
     {
-        dd($result);
         return [
             'vin' => 'temp-'.$result->No,
             'color_code' => $result->VariantCode,
