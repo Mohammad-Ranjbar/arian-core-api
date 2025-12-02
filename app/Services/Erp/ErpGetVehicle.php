@@ -122,7 +122,7 @@ class ErpGetVehicle
     {
         return [
             'vin' => 'temp-'.$result->No,
-            'color_code' => $result->VariantCode,
+            'color_code' => $result->Variant_Code,
             'production_order_number' => $result->No,
             'engine_no' => '',
             'cabin_no' => '',
