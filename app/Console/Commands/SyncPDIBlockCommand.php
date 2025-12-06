@@ -51,6 +51,7 @@ class SyncPDIBlockCommand extends Command
                     }
 
                     $dateString = $row->Last_PDI_Date;
+
                     $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
 
 

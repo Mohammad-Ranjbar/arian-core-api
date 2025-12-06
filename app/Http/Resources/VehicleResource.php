@@ -24,9 +24,9 @@ class VehicleResource extends JsonResource
             'vin' => $this->resource->vin,
             'color_code' => $this->resource->color_code,
             'color_code_map' => !empty($this->resource->color_code) ? $this->resource->color_code : NavColor::query()
-                ->where('car_model_id',$this->resource->car_model_id)
-                ->where('color',$this->resource->color_code)
-                ->first()?->getAttribute('code') ?? 'unknown',
+                    ->where('car_model_id',$this->resource->car_model_id)
+                    ->where('color',$this->resource->color_code)
+                    ->first()?->getAttribute('code') ?? 'unknown',
             'grade' => $this->resource->grade,
             'production_order_number' => $this->resource->production_order_number,
             'engine_no' => $this->resource->engine_no,
@@ -35,7 +35,7 @@ class VehicleResource extends JsonResource
             'qc_description' => $this->resource->qc_description,
             'qc_status' => $this->resource->qc_status,
             'production_type' => $this->resource->getProductionType(),
-            'is_block' => $this->resource->blockItems()->whereNull('unblocked_at')->exists(),
+            'is_block' => !empty($this->resource->blockItems()->whereNull('unblocked_at')->latest()->first()) ? BlockItemResource::make($this->resource->blockItems()->whereNull('unblocked_at')->latest()->first()) : null,
             'makeCode' => [
                 'id' => (int)$this->resource->makeCode->id,
                 'title' => $this->resource->makeCode->title,
