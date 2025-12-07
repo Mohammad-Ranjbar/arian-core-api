@@ -172,7 +172,6 @@ class SynchronousController extends Controller
             $numberP = $items->count();
             $batchNoP = Carbon::now()->toDateTimeString();
 
-            dd($variantCodeP);
             $parameters = [
                 'crossReferenceP'  => $crossReferences,
                 'docP'             => $docP,
