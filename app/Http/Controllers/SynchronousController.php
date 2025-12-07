@@ -164,7 +164,13 @@ class SynchronousController extends Controller
 
             $variantCodeP = $items->map(function ($item) {
 
-               return NavColor::query()->where('color',$item->vehicle->color_code)->first()?->getAttribute('code') ?? '';
+                return !empty($item->vehicle->data['ColorCode']) ? $item->vehicle->color_code : NavColor::query()
+                    ->where('car_model_id',$item->vehicle->car_model_id)
+                    ->where('color',$item->vehicle->color_code)
+                    ->first()?->getAttribute('code');
+
+
+//               return NavColor::query()->where('color',$item->vehicle->color_code)->first()?->getAttribute('code') ?? '';
 
             })->implode(',');
 
