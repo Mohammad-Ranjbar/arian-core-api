@@ -18,6 +18,6 @@ class ErpCrossReference
         $url = config('erp.cross_reference') . '?$filter=Item_No eq \'' . $reference . '\'';
         $result = collect($this->client->get($url)->value);
 
-        return $result->pluck('Item_Reference_No')->all();
+        return $result->pluck('Cross_Reference_No')->all();
     }
 }
