@@ -274,7 +274,7 @@ class BillOfLading extends Model
                     [
                         'action' => 'discharge',
                         'permission' => 'bill-of-lading.change-status.discharge',
-                        'url' => '/api/bill-of-lading/' . $this->getAttribute('id') . '/change-status/discharge',
+                        'url' => '/bill-of-lading/' . $this->getAttribute('id') . '/change-status/discharge',
 
                     ]
                 ],
