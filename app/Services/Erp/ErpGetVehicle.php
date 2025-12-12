@@ -43,6 +43,7 @@ class ErpGetVehicle
     {
         $url = config('erp.make_codes') . '?$filter=Code eq \'' . $makeCode . '\'';
         $result = $this->client->getOne($url);
+        dd($result);
         return $result ? [
             'reference' => $result->Code,
             'title' => $result->Code
