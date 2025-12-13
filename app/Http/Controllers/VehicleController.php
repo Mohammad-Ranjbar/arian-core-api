@@ -159,7 +159,7 @@ class VehicleController extends CrudController
         $isCKD = ErpProductItem::query()->where('type', 'Painted Body')->whereIn('reference', $components->pluck('Item_No'))->exists();
 
         $vehicle->update([
-            'production_type' => $isCKD ? 'ckd' : 'skd'
+            'production_type' => $isCKD ? 'CKD' : 'SKD'
         ]);
     }
 
