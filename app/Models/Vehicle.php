@@ -38,7 +38,7 @@ class Vehicle extends Model
      */
     protected $casts = [
         'vin' => 'string',
-        'data' => 'json'
+        'data' => 'json',
     ];
     /**
      * @var string[]
@@ -65,7 +65,7 @@ class Vehicle extends Model
 
     public function getProductionType(): ?string
     {
-        $info = $this->getAttribute('info');
+        $info = $this->getAttribute('data');
 
         if (isset($info['ManufacturingMethod']) && !empty($info['ManufacturingMethod'])) {
             return $info['ManufacturingMethod'];
