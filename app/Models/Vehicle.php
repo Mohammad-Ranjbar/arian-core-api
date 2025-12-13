@@ -67,7 +67,7 @@ class Vehicle extends Model
     {
         $info = $this->getAttribute('data');
 
-        if (isset($info['ManufacturingMethod']) && !empty($info['ManufacturingMethod'])) {
+        if (!empty($info['ManufacturingMethod'])) {
             return $info['ManufacturingMethod'];
         }
 
