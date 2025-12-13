@@ -61,7 +61,7 @@ class VehicleFaultController extends Controller
             }
             $checking = VehicleIncident::query()
                 ->where('vin', $vehicle->getAttribute('vin'))
-                ->where('vin_type', $vehicle->getAttribute('data')['Item_Type'])
+                ->where('vin_type', $vehicle->getAttribute('data')['ItemType'])
                 ->where('element_id', $validatedData['element_id'])
                 ->where('incident_id', $validatedData['incident_id'])
                 ->where('type', $validatedData['type'])
