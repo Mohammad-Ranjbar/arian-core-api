@@ -65,11 +65,12 @@ class Vehicle extends Model
 
     public function getProductionType(): ?string
     {
-        return $this->getAttribute('production_type') ?? 'unknown' ;
+        return $this->getAttribute('info')['ManufacturingMethod'] ?? $this->getAttribute('production_type') ?? 'unknown';
     }
+
     public function shortageItems(): HasMany
     {
-        return $this->hasMany(ShortageItem::class,'vin');
+        return $this->hasMany(ShortageItem::class, 'vin');
     }
 
     /**
@@ -175,15 +176,15 @@ class Vehicle extends Model
 
     public function serialBarcodes(): Attribute
     {
-        $serials = array_map(function ($item){
-            if (isset($item['prefix'])){
-                if (is_array($item['prefix'])){
+        $serials = array_map(function ($item) {
+            if (isset($item['prefix'])) {
+                if (is_array($item['prefix'])) {
                     $item['prefix'] = $item['prefix'][$this->carModel->reference] ?? '';
                 }
             }
             return $item;
-        },config('serial_barcodes.'.$this->makeCode->reference));
+        }, config('serial_barcodes.' . $this->makeCode->reference));
 
-        return Attribute::get(fn () => $serials);
+        return Attribute::get(fn() => $serials);
     }
 }
