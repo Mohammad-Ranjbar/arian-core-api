@@ -65,7 +65,7 @@ class Vehicle extends Model
 
     public function getProductionType(): ?string
     {
-        return $this->getAttribute('info')['ManufacturingMethod'] ?  $this->getAttribute('info')['ManufacturingMethod'] : $this->getAttribute('production_type');
+        return isset($this->getAttribute('info')['ManufacturingMethod']) ?  $this->getAttribute('info')['ManufacturingMethod'] : $this->getAttribute('production_type');
     }
 
     public function shortageItems(): HasMany
