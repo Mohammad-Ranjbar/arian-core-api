@@ -29,6 +29,7 @@ class SyncProductItemsCommand extends Command
             $content = $this->erpOdataClient->get($url);
 
             if (isset($content->value)) {
+                dd($content);
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
                 foreach ($content->value as $row) {
