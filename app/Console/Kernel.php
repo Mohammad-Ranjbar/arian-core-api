@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\RetryErpJobCommand;
+use App\Console\Commands\SyncCustomerClubDataCommand;
 use App\Console\Commands\SyncInvitationsCommand;
 use App\Console\Commands\SyncPDIBlockCommand;
 use App\Console\Commands\SyncProductItemsCommand;
@@ -28,6 +29,8 @@ class Kernel extends ConsoleKernel
         $schedule->command(UpdateOnlineOrdersCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(UpdateContractOkCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(SyncPDIBlockCommand::class)->daily()->at('02:00')->withoutOverlapping();
+        $schedule->command(SyncProductItemsCommand::class)->everyTenMinutes()->withoutOverlapping();
+        $schedule->command(SyncCustomerClubDataCommand::class)->daily()->at('02:00')->withoutOverlapping();
     }
 
 
