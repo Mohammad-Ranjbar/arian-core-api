@@ -50,6 +50,7 @@ class MoveInvitationToSaleOnlineApplicationJob
 
             $orderId = str_replace('PARS_AM-', '', $data->Online_Contract_ID);
             $orderId = str_replace('POOYA_AM-', '', $orderId);
+            $orderId = str_replace('KIA_AD-', '', $orderId);
 
             $sendData = [
                 'order_id'    => trim($orderId),
@@ -64,10 +65,7 @@ class MoveInvitationToSaleOnlineApplicationJob
             if (Str::contains($data->Online_Contract_ID,'PARS_AM')) {
                 $url = 'https://sales.arian-motor.com/api/sync-invoices';
             }
-            logger($url);
-            logger($sendData);
             $res = Http::post($url, $sendData);
-            logger($res);
         }else{
             logger('data not found');
         }
