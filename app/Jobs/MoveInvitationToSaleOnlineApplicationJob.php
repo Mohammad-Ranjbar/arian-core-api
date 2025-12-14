@@ -66,7 +66,8 @@ class MoveInvitationToSaleOnlineApplicationJob
             }
             logger($url);
             logger($sendData);
-            Http::post($url, $sendData);
+            $res = Http::post($url, $sendData);
+            logger($res);
         }else{
             logger('data not found');
         }
