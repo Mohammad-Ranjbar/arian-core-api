@@ -50,12 +50,12 @@ class SyncPDIBlockCommand extends Command
 
                     }
 
-                    $dateString = $row->Last_PDI_Date;
+                    $dateString = $row->LastPDIDate;
 
                     $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
 
 
-                    if (!$row->Blocked && $checkDate && $row->Last_PDI_Date != '0001-01-01T00:00:00Z') {
+                    if (!$row->Blocked && $checkDate && $row->LastPDIDate != '0001-01-01T00:00:00Z') {
                         $data = [
                             'block_reason_id' => $reasonId,
                             'description' => 'PDI Block',

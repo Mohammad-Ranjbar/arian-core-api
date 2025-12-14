@@ -10,11 +10,11 @@ return [
     'cross_reference'  => env('ERP_URL_CROSS_REFERENCE',
         "http://172.16.0.135:7048/BC272/ODataV4/Company('Pars')/Item_Cross_Reference_API"),
     'block_pdi'  => env('ERP_URL_BLOCK_PDI',
-        "http://172.16.0.35:7048/Pars_Pregolive/ODataV4/Company('Pars')/PDI_Block_API"),
+        "http://172.16.0.135:7048/BC272/ODataV4/Company('Pars')/PDI_Block_API"),
     'items'     => env('ARIAN_URL_ITEMS',
         "http://172.16.0.135:7048/BC272/ODataV4/Company('Pars')/ItemQuery"),
     'service_items'     => env('ARIAN_URL_SERVICE_ITEMS',
-        "http://172.16.0.58:7048/Pars/ODataV4/Company(%27Pars%27)/Service_Item_List"),
+        "http://172.16.0.135:7048/BC272/ODataV4/Company('Pars')/Service_Item_List"),
     'component' => env('ARIAN_URL_COMPONENT',
         "http://172.16.0.135:7048/BC272/ODataV4/Company('Pars')/ComponentTracking"),
 
