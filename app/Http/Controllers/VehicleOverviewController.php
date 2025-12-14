@@ -389,7 +389,7 @@ class VehicleOverviewController extends Controller
                     'values' => [
                         [
                             $vehicle->getAttribute('data')['PDIResult'],
-                            $vehicle->getAttribute('data')['PDIResultDescription'] . ' ' . $vehicle->getAttribute('data')['PDI_Result_Description_2'],
+                            $vehicle->getAttribute('data')['PDIResultDescription'] . ' ' . $vehicle->getAttribute('data')['PDIResultDescription2'],
                             (is_numeric(strpos($vehicle->getAttribute('data')['PDIResult'],
                                     'Y')) or is_numeric(strpos($vehicle->getAttribute('data')['PDIResult'], 'G'))) ?
                                 ($r = $vehicle->tracking()->where('model_type',
