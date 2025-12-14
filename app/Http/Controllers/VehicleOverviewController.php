@@ -388,10 +388,10 @@ class VehicleOverviewController extends Controller
                     'heads' => [],
                     'values' => [
                         [
-                            $vehicle->getAttribute('data')['PDI_Result'],
+                            $vehicle->getAttribute('data')['PDIResult'],
                             $vehicle->getAttribute('data')['PDI_Result_Description'] . ' ' . $vehicle->getAttribute('data')['PDI_Result_Description_2'],
-                            (is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'],
-                                    'Y')) or is_numeric(strpos($vehicle->getAttribute('data')['PDI_Result'], 'G'))) ?
+                            (is_numeric(strpos($vehicle->getAttribute('data')['PDIResult'],
+                                    'Y')) or is_numeric(strpos($vehicle->getAttribute('data')['PDIResult'], 'G'))) ?
                                 ($r = $vehicle->tracking()->where('model_type',
                                     SaleLocation::class)->latest()->first()) ?
                                     'تاریخ بررسی و رفع ایراد: ' .
