@@ -18,6 +18,7 @@ use App\Http\Controllers\ChangeVinController;
 use App\Http\Controllers\CheckListController;
 use App\Http\Controllers\CheckTempVinEngineController;
 use App\Http\Controllers\ColorMapController;
+use App\Http\Controllers\ComplianceController;
 use App\Http\Controllers\ComponentItemController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CopPlanController;
@@ -107,7 +108,7 @@ use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
-
+Route::get('compliance/{vin}', [ComplianceController::class,'generate'])->name('compliance.generate');
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 Route::get('dl-bom/{po}', ExportBomController::class)->name('dl.bom');

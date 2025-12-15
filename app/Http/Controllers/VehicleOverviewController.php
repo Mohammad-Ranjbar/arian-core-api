@@ -38,7 +38,12 @@ class VehicleOverviewController extends Controller
      */
     public function __invoke(Vehicle $vehicle): JsonResponse
     {
-
+        $complianceFile = [
+            [
+                'file' => route('compliance.generate', ['vin' => $vehicle->vin]),
+                'title' => 'گواهی انطباق'
+            ],
+        ];
         $fileRecord = ItemTechnicalChecklist::query()->whereHas('carModels', function ($q) use ($vehicle) {
             $q->where('car_model_id', $vehicle->getAttribute('car_model_id'));
         })->latest()->first();
@@ -110,6 +115,7 @@ class VehicleOverviewController extends Controller
                 'file' => 'https://qr.arian-dev.ir/',
                 'title' => 'دریافت اطلاعات و مشخصات فنی'
             ],
+            $complianceFile
         ];
         if ($fileRecord) {
             $list3[] = [
