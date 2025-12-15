@@ -4,7 +4,7 @@ namespace App\Services\CustomerFinance;
 
 class CustomerFinanceFactory
 {
-    public static function make($reference): bool|LamariCustomerFinanceService|PooyaCustomerFinanceService|DieselCustomerFinanceService
+    public static function make($reference): bool|LamariCustomerFinanceService|PooyaCustomerFinanceService|DieselCustomerFinanceService|ArinaCustomerFinanceService
     {
         if ($reference === 'LamariSales') {
             return new LamariCustomerFinanceService();
@@ -15,6 +15,10 @@ class CustomerFinanceFactory
         if ($reference === 'DieselSales') {
             return new DieselCustomerFinanceService();
         }
+        if ($reference === 'ArinaSales') {
+            return new ArinaCustomerFinanceService();
+        }
+
         return false;
     }
 }
