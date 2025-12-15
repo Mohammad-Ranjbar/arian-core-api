@@ -21,7 +21,7 @@ class VehicleCarModelFilter
         if (!request()->has('vehicle_car_model_id') || !request()->get('vehicle_car_model_id')) {
             return $next($request);
         }
-        return $next($request)->whereHas('vehicles', function ($q) {
+        return $next($request)->whereHas('vehicle', function ($q) {
             $q->where('car_model_id', request()->get('vehicle_car_model_id'));
         });
 
