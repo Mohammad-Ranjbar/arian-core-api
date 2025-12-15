@@ -36,7 +36,7 @@ class ComplianceController extends Controller
             'mode' => 'utf-8',
             'format' => 'A4',
             'orientation' => 'P',
-
+            'tempDir' => storage_path('app/mpdf_temp'),
             'useOTL' => true,
 
             'useKerning' => true,
