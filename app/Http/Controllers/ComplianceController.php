@@ -30,7 +30,7 @@ class ComplianceController extends Controller
             'date' => now()->format('Y/m/d'),
         ];
 
-        $html = view('pdf.compliance', $data)->render();
+        $html = view('pdf.compliance', compact('data'))->render();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
