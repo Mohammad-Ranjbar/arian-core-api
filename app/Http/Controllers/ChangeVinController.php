@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filters\ProductionOrderNumberFilter;
+use App\Filters\VehicleCarModelFilter;
 use App\Filters\VinFilter;
 use App\Http\Requests\StoreChangeVinRequest;
 use App\Http\Resources\ChangeVinResource;
@@ -42,7 +43,8 @@ class ChangeVinController extends Controller
             $vehicle->whereIn('make_code_id',$makeCodes);
         }))->through([
             VinFilter::class,
-            ProductionOrderNumberFilter::class
+            ProductionOrderNumberFilter::class,
+            VehicleCarModelFilter::class
         ])->thenReturn()->latest()->paginate(request()->input('per_page', 20));
 
         return ChangeVinResource::collection($data);
