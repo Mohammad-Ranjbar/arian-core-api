@@ -62,6 +62,7 @@ use App\Filters\UnblockedAtFromFilter;
 use App\Filters\UnblockedAtToFilter;
 use App\Filters\UserAccessToResourceFilter;
 use App\Filters\UserIdFilter;
+use App\Filters\VehicleCarModelFilter;
 use App\Filters\VinBillOfLadingFilter;
 use App\Filters\VinFilter;
 use App\Filters\WorkGroupCenterIdFilter;
@@ -85,6 +86,7 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        VehicleCarModelFilter::class,
         BillOfLadingContainerCodeFilter::class,
         VinBillOfLadingFilter::class,
         ProductionOrderNumberFilter::class,
