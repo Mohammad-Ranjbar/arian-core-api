@@ -107,7 +107,7 @@
       font-size:36px;
       font-family:'iransans';
     ">
-            S
+            <img src="{{asset('sign.jpg')}}" alt="sign" title="sign">
         </div>
     </div>
 
