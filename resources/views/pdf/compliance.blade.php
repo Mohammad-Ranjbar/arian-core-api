@@ -24,12 +24,10 @@
   unicode-bidi:bidi-override;
 ">
 
-    <!-- Top Right -->
     <div style="text-align:right;">
         طرف اول گواهی
     </div>
 
-    <!-- Center Title -->
     <div style="
     text-align:center;
     margin-top:20mm;
@@ -41,18 +39,16 @@
         <div>گواهی انطباق</div>
     </div>
 
-    <!-- Intro -->
     <div style="text-align:justify;">
-        سعید مجرد عامل شرکت آرین پارس موتور بدین وسیله گواهی می‌کند که وسیله نقلیه با مشخصات زیر:
+        سعید مهرجو مدیرعامل عامل شرکت آرین پارس موتور بدین وسیله گواهی می‌کند که وسیله نقلیه با مشخصات زیر:
     </div>
 
-    <!-- Main Content -->
     <div style="margin-top:6mm;">
-        <div>۱-۱ سازنده (نام تجاری سازنده): مجتمع صنعتی آرین پارس موتور</div>
-        <div>۲-۱ نوع: SX5G</div>
-        <div>گونه: -</div>
-        <div>مدل: -</div>
-        <div>۳-۱ نام تجاری: <strong>LAMARI EAMA</strong></div>
+        <div>۱-۱ سازنده (نام تجاری سازنده): {{$data['manufacturer']}}</div>
+        <div>۲-۱ نوع:  {{$data['type']}}</div>
+        <div>گونه: {{$data['brand']}}</div>
+        <div>مدل: {{$data['brand']}}</div>
+        <div>۳-۱ نام تجاری: <strong>{{$data['brand']}}</strong></div>
         <div>۳-۲ گروه وسیله نقلیه: M1</div>
 
         <div>
@@ -79,11 +75,10 @@
 
         <div>
             ۷-۱ شماره شناسایی وسیله نقلیه:
-            <strong>*N5RL42DA5?P0?????*</strong>
+            <strong>{{$data['vin']}}</strong>
         </div>
     </div>
 
-    <!-- Footer -->
     <div style="margin-top:10mm; text-align:justify;">
         با تمامی خصوصیات نوع تشریح شده در تاییدیه
         <span style="direction:ltr; display:inline-block;">IRN*6924*0297</span>
@@ -91,7 +86,7 @@
         می‌تواند به صورت دائم شماره‌گذاری شود.
     </div>
 
-    <!-- Date -->
+
     <div style="
     position:absolute;
     bottom:35mm;
@@ -100,7 +95,6 @@
         تاریخ:
     </div>
 
-    <!-- Signature -->
     <div style="
     position:absolute;
     bottom:25mm;
