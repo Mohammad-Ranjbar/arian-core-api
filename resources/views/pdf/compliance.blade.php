@@ -107,7 +107,7 @@
       font-size:36px;
       font-family:'iransans';
     ">
-            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" alt="sign" title="sign">
+            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" alt="sign" width="100" title="sign">
         </div>
     </div>
 
