@@ -6,7 +6,7 @@
 </head>
 
 <body style="
-  margin-top:2rem;
+  margin:0;
   padding:0;
   background:#ffffff;
 ">
