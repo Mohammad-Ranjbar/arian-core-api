@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use Mpdf\Config\ConfigVariables;
@@ -15,22 +16,20 @@ class ComplianceController extends Controller
 {
     /**
      * @throws MpdfException
+     * @throws Exception
      */
     public function generate(string $vin): string
     {
         $vehicle = Vehicle::query()->where('vin', $vin)->firstOrFail();
-        $data = [
-            'manufacturer' => 'مجتمع صنعتی آرین پارس موتور',
-            'type' => $vehicle->carModel->title,
-            'brand' => $vehicle->makeCode->title,
-            'group' => 'M1',
-            'vin' => $vin,
-            'approval' => 'IRN*6924*0297',
-            'approval_date' => '۱۴۰۰/۱۲/۲۱',
-            'date' => now()->format('Y/m/d'),
-        ];
+        $vin = $vehicle->getAttribute('vin');
+        $bladeName =  match ( $vehicle->carModel->reference) {
+            'DSPCO010DP' =>'SX5G',
+            'KSPCO010CP' =>'1AA',
 
-        $html = view('pdf.compliance', compact('data'))->render();
+            default => throw new Exception('هیچ فایلی پیدا نشد'),
+        };
+
+        $html = view('pdf.compliance.'.$bladeName, compact('vin'))->render();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',

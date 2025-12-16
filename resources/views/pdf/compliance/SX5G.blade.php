@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html dir="rtl" lang="fa">
 <head>
     <meta charset="UTF-8">
     <title>گواهی انطباق</title>
@@ -23,11 +23,6 @@
   position:relative;
   unicode-bidi:bidi-override;
 ">
-
-    <div style="text-align:right;">
-        طرف اول گواهی
-    </div>
-
     <div style="
     text-align:center;
     margin-top:20mm;
@@ -38,18 +33,29 @@
         <div>وسایل نقلیه کامل</div>
         <div>گواهی انطباق</div>
     </div>
+    <div style="text-align:right;">
+        طرف اول گواهی
+    </div>
 
     <div style="text-align:justify;">
-        سعید مهرجو مدیرعامل عامل شرکت آرین پارس موتور بدین وسیله گواهی می‌کند که وسیله نقلیه با مشخصات زیر:
+        امضاء کننده زیر: سعید مهرجو مدیر عامل شرکت آرین پارس موتور بدین وسیله گواهی می کند که وسیله نقلیه با مشخصات زیر:
     </div>
 
     <div style="margin-top:6mm;">
-        <div>۱-۱ سازنده (نام تجاری سازنده): {{$data['manufacturer']}}</div>
-        <div>۲-۱ نوع:  {{$data['type']}}</div>
-        <div>گونه: {{$data['brand']}}</div>
-        <div>مدل: {{$data['brand']}}</div>
-        <div>۳-۱ نام تجاری: <strong>{{$data['brand']}}</strong></div>
-        <div>۳-۲ گروه وسیله نقلیه: M1</div>
+        <div>۱-۱ سازنده (نام تجاری سازنده):
+            <b>مجتمع صنعتی آرین پارس موتور</b>
+        </div>
+        <div>۲-۱ نوع:
+            <b>SX5G</b>
+
+        </div>
+        <div style="padding-right: 1rem">- گونه:-</div>
+        <div style="padding-right: 1rem">- مدل:-</div>
+        <div>۱-۲-۱ نام تجاری:
+            <strong> LAMARI EAMA </strong></div>
+        <div>۳-۱ گروه وسیله نقلیه:
+            <b>M1</b>
+        </div>
 
         <div>
             ۴-۱ نام و نشانی سازنده وسیله نقلیه پایه:
@@ -66,7 +72,7 @@
             جلو سمت راست، روی ستون وسط (B Pillar)
         </div>
 
-        <div>
+        <div style="padding-right: 1rem"> -
             مکان شماره شناسایی وسیله نقلیه:
             جلو سمت راست، داخل اتاق، زیر صندلی سرنشین و عقب سمت چپ، حک شده بر روی بدنه
         </div>
@@ -75,7 +81,7 @@
 
         <div>
             ۷-۱ شماره شناسایی وسیله نقلیه:
-            <strong>{{$data['vin']}}</strong>
+            <strong>{{$vin}}</strong>
         </div>
     </div>
 
@@ -83,34 +89,22 @@
         با تمامی خصوصیات نوع تشریح شده در تاییدیه
         <span style="direction:ltr; display:inline-block;">IRN*6924*0297</span>
         صادره در ۱۴۰۰/۱۲/۲۱
-        می‌تواند به صورت دائم شماره‌گذاری شود.
+        می‌تواند به صورت دائم شماره ‌گذاری شود.
     </div>
 
-
-    <div style="
-    position:absolute;
-    bottom:35mm;
-    right:25mm;
-  ">
-        تاریخ:
-    </div>
-
-    <div style="
-    position:absolute;
-    bottom:25mm;
-    left:25mm;
-    text-align:left;
-  ">
-        <div>امضاء:</div>
-        <div style="
-      margin-top:5mm;
-      font-size:36px;
-      font-family:'iransans';
-    ">
-            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" alt="sign" width="100" title="sign">
+    <div style="display:flex; width: 100%;  margin-top: 30mm; ">
+        <div style="width: 80%;">
+            تاریخ:
         </div>
-    </div>
 
+        <div>امضاء:</div>
+        <div>
+            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" alt="sign"
+                 width="100" title="sign">
+        </div>
+
+
+    </div>
 </div>
 
 </body>
