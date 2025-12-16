@@ -92,8 +92,8 @@
         می‌تواند به صورت دائم شماره ‌گذاری شود.
     </div>
 
-    <div style="display:flex;flex-wrap: wrap;  margin-top: 30mm; ">
-        <div style="width: 60%;">
+    <div style="display:flex;  margin-top: 30mm; ">
+        <div style="width: 20%;">
             تاریخ:
         </div>
 
