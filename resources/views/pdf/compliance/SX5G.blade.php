@@ -93,12 +93,12 @@
     </div>
 
     <div style="display:flex; width: 100%;  margin-top: 30mm; ">
-        <div style="width: 80%;">
+        <div style="width: 50%;">
             تاریخ:
         </div>
 
 
-        <div style="width: 20%">
+        <div style="width: 50%">
         <div>
             امضاء:
             <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" style="width: 100%" alt="sign" title="sign">
