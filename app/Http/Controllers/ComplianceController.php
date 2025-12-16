@@ -25,6 +25,7 @@ class ComplianceController extends Controller
         $bladeName =  match ( $vehicle->carModel->reference) {
             'DSPCO010DP' =>'SX5G',
             'KSPCO010CP' =>'1AA',
+            'ESPSE010DP' =>'AP00F',
 
             default => throw new Exception('هیچ فایلی پیدا نشد'),
         };
