@@ -97,10 +97,12 @@
             تاریخ:
         </div>
 
-        <div>امضاء:</div>
+
+        <div style="width: 20%">
         <div>
-            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" alt="sign"
-                 width="100" title="sign">
+            امضاء:
+            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" style="width: 100%" alt="sign" title="sign">
+        </div>
         </div>
 
 
