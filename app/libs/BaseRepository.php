@@ -12,6 +12,7 @@ use App\Filters\BlockByFilter;
 use App\Filters\BlockItemMakeCodeIdFilter;
 use App\Filters\BlockReasonIdFilter;
 use App\Filters\BolTypeFilter;
+use App\Filters\CabinNoFilter;
 use App\Filters\CarFilter;
 use App\Filters\CarModelIdFilter;
 use App\Filters\CarModelIdsFilter;
@@ -87,6 +88,7 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        CabinNoFilter::class,
         EngineNoFilter::class,
         VehicleCarModelFilter::class,
         BillOfLadingContainerCodeFilter::class,
