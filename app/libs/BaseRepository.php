@@ -23,6 +23,7 @@ use App\Filters\DriverIdFilter;
 use App\Filters\ElementIdFilter;
 use App\Filters\EmailFilter;
 use App\Filters\EngineBarcodeFilter;
+use App\Filters\EngineNoFilter;
 use App\Filters\ExitTypesFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
@@ -86,6 +87,7 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        EngineNoFilter::class,
         VehicleCarModelFilter::class,
         BillOfLadingContainerCodeFilter::class,
         VinBillOfLadingFilter::class,
