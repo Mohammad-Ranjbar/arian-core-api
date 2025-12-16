@@ -101,7 +101,7 @@
         <div style="width: 50%">
         <div>
             امضاء:
-            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" style="width: 100%" alt="sign" title="sign">
+            <img src="data:image/png;base64,{{base64_encode(file_get_contents(public_path('sign.png')))}}" style="width: 100" alt="sign" title="sign">
         </div>
         </div>
 
