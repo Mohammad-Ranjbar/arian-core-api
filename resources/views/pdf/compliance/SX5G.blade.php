@@ -92,7 +92,7 @@
         می‌تواند به صورت دائم شماره ‌گذاری شود.
     </div>
 
-    <div style="display:flex; width: 100%;  margin-top: 30mm; ">
+    <div style="display:flex;flex-wrap: wrap;  margin-top: 30mm; ">
         <div style="width: 60%;">
             تاریخ:
         </div>
