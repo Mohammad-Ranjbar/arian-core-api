@@ -30,14 +30,17 @@ class ComplianceController extends Controller
             'TN721-N60', 'TN721-N85', 'TN721-N90', 'TN721-N120' =>'N721',
             'LORRY HCV-1402' => 'X5000L',
             'DUMPER HCV-1402' => 'X5000D',
-
-
+            'SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT022MD','SSCHT012AD','SSCTR02TAD','SSCHT042MD' => 'X5000',
             default => false,
         };
         if (!$bladeName){
             return response()->json("cant find ane view for car model $vehicle->carModel->reference");
         }
-        $html = view('pdf.compliance.'.$vehicle->carModel->reference, compact('vin'))->render();
+        $bladeName = $vehicle->carModel->reference;
+        if (in_array($vehicle->carModel->reference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT022MD','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
+            $bladeName = 'X5000';
+        }
+        $html = view('pdf.compliance.'.$bladeName, compact('vin'))->render();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
