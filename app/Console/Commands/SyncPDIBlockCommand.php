@@ -40,10 +40,10 @@ class SyncPDIBlockCommand extends Command
             $content = $this->erpOdataClient->get($url);
 
             if (isset($content->value)) {
+                dd($content->value);
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
                 $count = 0;
-                dd($content->value);
                 foreach ($content->value as $row) {
                     if (!empty($row->LastPDIDate)){
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
