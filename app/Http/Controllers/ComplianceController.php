@@ -22,6 +22,7 @@ class ComplianceController extends Controller
     {
         $vehicle = Vehicle::query()->where('vin', $vin)->firstOrFail();
         $vin = $vehicle->getAttribute('vin');
+        dd($vehicle->carModel->reference);
         $bladeName =  match ( $vehicle->carModel->reference) {
             'DSPCO010DP' =>'SX5G',
             'KSPCO010CP' =>'1AA',
