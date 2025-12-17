@@ -26,6 +26,7 @@ class ComplianceController extends Controller
             'DSPCO010DP' =>'SX5G',
             'KSPCO010CP' =>'1AA',
             'ESPSE010DP' =>'AP00F',
+            'TN721-N60' =>'N721',
 
             default => throw new Exception('هیچ فایلی پیدا نشد'),
         };
