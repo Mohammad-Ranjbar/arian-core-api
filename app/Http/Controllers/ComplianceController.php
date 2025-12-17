@@ -40,6 +40,10 @@ class ComplianceController extends Controller
         if (in_array($vehicle->carModel->reference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT022MD','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
             $bladeName = 'X5000';
         }
+
+        if (in_array($vehicle->carModel->reference, ['JSCLT07LAD'])){
+            $bladeName = 'TN721-N120';
+        }
         $html = view('pdf.compliance.'.$bladeName, compact('vin'))->render();
 
         $mpdf = new Mpdf([
