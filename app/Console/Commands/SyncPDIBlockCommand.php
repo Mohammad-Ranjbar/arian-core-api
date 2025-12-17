@@ -43,6 +43,7 @@ class SyncPDIBlockCommand extends Command
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
                 $count = 0;
+                dd($content->value);
                 foreach ($content->value as $row) {
                     if (!empty($row->LastPDIDate)){
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
