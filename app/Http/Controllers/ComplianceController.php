@@ -27,10 +27,10 @@ class ComplianceController extends Controller
             'DSPCO010DP' =>'SX5G',
             'KSPCO010CP' =>'1AA',
             'ESPSE010DP' =>'AP00F',
-            'TN721-N60' =>'N721',
-            'TN721-N85' =>'N721',
-            'TN721-N90' =>'N721',
-            'TN721-N120' =>'N721',
+            'TN721-N60', 'TN721-N85', 'TN721-N90', 'TN721-N120' =>'N721',
+            'LORRY HCV-1402' => 'X5000L',
+            'DUMPER HCV-1402' => 'X5000D',
+
 
             default => false,
         };
