@@ -28,13 +28,16 @@ class ComplianceController extends Controller
             'KSPCO010CP' =>'1AA',
             'ESPSE010DP' =>'AP00F',
             'TN721-N60' =>'N721',
+            'TN721-N85' =>'N721',
+            'TN721-N90' =>'N721',
+            'TN721-N120' =>'N721',
 
             default => false,
         };
         if (!$bladeName){
             return response()->json("cant find ane view for car model $vehicle->carModel->reference");
         }
-        $html = view('pdf.compliance.'.$bladeName, compact('vin'))->render();
+        $html = view('pdf.compliance.'.$vehicle->carModel->reference, compact('vin'))->render();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
