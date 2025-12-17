@@ -46,7 +46,7 @@ class ComplianceController extends Controller
             $bladeName = 'TN721-N120';
         }
 
-        dd($bladeName,$vehicle->carModel->reference);
+
         $html = view('pdf.compliance.'.$bladeName, compact('vin'))->render();
 
         $mpdf = new Mpdf([
