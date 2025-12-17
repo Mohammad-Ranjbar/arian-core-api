@@ -29,9 +29,11 @@ class ComplianceController extends Controller
             'ESPSE010DP' =>'AP00F',
             'TN721-N60' =>'N721',
 
-            default => throw new Exception('هیچ فایلی پیدا نشد'),
+            default => false,
         };
-
+        if (!$bladeName){
+            return response()->json("cant find ane view for car model $vehicle->carModel->reference");
+        }
         $html = view('pdf.compliance.'.$bladeName, compact('vin'))->render();
 
         $mpdf = new Mpdf([
