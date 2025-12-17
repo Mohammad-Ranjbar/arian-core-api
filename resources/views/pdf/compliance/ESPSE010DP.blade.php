@@ -92,8 +92,8 @@
 
     <div style="margin-top:10mm; text-align:justify;">
         با تمامی خصوصیات نوع تشریح شده در تاییدیه
-        <span style="direction:ltr; display:inline-block;">IRN*6924*0297</span>
-        صادره در ۱۴۰۰/۱۲/۲۱
+        <span style="direction:ltr; display:inline-block;">IRN*6924*0438</span>
+        صادره در 1404/08/12
         می‌تواند به صورت دائم شماره ‌گذاری شود.
     </div>
 
