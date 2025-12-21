@@ -21,7 +21,7 @@ class EnterEngineResource extends JsonResource
             'vin' => $this->resource->vin,
             'user' => UserResource::make($this->resource->user),
             'make_code' => MakeCodeResource::make($this->resource->makeCode),
-            'cabin_no' => VinEngine::query()->where('vin',$this->resource->vin)->first()?->cabin_no ?? null,
+            'cabin_no' => VinEngine::query()->where('engine_no',$this->resource->engine_no)->first()?->cabin_no ?? null,
             'created_at' => $this->resource->created_at,
         ];
     }
