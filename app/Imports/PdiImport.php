@@ -56,7 +56,7 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
                    'vin' => $row['vin'],
                    'pdi_result' => $row['pdi_result'],
                    'pdi_result_description' => $row['pdi_result_description'],
-                   'pdi_result_description_2' => $row['pdi_result_description_2'],
+                   'pdi_result_description_2' => $row['pdi_result_description_2'] ?? '',
                    'user_id' => $userId,
                 ]);
 
