@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\VinEngine;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,6 +21,7 @@ class EnterEngineResource extends JsonResource
             'vin' => $this->resource->vin,
             'user' => UserResource::make($this->resource->user),
             'make_code' => MakeCodeResource::make($this->resource->makeCode),
+            'cabin_no' => VinEngine::query()->where('vin',$this->resource->vin)->first()?->cabin_no ?? null,
             'created_at' => $this->resource->created_at,
         ];
     }
