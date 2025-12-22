@@ -86,7 +86,7 @@
 
         <div>
             ۷-۱ شماره شناسایی وسیله نقلیه:
-            {{-- <strong>{{$vin}}</strong>--}}
+             <strong>{{$vin}}</strong>
         </div>
 
 
