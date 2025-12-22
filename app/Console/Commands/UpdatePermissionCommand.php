@@ -20,6 +20,8 @@ class UpdatePermissionCommand extends Command
     public function handle(): void
     {
         $list = collect([
+            'delete-enter-tracking',
+
             'production-tests.pdi.store',
             'vehicles.faults.qc.index',
             'vehicles.faults.evaluation.index',
