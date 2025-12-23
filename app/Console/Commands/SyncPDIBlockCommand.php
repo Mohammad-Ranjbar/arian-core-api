@@ -44,7 +44,12 @@ class SyncPDIBlockCommand extends Command
                 $bar->start();
                 $count = 0;
                 foreach ($content->value as $row) {
-                    if (!empty($row->LastPDIDate)){
+
+                    if ($row->PDI_Result == '' || $row->LastPDIDate == '0001-01-01' || $row->Blocked) {
+                        continue;
+                    }
+
+                    if (!empty($row->LastPDIDate)) {
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
                             CheckVehicleJob::dispatch($row->VIN);
                             continue;
@@ -55,8 +60,8 @@ class SyncPDIBlockCommand extends Command
 
                         $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
 
+                        if ($checkDate) {
 
-                        if (!$row->Blocked && $checkDate && $row->LastPDIDate != '0001-01-01T00:00:00Z') {
                             $data = [
                                 'block_reason_id' => $reasonId,
                                 'description' => 'PDI Block',
