@@ -46,7 +46,7 @@ class BasketController extends CrudController
                 status: 400
             );
         }
-        Cache::set('basket_barcode_submitted_' . $validatedData['code'], true, 15000);
+        Cache::set('basket_barcode_submitted_' . $validatedData['code'], true, 90);
 
         try {
             $validatedData['user_id'] = Auth::id();
