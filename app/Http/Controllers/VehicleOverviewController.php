@@ -170,9 +170,9 @@ class VehicleOverviewController extends Controller
                 'values' => [
                     [
                         'تاریخ بررسی پلیس',
-                        ($vehicle->getAttribute('data')['Police_Inspection_Date'] and
-                            $vehicle->getAttribute('data')['Police_Inspection_Date'] != '0001-01-01T00:00:00Z') ?
-                            jdate($vehicle->getAttribute('data')['Police_Inspection_Date'])->toDateString()
+                        ($vehicle->getAttribute('data')['PoliceInspectionDate'] and
+                            $vehicle->getAttribute('data')['PoliceInspectionDate'] != '0001-01-01T00:00:00Z') ?
+                            jdate($vehicle->getAttribute('data')['PoliceInspectionDate'])->toDateString()
                             : '-'
                         ,
                     ],
