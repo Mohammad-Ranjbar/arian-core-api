@@ -70,6 +70,8 @@ class EnterEngineController extends Controller
     public function destroy(EnterEngine $enterEngine): JsonResponse
     {
         try {
+            $this->authorize('force-delete-enter-engine');
+
             $enterEngine->delete();
 
             return response()->json([

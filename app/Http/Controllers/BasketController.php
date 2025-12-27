@@ -42,11 +42,11 @@ class BasketController extends CrudController
         $submitted = Cache::get('basket_barcode_submitted_' . $validatedData['code']);
         if ($submitted) {
             return new JsonResponse(
-                data: ['message' => 'barcode submitted'],
+                data: ['message' => 'بارکد قبلا ثبت شده است'],
                 status: 400
             );
         }
-        Cache::set('basket_barcode_submitted_' . $validatedData['code'], true, 2);
+        Cache::set('basket_barcode_submitted_' . $validatedData['code'], true, 900);
 
         try {
             $validatedData['user_id'] = Auth::id();
