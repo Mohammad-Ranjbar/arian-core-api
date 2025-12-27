@@ -15,12 +15,12 @@ class BarcodeForPoliceResource extends JsonResource
             'vin' => $this->resource->vin,
             'makeCode' => $this->resource->vehicle->makeCode->title,
             'carModel' => $this->resource->vehicle->carModel->title,
-            'saleDate' => $this->resource->vehicle->Police_Inspection_Date,
+            'saleDate' => $this->resource->vehicle->data['Police_Inspection_Date'],
             'buyDate' => $this->resource->created_at,
-            'color' => $this->resource->vehicle->Color_Code,
+            'color' => $this->resource->vehicle->data['Color_Code'],
             'code' => $this->resource->code,
             'user' => $this->resource->user->name,
-            'generalProductItem' => new GeneralProductItemResource($this->resource->generalProductItem),
+            'generalProductItem' =>  GeneralProductItemResource::make($this->resource->generalProductItem),
             'created_at' => $this->resource->created_at,
         ];
     }
