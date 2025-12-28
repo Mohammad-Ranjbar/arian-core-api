@@ -38,7 +38,7 @@ class ComplianceController extends Controller
             return response()->json("cant find ane view for car model $carModelTitle");
         }
         $bladeName = $vehicle->carModel->reference;
-        if (in_array($vehicle->carModel->reference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT022MD','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
+        if (in_array($vehicle->carModel->reference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
             $bladeName = 'X5000';
         }
 
