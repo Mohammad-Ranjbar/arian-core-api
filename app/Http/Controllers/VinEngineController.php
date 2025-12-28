@@ -34,6 +34,7 @@ class VinEngineController extends CrudController
             ],
             'engine_no' => 'required|string|max:255',
             'cabin_no' => 'required|string|max:255',
+            'shipment_number' => 'required|string|max:255',
             'production_order_number' => 'nullable|string|max:255',
         ];
     }
@@ -51,6 +52,7 @@ class VinEngineController extends CrudController
             ],
             'engine_no' => 'required|string|max:255',
             'cabin_no' => 'required|string|max:255',
+            'shipment_number' => 'required|string|max:255',
             'production_order_number' => 'nullable|string|max:255',
         ];
     }
