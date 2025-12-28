@@ -19,6 +19,7 @@ class VinEngineResource extends JsonResource
             'vin' => $this->resource->vin,
             'engine_no' => $this->resource->engine_no,
             'cabin_no' => $this->resource->cabin_no,
+            'shipment_number' => $this->resource->shipment_number,
             'production_order_number' => $this->resource->production_order_number,
             'created_at' => $this->resource->created_at,
         ];
