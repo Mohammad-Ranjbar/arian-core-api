@@ -13,6 +13,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->uuid('file_id');
+            $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
