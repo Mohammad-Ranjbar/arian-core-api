@@ -49,6 +49,7 @@ use App\Filters\RolesFilter;
 use App\Filters\SalonIdFilter;
 use App\Filters\SearchQByFilter;
 use App\Filters\SectionFilter;
+use App\Filters\ShipmentNumberFilter;
 use App\Filters\StationProductionLineIdFilter;
 use App\Filters\SynchronousNumberFilter;
 use App\Filters\SynchronousProductionLineIdFilter;
@@ -88,6 +89,7 @@ abstract class BaseRepository
      * @var array|string[]
      */
     public array $filters = [
+        ShipmentNumberFilter::class,
         CabinNoFilter::class,
         EngineNoFilter::class,
         VehicleCarModelFilter::class,
