@@ -26,6 +26,7 @@ class CarModelResource extends JsonResource
             'production'         => $this->resource->production,
             'yearMap' => YearMapResource::make($this->resource->yearMap),
             'bodyOptions' => BodyOptionResource::collection($this->resource->bodyOptions),
+            'carModelFiles' => CarModelFileResource::collection($this->resource->carModelFiles),
         ];
     }
 }
