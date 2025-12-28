@@ -10,10 +10,15 @@ class CarModelFile extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'file_id'];
+    protected $fillable = ['title', 'file_id','car_model_id'];
 
     public function file(): BelongsTo
     {
         return $this->belongsTo(File::class, 'file_id', 'uuid',);
+    }
+
+    public function carModel(): BelongsTo
+    {
+        return $this->belongsTo(CarModel::class);
     }
 }

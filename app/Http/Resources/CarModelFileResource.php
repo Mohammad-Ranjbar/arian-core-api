@@ -19,6 +19,8 @@ class CarModelFileResource extends JsonResource
             'title' => $this->resource->title,
             'file' => FileResource::make($this->resource->file),
             'file_id' => $this->resource->file_id,
+            'car_model_id' => $this->resource->car_model_id,
+            'carModel' => CarModelResource::make($this->resource->carModel),
             'created_at' => $this->resource->created_at,
         ];
     }

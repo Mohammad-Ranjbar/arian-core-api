@@ -14,9 +14,11 @@ class CarModelFileRepository extends BaseRepository
         'create'    => [
             'title' => 'required|string|max:255',
             'file_id' => 'required|string|exists:files,uuid',
+            'car_model_id' => 'required|exists:car_models',
         ], 'update' => [
             'title' => 'required|string|max:255',
             'file_id' => 'nullable|string|exists:files,uuid',
+            'car_model_id' => 'required|exists:car_models',
         ]
     ];
 
