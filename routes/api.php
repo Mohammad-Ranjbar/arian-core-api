@@ -14,6 +14,7 @@ use App\Http\Controllers\CabinNumberController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelColorCodeController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\CarModelFileController;
 use App\Http\Controllers\ChangeVinController;
 use App\Http\Controllers\CheckListController;
 use App\Http\Controllers\CheckTempVinEngineController;
@@ -503,6 +504,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'temporary-productions' => TemporaryProductionController::class,
         'check-lists' => CheckListController::class,
         'nav-colors' => NavColorController::class,
+        'car-model-files'  => CarModelFileController::class,
     ]);
 
     /*

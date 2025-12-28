@@ -12,6 +12,7 @@ use App\Models\BodyOption;
 use App\Models\CabinNumber;
 use App\Models\Car;
 use App\Models\CarModel;
+use App\Models\CarModelFile;
 use App\Models\CheckList;
 use App\Models\ColorMap;
 use App\Models\Container;
@@ -144,6 +145,7 @@ class AuthServiceProvider extends ServiceProvider
         CheckList::class => CrudPolicy::class,
         PDI::class=>CrudPolicy::class,
         NavColor::class => CrudPolicy::class,
+        CarModelFile::class=>CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
