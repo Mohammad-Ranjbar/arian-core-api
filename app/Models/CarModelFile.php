@@ -23,8 +23,4 @@ class CarModelFile extends Model
         return $this->belongsTo(CarModel::class);
     }
 
-    public function carModelFiles(): HasMany
-    {
-        return $this->hasMany(CarModelFile::class);
-    }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CarModel extends Model
 {
@@ -40,5 +41,10 @@ class CarModel extends Model
     public function screws(): BelongsToMany
     {
         return $this->belongsToMany(Screw::class);
+    }
+
+    public function carModelFiles(): HasMany
+    {
+        return $this->hasMany(CarModelFile::class);
     }
 }
