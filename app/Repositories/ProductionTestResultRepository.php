@@ -15,12 +15,12 @@ class ProductionTestResultRepository extends BaseRepository
         'create' => [
             'vin' => 'required|exists:vehicles,vin',
             'files' => 'required|json',
-            'description' => 'required',
+            'description' => 'nullable',
             'production_test_id' => 'required|exists:production_tests,id',
         ], 'update' => [
             'vin' => 'required|exists:vehicles,vin',
             'files' => 'required|json',
-            'description' => 'required',
+            'description' => 'nullable',
             'production_test_id' => 'required|exists:production_tests,id',
         ]
     ];
