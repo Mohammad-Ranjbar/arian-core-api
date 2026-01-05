@@ -16,6 +16,9 @@ return [
         "http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/ItemQuery"),
     'service_items'     => env('ARIAN_URL_SERVICE_ITEMS',
         "http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/Service_Item_List"),
+
+    'batch_name' => env('BATCH_NAME',
+        "http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/TransferBatchListAPI"),
     'component' => env('ARIAN_URL_COMPONENT',
         "http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/ComponentTracking"),
 
