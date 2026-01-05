@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Services\Erp\SendErpTrait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,14 +14,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductionLine extends Model
 {
-    use HasFactory, SoftDeletes, SendErpTrait;
+    use  SoftDeletes, SendErpTrait;
 
     /**
      * @var string[]
      */
     protected $fillable = [
         'title', 'salon_id', 'teams_webhook', 'location_code', 'show_in_board', 'prefix', 'location', 'central_location', 'item_type',
-        'production_line_type', 'printer_address'
+        'production_line_type', 'printer_address', 'batch_name'
     ];
 
 
@@ -138,7 +137,7 @@ class ProductionLine extends Model
     {
         return $this->tracking()
             ->where('type', $type)
-            ->where('is_systemic',false)
+            ->where('is_systemic', false)
             ->whereBetween('created_at', [$start, $end])
             ->count();
     }
