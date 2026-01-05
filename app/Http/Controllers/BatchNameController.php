@@ -10,10 +10,10 @@ class BatchNameController extends Controller
     public function __invoke(Request $request)
     {
         $data = [
-            'batch1',
-            'batch2',
-            'batch3',
-            'batch4',
+            'LAMARI',
+            'JAC',
+            'SHACMOTO',
+            'CHEMICAL'
         ];
         return response()->json($data);
     }
