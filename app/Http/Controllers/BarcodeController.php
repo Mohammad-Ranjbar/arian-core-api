@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 
 class BarcodeController extends CrudController
@@ -93,8 +94,12 @@ class BarcodeController extends CrudController
 
             if (!empty($validatedData['type'])) {
                 $erpMap = config('serial_barcodes.erp_map');
+                $code = $validatedData['code'];
                 if (isset($erpMap[$validatedData['type']])) {
-                    $response = $this->submitSerialBarcode($validatedData['vin'], $validatedData['code'], $erpMap[$validatedData['type']]);
+                    if ($vehicle->carModel->reference == "KSPCO010CP"){
+                        $code = Str::of($code)->trim('*')->toString();
+                    }
+                    $response = $this->submitSerialBarcode($validatedData['vin'], $code, $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
                     }
