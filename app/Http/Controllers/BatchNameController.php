@@ -15,6 +15,13 @@ class BatchNameController extends Controller
             'SHACMOTO',
             'CHEMICAL'
         ];
-        return response()->json($data);
+
+        $result = array_map(function($item) {
+            return [
+                'id' => $item,
+                'title' => $item
+            ];
+        }, $data);
+        return response()->json($result);
     }
 }
