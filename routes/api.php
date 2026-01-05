@@ -5,6 +5,7 @@ use App\Http\Controllers\ActionLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BasketController;
+use App\Http\Controllers\BatchNameController;
 use App\Http\Controllers\BillOfLadingController;
 use App\Http\Controllers\BlockHistoryController;
 use App\Http\Controllers\BlockItemController;
@@ -109,7 +110,7 @@ use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::get('compliance/{vin}', [ComplianceController::class,'generate'])->name('compliance.generate');
+Route::get('compliance/{vin}', [ComplianceController::class, 'generate'])->name('compliance.generate');
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
 Route::get('dl-bom/{po}', ExportBomController::class)->name('dl.bom');
@@ -138,7 +139,7 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
 
-
+    Route::get('get-batch-names', BatchNameController::class);
     Route::get('/get-template-engine', [PDIController::class, 'getTemplateEngine'])->name('get-template-engine');
     Route::post('/import-engines', [PDIController::class, 'importEngine'])->name('import-engines');
 
@@ -148,8 +149,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('/get-template-pdi', [PDIController::class, 'getTemplatePdi'])->name('get-template-pdi');
     Route::post('/import-pdi', [PDIController::class, 'importPdi'])->name('import-pdi');
 
-    Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store','destroy']);
-    Route::apiResource('enter-engines', EnterEngineController::class)->except([ 'update']);
+    Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store', 'destroy']);
+    Route::apiResource('enter-engines', EnterEngineController::class)->except(['update']);
 
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
     Route::delete('/production-tracking/{tracking}',
@@ -504,7 +505,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'temporary-productions' => TemporaryProductionController::class,
         'check-lists' => CheckListController::class,
         'nav-colors' => NavColorController::class,
-        'car-model-files'  => CarModelFileController::class,
+        'car-model-files' => CarModelFileController::class,
     ]);
 
     /*
