@@ -96,13 +96,14 @@ class BarcodeController extends CrudController
                 $erpMap = config('serial_barcodes.erp_map');
                 $code = $validatedData['code'];
 
-                $firstPart = Str::substr($code, 0, 10);
-                $secondPart = Str::substr($code, 10);
-                $code = $firstPart . '*' . $secondPart;
+
                 if (isset($erpMap[$validatedData['type']])) {
                     if ($vehicle->carModel->reference == "KSPCO010CP"){
                         $code = Str::of($code)->trim('*')->toString();
                     }
+                    $firstPart = Str::substr($code, 0, 9);
+                    $secondPart = Str::substr($code, 9);
+                    $code = $firstPart . '*' . $secondPart;
                     $response = $this->submitSerialBarcode($validatedData['vin'], $code, $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
