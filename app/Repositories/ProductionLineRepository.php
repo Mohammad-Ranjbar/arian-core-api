@@ -17,11 +17,12 @@ class ProductionLineRepository extends BaseRepository
             'teams_webhook' => 'nullable',
             'on_enter' => 'nullable|boolean',
             'on_exit' => 'nullable|boolean',
-            'location_code' => 'nullable|string',
-            'prefix' => 'nullable|string',
+            'location_code' => 'nullable|string|max:255',
+            'prefix' => 'nullable|string|max:255',
             'show_in_board' => 'required|boolean',
-            'location' => 'nullable|string',
-            'central_location' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'central_location' => 'nullable|string|max:255',
+            'batch_name' => 'nullable|string|max:255',
             'item_type' => 'required|in:0,1,2'
         ],
         'update' => [
@@ -30,11 +31,12 @@ class ProductionLineRepository extends BaseRepository
             'teams_webhook' => 'nullable',
             'on_enter' => 'nullable|boolean',
             'on_exit' => 'nullable|boolean',
-            'location_code' => 'nullable|string',
-            'prefix' => 'nullable|string',
+            'location_code' => 'nullable|string|max:255',
+            'prefix' => 'nullable|string|max:255',
             'show_in_board' => 'required|boolean',
-            'location' => 'nullable|string',
-            'central_location' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'central_location' => 'nullable|string|max:255',
+            'batch_name' => 'nullable|string|max:255',
             'item_type' => 'required|in:0,1,2'
         ]
     ];
@@ -52,7 +54,7 @@ class ProductionLineRepository extends BaseRepository
 
     public function getOptions(): array
     {
-        $url = request()->getRequestUri()  ;
+        $url = request()->getRequestUri();
 
         $type = match ($url) {
             '/api/options/production-engine-lines' => 'engine',
@@ -62,7 +64,7 @@ class ProductionLineRepository extends BaseRepository
         return $this->model->newQuery()->where('production_line_type', $type)->get()->map(function ($item) {
             return [
                 'id' => $item->id,
-                'title' => $item->title . ' - ' . $item->code,
+                'title' => $item->title . ' - ' . $item->location_code,
             ];
         })->all();
     }
