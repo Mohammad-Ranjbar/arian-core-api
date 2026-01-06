@@ -72,7 +72,7 @@ class BasketController extends CrudController
         ]);
     }
 
-    public function batchUpdate(UpdateBasketBatchRequest $request): true|JsonResponse
+    public function batchUpdate(UpdateBasketBatchRequest $request)
     {
         $validatedData = $request->validated();
         $lock = Cache::lock('batch_update_process_' . Auth::id(), 10);
@@ -94,12 +94,13 @@ class BasketController extends CrudController
         return true;
     }
 
-    public function sendBasketBatchBarcode(array $codes, $batch, $basketId): void
+    public function sendBasketBatchBarcode(array $codes, $batch, $basketId,$batchName): void
     {
         $parameters = [
             'numberP' => count($codes),
             'arrayCrossReferenceNoP' => implode(",", $codes),
-            'batchNoP' => 'Batch-' . $batch
+            'batchNoP' => 'Batch-' . $batch,
+            'BatchNameP' => $batchName
         ];
         $erpJob = ErpJob::query()->create([
             'model_id' => $basketId,
