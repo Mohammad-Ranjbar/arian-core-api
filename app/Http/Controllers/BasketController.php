@@ -84,7 +84,7 @@ class BasketController extends CrudController
                 ]);
             }
             $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
-                $baskets->first()->id);
+                $baskets->first()->id,$validatedData['batch_name']);
             Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
             $lock->release();
         }else {
