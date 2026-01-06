@@ -63,7 +63,7 @@ class ProductionLineRepository extends BaseRepository
         };
 
         return $this->model->newQuery()->whereHas('users',function ($user){
-            $user->id == Auth::id();
+            $user->user_id == Auth::id();
         })->where('production_line_type', $type)->get()->map(function ($item) {
             return [
                 'id' => $item->id,
