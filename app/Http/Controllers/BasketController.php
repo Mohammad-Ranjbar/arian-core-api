@@ -100,7 +100,7 @@ class BasketController extends CrudController
             'numberP' => count($codes),
             'arrayCrossReferenceNoP' => implode(",", $codes),
             'batchNoP' => 'Batch-' . $batch,
-            'BatchNameP' => $batchName
+            'batchNameP' => $batchName
         ];
         $erpJob = ErpJob::query()->create([
             'model_id' => $basketId,
