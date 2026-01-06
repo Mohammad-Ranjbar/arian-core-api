@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\libs\BaseRepository;
 use App\Models\ProductionLine;
+use Illuminate\Support\Facades\Auth;
 
 class ProductionLineRepository extends BaseRepository
 {
@@ -61,7 +62,9 @@ class ProductionLineRepository extends BaseRepository
             default => 'vehicle'
         };
 
-        return $this->model->newQuery()->where('production_line_type', $type)->get()->map(function ($item) {
+        return $this->model->newQuery()->whereHas('users',function ($user){
+            $user->id == Auth::id();
+        })->where('production_line_type', $type)->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'title' => $item->title . ' - ' . $item->location_code,
