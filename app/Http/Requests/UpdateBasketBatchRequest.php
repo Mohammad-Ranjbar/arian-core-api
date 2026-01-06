@@ -17,6 +17,7 @@ class UpdateBasketBatchRequest extends FormRequest
     {
         return [
             'batch' => [ 'required', 'string'],
+            'batch_name' => [ 'required', 'string'],
         ];
     }
 }
