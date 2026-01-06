@@ -18,7 +18,7 @@ class BatchNameController extends Controller
         $content = $this->erpOdataClient->get($url);
         if (isset($content->value)) {
             foreach ($content->value as $row) {
-                $data[] = $row;
+                $data[] = $row->NAME;
             }
         }
 
