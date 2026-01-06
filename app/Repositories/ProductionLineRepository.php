@@ -62,8 +62,8 @@ class ProductionLineRepository extends BaseRepository
             default => 'vehicle'
         };
 
-        return $this->model->newQuery()->whereHas('users',function ($user){
-            $user->user_id == Auth::id();
+        return $this->model->newQuery()->whereHas('users',function ($query){
+            $query->where('users.id', auth()->id());
         })->where('production_line_type', $type)->get()->map(function ($item) {
             return [
                 'id' => $item->id,
