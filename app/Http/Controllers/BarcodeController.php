@@ -98,7 +98,7 @@ class BarcodeController extends CrudController
 
 
                 if (isset($erpMap[$validatedData['type']])) {
-
+                    $codeNav = $validatedData['code'];
                     if ($vehicle->carModel->reference == "KSPCO010CP"){
                         $firstPart = Str::substr($code, 0, 10);
                         $secondPart = Str::substr($code, 10);
@@ -107,6 +107,7 @@ class BarcodeController extends CrudController
                         $saveItem->save();
                         $codeNav = Str::of($code)->trim('*')->toString();
                     }
+
                     $response = $this->submitSerialBarcode($validatedData['vin'], $codeNav, $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
