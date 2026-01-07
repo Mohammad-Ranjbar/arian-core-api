@@ -29,7 +29,7 @@ class VehicleResource extends JsonResource
                     ->first()?->getAttribute('code') ?? 'unknown',
             'grade' => $this->resource->grade,
             'production_order_number' => $this->resource->production_order_number,
-            'engine_no' => $this->resource->engine_no,
+            'engine_no' => $this->carModel->reference == "KSPCO010CP" ?'*'.$this->resource->engine_no.'*' :$this->resource->engine_no,
             'cabin_no' => $this->resource->cabin_no,
             'grade_description' => $this->resource->grade_description,
             'qc_description' => $this->resource->qc_description,
