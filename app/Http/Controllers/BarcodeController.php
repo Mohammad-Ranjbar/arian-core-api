@@ -107,7 +107,7 @@ class BarcodeController extends CrudController
                         $saveItem->save();
                         $codeNav = Str::of($code)->trim('*')->toString();
                     }
-                    $response = $this->submitSerialBarcode($validatedData['vin'], $code, $erpMap[$validatedData['type']]);
+                    $response = $this->submitSerialBarcode($validatedData['vin'], $codeNav, $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
                     }
