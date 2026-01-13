@@ -10,22 +10,22 @@ class SalesBridgeController extends Controller
 
     public function getOrderIds($prefix)
     {
-        return Http::get($this->getOrderUrl($prefix))->json();
+        return Http::withoutVerifying()->get($this->getOrderUrl($prefix))->json();
     }
 
     public function getOrderDetail($prefix, $id)
     {
-        return Http::get($this->getOrderUrl($prefix).'/'.$id)->json();
+        return Http::withoutVerifying()->get($this->getOrderUrl($prefix).'/'.$id)->json();
     }
 
     public function getCustomerFinance($prefix,  $invoiceReference)
     {
-        return Http::get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
+        return Http::withoutVerifying()->get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
     }
 
     public function getSecondPayment($prefix,  $id)
     {
-        return Http::get($this->getUrl($prefix).'/second-payment/'.$id)->json();
+        return Http::withoutVerifying()->get($this->getUrl($prefix).'/second-payment/'.$id)->json();
     }
 
     public function getOrderUrl($prefix)
