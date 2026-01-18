@@ -69,7 +69,7 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
                     $url = 'https://sales.arian-motor.com/api/sync-orders-erp';
                 }
 
-                Http::post($url, $sendData);
+                Http::withoutVerifying()->post($url, $sendData);
                 Storage::delete($this->data['path']);
             } else {
                 // TODO update for each company

@@ -94,20 +94,21 @@ class BarcodeController extends CrudController
 
             if (!empty($validatedData['type'])) {
                 $erpMap = config('serial_barcodes.erp_map');
-//                $code = $validatedData['code'];
+                $code = $validatedData['code'];
 
 
                 if (isset($erpMap[$validatedData['type']])) {
+                    $codeNav = $validatedData['code'];
+                    if ($vehicle->carModel->reference == "KSPCO010CP"){
+                        $firstPart = Str::substr($code, 0, 10);
+                        $secondPart = Str::substr($code, 10);
+                        $code = $firstPart . '*' . $secondPart;
+                        $saveItem->code = $code;
+                        $saveItem->save();
+                        $codeNav = Str::of($code)->trim('*')->toString();
+                    }
 
-//                    if ($vehicle->carModel->reference == "KSPCO010CP"){
-//                        $firstPart = Str::substr($code, 0, 10);
-//                        $secondPart = Str::substr($code, 10);
-//                        $code = $firstPart . '*' . $secondPart;
-//                        $saveItem->code = $code;
-//                        $saveItem->save();
-//                        $codeNav = Str::of($code)->trim('*')->toString();
-//                    }
-                    $response = $this->submitSerialBarcode($validatedData['vin'], $validatedData['code'], $erpMap[$validatedData['type']]);
+                    $response = $this->submitSerialBarcode($validatedData['vin'], $codeNav, $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
                         return $this->responseError($response['message'], 400);
                     }
