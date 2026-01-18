@@ -94,7 +94,7 @@ class BarcodeController extends CrudController
 
             if (!empty($validatedData['type'])) {
                 $erpMap = config('serial_barcodes.erp_map');
-//                $code = $validatedData['code'];
+                $code = $validatedData['code'];
 
 
                 if (isset($erpMap[$validatedData['type']])) {
