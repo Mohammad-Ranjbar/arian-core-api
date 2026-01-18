@@ -20,6 +20,7 @@ class UpdatePermissionCommand extends Command
     public function handle(): void
     {
         $list = collect([
+            'police-inspection-update',
             'force-delete-enter-engine',
             'delete-enter-tracking',
 
