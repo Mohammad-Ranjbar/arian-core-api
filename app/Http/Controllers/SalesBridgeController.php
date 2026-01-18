@@ -20,7 +20,9 @@ class SalesBridgeController extends Controller
 
     public function getCustomerFinance($prefix,  $invoiceReference)
     {
-        return Http::withoutVerifying()->get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
+        $t = Http::withoutVerifying()->get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
+        logger($t);
+        return $t;
     }
 
     public function getSecondPayment($prefix,  $id)
