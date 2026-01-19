@@ -33,7 +33,7 @@ class SmsService
             'mobile' => $mobileArray,
             'msg' => $msgArray
         ]);
-
+        logger('-------------test sms ----------');
         logger($x);
 
         return 1;
