@@ -32,7 +32,7 @@ class SmsService
             'sms_number' => $smsNumberArray,
             'mobile' => $mobileArray,
             'msg' => $msgArray
-        ])->json();
+        ]);
 
         logger($x);
 
