@@ -64,7 +64,7 @@ return [
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 10,
             'maxTime' => 0,
-            'maxJobs' => 10,
+            'maxJobs' => 3,
             'memory' => 16000,
             'tries' => 3,
             'timeout' => 10000000,
