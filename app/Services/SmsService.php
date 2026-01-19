@@ -25,14 +25,18 @@ class SmsService
         $msgArray = [trim($text)];
         $smsNumberArray = [config('sms.tsms.from')];
 
-        return Http::post(config('sms.tsms.json_url'), [
+        $x = Http::post(config('sms.tsms.json_url'), [
             'method' => 'sendSms',
             'username' => $username,
             'password' => $password,
             'sms_number' => $smsNumberArray,
             'mobile' => $mobileArray,
             'msg' => $msgArray
-        ])->json('rezult')[0];
+        ])->json();
+
+        logger($x);
+
+        return 1;
     }
 
     public function send(
