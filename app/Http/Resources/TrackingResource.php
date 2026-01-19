@@ -18,8 +18,8 @@ class TrackingResource extends JsonResource
             'id' => $this->resource->id,
             'type' => $this->resource->type,
             'data' => $this->resource->data,
-            'user' => new UserShortResource($this->resource->user),
-            'vehicle' => new VehicleResource($this->resource->vehicle),
+            'user_name' => $this->resource->user->name,
+            'vehicle' =>  ShortVehicleResource::make($this->resource->vehicle),
             'temporaryProduction' => TemporaryProductionResource::make($this->resource->temporaryProduction),
             'created_at' => $this->resource->created_at,
         ];
