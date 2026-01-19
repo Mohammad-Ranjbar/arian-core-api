@@ -32,7 +32,7 @@ class SmsService
             'sms_number' => $smsNumberArray,
             'mobile' => $mobileArray,
             'msg' => $msgArray
-        ]);
+        ])->status();
         logger('-------------test sms ----------');
         logger($x);
 
