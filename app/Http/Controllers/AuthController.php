@@ -6,6 +6,7 @@ use App\Http\Requests\AuthRequest;
 use App\Http\Requests\ChangePasswordUserRequest;
 use App\Http\Requests\RecoverPasswordRequest;
 use App\Http\Requests\VerifyCodeRequest;
+use App\Http\Resources\CheckUserNameResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\SmsService;
@@ -15,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class AuthController extends Controller
 {
@@ -41,15 +43,13 @@ class AuthController extends Controller
                 ->orWhere('mobile', $validatedData['username'])
                 ->first();
             if (empty($user)){
-                return $this->responseError('کاربر یافت نشد');
+                return $this->responseError('کاربر یافت نشد',404);
             }
 
             if ($user->getAttribute('is_active') == 0) {
                 return $this->responseError('کاربر غیر فعال میباشد', 404);
             }
-            if (!isset($user)) {
-                return $this->responseError('کاربر با مشخصات وارد شده موجود نیست', 404);
-            }
+
             if (!Hash::check($validatedData['password'], $user->password)) {
                 //change status 401 to 403 , needed frontEnd :)))
                 return $this->responseError('اطلاعات وارد شده صحیح نیست', 403);
@@ -98,7 +98,7 @@ class AuthController extends Controller
         return response()->json([
             'user'        => new UserResource($request->user()),
             'permissions' => $request->user()->getAllPermissions()->pluck('name')->all(),
-            'debug_mode' => env('APP_ENV') !== 'production'
+            'debug_mode' => config('app.env') !== 'production'
         ]);
     }
 
@@ -149,8 +149,7 @@ class AuthController extends Controller
 
 
     /**
-     * @param  VerifyCodeRequest  $request
-     * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function verifyCode(VerifyCodeRequest $request): JsonResponse
     {
@@ -168,14 +167,14 @@ class AuthController extends Controller
     }
 
 
-    public function checkUserName(Request $request): UserResource|JsonResponse
+    public function checkUserName(Request $request): CheckUserNameResource|JsonResponse
     {
         $validatedData = $request->validate(['username' => 'required']);
         try {
             $user = User::query()->where('email', $validatedData['username'])
                 ->orWhere('mobile', $validatedData['username'])
                 ->firstOrFail();
-            return new UserResource($user);
+            return  CheckUserNameResource::make($user);
         }catch (Exception $exception) {
             return response()->json(['data' =>[
                 'message' => 'نام کاربری '.$validatedData['username'].' یافت نشد.',
