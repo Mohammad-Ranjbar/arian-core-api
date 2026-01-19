@@ -25,7 +25,10 @@ class ChangePasswordUserRequest extends FormRequest
                 'required',
                 'string',
                 'min:8',
-                'regex:/^(?=.*[!@#$%]).+$/'
+                'regex:/^(?=.*[!@#$%]).+$/',
+                'regex:/[A-Z]/',
+                'regex:/[a-z]/',
+                'regex:/[0-9]/',
             ],
             'oldPassword' => 'required|string',
         ];
