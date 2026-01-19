@@ -66,7 +66,11 @@ class PublishMessageJob implements ShouldQueue
                 'order_id'  => $data['online_order_id'],
                 'status'    => $result,
             ];
-            Http::post($saleCompany->site_url.'-response', $responseData);
+            $url = $saleCompany->site_url.'-response';
+            if (strpos($data['online_order_id'],'_AM-',)) {
+                $url = str_replace('lamari.ir','arian-motor.com',$url);
+            }
+            Http::post($url, $responseData);
         }
     }
 }
