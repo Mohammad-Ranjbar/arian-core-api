@@ -15,6 +15,6 @@ class TestSMSCommand extends Command
 
     public function handle(): void
     {
-        SmsService::jsonSend('09126872183', 'test');
+        SmsService::jsonSend('09126872183', 'سلام تست');
     }
 }
