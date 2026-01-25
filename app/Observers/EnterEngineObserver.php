@@ -9,8 +9,8 @@ class EnterEngineObserver
 
     public function created(EnterEngine $enterEngine): void
     {
-        if ($enterEngine->getAttribute('make_code_id')) {
-            $enterEngine->update(['counter' => EnterEngine::computeSynchronousCounter($enterEngine->getAttribute('make_code_id'))]);
+        if ($enterEngine->getAttribute('production_line_id')) {
+            $enterEngine->update(['counter' => EnterEngine::computeSynchronousCounter($enterEngine->getAttribute('production_line_id'))]);
         }
     }
 

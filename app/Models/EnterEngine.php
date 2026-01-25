@@ -45,8 +45,8 @@ class EnterEngine extends Model
         return $this->belongsTo(MakeCode::class);
     }
 
-    public static function computeSynchronousCounter(int $makeCodeId):int
+    public static function computeSynchronousCounter(int $productionLineId):int
     {
-      return  self::query()->where('make_code_id',$makeCodeId)->max('counter') + 1 ;
+      return  self::query()->where('production_line_id',$productionLineId)->max('counter') + 1 ;
     }
 }
