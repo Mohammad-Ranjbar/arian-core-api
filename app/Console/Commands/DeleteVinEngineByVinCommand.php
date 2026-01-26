@@ -1553,6 +1553,6 @@ class DeleteVinEngineByVinCommand extends Command
             "N5RP12DT5SP001774",
             "N5RP12DT5SP001775",
         ];
-        VinEngine::query()->whereIn('vin',$items)->delete();
+//        VinEngine::query()->whereIn('vin',$items)->delete();
     }
 }
