@@ -178,18 +178,18 @@ class VehicleOverviewController extends Controller
                     ],
                     [
                         'تاریخ شماره گذاری',
-                        ($vehicle->getAttribute('data')['Platting_Date'] and
-                            $vehicle->getAttribute('data')['Platting_Date'] != '0001-01-01T00:00:00Z')
+                        ($vehicle->getAttribute('data')['PlattingDate'] and
+                            $vehicle->getAttribute('data')['PlattingDate'] != '0001-01-01T00:00:00Z')
                             ?
-                            jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString()
+                            jdate($vehicle->getAttribute('data')['PlattingDate'])->toDateString()
                             : '-',
                     ],
                     [
                         'تاریخ چاپ سند',
-                        ($vehicle->getAttribute('data')['Platting_Date'] and
-                            $vehicle->getAttribute('data')['Platting_Date'] != '0001-01-01T00:00:00Z')
+                        ($vehicle->getAttribute('data')['PlattingDate'] and
+                            $vehicle->getAttribute('data')['PlattingDate'] != '0001-01-01T00:00:00Z')
                             ?
-                            jdate($vehicle->getAttribute('data')['Platting_Date'])->toDateString()
+                            jdate($vehicle->getAttribute('data')['PlattingDate'])->toDateString()
                             : '-',
                     ],
                 ]
