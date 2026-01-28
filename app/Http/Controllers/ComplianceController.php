@@ -33,13 +33,18 @@ class ComplianceController extends Controller
             'SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT012AD','SSCTR02TAD','SSCHT042MD' => 'X5000',
             default => false,
         };
+
         if (!$bladeName){
             $carModelTitle = $vehicle->carModel->reference;
             return response()->json("cant find ane view for car model $carModelTitle");
         }
-
+        $bladeName = $vehicle->carModel->reference;
         if (in_array($vehicle->carModel->reference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
             $bladeName = 'X5000';
+        }
+
+        if (in_array($vehicle->carModel->reference, ['JSCLT07LAD'])){
+            $bladeName = 'TN721-N120';
         }
 
         if (in_array($vehicle->carModel->reference, ['JSCLT07LAD'])){
