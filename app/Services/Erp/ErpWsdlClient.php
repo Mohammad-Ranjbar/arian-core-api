@@ -51,6 +51,8 @@ class ErpWsdlClient
             if (isset($output['status']) and in_array(strtolower($output['status']),
                     ['error', 'fail', '0', 'false', 'not'])) {
                 $output['status'] = 'error';
+                $output['message'] = 'خطای بیزینس سنترال ERP:'.implode(' ', $list);
+
             }
 
             return $output;
@@ -59,7 +61,7 @@ class ErpWsdlClient
             return [
                 'status' => 'error',
 
-                'message' => strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3",
+                'message' => 'خطای بیزینس سنترال ERP:'.strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3",
 
                     $exception->getResponse()->getBody()->getContents()))
             ];
