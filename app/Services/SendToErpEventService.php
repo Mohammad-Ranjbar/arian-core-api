@@ -66,7 +66,6 @@ class SendToErpEventService
                     'tries' => $erpJob->getAttribute('tries'),
                     'execute_time' => $erpJob->getAttribute('execute_time'),
                 ],
-
                 'user_id' => $erpJob->getAttribute('user_id'),
                 'action' => 'send_to_erp'
             ]);
