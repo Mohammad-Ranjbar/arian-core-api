@@ -16,7 +16,7 @@ class RetryErpJobCommand extends Command
     public function handle():void
     {
         $erpJobs = ErpJob::query()
-            ->where('tries', '<', 5)
+            ->where('tries', '<', 2)
             ->where('status','failed')
             ->get();
 
