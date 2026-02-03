@@ -41,27 +41,4 @@ class ErpJobObserver
         }
     }
 
-    public function saved(ErpJob $erpJob): void
-    {
-        $max = 0;
-       $log = $erpJob->actionLogs()->where('action','send_to_erp')->latest()->first();
-       if ($log) {
-           $max = $log->getAttribute('data')['tries'];
-       }
-       if ($erpJob->getAttribute('tries') > $max) {
-           $erpJob->actionLogs()->create([
-               'data' => [
-                   'message' => $erpJob->getAttribute('description'),
-                   'status' => $erpJob->getAttribute('status'),
-                   'tries' => $erpJob->getAttribute('tries'),
-                   'execute_time' => $erpJob->getAttribute('execute_time'),
-               ],
-               'user_id' => $erpJob->getAttribute('user_id'),
-               'action' => 'send_to_erp'
-           ]);
-       }
-
-    }
-
-
 }

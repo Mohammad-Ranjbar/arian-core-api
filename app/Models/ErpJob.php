@@ -39,11 +39,6 @@ class ErpJob extends Model
 
     ];
 
-    public function actionLogs(): MorphMany
-    {
-        return $this->morphMany(ActionLog::class,'model');
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
@@ -75,6 +70,25 @@ class ErpJob extends Model
         return $this->update([
             'status' => 'start'
         ]);
+    }
+
+    public function createLog(): void
+    {
+        $this->actionLogs()->create([
+            'data' => [
+                'message' => $this->getAttribute('description'),
+                'status' => $this->getAttribute('status'),
+                'tries' => $this->getAttribute('tries'),
+                'execute_time' => $this->getAttribute('execute_time'),
+            ],
+            'user_id' => $this->getAttribute('user_id'),
+            'action' => 'send_to_erp'
+        ]);
+    }
+
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'model');
     }
 
     public function setStatusSuccess($response): bool

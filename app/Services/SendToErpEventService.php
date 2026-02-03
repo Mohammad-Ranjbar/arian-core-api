@@ -46,6 +46,7 @@ class SendToErpEventService
             }
             $erpJob->setExecutionTime($startAt, microtime(true));
             $erpJob->setStatusSuccess($response);
+            $erpJob->createLog();
         } catch (Exception $exception) {
             $erpJob->setStatusFailed($exception->getMessage());
             if ($model && method_exists($model, 'failedJob')) {
