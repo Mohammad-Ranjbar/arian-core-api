@@ -26,6 +26,7 @@ class ErpJobResource extends JsonResource
             'queue' => $this->resource->queue,
             'user' => UserResource::make($this->resource->user),
             'created_at' => $this->resource->created_at,
+            'actions' => ActionLogResource::collection($this->resource->actionLogs),
         ];
     }
 }
