@@ -72,19 +72,6 @@ class ErpJob extends Model
         ]);
     }
 
-    public function createLog(): void
-    {
-        $this->actionLogs()->create([
-            'data' => [
-                'message' => $this->getAttribute('description'),
-                'status' => $this->getAttribute('status'),
-                'tries' => $this->getAttribute('tries'),
-                'execute_time' => $this->getAttribute('execute_time'),
-            ],
-            'user_id' => $this->getAttribute('user_id'),
-            'action' => 'send_to_erp'
-        ]);
-    }
 
     public function actionLogs(): MorphMany
     {
