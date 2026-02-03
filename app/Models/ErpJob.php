@@ -3,16 +3,19 @@
 namespace App\Models;
 
 use App\Services\ResponseTimeService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Builder;
 
 class ErpJob extends Model
 {
     use Prunable;
+
     const string QUEUE_UNIQUE = 'unique';
+
     const string QUEUE_ = 'parallel';
 
     const string BLOCK_ITEM = 'block-item';
@@ -31,11 +34,15 @@ class ErpJob extends Model
         'tries',
         'queue'
     ];
-
     protected $casts = [
         'parameters' => 'array',
 
     ];
+
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class,'model');
+    }
 
     public function user(): BelongsTo
     {
