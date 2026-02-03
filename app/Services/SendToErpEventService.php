@@ -58,7 +58,17 @@ class SendToErpEventService
             $erpJob->setExecutionTime($startAt, microtime(true));
             return;
         } finally {
-            $erpJob->createLog();
+
+            $erpJob->actionLogs()->create([
+                'data' => [
+                    'message' => $erpJob->getAttribute('description'),
+                    'status' => $erpJob->getAttribute('status'),
+                    'tries' => $erpJob->getAttribute('tries'),
+                    'execute_time' => $erpJob->getAttribute('execute_time'),
+                ],
+                'user_id' => $erpJob->getAttribute('user_id'),
+                'action' => 'send_to_erp'
+            ]);
         }
 
     }
