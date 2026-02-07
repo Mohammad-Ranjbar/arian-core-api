@@ -16,7 +16,7 @@ use Throwable;
 class SendToErpUniqueJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
+    public int $uniqueFor = 3600;
     public function __construct(public readonly string $id)
     {
         //
@@ -29,7 +29,7 @@ class SendToErpUniqueJob implements ShouldQueue, ShouldBeUnique
     public function uniqueId(): string
 
     {
-        return $this->id.Str::uuid()->toString();
+        return 'erp_job_'.$this->id;
 
     }
 
