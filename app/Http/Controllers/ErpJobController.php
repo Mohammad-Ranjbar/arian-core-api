@@ -9,8 +9,10 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class ErpJobController extends Controller
 {
@@ -26,9 +28,9 @@ class ErpJobController extends Controller
         $data = ErpJob::query();
 
         $data = request()->has('status') && request()->get('status') == 'ignore' ?
-            $data->where('status','ignore') :
+            $data->where('status', 'ignore') :
             $data->where('status', 'failed');
-       $data = $data->with(['user', 'model'])
+        $data = $data->with(['user', 'model'])
             ->latest()
             ->paginate(request()->get('per_page') ?? '15');
         return ErpJobResource::collection($data);
@@ -36,31 +38,40 @@ class ErpJobController extends Controller
 
     /**
      * @throws AuthorizationException
+     * @throws InvalidArgumentException
      */
     public function retry(ErpJob $erpJob): JsonResponse
     {
-        $this->authorize('retry-erp-jobs');
-
-        if ($erpJob->getAttribute('status') !== 'failed') {
-            return response()->json([
-                'message' => 'Job retry is not failed',
-            ]);
+        $submitted = Cache::get('erp_job_submitted_' . $erpJob->getAttribute('id'));
+        if ($submitted) {
+            return new JsonResponse(
+                data: ['message' => 'جاب درخواستی قبلا تلاش مجدد شده لطفا مجدد لحظاتی دیگر بررسی کنید'],
+                status: 400
+            );
         }
-        $erpJob->load(['user', 'model']);
+        Cache::set('erp_job_submitted_' . $erpJob->getAttribute('id'), true, 100);
 
-//        if (empty($erpJob->model)) {
-//            return response()->json([
-//                'message' => 'model entity of job not found'
-//            ], 422);
-//        }
+        try {
+            $this->authorize('retry-erp-jobs');
 
-        $erpJob->setStatusStart();
+            if ($erpJob->getAttribute('status') !== 'failed') {
+                return response()->json([
+                    'message' => 'Job retry is not failed',
+                ]);
+            }
+            $erpJob->load(['user', 'model']);
 
-        ErpJobEvent::dispatch($erpJob);
+            $erpJob->setStatusStart();
 
-        return response()->json([
-            'message' => 'Job retry successfully'
-        ]);
+            ErpJobEvent::dispatch($erpJob);
+
+            return response()->json([
+                'message' => 'Job retry successfully'
+            ]);
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage());
+        }
+
     }
 
     public function changeStatusToIgnore(ErpJob $erpJob): JsonResponse
