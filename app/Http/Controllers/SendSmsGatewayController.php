@@ -19,9 +19,6 @@ class SendSmsGatewayController extends Controller
             abort(403);
         }
 
-        logger($request->get('to'));
-        logger($request->get('content'));
-
         dispatch(new SmsJob(implode(',', (array) $request->get('to')), $request->get('content')));
 
         return response()->json(['message' => 'sms job fired']);
