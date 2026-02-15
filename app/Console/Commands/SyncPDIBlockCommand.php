@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\BlockItemController;
 use App\Jobs\CheckVehicleJob;
+use App\Models\BlockItem;
 use App\Models\BlockReason;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpOdataClient;
@@ -59,8 +60,19 @@ class SyncPDIBlockCommand extends Command
                         $dateString = $row->LastPDIDate;
 
                         $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
+                        $blockItem = BlockItem::query()->where('vin', $row->VIN)->latest()->first();
 
-                        if ($checkDate) {
+                        $isExpired = false;
+
+                        if ($blockItem) {
+                            $referenceDate = $blockItem->unblock_at ?? $blockItem->created_at;
+
+                            $isExpired = $referenceDate->lt(
+                                Carbon::now()->subDays(45)
+                            );
+                        }
+
+                        if ($checkDate && $isExpired) {
 
                             $data = [
                                 'block_reason_id' => $reasonId,
