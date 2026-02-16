@@ -72,8 +72,8 @@ class SyncPDIBlockCommand extends Command
                             );
                         }
 
-                        if ($checkDate && $isExpired) {
-
+                        if ($checkDate) {
+                        if (isset($blockItem) && $isExpired) {
                             $data = [
                                 'block_reason_id' => $reasonId,
                                 'description' => 'PDI Block',
@@ -88,6 +88,8 @@ class SyncPDIBlockCommand extends Command
                             } catch (Exception $exception) {
                                 logger()->error($exception->getMessage());
                             }
+                        }
+
 
                         }
                         $bar->advance();
