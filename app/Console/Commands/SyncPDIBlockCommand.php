@@ -72,7 +72,7 @@ class SyncPDIBlockCommand extends Command
                             );
                         }
 
-                        if ($checkDate || $isExpired || !$blockItem) {
+                        if ($checkDate && $isExpired) {
 
                             $data = [
                                 'block_reason_id' => $reasonId,
