@@ -60,7 +60,7 @@ class SyncPDIBlockCommand extends Command
                         $dateString = $row->LastPDIDate;
 
                         $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
-                        $blockItem = BlockItem::query()->where('vin', $row->VIN)->where('type','system')->latest()->first();
+                        $blockItem = BlockItem::query()->where('vin', $row->VIN)->where('type', 'system')->latest()->first();
 
                         $isExpired = false;
 
@@ -72,8 +72,8 @@ class SyncPDIBlockCommand extends Command
                             );
                         }
 
-                        if ($checkDate) {
-                        if (isset($blockItem) && $isExpired) {
+                        if ($checkDate || isset($blockItem) && $isExpired) {
+
                             $data = [
                                 'block_reason_id' => $reasonId,
                                 'description' => 'PDI Block',
@@ -90,8 +90,6 @@ class SyncPDIBlockCommand extends Command
                             }
                         }
 
-
-                        }
                         $bar->advance();
                     }
                 }
