@@ -110,7 +110,7 @@ class BasketController extends CrudController
             'method' => 'GroupItemReclassJournal',
             'url' => config('erp.basket_batch'),
             'parameters' => $parameters,
-            'queue' => ErpJob::QUEUE_UNIQUE
+            'queue' => 'parallel'
         ]);
 
         ErpJobEvent::dispatch($erpJob);
