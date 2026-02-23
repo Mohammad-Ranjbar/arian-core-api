@@ -22,7 +22,7 @@ class DisplayBoardController extends Controller
             return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
         }
 
-        $list = collect($data['data'])->whereIn('Location', $locations);
+        $list = collect($data['data'])->whereIn('Location', $locations)->whereIn('Shift', $shifts);
         dd($list);
         $result = $list->map(function ($item) use ($lines) {
 
