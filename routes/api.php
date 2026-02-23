@@ -138,7 +138,7 @@ Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::any('/gateway-vehicle-information', SamtController::class);
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
-
+    Route::get('/shifts',\App\Http\Controllers\ShiftErpController::class);
     Route::get('get-batch-names', BatchNameController::class);
     Route::get('/get-template-engine', [PDIController::class, 'getTemplateEngine'])->name('get-template-engine');
     Route::post('/import-engines', [PDIController::class, 'importEngine'])->name('import-engines');
