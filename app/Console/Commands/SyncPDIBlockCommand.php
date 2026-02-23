@@ -73,7 +73,7 @@ class SyncPDIBlockCommand extends Command
                         }
 
                         if (($checkDate && empty($blockItem)) ||  $isExpired) {
-
+                            dd($row);
                             $data = [
                                 'block_reason_id' => $reasonId,
                                 'description' => 'PDI Block',
