@@ -24,7 +24,8 @@ class ProductionLineRepository extends BaseRepository
             'location' => 'nullable|string|max:255',
             'central_location' => 'nullable|string|max:255',
             'batch_name' => 'nullable|string|max:255',
-            'item_type' => 'required|in:0,1,2'
+            'item_type' => 'required|in:0,1,2',
+            'shift' => 'string|required'
         ],
         'update' => [
             'title' => 'required|string|unique:production_lines,title,',
@@ -38,7 +39,8 @@ class ProductionLineRepository extends BaseRepository
             'location' => 'nullable|string|max:255',
             'central_location' => 'nullable|string|max:255',
             'batch_name' => 'nullable|string|max:255',
-            'item_type' => 'required|in:0,1,2'
+            'item_type' => 'required|in:0,1,2',
+            'shift' => 'string|required'
         ]
     ];
 
