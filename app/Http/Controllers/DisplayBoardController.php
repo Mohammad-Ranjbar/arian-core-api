@@ -14,7 +14,7 @@ class DisplayBoardController extends Controller
     public function __invoke(Request $request, Salon $salon): JsonResponse
     {
         $data = ErpDisplayBoard::getData();
-
+        dd($data);
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location_code')->all();
         if (!isset($data['data'])){
