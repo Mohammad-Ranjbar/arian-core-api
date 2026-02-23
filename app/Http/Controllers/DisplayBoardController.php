@@ -16,7 +16,7 @@ class DisplayBoardController extends Controller
         $data = ErpDisplayBoard::getData();
 
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
-        $locations = $lines->pluck('location_code')->all();
+        $locations = $lines->pluck('location')->all();
         $shifts = $lines->pluck('shift')->all();
         if (!isset($data['data'])){
             return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
