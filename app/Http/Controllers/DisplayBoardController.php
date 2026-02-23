@@ -73,7 +73,7 @@ class DisplayBoardController extends Controller
                 $percentage = round(($outs * 100) / $planned);
             }
 
-            $line = $lines->where('location_code', $item->Location)->first();
+            $line = $lines->where('location', $item->Location)->first();
             $lineStatus = $line->isStarted();
             return [
                 'type' => 'production-board',
