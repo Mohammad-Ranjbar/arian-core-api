@@ -21,8 +21,9 @@ class DisplayBoardController extends Controller
         if (!isset($data['data'])){
             return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
         }
-        dd($shifts,$locations);
+
         $list = collect($data['data'])->whereIn('Location', $locations);
+        dd($list);
         $result = $list->map(function ($item) use ($lines) {
 
             $now = Carbon::now();
