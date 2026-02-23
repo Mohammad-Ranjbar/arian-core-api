@@ -14,12 +14,13 @@ class DisplayBoardController extends Controller
     public function __invoke(Request $request, Salon $salon): JsonResponse
     {
         $data = ErpDisplayBoard::getData();
-        dd($data);
+
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
-        $locations = $lines->pluck('location_code')->all();
+        $locations = $lines->pluck(['location_code','shift'])->all();
         if (!isset($data['data'])){
             return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
         }
+        dd($locations);
         $list = collect($data['data'])->whereIn('Location', $locations);
         $result = $list->map(function ($item) use ($lines) {
 
