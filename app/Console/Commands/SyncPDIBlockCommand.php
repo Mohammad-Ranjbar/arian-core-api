@@ -74,7 +74,7 @@ class SyncPDIBlockCommand extends Command
                         }
 
                         if (($checkDate && empty($blockItem)) ||  $isExpired) {
-                            if ($row->AllocationDate !== "0001-01-01" || $row->PlattingDate !== "0001-01-01"  ) {
+                            if ($row->AllocationDate !== "0001-01-01" || $row->PlattingDate !== "0001-01-01" || $row->LicenseNo !== "" ) {
                                 continue;
                             }
                             dd($row);
