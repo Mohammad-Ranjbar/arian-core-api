@@ -73,6 +73,9 @@ class SyncPDIBlockCommand extends Command
                         }
 
                         if (($checkDate && empty($blockItem)) ||  $isExpired) {
+                            if ($row->AllocationDate !== "0001-01-01" || $row->PlattingDate !== "0001-01-01"  || $row->PlattingDate !== "") {
+                                continue;
+                            }
                             dd($row);
                             $data = [
                                 'block_reason_id' => $reasonId,
