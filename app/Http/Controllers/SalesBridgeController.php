@@ -13,23 +13,6 @@ class SalesBridgeController extends Controller
         return Http::withoutVerifying()->get($this->getOrderUrl($prefix))->json();
     }
 
-    public function getOrderDetail($prefix, $id)
-    {
-        return Http::withoutVerifying()->get($this->getOrderUrl($prefix).'/'.$id)->json();
-    }
-
-    public function getCustomerFinance($prefix,  $invoiceReference)
-    {
-        $t = Http::withoutVerifying()->get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
-        logger($t);
-        return $t;
-    }
-
-    public function getSecondPayment($prefix,  $id)
-    {
-        return Http::withoutVerifying()->get($this->getUrl($prefix).'/second-payment/'.$id)->json();
-    }
-
     public function getOrderUrl($prefix)
     {
         $link1 = 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D';
@@ -38,41 +21,54 @@ class SalesBridgeController extends Controller
 
 
         $urls = [
-            'l' => $link1,
-            'd' => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
-            'p' => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
-            'a' => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
+            'l'    => $link1,
+            'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
+            'a'    => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
             'test' => 'http://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
     }
 
+    public function getOrderDetail($prefix, $id)
+    {
+        return Http::withoutVerifying()->get($this->getOrderUrl($prefix).'/'.$id)->json();
+    }
+
+    public function getCustomerFinance($prefix, $invoiceReference)
+    {
+        $t = Http::withoutVerifying()->get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
+        logger($t);
+        return $t;
+    }
 
     public function getUrl($prefix)
     {
         $urls = [
-            'l' => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
-            'd' => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
-            'p' => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'a' => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'l'    => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'a'    => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
             'test' => 'http://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
     }
 
+    public function getSecondPayment($prefix, $id)
+    {
+        return Http::withoutVerifying()->get($this->getUrl($prefix).'/second-payment/'.$id)->json();
+    }
+
+    public function getNationalCodes($prefix)
+    {
+        return Http::withoutVerifying()->get($this->getUrl($prefix).'/import/users')->json();
+    }
+
+    public function getMember($prefix, $nationalCode)
+    {
+        return Http::withoutVerifying()->get($this->getUrl($prefix).'/import/users/'.$nationalCode)->json();
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

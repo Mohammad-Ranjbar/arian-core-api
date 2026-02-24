@@ -534,6 +534,8 @@ Route::prefix('sb')->group(function () {
         Route::get('/{id}', [SalesBridgeController::class, 'getOrderDetail']);
         Route::get('/cf/{reference}', [SalesBridgeController::class, 'getCustomerFinance']);
         Route::get('/sp/{id}', [SalesBridgeController::class, 'getSecondPayment']);
+        Route::get('/import/users', [SalesBridgeController::class, 'getNationalCodes']);
+        Route::get('/import/users/{nationalCode}', [SalesBridgeController::class, 'getMember']);
     })->whereIn('companyPrefix', ['l', 'd', 'p', 'a', 'test']);
 });
 
