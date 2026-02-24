@@ -21,7 +21,7 @@ class ProductionLine extends Model
      */
     protected $fillable = [
         'title', 'salon_id', 'teams_webhook', 'location_code', 'show_in_board', 'prefix', 'location', 'central_location', 'item_type',
-        'production_line_type', 'printer_address', 'batch_name'
+        'production_line_type', 'printer_address', 'batch_name','shift'
     ];
 
 
