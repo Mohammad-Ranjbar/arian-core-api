@@ -77,7 +77,7 @@ class SyncPDIBlockCommand extends Command
                             if ($row->AllocationDate !== "0001-01-01" || $row->PlattingDate !== "0001-01-01"  || $row->PlattingDate !== "") {
                                 continue;
                             }
-//                            dd($row);
+                            dd($row);
                             $final[] = $row;
 //                            $data = [
 //                                'block_reason_id' => $reasonId,
