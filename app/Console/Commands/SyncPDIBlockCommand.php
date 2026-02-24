@@ -44,6 +44,7 @@ class SyncPDIBlockCommand extends Command
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
                 $count = 0;
+                $final = [];
                 foreach ($content->value as $row) {
 
                     if ($row->PDI_Result == '' || $row->LastPDIDate == '0001-01-01' || $row->Blocked) {
@@ -76,26 +77,28 @@ class SyncPDIBlockCommand extends Command
                             if ($row->AllocationDate !== "0001-01-01" || $row->PlattingDate !== "0001-01-01"  || $row->PlattingDate !== "") {
                                 continue;
                             }
-                            dd($row);
-                            $data = [
-                                'block_reason_id' => $reasonId,
-                                'description' => 'PDI Block',
-                                'blocked_by' => 1,
-                                'vin' => $row->VIN,
-                                'type' => 'system'
-                            ];
-
-                            try {
-                                $this->blockItemController->createBlock($data);
-                                $count++;
-                            } catch (Exception $exception) {
-                                logger()->error($exception->getMessage());
-                            }
+//                            dd($row);
+                            $final[] = $row;
+//                            $data = [
+//                                'block_reason_id' => $reasonId,
+//                                'description' => 'PDI Block',
+//                                'blocked_by' => 1,
+//                                'vin' => $row->VIN,
+//                                'type' => 'system'
+//                            ];
+//
+//                            try {
+//                                $this->blockItemController->createBlock($data);
+//                                $count++;
+//                            } catch (Exception $exception) {
+//                                logger()->error($exception->getMessage());
+//                            }
                         }
 
                         $bar->advance();
                     }
                 }
+                dd($final);
                 $bar->finish();
                 $this->output->writeln('');
             }
