@@ -2,10 +2,8 @@
 
 namespace App\Observers;
 
-use App\Mail\SendStatusFailedErpJobMail;
-use App\Models\ActionLog;
 use App\Models\ErpJob;
-use Illuminate\Support\Facades\Mail;
+use Exception;
 
 class ErpJobObserver
 {
@@ -32,6 +30,16 @@ class ErpJobObserver
 //                Mail::to($userEmail)->queue(new SendStatusFailedErpJobMail($erpJob));
 //            }
 //        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function updating(ErpJob $erpJob): void
+    {
+        if ($erpJob->getAttribute('status') !== 'failed') {
+            throw new Exception('در جاب دیگری در حال بررسی است');
+        }
     }
 
     public function updated(ErpJob $erpJob): void
