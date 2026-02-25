@@ -32,16 +32,6 @@ class ErpJobObserver
 //        }
     }
 
-    /**
-     * @throws Exception
-     */
-    public function updating(ErpJob $erpJob): void
-    {
-        if ($erpJob->getAttribute('status') !== 'failed') {
-            throw new Exception('در جاب دیگری در حال بررسی است');
-        }
-    }
-
     public function updated(ErpJob $erpJob): void
     {
         if ($erpJob->getAttribute('status') === 'failed') {

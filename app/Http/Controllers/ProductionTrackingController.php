@@ -9,6 +9,7 @@ use App\Http\Requests\TrackingSaleLocationExcelRequest;
 use App\Http\Resources\TrackingResource;
 use App\Http\Resources\VehicleResource;
 use App\Jobs\ExportJob;
+use App\Models\ErpJob;
 use App\Models\Job;
 use App\Models\ProductionLine;
 use App\Models\SendErp;
@@ -90,6 +91,10 @@ class ProductionTrackingController extends Controller
 
     public function update(Tracking $tracking): TrackingResource|JsonResponse
     {
+       $check = ErpJob::query()->where('model_type',Tracking::class)->where('model_id',$tracking->getAttribute('id'))->where('status','!=','failed')->exists();
+       if ($check) {
+           return $this->responseError('کاربر دیگری در جاب دیگر در حال بررسی این مورد است');
+       }
         $modelTrackingService = TrackingServiceFactory::getInstance($tracking->getAttribute('model')->getTable());
         $type = $tracking->getAttribute('type') === 'enter' ? 'on_enter' : 'on_exit';
 
