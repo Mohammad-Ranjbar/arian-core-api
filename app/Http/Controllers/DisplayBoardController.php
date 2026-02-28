@@ -77,7 +77,7 @@ class DisplayBoardController extends Controller
             $lineStatus = $line->isStarted();
             return [
                 'type' => 'production-board',
-                'duration' => 800000,
+                'duration' => 10000,
                 'data' => [
                     'title' => $line->title,
                     'planned' => $planned,
@@ -96,7 +96,7 @@ class DisplayBoardController extends Controller
         if(env('APP_ENV') != 'production') {
             $result->push([
                 'type'     => 'image-board',
-                'duration' => 500000,
+                'duration' => 10000,
                 'data'     => [
                     'url' => 'http://172.16.0.87/_next/image?url=%2FArianPars.png&w=96&q=75'
                 ]
