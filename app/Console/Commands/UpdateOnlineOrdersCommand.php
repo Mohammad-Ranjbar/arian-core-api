@@ -39,6 +39,7 @@ class UpdateOnlineOrdersCommand extends Command
                     $bar->start();
                     $list = [];
                     $parsList = [];
+                    $arinaList = [];
                     foreach ($content['value'] as $item) {
                         $row = (object) $item;
                         if ($row->Online_Contract_ID) {
@@ -52,6 +53,8 @@ class UpdateOnlineOrdersCommand extends Command
                             }
                             if (Str::contains($row->Online_Contract_ID,'PARS_AM')) {
                                 $parsList[] = $z;
+                            }elseif (Str::contains($row->Online_Contract_ID,'PARS_AD')) {
+                                $arinaList[] = $z;
                             }else{
                                 $list[] = $z;
                             }
@@ -69,6 +72,13 @@ class UpdateOnlineOrdersCommand extends Command
                             $parsUrl = 'https://sales.arian-motor.com/api/sync-orders-erp' ;
                             Http::post($parsUrl, [
                                 'items'  => $parsList,
+                                'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
+                            ]);
+                        }
+                        if (count($arinaList)) {
+                            $parsUrl = 'https://sales.arinadrive.com/api/sync-orders-erp' ;
+                            Http::post($parsUrl, [
+                                'items'  => $arinaList,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
                         }
