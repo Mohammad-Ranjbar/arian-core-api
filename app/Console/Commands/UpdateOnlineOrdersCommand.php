@@ -63,21 +63,21 @@ class UpdateOnlineOrdersCommand extends Command
                     }
                     try {
                         if (count($list)) {
-                            Http::post($company->sync_order_url, [
+                            Http::withoutVerifying()->post($company->sync_order_url, [
                                 'items'  => $list,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
                         }
                         if (count($parsList)) {
                             $parsUrl = 'https://sales.arian-motor.com/api/sync-orders-erp' ;
-                            Http::post($parsUrl, [
+                            Http::withoutVerifying()->post($parsUrl, [
                                 'items'  => $parsList,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
                         }
                         if (count($arinaList)) {
                             $parsUrl = 'https://sales.arinadrive.com/api/sync-orders-erp' ;
-                            Http::post($parsUrl, [
+                            Http::withoutVerifying()->post($parsUrl, [
                                 'items'  => $arinaList,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
