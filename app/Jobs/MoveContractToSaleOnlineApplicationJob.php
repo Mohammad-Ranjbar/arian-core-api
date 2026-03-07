@@ -68,6 +68,9 @@ class MoveContractToSaleOnlineApplicationJob implements ShouldQueue
                 if (Str::contains($data->Online_Contract_ID,'PARS_AM')) {
                     $url = 'https://sales.arian-motor.com/api/sync-orders-erp';
                 }
+                if (Str::contains($data->Online_Contract_ID,'PARS_AD')) {
+                    $url = 'https://sales.arinadrive.com/api/sync-orders-erp';
+                }
 
                 Http::withoutVerifying()->post($url, $sendData);
                 Storage::delete($this->data['path']);
