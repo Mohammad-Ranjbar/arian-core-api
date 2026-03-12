@@ -38,7 +38,7 @@ class ErpJobObserver
     public function updating(ErpJob $erpJob): void
     {
         if ($erpJob->getAttribute('status') !== 'failed') {
-            throw new Exception('در جاب دیگری در حال بررسی است');
+          //  throw new Exception('در جاب دیگری در حال بررسی است');
         }
     }
 
