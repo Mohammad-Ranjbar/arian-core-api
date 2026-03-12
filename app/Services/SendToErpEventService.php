@@ -9,6 +9,7 @@ class SendToErpEventService
 {
     public static function send($erpJob): void
     {
+        $model = $erpJob->model;
         try {
             $startAt = microtime(true);
             $erpJob->incrementTries();
@@ -19,7 +20,6 @@ class SendToErpEventService
                 $erpJob->getAttribute('method'),
                 $erpJob->getAttribute('parameters')
             );
-            $model = $erpJob->model;
             if (empty($response)) {
                 $erpJob->setStatusFailed('پاسخی از ERP دریافت نشد');
                 if ($model && method_exists($model, 'failedJob')) {
