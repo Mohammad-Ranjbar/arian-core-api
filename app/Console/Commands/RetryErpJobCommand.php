@@ -11,13 +11,12 @@ class RetryErpJobCommand extends Command
 
     protected $signature = 'retry-erp-job';
 
-    protected $description = 'retry erp job where retries less than 5 and status failed';
+    protected $description = 'retry erp job where description is "$model = $erpJob->model;"';
 
     public function handle():void
     {
         $erpJobs = ErpJob::query()
-            ->where('tries', '<', 2)
-            ->where('status','failed')
+            ->where('description', 'Undefined variable $model')
             ->get();
 
         $progress = $this->output->createProgressBar($erpJobs->count());
