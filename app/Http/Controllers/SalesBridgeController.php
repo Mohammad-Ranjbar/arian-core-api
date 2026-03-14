@@ -63,7 +63,9 @@ class SalesBridgeController extends Controller
                 $prefix = 'a';
             }
         }
-        return Http::withoutVerifying()->get($this->getUrl($prefix).'/second-payment/'.$id)->json();
+        $url = $this->getUrl($prefix).'/second-payment/'.$id;
+        logger($url);
+        return Http::withoutVerifying()->get($url)->json();
     }
 
     public function getNationalCodes($prefix)
