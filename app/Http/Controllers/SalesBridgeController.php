@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class SalesBridgeController extends Controller
 {
@@ -39,7 +40,6 @@ class SalesBridgeController extends Controller
     public function getCustomerFinance($prefix, $invoiceReference)
     {
         $t = Http::withoutVerifying()->get($this->getUrl($prefix).'/customer-finances/'.$invoiceReference)->json();
-        logger($t);
         return $t;
     }
 
@@ -58,6 +58,11 @@ class SalesBridgeController extends Controller
 
     public function getSecondPayment($prefix, $id)
     {
+        if ($prefix == 'l') {
+            if (Str::contains($id,'PARS_AD')){
+                $prefix = 'a';
+            }
+        }
         return Http::withoutVerifying()->get($this->getUrl($prefix).'/second-payment/'.$id)->json();
     }
 
