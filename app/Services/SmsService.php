@@ -18,7 +18,7 @@ class SmsService
         $this->repository = $repository;
     }
 
-    public static function jsonSend($to, $text): PromiseInterface|Response
+    public static function jsonSend($to, $text)
     {
 
 //        return Http::withHeaders([
