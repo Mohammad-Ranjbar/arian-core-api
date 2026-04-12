@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Jobs\SmsJob;
 use App\Repositories\SmsServiceRepository;
+use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 
@@ -16,36 +18,16 @@ class SmsService
         $this->repository = $repository;
     }
 
-    public static function jsonSend($to, $text)
+    public static function jsonSend($to, $text): PromiseInterface|Response
     {
-
         return Http::withHeaders([
-            'Content-Type'  => 'application/json',
-            'Accept'        => 'application/json',
-            'Authorization' => 'Bearer '.config('sms.token')
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . config('sms.token')
         ])->withoutVerifying()->post('https://sms.arian-dev.ir/api/service/sms', [
-            'to'      => $to,
+            'to' => $to,
             'message' => $text,
         ]);
-//        $username = config('sms.tsms.username');
-//        $password = config('sms.tsms.password');
-//
-//        $mobileArray = [$to];
-//        $msgArray = [trim($text)];
-//        $smsNumberArray = [config('sms.tsms.from')];
-//
-//        $x = Http::post(config('sms.tsms.json_url'), [
-//            'method' => 'sendSms',
-//            'username' => $username,
-//            'password' => $password,
-//            'sms_number' => $smsNumberArray,
-//            'mobile' => $mobileArray,
-//            'msg' => $msgArray
-//        ])->status();
-//        logger('-------------test sms ----------');
-//        logger($x);
-//
-//        return 1;
     }
 
     public function send(
