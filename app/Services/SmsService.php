@@ -20,14 +20,34 @@ class SmsService
 
     public static function jsonSend($to, $text): PromiseInterface|Response
     {
-        return Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . config('sms.token')
-        ])->post('http://94.101.177.172/api/service/sms', [
-            'to' => $to,
-            'message' => $text,
-        ]);
+
+//        return Http::withHeaders([
+//            'Content-Type' => 'application/json',
+//            'Accept' => 'application/json',
+//            'Authorization' => 'Bearer ' . config('sms.token')
+//        ])->withoutVerifying()->post('https://sms.arian-dev.ir/api/service/sms', [
+//            'to' => $to,
+//            'message' => $text,
+//        ]);
+        $username = config('sms.tsms.username');
+        $password = config('sms.tsms.password');
+
+        $mobileArray = [$to];
+        $msgArray = [trim($text)];
+        $smsNumberArray = [config('sms.tsms.from')];
+
+        $x = Http::post(config('sms.tsms.json_url'), [
+            'method' => 'sendSms',
+            'username' => $username,
+            'password' => $password,
+            'sms_number' => $smsNumberArray,
+            'mobile' => $mobileArray,
+            'msg' => $msgArray
+        ])->status();
+        logger('-------------test sms ----------');
+        logger($x);
+
+        return 1;
     }
 
     public function send(
