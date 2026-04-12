@@ -49,11 +49,11 @@ return [
         'supervisor-default' => [
             'connection' => 'redis',
             'queue' => ['default'],
-            'balance' => 'simple',
+            'balance' => 'smart',
             'processes' => 10,
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 10,
-            'minProcesses' => 1, // Keep always 1 process
+            'minProcesses' => 5,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 16000,
