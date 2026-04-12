@@ -50,14 +50,14 @@ return [
             'connection' => 'redis',
             'queue' => ['default'], // Only default queue
             'balance' => 'simple', // FIFO processing for sequential jobs
-            'processes' => 1, // Single process = sequential processing
+            'processes' => 10, // Single process = sequential processing
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1, // Must be 1 for sequential
-            'minProcesses' => 1, // Keep always 1 process
+            'maxProcesses' => 10, // Must be 1 for sequential
+            'minProcesses' => 5, // Keep always 1 process
             'maxTime' => 0,
-            'maxJobs' => 0,
+            'maxJobs' => 5,
             'memory' => 16000,
-            'tries' => 1,
+            'tries' => 0,
             'timeout' => 10000000,
             'nice' => 0,
         ],
