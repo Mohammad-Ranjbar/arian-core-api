@@ -23,7 +23,7 @@ class SmsService
             'Content-Type'  => 'application/json',
             'Accept'        => 'application/json',
             'Authorization' => 'Bearer '.config('sms.token')
-        ])->post('https://sms.arian-dev.ir/api/service/sms', [
+        ])->withoutVerifying()->post('https://sms.arian-dev.ir/api/service/sms', [
             'to'      => $to,
             'message' => $text,
         ]);
