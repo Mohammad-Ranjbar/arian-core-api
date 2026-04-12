@@ -24,7 +24,7 @@ class SmsService
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . config('sms.token')
-        ])->withoutVerifying()->post('https://sms.arian-dev.ir/api/service/sms', [
+        ])->post('http://94.101.177.172/api/service/sms', [
             'to' => $to,
             'message' => $text,
         ]);
