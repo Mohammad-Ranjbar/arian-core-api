@@ -4,8 +4,6 @@ namespace App\Services;
 
 use App\Jobs\SmsJob;
 use App\Repositories\SmsServiceRepository;
-use GuzzleHttp\Promise\PromiseInterface;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 
@@ -18,7 +16,7 @@ class SmsService
         $this->repository = $repository;
     }
 
-    public static function jsonSend($to, $text)
+    public static function jsonSend($to, $text): bool
     {
 
 //        return Http::withHeaders([
@@ -36,7 +34,7 @@ class SmsService
         $msgArray = [trim($text)];
         $smsNumberArray = [config('sms.tsms.from')];
 
-        $x = Http::post(config('sms.tsms.json_url'), [
+        Http::post(config('sms.tsms.json_url'), [
             'method' => 'sendSms',
             'username' => $username,
             'password' => $password,
@@ -44,10 +42,8 @@ class SmsService
             'mobile' => $mobileArray,
             'msg' => $msgArray
         ])->status();
-        logger('-------------test sms ----------');
-        logger($x);
 
-        return 1;
+        return true;
     }
 
     public function send(
