@@ -72,7 +72,7 @@ class ErpGetVehicle
     public function getByPo($po, bool $throw = true): array|bool
     {
         $po = trim($po, '* ');
-        $url = config('erp.vehicles') . '?$filter=Production_Order eq \'' . $po . '\'';
+        $url = config('erp.vehicles') . '?$filter=ProductionOrder eq \'' . $po . '\'';
         $result = $this->client->getOne($url);
 
         if (!$result) {
