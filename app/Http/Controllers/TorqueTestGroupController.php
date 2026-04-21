@@ -27,7 +27,7 @@ class TorqueTestGroupController extends CrudController
     {
         return [
             'date' => 'required|date_format:Y-m-d',
-            'torqueMeters' => 'required|exists:torque_meters',
+            'torqueMeters' => 'required|exists:torque_meters,id',
             'car_model_id' => [
                 'required',
                 'exists:car_models,id',
@@ -43,7 +43,7 @@ class TorqueTestGroupController extends CrudController
     {
         return [
             'date' => 'required|date_format:Y-m-d',
-            'torqueMeters' => 'required|exists:torque_meters',
+            'torqueMeters' => 'required|exists:torque_meters,id',
             'car_model_id' => [
                 'required',
                 'exists:car_models,id',
