@@ -70,7 +70,12 @@ class PublishMessageJob implements ShouldQueue
             if (strpos($data['online_order_id'],'_AM-',)) {
                 $url = str_replace('lamari.ir','arian-motor.com',$url);
             }
-            Http::post($url, $responseData);
+            try {
+
+                Http::withoutVerifying()->post($url, $responseData);
+            }catch (\Exception $e) {
+                logger($e->getMessage());
+            }
         }
     }
 }
