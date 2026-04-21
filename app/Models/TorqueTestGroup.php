@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TorqueTestGroup extends Model
 {
-    use HasFactory;
 
     protected $fillable = ['date', 'car_model_id', 'user_id'];
 
