@@ -4,17 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Salon;
 use App\Services\Erp\ErpDisplayBoard;
+use App\Services\Erp\ErpOdataClient;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DisplayBoardController extends Controller
 {
+    public function __construct(private readonly ErpOdataClient $erpOdataClient)
+    {
 
+    }
     public function __invoke(Request $request, Salon $salon): JsonResponse
     {
         $data = ErpDisplayBoard::getData();
+        $url = config('erp.display_board');
+        $content = $this->erpOdataClient->get($url);
 
+        dd($content);
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location')->all();
         $shifts = $lines->pluck('shift')->all();
