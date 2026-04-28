@@ -30,18 +30,18 @@ class DisplayBoardController extends Controller
         }
 
         $list = $data->whereIn('locationCode', $locations)->whereIn('workShiftCode', $shifts);
-        dd($list,$data);
+
         $result = $list->map(function ($item) use ($lines) {
 
             $now = Carbon::now();
             $workTime = 0;
             $maxTime = 0;
-            $outs = $item->Day_Output;
-            $planned = $item->Qty_Planned;
+            $outs = $item->dayOutput;
+            $planned = $item->qtyPlanned;
 
-            if (!isset($item->Time)) {
-                $s = Carbon::make($item->Starting_Time);
-                $e = Carbon::make($item->Ending_Time);
+            if (!isset($item->timeBreaks)) {
+                $s = Carbon::make($item->startingTime);
+                $e = Carbon::make($item->endingTime);
 
                 if ($now->greaterThan($e)) {
                     $workTime += $s->diffInSeconds($e);
@@ -52,9 +52,9 @@ class DisplayBoardController extends Controller
                 $maxTime += $s->diffInSeconds($e);
 
             } else {
-                foreach ($item->Time as $time) {
-                    $s = Carbon::make($time->InShiftStartTime);
-                    $e = Carbon::make($time->InShiftEndTime);
+                foreach ($item->timeBreaks as $time) {
+                    $s = Carbon::make($time->inShiftStartTime);
+                    $e = Carbon::make($time->inShiftEndTime);
                     if ($now->greaterThan($s)) {
                         if ($now->greaterThan($e)) {
                             $workTime += $s->diffInSeconds($e);
@@ -80,7 +80,7 @@ class DisplayBoardController extends Controller
                 $percentage = round(($outs * 100) / $planned);
             }
 
-            $line = $lines->where('location', $item->Location)->first();
+            $line = $lines->where('location', $item->locationCode)->first();
             $lineStatus = $line->isStarted();
             return [
                 'type' => 'production-board',
