@@ -20,17 +20,17 @@ class DisplayBoardController extends Controller
         $data = ErpDisplayBoard::getData();
         $url = config('erp.display_board');
         $content = $this->erpOdataClient->get($url);
+        $data = collect($content->value);
 
-        dd(collect($content->value));
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location')->all();
         $shifts = $lines->pluck('shift')->all();
-        if (!isset($data['data'])){
+        if (!isset($data)){
             return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
         }
 
-        $list = collect($content['data'])->whereIn('Location', $locations)->whereIn('Shift', $shifts);
-
+        $list = $data->whereIn('locationCode', $locations)->whereIn('workShiftCode', $shifts);
+        dd($list,$data);
         $result = $list->map(function ($item) use ($lines) {
 
             $now = Carbon::now();
