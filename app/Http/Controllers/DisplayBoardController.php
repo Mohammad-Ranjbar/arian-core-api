@@ -100,26 +100,26 @@ class DisplayBoardController extends Controller
             ];
         });
 
-        if(env('APP_ENV') != 'production') {
-            $result->push([
-                'type'     => 'image-board',
-                'duration' => 10000,
-                'data'     => [
-                    'url' => 'http://172.16.0.87/_next/image?url=%2FArianPars.png&w=96&q=75'
-                ]
-            ]);
-            $result->push([
-                [
-                    'type'     => 'text-board',
-                    'duration' => 9000,
-                    'data'     => [
-                        'text' => 'متن دلخواه
-                    خط دوم متن
-                    به نظرم وسط تابلو باشه'
-                    ]
-                ]
-            ]);
-        }
+//        if(env('APP_ENV') != 'production') {
+//            $result->push([
+//                'type'     => 'image-board',
+//                'duration' => 10000,
+//                'data'     => [
+//                    'url' => 'http://172.16.0.87/_next/image?url=%2FArianPars.png&w=96&q=75'
+//                ]
+//            ]);
+//            $result->push([
+//                [
+//                    'type'     => 'text-board',
+//                    'duration' => 9000,
+//                    'data'     => [
+//                        'text' => 'متن دلخواه
+//                    خط دوم متن
+//                    به نظرم وسط تابلو باشه'
+//                    ]
+//                ]
+//            ]);
+//        }
         return response()->json($result->values());
     }
 }
