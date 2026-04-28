@@ -93,8 +93,8 @@ class DisplayBoardController extends Controller
                     'deviation' => intval($deviation),
                     'line_status' => $lineStatus,
                     'description' => $lineStatus ? '' : $line->getLatestActivity()->stopReason->title,
-                    'in' => $line->trackingCount('enter', date('Y-m-d ') . $item->Starting_Time,
-                        date('Y-m-d ') . $item->Ending_Time),
+                    'in' => $line->trackingCount('enter', date('Y-m-d ') . $item->startingTime,
+                        date('Y-m-d ') . $item->endingTime),
                     'out' => intval($outs)
                 ]
             ];
