@@ -53,8 +53,8 @@ class DisplayBoardController extends Controller
 
             } else {
                 foreach (json_decode($item->timeBreaks,true) as $time) {
-                    $s = Carbon::make($time->inShiftStartTime);
-                    $e = Carbon::make($time->inShiftEndTime);
+                    $s = Carbon::make($time['inShiftStartTime']);
+                    $e = Carbon::make($time['inShiftEndTime']);
                     if ($now->greaterThan($s)) {
                         if ($now->greaterThan($e)) {
                             $workTime += $s->diffInSeconds($e);
