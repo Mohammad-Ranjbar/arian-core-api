@@ -21,7 +21,7 @@ class DisplayBoardController extends Controller
         $url = config('erp.display_board');
         $content = $this->erpOdataClient->get($url);
 
-        dd($content->value);
+        dd(collect($content->value));
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location')->all();
         $shifts = $lines->pluck('shift')->all();
