@@ -30,7 +30,7 @@ class DisplayBoardController extends Controller
         }
 
         $list = $data->whereIn('locationCode', $locations)->whereIn('workShiftCode', $shifts);
-
+        dd($list,$data);
         $result = $list->map(function ($item) use ($lines) {
 
             $now = Carbon::now();
