@@ -30,7 +30,7 @@ class DisplayBoardController extends Controller
         }
 
         $list = $data->whereIn('locationCode', $locations)->whereIn('workShiftCode', $shifts);
-        dd($list,$data);
+
         $result = $list->map(function ($item) use ($lines) {
 
             $now = Carbon::now();
@@ -52,7 +52,7 @@ class DisplayBoardController extends Controller
                 $maxTime += $s->diffInSeconds($e);
 
             } else {
-                foreach ($item->timeBreaks as $time) {
+                foreach (json_decode($item->timeBreaks,true) as $time) {
                     $s = Carbon::make($time->inShiftStartTime);
                     $e = Carbon::make($time->inShiftEndTime);
                     if ($now->greaterThan($s)) {
