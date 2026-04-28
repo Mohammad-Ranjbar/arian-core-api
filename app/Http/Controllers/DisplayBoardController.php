@@ -21,7 +21,7 @@ class DisplayBoardController extends Controller
         $url = config('erp.display_board');
         $content = $this->erpOdataClient->get($url);
 
-        dd($content);
+        dd($content->value);
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location')->all();
         $shifts = $lines->pluck('shift')->all();
@@ -29,7 +29,7 @@ class DisplayBoardController extends Controller
             return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
         }
 
-        $list = collect($data['data'])->whereIn('Location', $locations)->whereIn('Shift', $shifts);
+        $list = collect($content['data'])->whereIn('Location', $locations)->whereIn('Shift', $shifts);
 
         $result = $list->map(function ($item) use ($lines) {
 
