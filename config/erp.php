@@ -30,8 +30,7 @@ return [
     'check_basket'           => env('GENERAL_API', 'http://172.16.0.154:7047/PreBC/WS/Pars/Codeunit/GeneralAPI'),
     'basket_batch'           => env('GENERAL_API', 'http://172.16.0.154:7047/PreBC/WS/Pars/Codeunit/GeneralAPI'),
 
-    'display_board'    => env('DISPLAY_BOARD',
-        'http://172.16.0.154:7248/APIBC/api/arianCapital/production/v1.0/productionBoardEntries'),
+    'display_board'    => 'http://172.16.0.154:7248/APIBC/api/arianCapital/production/v1.0/productionBoardEntries',
 //    'display_board'    => env('GENERAL_API',
 //        'http://172.16.0.154:7047/PreBC/WS/Pars/Codeunit/GeneralAPI'),
     'pdi_result'    => env('GENERAL_API',
