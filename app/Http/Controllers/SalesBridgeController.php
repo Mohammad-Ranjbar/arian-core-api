@@ -17,6 +17,7 @@ class SalesBridgeController extends Controller
     public function getOrderUrl($prefix)
     {
         $link1 = 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D';
+
         $link2 = 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AM';
         $link3 = 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AD';
 
