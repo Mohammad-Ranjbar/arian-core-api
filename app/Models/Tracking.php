@@ -68,8 +68,10 @@ class Tracking extends Model
                 logger('data is array');
                 logger($data['model_id']);
                 $query = $query->whereIn('model_id', $data['model_id']);
+            } else{
+                $query = $query->where('model_id', $data['model_id']);
             }
-            $query = $query->where('model_id', $data['model_id']);
+
         }
         if (!empty($data['user_id'])) {
             $query = $query->where('user_id', $data['user_id']);
@@ -88,7 +90,7 @@ class Tracking extends Model
         if (!empty($data['paginate'])) {
             return $query->latest()->paginate($data['per_page'] ?? 40);
         }
-        logger($query->toRawSql());
+
         return $query->get();
     }
 
