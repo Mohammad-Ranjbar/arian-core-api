@@ -137,7 +137,6 @@ class ProductionTrackingController extends Controller
 
     public function reportExcel(TrackingReportExcelRequest $request): JsonResponse
     {
-        logger('is here : reportExcel');
         $validatedData = $request->validated();
         $validatedData['type'] = 'export-tracking';
         $validatedData['user_id'] = Auth::id();
