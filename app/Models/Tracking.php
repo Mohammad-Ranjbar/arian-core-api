@@ -65,6 +65,7 @@ class Tracking extends Model
         }
         if (!empty($data['model_id'])) {
             if (is_array($data['model_id'])) {
+                logger('data is array');
                 $query = $query->whereIn('model_id', $data['model_id']);
             }
             $query = $query->where('model_id', $data['model_id']);
