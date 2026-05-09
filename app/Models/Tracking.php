@@ -88,7 +88,7 @@ class Tracking extends Model
         if (!empty($data['paginate'])) {
             return $query->latest()->paginate($data['per_page'] ?? 40);
         }
-        logger($query->getRawBindings());
+        logger($query->toRawSql());
         return $query->get();
     }
 
