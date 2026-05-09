@@ -14,7 +14,6 @@ class ExporterServiceFactory
      */
     public static function getInstance($job)
     {
-        logger('is here : getInstance');
         return match ($job->type) {
             'export-block-items' => new ExportBlockItemsService($job),
             'export-general-product-items' => new ExportGeneralProductItemsService($job),
