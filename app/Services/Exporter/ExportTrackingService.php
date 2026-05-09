@@ -23,7 +23,6 @@ class ExportTrackingService extends BaseExporterService
      */
     public function export(): string
     {
-        logger('is here');
         $rows = Tracking::getReportData((array)$this->job->getAttribute('data'));
 
         $eventData = [
