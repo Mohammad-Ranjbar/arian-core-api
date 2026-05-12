@@ -26,8 +26,8 @@ class SalesBridgeController extends Controller
             'l'    => $link1,
             'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
-            'a'    => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
-            'test' => 'http://sales.lamari.ir/api/check-test-orders',
+            'a'    => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
+            'test' => 'https://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
@@ -50,8 +50,8 @@ class SalesBridgeController extends Controller
             'l'    => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'a'    => 'http://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'test' => 'http://sales.lamari.ir/api/check-test-orders',
+            'a'    => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'test' => 'https://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
