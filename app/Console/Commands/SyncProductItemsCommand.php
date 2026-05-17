@@ -39,7 +39,7 @@ class SyncProductItemsCommand extends Command
                         continue;
                     }
 
-                    dd($row->No);
+                    dd($row);
 
 
                     $data = [
