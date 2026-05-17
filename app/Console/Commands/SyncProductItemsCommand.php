@@ -33,7 +33,7 @@ class SyncProductItemsCommand extends Command
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
                 foreach ($content->value as $row) {
-                    if ($row->No !== ""){
+                    if ($row->SerialTrackingType !== " "){
                         dd($row);
                     }
 
