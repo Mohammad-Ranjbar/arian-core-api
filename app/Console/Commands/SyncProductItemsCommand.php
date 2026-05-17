@@ -33,8 +33,8 @@ class SyncProductItemsCommand extends Command
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
                 foreach ($content->value as $key => $row) {
-                    if ($row->No == "SX5G-1000-0001C"){
-                        dd($row);
+                    if ($row->No == "00A0160"){
+                        dd('vvvv'.$row);
                     }
                     dd($row->No);
 
