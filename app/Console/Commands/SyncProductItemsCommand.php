@@ -34,7 +34,7 @@ class SyncProductItemsCommand extends Command
                 $bar->start();
                 $i = 0;
                 foreach ($content->value as $key => $row) {
-                    if ($row->SerialTrackingType){
+                    if ($row->SerialTrackingType != " "){
                         dd($row->SerialTrackingType);
                     }
 
