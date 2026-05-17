@@ -32,24 +32,14 @@ class SyncProductItemsCommand extends Command
 
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
-                $i = 0;
-                foreach ($content->value as $key => $row) {
-                    if (trim($row->SerialTrackingType) !== '') {
-                        dd($row);
-                    }else{
-                        continue;
-                    }
-
-
-//                    dd($row);
-
+                foreach ($content->value as $row) {
 
                     $data = [
                         'reference'     => $row->No,
                         'tracking_code' => $row->Vendor_Tracking_Code,
                         'title'         => $row->Description,
                         'description'   => $row->Description_2,
-                        'type'          => $row->Engin ? 'engine' : $row->Item_Type,
+                        'type'          => $row->SerialTrackingType == "Engine" ? 'engine' : $row->Item_Type,
                     ];
 
                    $record = ErpProductItem::query()->where('reference', $data['reference'])
