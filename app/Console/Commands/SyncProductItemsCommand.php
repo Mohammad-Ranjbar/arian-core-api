@@ -34,7 +34,7 @@ class SyncProductItemsCommand extends Command
                 $bar->start();
                 foreach ($content->value as $key => $row) {
                     if ($key == 100){
-                        dd($row);
+                        dd($key);
                     }
 
                     $data = [
