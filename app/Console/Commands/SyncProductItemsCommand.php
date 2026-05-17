@@ -34,7 +34,7 @@ class SyncProductItemsCommand extends Command
                 $bar->start();
                 foreach ($content->value as $key => $row) {
                     if ($row->No == "00A0160"){
-                        dd('vvvv'.$row);
+                        dd('vvvv');
                     }
                     dd($row->No);
 
