@@ -34,8 +34,7 @@ class SyncProductItemsCommand extends Command
                 $bar->start();
                 foreach ($content->value as $key => $row) {
 
-                        dd($key);
-
+                    dd($row);
 
                     $data = [
                         'reference'     => $row->No,
