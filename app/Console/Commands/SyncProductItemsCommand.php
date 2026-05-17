@@ -35,7 +35,7 @@ class SyncProductItemsCommand extends Command
                 $i = 0;
                 foreach ($content->value as $key => $row) {
                     $i = $i + 1;
-                    if ($i < 100){
+                    if ($i < 1000){
                         continue;
                     }
 
