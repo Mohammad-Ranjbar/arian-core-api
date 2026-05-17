@@ -32,7 +32,7 @@ class SyncProductItemsCommand extends Command
 
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
-                $i = 0;
+                dd($content->value);
                 foreach ($content->value as $key => $row) {
                     $i++;
                     if ($i == 100){
