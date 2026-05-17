@@ -36,6 +36,7 @@ class SyncProductItemsCommand extends Command
                     if ($row->No == "SX5G-1000-0001C"){
                         dd($row);
                     }
+                    dd($row->No);
 
 
                     $data = [
