@@ -34,10 +34,12 @@ class SyncProductItemsCommand extends Command
                 $bar->start();
                 $i = 0;
                 foreach ($content->value as $key => $row) {
-
                     if (trim($row->SerialTrackingType) !== '') {
                         dd($row);
+                    }else{
+                        continue;
                     }
+
 
 //                    dd($row);
 
