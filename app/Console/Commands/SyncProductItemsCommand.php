@@ -32,8 +32,8 @@ class SyncProductItemsCommand extends Command
 
                 $bar = $this->output->createProgressBar(count($content->value));
                 $bar->start();
-                foreach ($content->value as $row) {
-                    if ($row->SerialTrackingType !== " "){
+                foreach ($content->value as $key => $row) {
+                    if ($key == 100){
                         dd($row);
                     }
 
