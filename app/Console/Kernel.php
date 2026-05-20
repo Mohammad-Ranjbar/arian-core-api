@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\ClearLogCommand;
 use App\Console\Commands\RetryErpJobCommand;
 use App\Console\Commands\SyncCustomerClubDataCommand;
 use App\Console\Commands\SyncInvitationsCommand;
@@ -31,6 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(SyncPDIBlockCommand::class)->daily()->at('02:00')->withoutOverlapping();
         $schedule->command(SyncProductItemsCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(SyncCustomerClubDataCommand::class)->daily()->at('02:00')->withoutOverlapping();
+        $schedule->command(ClearLogCommand::class)->daily()->at('00:00')->withoutOverlapping();
     }
 
 
