@@ -38,8 +38,8 @@ class VehicleTorqueTestReportExport implements FromCollection, WithMapping, With
         return array_merge(
             [
                 'VIN',
-                'تورک متر',
-                'وسیله اندازه گیری',
+//                'تورک متر',
+//                'وسیله اندازه گیری',
                 'اتصال',
                 'مقدار',
                 'کاربر',
@@ -58,11 +58,12 @@ class VehicleTorqueTestReportExport implements FromCollection, WithMapping, With
     {
         $rowData = [
             $row->vin,
-            $row->torqueMeter ? $row->torqueMeter->title . '::' . $row->torqueMeter->code : '',
-            $row->torqueMeasuringEquipment?->title ?? '',
+//            $row->torqueMeter ? $row->torqueMeter->title . '::' . $row->torqueMeter->code : '',
+//            $row->torqueMeasuringEquipment?->title ?? '',
             $row->screw?->title ?? '',
             $row->value,
             $row->user->name ,
+            $row->description ,
             jdate($row->created_at)->format('Y-m-d H:i:s'),
         ];
 
