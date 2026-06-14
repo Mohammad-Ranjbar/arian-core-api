@@ -24,7 +24,13 @@ class ScrewResource extends JsonResource
             'salon' => SalonResource::make($this->resource->salon),
             'torqueMeasuringEquipment' => TorqueMeasuringEquipmentResource::make($this->resource->torque_measuring_equipment),
 
-            'carModels' => CarModelResource::collection($this->resource->carModels),
+            'carModels' => $this->resource->carModels()->get()->map(function ($carModel) {
+                return [
+                    'id'                 => $carModel->id,
+                    'title'              => $carModel->title,
+                    'reference'          => $carModel->reference,
+                ];
+            })
         ];
     }
 }
