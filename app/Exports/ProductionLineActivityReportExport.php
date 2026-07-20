@@ -85,8 +85,8 @@ class ProductionLineActivityReportExport implements FromCollection, WithMapping,
         }
         $row = [
             $row->id,
-            $row->station->workGroupCenter->ProductionLine->title,
-            $row->station->title,
+            $row->station->workGroupCenter?->ProductionLine?->title ?? '-',
+            $row->station?->title ?? '-',
             $row->stopReason->fact?->title ?? '-',
             $row->stopReason?->title ?? '-',
             $row->stopType?->title ?? '-',
