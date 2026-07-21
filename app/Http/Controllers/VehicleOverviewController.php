@@ -213,10 +213,10 @@ class VehicleOverviewController extends Controller
 
             $items = [];
             foreach ($list as $item) {
-                if ((int)$item->Quantity) {
+                if ((int)$item->quantity) {
                     $items[] = [
-                        $item->Description . ' ' . $item->{'Description2'},
-                        (int)$item->Quantity,
+                        $item->description . ' ' . $item->{'description2'},
+                        (int)$item->quantity,
                     ];
                 }
             }
