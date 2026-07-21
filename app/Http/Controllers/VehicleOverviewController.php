@@ -217,6 +217,7 @@ class VehicleOverviewController extends Controller
                     $items[] = [
                         $item->description . ' ' . $item->{'description2'},
                         (int)$item->quantity,
+                        print_r($item,1)
                     ];
                 }
             }
