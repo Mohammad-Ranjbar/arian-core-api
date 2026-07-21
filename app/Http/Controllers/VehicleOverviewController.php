@@ -203,7 +203,7 @@ class VehicleOverviewController extends Controller
             ->where('VIN', $vehicle->getAttribute('vin'))
             ->selectRaw('VIN as vin, [Document_No] as document_no ,count(*) as count, max(Date) as date')
             ->get();
-            dd($result);
+
         $services = [];
         foreach ($result as $row) {
             $list = DWVehicleServiceHistoryTree::query()
