@@ -22,7 +22,7 @@ class ScrewResource extends JsonResource
             'torque_measuring_equipment_id' => $this->resource->torque_measuring_equipment_id,
             'salon_id' => $this->resource->salon_id,
             'salon' => SalonResource::make($this->resource->salon),
-            'torqueMeasuringEquipment' => TorqueMeasuringEquipmentResource::make($this->resource->torque_measuring_equipment),
+            'torqueMeasuringEquipment' => TorqueMeasuringEquipmentResource::make($this->resource->torqueMeasuringEquipment),
 
             'carModels' => $this->resource->carModels()->get()->map(function ($carModel) {
                 return [
