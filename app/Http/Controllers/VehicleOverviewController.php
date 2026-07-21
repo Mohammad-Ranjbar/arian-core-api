@@ -223,7 +223,7 @@ class VehicleOverviewController extends Controller
             }
             if (!empty($items)) {
                 $services[] = [
-                    'title' => 'سابقه تعمیرگاهی: ' . $row->document_no.'::'.jdate($row->date)->format('Y-m-d'),
+                    'title' => 'سابقه تعمیرگاهی: ' . $row->document_no.' :: '.jdate($row->date)->format('Y-m-d'),
                     'type' => 'table',
                     'heads' => [],
                     'values' => $items
