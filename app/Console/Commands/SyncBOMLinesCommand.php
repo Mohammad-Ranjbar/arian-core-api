@@ -37,7 +37,7 @@ class SyncBOMLinesCommand extends Command
                     $data = [
                         'no' => $row->Production_BOM_No,
                         'type' => $row->Type,
-                        'version' => $row->Version_Code,
+                        'version' => $row->AR_Version_Code,
                         'data' => $row
 
                     ];
