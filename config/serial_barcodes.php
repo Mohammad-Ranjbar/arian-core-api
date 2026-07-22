@@ -43,6 +43,18 @@ return [
             'type' => 'gearbox',
         ]
     ],
+    'UNI'   => [
+        [
+            'type'   => 'custom_engine',
+            'prefix' => '',
+        ],
+        [
+            'type' => 'body',
+        ],
+        [
+            'type' => 'gearbox',
+        ]
+    ],
     'SHACMOTO' => [
         [
             'type'   => 'custom_engine',
