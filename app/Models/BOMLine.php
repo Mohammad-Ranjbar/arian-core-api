@@ -7,5 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class BOMLine extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'no',
+        'type',
+        'version',
+        'data',
+    ];
+
+  protected $casts = [
+      'data' => 'array',
+  ];
 }
