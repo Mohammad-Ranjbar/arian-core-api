@@ -61,7 +61,7 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
                 ]);
 
                 $response =  PDIController::sendPDIToErp($row['vin'],$data->toArray());
-
+                logger($response);
                 if ($response['status'] !== 'ok') {
                     throw new Exception($response['message'], 400);
                 }
