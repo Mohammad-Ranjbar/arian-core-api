@@ -51,16 +51,17 @@ class PdiImport implements ToCollection, WithStartRow, WithMapping
 
         $collection->each(function ($row) use ($userId,$vehicleController) {
             try {
-                $vehicleController->getByVin($row['vin']);
+                $vin = trim($row['vin']);
+                $vehicleController->getByVin($vin);
                $data = PDI::query()->create([
-                   'vin' => $row['vin'],
+                   'vin' => $vin,
                    'pdi_result' => $row['pdi_result'],
                    'pdi_result_description' => $row['pdi_result_description'],
                    'pdi_result_description_2' => $row['pdi_result_description_2'] ?? '',
                    'user_id' => $userId,
                 ]);
 
-                $response =  PDIController::sendPDIToErp($row['vin'],$data->toArray());
+                $response =  PDIController::sendPDIToErp($vin,$data->toArray());
                 logger($response);
                 if ($response['status'] !== 'ok') {
                     throw new Exception($response['message'], 400);
