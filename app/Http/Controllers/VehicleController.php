@@ -96,6 +96,7 @@ class VehicleController extends CrudController
     public function getData(string $inputString): Model|Builder
     {
         try {
+            $inputString = trim($inputString);
         if (Str::length($inputString) == 17) {
             $vehicleData = $this->erpGetVehicle->get($inputString);
         } else {
