@@ -213,16 +213,17 @@ class VehicleOverviewController extends Controller
 
             $items = [];
             foreach ($list as $item) {
-                if ((int)$item->Quantity) {
+                if ((int)$item->quantity) {
                     $items[] = [
-                        $item->Description . ' ' . $item->{'Description2'},
-                        (int)$item->Quantity,
+                        $item->description . ' ' . $item->{'description2'},
+                        (int)$item->quantity,
+
                     ];
                 }
             }
             if (!empty($items)) {
                 $services[] = [
-                    'title' => 'سابقه تعمیرگاهی: ' . $row->document_no,
+                    'title' => 'سابقه تعمیرگاهی: ' . $row->document_no.' :: '.jdate($row->date)->format('Y-m-d'),
                     'type' => 'table',
                     'heads' => [],
                     'values' => $items

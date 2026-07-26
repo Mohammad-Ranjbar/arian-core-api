@@ -182,6 +182,9 @@ class Vehicle extends Model
 
     public function serialBarcodes(): Attribute
     {
+        if (empty(config('serial_barcodes.' . $this->makeCode->reference))){
+            return Attribute::get(fn() => []);
+        }
         $serials = array_map(function ($item) {
             if (isset($item['prefix'])) {
                 if (is_array($item['prefix'])) {
