@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccompanyingItemController;
 use App\Http\Controllers\ActionLogController;
+use App\Http\Controllers\AlternativeManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BasketController;
@@ -81,6 +82,7 @@ use App\Http\Controllers\SamtController;
 use App\Http\Controllers\ScrewController;
 use App\Http\Controllers\SendSmsGatewayController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ShiftErpController;
 use App\Http\Controllers\ShortageController;
 use App\Http\Controllers\SmsServiceController;
 use App\Http\Controllers\StationController;
@@ -138,7 +140,9 @@ Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::any('/gateway-vehicle-information', SamtController::class);
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
-    Route::get('/shifts',\App\Http\Controllers\ShiftErpController::class);
+    Route::get('/bom-alternatives/{productionOrderNumber}', [AlternativeManagementController::class, 'getBomItems'])->name('get-bom-alternatives');
+    Route::get('/enter-lines', [AlternativeManagementController::class, 'enterLines'])->name('enter-lines');
+    Route::get('/shifts', ShiftErpController::class);
     Route::get('get-batch-names', BatchNameController::class);
     Route::get('/get-template-engine', [PDIController::class, 'getTemplateEngine'])->name('get-template-engine');
     Route::post('/import-engines', [PDIController::class, 'importEngine'])->name('import-engines');
