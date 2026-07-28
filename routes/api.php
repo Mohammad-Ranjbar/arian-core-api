@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccompanyingItemController;
 use App\Http\Controllers\ActionLogController;
+use App\Http\Controllers\AlternativeCategoryController;
 use App\Http\Controllers\AlternativeManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeController;
@@ -510,6 +511,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'check-lists' => CheckListController::class,
         'nav-colors' => NavColorController::class,
         'car-model-files' => CarModelFileController::class,
+        'alternative-categories' => AlternativeCategoryController::class,
     ]);
 
     /*

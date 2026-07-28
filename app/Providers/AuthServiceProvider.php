@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AccompanyingItem;
+use App\Models\AlternativeCategory;
 use App\Models\Barcode;
 use App\Models\Basket;
 use App\Models\BillOfLading;
@@ -146,6 +147,7 @@ class AuthServiceProvider extends ServiceProvider
         PDI::class=>CrudPolicy::class,
         NavColor::class => CrudPolicy::class,
         CarModelFile::class=>CrudPolicy::class,
+        AlternativeCategory::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 
