@@ -4,7 +4,10 @@ namespace App\Services\TrackingService;
 
 use App\Events\ErpJobEvent;
 use App\Jobs\PrintSynchronousJob;
+use App\Models\Alternative;
+use App\Models\AlternativeItem;
 use App\Models\ErpJob;
+use App\Models\ErpProductItem;
 use App\Models\ProductionLine;
 use App\Models\ShortageItem;
 use App\Models\Synchronous;
@@ -12,13 +15,15 @@ use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
 use App\Models\Tracking;
 use App\Models\Vehicle;
+use App\Services\Erp\ErpGetBOMFromProductionOrderNumber;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Octane\Exceptions\DdException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ProductionLineTrackingService extends BaseTrackingService
 {
-
-
     const string MODEL_TYPE = 'App\Models\ProductionLine';
 
     /**
@@ -36,7 +41,51 @@ class ProductionLineTrackingService extends BaseTrackingService
             return false;
         }
         $this->submitSynchronous($data['vin'], $productionLine->getAttribute('id'));
+        $this->submitAlternative($data['vin']);
         return $this->prepareData($data);
+
+    }
+
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws DdException
+     * @throws Exception
+     */
+    public function submitAlternative(string $vin)
+    {
+
+        $vehicle = Vehicle::query()->where('vin', $vin)->first();
+        $productionOrderNumber = $vehicle->getAttribute('production_order_number');
+
+        $items = resolve(ErpGetBOMFromProductionOrderNumber::class)->get($productionOrderNumber);;
+
+        foreach ($items as $item) {
+
+            $alternativeItem = AlternativeItem::query()->where('item_no',$item['item_no'])->first();
+            if ($alternativeItem) {
+                throw new Exception('Alternative Item already not Exists. => '.$item['item_no']);
+            }
+
+            $alternative = Alternative::query()->where('item_no',$item['item_no'])->first();
+
+            if ( $alternative ) {
+                if ($alternative->getAttribute('counter') ==)
+                $alternative->increment('counter');
+            }else{
+                Alternative::query()->create([
+                    'alternative_item_id' => $alternativeItem->getAttribute('id'),
+                    'production_order_number' => $productionOrderNumber,
+                    'item_no' => $item['item_no'],
+                    'counter' => 1,
+                    'status' => 'create',
+                ]);
+            }
+
+        }
+
+
 
     }
 

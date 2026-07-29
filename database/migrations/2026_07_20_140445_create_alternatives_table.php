@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('alternatives', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('alternative_item_id')->constrained()->restrictOnDelete();
+            $table->foreignId('alternative_item_id')->nullable()->constrained()->restrictOnDelete();
+            $table->string('item_no');
             $table->string('document_number')->nullable();//before send to ERP in null
             $table->unsignedInteger('counter')->default(0);
             $table->string('production_order_number');

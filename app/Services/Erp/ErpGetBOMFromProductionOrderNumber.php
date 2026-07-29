@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-class ErpGetBOMFromProductionOrderNumber
+readonly class ErpGetBOMFromProductionOrderNumber
 {
-    public function __construct(private readonly ErpOdataClient $client)
+    public function __construct(private ErpOdataClient $client)
     {
     }
 
@@ -35,7 +35,7 @@ class ErpGetBOMFromProductionOrderNumber
             'variant_code' => $data->VariantCode,
             'alternate_number' => $data->AlternativeNo,
             'nom_number' => $data->ProductionBOMNo,
-            'item_number' => $data->ItemNo,
+            'item_no' => $data->ItemNo,
             'item_description' => $data->Description,
             'quantity' => $data->Quantity,
 

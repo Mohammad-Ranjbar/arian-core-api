@@ -9,9 +9,10 @@ return new class extends Migration {
     {
         Schema::create('alternative_items', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('alternative_category_id')->constrained()->restrictOnDelete();
             $table->foreignId('erp_product_item_id')->constrained()->restrictOnDelete();
+            $table->string('item_no');
+            $table->unique(['alternative_category_id','erp_product_item_id'],'unique_alternative_category_items');
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->unsignedBigInteger('packing_qty');
             $table->timestamps();

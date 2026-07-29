@@ -17,32 +17,30 @@ use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Services\TrackingService\TrackingServiceFactory;
 use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ProductionTrackingController extends Controller
 {
 
+
     /**
-     * @param TrackingRequest $request
-     * @param Vehicle $vehicle
-     * @return JsonResponse|VehicleResource
-     * @throws AuthorizationException
+     * @throws Throwable
      */
     public function submit(TrackingRequest $request, Vehicle $vehicle): JsonResponse|VehicleResource
     {
         $validatedData = $request->validated();
         try {
-            if ($validatedData['type'] == 'enter' && $validatedData['model_type'] == 'production_lines' ) {
+            if ($validatedData['type'] == 'enter' && $validatedData['model_type'] == 'production_lines') {
                 $condition = Tracking::query()
-                    ->where('model_type',ProductionLine::class)
-                    ->where('type','enter')
-                    ->where('vin',$validatedData['vin'])
-                    ->where('model_id',$validatedData['model_id'])
+                    ->where('model_type', ProductionLine::class)
+                    ->where('type', 'enter')
+                    ->where('vin', $validatedData['vin'])
+                    ->where('model_id', $validatedData['model_id'])
                     ->exists();
-                if ($condition){
+                if ($condition) {
                     return $this->responseError('شماره وارد شده قبلا به این خط تولید وارد شده است');
                 }
 
@@ -68,6 +66,7 @@ class ProductionTrackingController extends Controller
             }
 
             $modelTrackingService = TrackingServiceFactory::getInstance($validatedData['model_type']);
+
             $data = $modelTrackingService->{$validatedData['type']}($validatedData);
             if (!$data) {
                 return $this->responseError('cant not exit or enter to this location', 400);
@@ -91,10 +90,10 @@ class ProductionTrackingController extends Controller
 
     public function update(Tracking $tracking): TrackingResource|JsonResponse
     {
-       $check = ErpJob::query()->where('model_type',Tracking::class)->where('model_id',$tracking->getAttribute('id'))->where('status','!=','failed')->exists();
-       if ($check) {
-           return $this->responseError('کاربر دیگری در جاب دیگر در حال بررسی این مورد است');
-       }
+        $check = ErpJob::query()->where('model_type', Tracking::class)->where('model_id', $tracking->getAttribute('id'))->where('status', '!=', 'failed')->exists();
+        if ($check) {
+            return $this->responseError('کاربر دیگری در جاب دیگر در حال بررسی این مورد است');
+        }
         $modelTrackingService = TrackingServiceFactory::getInstance($tracking->getAttribute('model')->getTable());
         $type = $tracking->getAttribute('type') === 'enter' ? 'on_enter' : 'on_exit';
 
