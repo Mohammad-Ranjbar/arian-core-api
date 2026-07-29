@@ -32,9 +32,8 @@ class AlternativeManagementController extends Controller
     public function getBomItems(string $productionOrderNumber)
     {
 
-          $bom =  $this->erpGetBOMFromProductionOrderNumber->get($productionOrderNumber);
+          $items =  $this->erpGetBOMFromProductionOrderNumber->get($productionOrderNumber);
 
-          $items = $this->erpGetBOMItemFromProductionBomNo->get($bom['production_bom_no']);
           dd($items);
 
     }

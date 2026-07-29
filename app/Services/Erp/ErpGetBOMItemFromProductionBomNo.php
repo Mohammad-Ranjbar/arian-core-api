@@ -36,7 +36,7 @@ class ErpGetBOMItemFromProductionBomNo
             'no'                => $data->No,
             'description'       => $data->Description,
             'type'              => $data->Type,
-            'data'              => $data,
+//            'data'              => $data,
         ])->values()->all();
     }
 

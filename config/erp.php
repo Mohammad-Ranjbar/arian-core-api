@@ -2,7 +2,7 @@
 return [
 
     'bom_line' =>env('BOM_LIST_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/BOMVersionLines"),
-    'alternative_list' => env('ALTERNATIVE_LIST_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/ProductionAlternativeTest"),
+    'alternative_list' => env('ALTERNATIVE_LIST_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/AlternativeBOMAPI"),
     'pdi_block_reason_id' =>env('PDI_BLOCK_REASON_ID'),
     'vehicles'  => env('ERP_URL_VEHICLES',
         "http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/Vehicle_List_API"),

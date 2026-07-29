@@ -15,8 +15,9 @@ class ErpGetBOMFromProductionOrderNumber
     public function get(string $po): array
     {
         $po = trim($po);
-        $url = config('erp.alternative_list') . '?$filter=Production_Order_No eq \'' . $po . '\'';
-        $result = $this->client->getOne($url);
+        $url = config('erp.alternative_list') . '?$filter=ProductionOrderNo eq \'' . $po . '\'';
+        $result = $this->client->get($url);
+
         if (!$result) {
             Log::info('get BOM From PO: ' . $po . 'by User:' . Auth::id() . ' not found');
 
@@ -28,15 +29,18 @@ class ErpGetBOMFromProductionOrderNumber
 
     private function getResult($result): array
     {
-        return [
-            'production_order_number' => $result->Production_Order_No,
-            'production_order_status' => $result->Production_Order_Status,
-            'production_bom_no' => $result->Production_BOM_No,
-            'alternative_type' => $result->Alternative_Type,
-            'alternative_no' => $result->Alternative_No,
-            'modification_date' => $result->Modification_Date_Time,
-            'data' => $result
-        ];
+
+        return collect($result->value)->map(fn($data) => [
+            'production_order_number' => $data->ProductionOrderNo,
+            'variant_code' => $data->VariantCode,
+            'alternate_number' => $data->AlternativeNo,
+            'nom_number' => $data->ProductionBOMNo,
+            'item_number' => $data->ItemNo,
+            'item_description' => $data->Description,
+            'quantity' => $data->Quantity,
+
+//            'data' => $data
+        ])->values()->all();
     }
 
 
