@@ -7,7 +7,7 @@ use App\Repositories\AlternativeCategoryRepository;
 
 class AlternativeCategoryController extends CrudController
 {
-
+    protected bool $appendUserId = true;
     public function __construct(public readonly AlternativeCategoryRepository $repository)
     {
         $this->applyAuthorizeResource();
