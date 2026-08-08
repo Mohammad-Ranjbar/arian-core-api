@@ -63,6 +63,9 @@ class SalesBridgeController extends Controller
             if (Str::contains($id,'PARS_AD')){
                 $prefix = 'a';
             }
+            if (Str::contains($id,'PARS_AM')){
+                $prefix = 'p';
+            }
         }
         $url = $this->getUrl($prefix).'/second-payment/'.$id;
         logger($url);
