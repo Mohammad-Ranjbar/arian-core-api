@@ -19,7 +19,7 @@ class AlternativeCategoryResource extends JsonResource
             'title' => $this->resource->title,
             'is_active' => $this->resource->is_active,
             'user_id' => $this->resource->user_id,
-            'user' => USerShortResource::make($this->resource->user),
+            'user' => UserShortResource::make($this->resource->user),
         ];
     }
 }
