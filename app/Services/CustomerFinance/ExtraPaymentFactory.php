@@ -12,6 +12,9 @@ class ExtraPaymentFactory
         if ($reference === 'DieselSales') {
             return new DieselExtraPaymentService();
         }
+        if ($reference === 'PooyaSales') {
+            return new PooyaExtraPaymentService();
+        }
         return false;
     }
 }
