@@ -16,7 +16,10 @@ class AlternativeCategoryResource extends JsonResource
     {
         return [
             'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'title' => $this->resource->title,
+            'is_active' => $this->resource->is_active,
+            'user_id' => $this->resource->user_id,
+            'user' => USerShortResource::make($this->resource->user),
         ];
     }
 }
