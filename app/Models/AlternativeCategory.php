@@ -10,7 +10,7 @@ class AlternativeCategory extends Model
     protected $fillable = [
         'title',
         'is_active',
-        'admin_id',
+        'user_id',
     ];
 
     public function user(): BelongsTo
