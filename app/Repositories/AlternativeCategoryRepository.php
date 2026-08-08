@@ -12,9 +12,11 @@ class AlternativeCategoryRepository extends BaseRepository
      */
     protected array $rules = [
         'create'    => [
-
+            'title' => 'required|string|max:200',
+            'is_active' => 'required|boolean',
         ], 'update' => [
-
+            'title' => 'required|string|max:200,',
+            'is_active' => 'required|boolean',
         ]
     ];
 
@@ -24,6 +26,9 @@ class AlternativeCategoryRepository extends BaseRepository
     public function __construct(AlternativeCategory $model)
     {
         $this->model = $model;
+        if (request()->route()) {
+            $this->rules['update']['title'] .= request()->route()->parameter('alternative_category');
+        }
     }
 
 }
