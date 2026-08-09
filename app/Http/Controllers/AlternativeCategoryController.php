@@ -30,4 +30,19 @@ class AlternativeCategoryController extends CrudController
             return $this->responseError($exception->getMessage(), 500);
         }
     }
+
+    public function deleteItem(AlternativeCategory $alternativeCategory, $erpItemId): JsonResponse
+    {
+        try {
+            if (!$alternativeCategory->items()->where('erp_product_item_id', $erpItemId)->exists()) {
+                return $this->responseError('ایتم مورد نظر در لیست ایتم های این گروه الترناتیو نیست');
+            }
+            $alternativeCategory->items()->where('erp_product_item_id', $erpItemId)->delete();
+            $alternativeCategory->refresh();
+            return AlternativeCategoryResource::make($alternativeCategory);
+
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 500);
+        }
+    }
 }
