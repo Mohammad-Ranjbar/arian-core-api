@@ -229,11 +229,11 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         [StopFactController::class, 'removeUser'])->name('stop-fact.remove.user');
 
 
-    Route::get('/alternative-category/{alternativeCategory}/users', [AlternativeCategoryController::class, 'users'])->name('alternative-category.users');
-    Route::post('/alternative-category/{alternativeCategory}/users',
-        [AlternativeCategoryController::class, 'assignUser'])->name('alternative-category.assign.user');
-    Route::delete('/alternative-category/{alternativeCategory}/users/{user}',
-        [AlternativeCategoryController::class, 'removeUser'])->name('alternative-category.remove.user');
+//    Route::get('/alternative-category/{alternativeCategory}/users', [AlternativeCategoryController::class, 'users'])->name('alternative-category.users');
+//    Route::post('/alternative-category/{alternativeCategory}/users',
+//        [AlternativeCategoryController::class, 'assignUser'])->name('alternative-category.assign.user');
+//    Route::delete('/alternative-category/{alternativeCategory}/users/{user}',
+//        [AlternativeCategoryController::class, 'removeUser'])->name('alternative-category.remove.user');
 
 
     Route::get('/accompanying-item/{accompanyingItem}/car-models',

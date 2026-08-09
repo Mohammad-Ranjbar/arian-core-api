@@ -14,9 +14,11 @@ class AlternativeCategoryRepository extends BaseRepository
         'create'    => [
             'title' => 'required|string|max:200',
             'is_active' => 'required|boolean',
+            'user_id' => 'required|integer|exists:users,id',
         ], 'update' => [
             'title' => 'required|string|max:200,',
             'is_active' => 'required|boolean',
+            'user_id' => 'required|integer|exists:users,id',
         ]
     ];
 
