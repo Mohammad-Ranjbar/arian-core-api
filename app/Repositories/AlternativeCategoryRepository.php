@@ -14,11 +14,11 @@ class AlternativeCategoryRepository extends BaseRepository
         'create'    => [
             'title' => 'required|string|max:200',
             'is_active' => 'required|boolean',
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id' => 'required|unique:alternative_categories|integer|exists:users,id',
         ], 'update' => [
             'title' => 'required|string|max:200,',
             'is_active' => 'required|boolean',
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id' => 'required|integer|exists:users,id|unique:alternative_categories,user_id,',
         ]
     ];
 
@@ -30,6 +30,7 @@ class AlternativeCategoryRepository extends BaseRepository
         $this->model = $model;
         if (request()->route()) {
             $this->rules['update']['title'] .= request()->route()->parameter('alternative_category');
+            $this->rules['update']['user_id'] .= request()->route()->parameter('alternative_category');
         }
     }
 
