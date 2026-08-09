@@ -19,8 +19,8 @@ class AlternativeCategory extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function users(): BelongsToMany
+    public function items()
     {
-        return $this->belongsToMany(User::class);
+        return $this->hasMany(AlternativeItem::class);
     }
 }

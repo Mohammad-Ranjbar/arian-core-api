@@ -9,11 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ErpProductItem extends Model
 {
-    use HasFactory;
-
-    /**
-     *
-     */
     const ENGINE = 'engine';
     /**
      * @var string[]

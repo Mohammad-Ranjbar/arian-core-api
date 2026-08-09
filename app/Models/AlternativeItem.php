@@ -11,8 +11,9 @@ class AlternativeItem extends Model
     protected $fillable = [
         'alternative_category_id',
         'erp_product_item_id',
-        'consumption_coefficient',
+        'packing_qty',
         'user_id',
+        'item_no',
     ];
 
     public function alternativeCategory(): BelongsTo
