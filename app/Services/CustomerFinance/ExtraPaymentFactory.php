@@ -15,6 +15,9 @@ class ExtraPaymentFactory
         if ($reference === 'PooyaSales') {
             return new PooyaExtraPaymentService();
         }
+        if ($reference === 'ArinaSales') {
+            return new ArinaExtraPaymentService();
+        }
         return false;
     }
 }
