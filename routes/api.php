@@ -142,7 +142,7 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
     Route::post('/alternative-category/{alternativeCategory}/assign-item',[AlternativeCategoryController::class, 'assignItem'])->name('alternative-category.assign-item');
-    Route::delete('/alternative-category/{alternativeCategory}/delete-item',[AlternativeCategoryController::class, 'deleteItem'])->name('alternative-category.delete-item');
+    Route::delete('/alternative-category/{alternativeCategory}/delete-item/{erpItemId}',[AlternativeCategoryController::class, 'deleteItem'])->name('alternative-category.delete-item');
     Route::get('/bom-alternatives/{productionOrderNumber}', [AlternativeManagementController::class, 'getBomItems'])->name('get-bom-alternatives');
     Route::get('/enter-lines', [AlternativeManagementController::class, 'enterLines'])->name('enter-lines');
     Route::get('/shifts', ShiftErpController::class);
