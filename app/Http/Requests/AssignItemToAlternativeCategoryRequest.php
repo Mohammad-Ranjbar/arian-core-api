@@ -20,11 +20,6 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
     {
 
         return [
-            'alternative_category_id' => [
-                'required',
-                'integer',
-                'exists:alternative_categories,id',
-            ],
 
             'erp_product_item_id' => [
                 'required',
@@ -49,14 +44,9 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'alternative_category_id.required' => 'انتخاب دسته‌بندی جایگزین الزامی است.',
-            'alternative_category_id.integer' => 'شناسه دسته‌بندی جایگزین باید یک عدد صحیح باشد.',
-            'alternative_category_id.exists' => 'دسته‌بندی جایگزین انتخاب‌شده معتبر نیست.',
-
             'erp_product_item_id.required' => 'انتخاب محصول ERP الزامی است.',
             'erp_product_item_id.integer' => 'شناسه محصول ERP باید یک عدد صحیح باشد.',
             'erp_product_item_id.exists' => 'محصول ERP انتخاب‌شده معتبر نیست.',
-            'erp_product_item_id.unique' => 'این محصول قبلاً برای دسته‌بندی جایگزین انتخاب‌شده ثبت شده است.',
 
             'packing_qty.required' => 'تعداد بسته‌بندی الزامی است.',
             'packing_qty.integer' => 'تعداد بسته‌بندی باید یک عدد صحیح باشد.',
