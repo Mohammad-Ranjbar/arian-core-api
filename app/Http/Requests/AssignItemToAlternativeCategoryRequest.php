@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\ErpProductItem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssignItemToAlternativeCategoryRequest extends FormRequest
@@ -18,11 +19,41 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
 
     public function rules(): array
     {
+        $id = $this->route('alternative_category_item');
+
         return [
-            'erp_product_item_id' => 'required|exists:erp_product_items,id',
-            'packing_qty' => 'required|numeric|min:0',
-            'item_no' => 'nullable',
-            'user_id' => 'nullable',
+            'alternative_category_id' => [
+                'required',
+                'integer',
+                'exists:alternative_categories,id',
+            ],
+
+            'erp_product_item_id' => [
+                'required',
+                'integer',
+                'exists:erp_product_items,id',
+
+                Rule::unique('alternative_category_items', 'erp_product_item_id')
+                    ->where(function ($query) {
+                        return $query->where(
+                            'alternative_category_id',
+                            $this->input('alternative_category_id')
+                        );
+                    })
+                    ->ignore($id),
+            ],
+
+            'item_no' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'packing_qty' => [
+                'required',
+                'integer',
+                'min:0',
+            ],
         ];
     }
 

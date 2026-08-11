@@ -11,6 +11,7 @@ class AlternativeCategoryItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->resource->id,
             'alternative_category_id' => $this->resource->alternative_category_id,
             'erp_product_item_id' => $this->resource->erp_product_item_id,
             'erp_product_item' => ErpProductItemResource::make($this->resource->erpProductItem),
