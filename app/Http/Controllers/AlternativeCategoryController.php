@@ -33,6 +33,7 @@ class AlternativeCategoryController extends CrudController
     public function deleteItem(AlternativeCategory $alternativeCategory, $erpItemId)
     {
         try {
+            logger($erpItemId);
             if (!$alternativeCategory->items()->where('erp_product_item_id', $erpItemId)->exists()) {
                 return $this->responseError('ایتم مورد نظر در لیست ایتم های این گروه الترناتیو نیست');
             }
