@@ -35,10 +35,10 @@ class AlternativeCategoryController extends CrudController
         try {
             logger($erpItemId);
             logger($alternativeCategory->items);
-//            if ($alternativeCategory->items()->where('erp_product_item_id', $erpItemId)->doesntExist()) {
-//                return $this->responseError('ایتم مورد نظر در لیست ایتم های این گروه الترناتیو نیست');
-//            }
-            $alternativeCategory->items()->where('erp_product_item_id', $erpItemId)->delete();
+            if ($alternativeCategory->items()->where('id', $erpItemId)->doesntExist()) {
+                return $this->responseError('ایتم مورد نظر در لیست ایتم های این گروه الترناتیو نیست');
+            }
+            $alternativeCategory->items()->where('id', $erpItemId)->delete();
             $alternativeCategory->refresh();
             return AlternativeCategoryResource::make($alternativeCategory);
 
