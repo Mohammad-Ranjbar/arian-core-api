@@ -7,7 +7,6 @@ use App\Http\Resources\AlternativeCategoryResource;
 use App\Models\AlternativeCategory;
 use App\Repositories\AlternativeCategoryRepository;
 use Exception;
-use Illuminate\Http\JsonResponse;
 
 class AlternativeCategoryController extends CrudController
 {
@@ -17,7 +16,7 @@ class AlternativeCategoryController extends CrudController
         $this->setResource(AlternativeCategoryResource::class);
     }
 
-    public function assignItem(AlternativeCategory $alternativeCategory, AssignItemToAlternativeCategoryRequest $request): JsonResponse
+    public function assignItem(AlternativeCategory $alternativeCategory, AssignItemToAlternativeCategoryRequest $request)
     {
         try {
             $validatedData = $request->validated();
@@ -31,7 +30,7 @@ class AlternativeCategoryController extends CrudController
         }
     }
 
-    public function deleteItem(AlternativeCategory $alternativeCategory, $erpItemId): JsonResponse
+    public function deleteItem(AlternativeCategory $alternativeCategory, $erpItemId)
     {
         try {
             if (!$alternativeCategory->items()->where('erp_product_item_id', $erpItemId)->exists()) {
