@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\ErpProductItem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssignItemToAlternativeCategoryRequest extends FormRequest
 {
@@ -27,7 +28,11 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $itemNo = ErpProductItem::query()->find($this->input('erp_product_item_id'))->getAttribute('reference');
+        $itemNo = ErpProductItem::query()->find($this->input('erp_product_item_id'));
+        if (!$itemNo) {
+            throw new NotFoundHttpException('Item Not Found');
+        }
+        $itemNo = $itemNo->getAttribute('reference');
         $this->merge([
             'item_no' => $itemNo,
             'user_id' => Auth::id()
