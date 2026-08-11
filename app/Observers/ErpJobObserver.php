@@ -9,9 +9,9 @@ class ErpJobObserver
 {
     public function created(ErpJob $erpJob): void
     {
-        if ($erpJob->getAttribute('status') === 'failed') {
-            $this->notifyUsers($erpJob);
-        }
+//        if ($erpJob->getAttribute('status') === 'failed') {
+//            $this->notifyUsers($erpJob);
+//        }
     }
 
     protected function notifyUsers($erpJob): void
@@ -44,9 +44,9 @@ class ErpJobObserver
 
     public function updated(ErpJob $erpJob): void
     {
-        if ($erpJob->getAttribute('status') === 'failed') {
-            $this->notifyUsers($erpJob);
-        }
+//        if ($erpJob->getAttribute('status') === 'failed') {
+//            $this->notifyUsers($erpJob);
+//        }
     }
 
 }
