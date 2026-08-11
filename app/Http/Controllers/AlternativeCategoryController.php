@@ -20,7 +20,9 @@ class AlternativeCategoryController extends CrudController
     {
         try {
             $validatedData = $request->validated();
-
+            if ($alternativeCategory->items()->where('id', $validatedData['erp_product_item_id'])->exists()) {
+                return $this->responseError('ایتم مورد نظر در لیست ایتم های این گروه موجود است');
+            }
             $alternativeCategory->items()->create($validatedData);
             $alternativeCategory->refresh();
             return AlternativeCategoryResource::make($alternativeCategory);

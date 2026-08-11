@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Models\ErpProductItem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssignItemToAlternativeCategoryRequest extends FormRequest
@@ -19,7 +18,6 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = $this->route('alternative_category_item');
 
         return [
             'alternative_category_id' => [
@@ -32,15 +30,6 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
                 'required',
                 'integer',
                 'exists:erp_product_items,id',
-
-                Rule::unique('alternative_category_items', 'erp_product_item_id')
-                    ->where(function ($query) {
-                        return $query->where(
-                            'alternative_category_id',
-                            $this->input('alternative_category_id')
-                        );
-                    })
-                    ->ignore($id),
             ],
 
             'item_no' => [
@@ -56,6 +45,25 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
             ],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'alternative_category_id.required' => 'انتخاب دسته‌بندی جایگزین الزامی است.',
+            'alternative_category_id.integer' => 'شناسه دسته‌بندی جایگزین باید یک عدد صحیح باشد.',
+            'alternative_category_id.exists' => 'دسته‌بندی جایگزین انتخاب‌شده معتبر نیست.',
+
+            'erp_product_item_id.required' => 'انتخاب محصول ERP الزامی است.',
+            'erp_product_item_id.integer' => 'شناسه محصول ERP باید یک عدد صحیح باشد.',
+            'erp_product_item_id.exists' => 'محصول ERP انتخاب‌شده معتبر نیست.',
+            'erp_product_item_id.unique' => 'این محصول قبلاً برای دسته‌بندی جایگزین انتخاب‌شده ثبت شده است.',
+
+            'packing_qty.required' => 'تعداد بسته‌بندی الزامی است.',
+            'packing_qty.integer' => 'تعداد بسته‌بندی باید یک عدد صحیح باشد.',
+            'packing_qty.min' => 'تعداد بسته‌بندی نمی‌تواند کمتر از صفر باشد.',
+        ];
+    }
+
 
     protected function prepareForValidation(): void
     {
