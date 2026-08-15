@@ -18,6 +18,7 @@ class Alternative extends Model
         'failed_at',
         'success_at',
         'user_id',
+        'variant_code',
         'data',
     ];
 
