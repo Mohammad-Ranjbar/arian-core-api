@@ -39,8 +39,8 @@ class AlternativeController extends CrudController
     {
         try {
             $validatedData  = $request->validated();
-            $alternativeItem = AlternativeItem::query()->where('item_no', $validatedData['item_no'])->first();
-            if (empty($alternativeItem)) {
+            $alternative = Alternative::query()->where('item_no', $validatedData['item_no'])->first();
+            if (empty($alternative)) {
                 throw new Exception('آيتم مورد نظر پیدا نشد');
             }
             $parameters = [
@@ -49,7 +49,7 @@ class AlternativeController extends CrudController
                 'numberItemsP' => 1,
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
-                'variantArray' => '',
+                'variantArray' => ,
                 'crossRefArray' => '',
                 'makeCodeP' => $validatedData['make_code_reference'],
                 'documentNo' => 'ALT-'.Str::random(16),

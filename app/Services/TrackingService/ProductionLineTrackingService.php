@@ -77,14 +77,20 @@ class ProductionLineTrackingService extends BaseTrackingService
             if ( $alternative ) {
                 $alternative->increment('counter');
             }else{
-               $colorMap =  NavColor::query()->where('color',$item['variant_code'])->where('car_model_id',$vehicle->getAttribute('car_model_id'))->first();
-               if(empty($colorMap)){
-                   throw new Exception("برای آیتم مورد نظر تبدیل رنگ پیدا نشد");
-               }
+                $colorMap = null;
+                if ($item['has_color']){
+                    $colorMap =  NavColor::query()->where('color',$item['variant_code'])
+                        ->where('car_model_id',$vehicle->getAttribute('car_model_id'))
+                        ->first()->getAttribute('code');
+                    if(empty($colorMap)){
+                        throw new Exception("برای آیتم مورد نظر تبدیل رنگ پیدا نشد");
+                    }
+                }
+
               $alternative =  Alternative::query()->create([
                     'alternative_item_id' => $alternativeItem->getAttribute('id'),
                     'production_order_number' => $productionOrderNumber,
-                    'variant_code' => $colorMap->getAttribute('code'),
+                    'variant_code' => $colorMap,
                     'item_no' => $item['item_no'],
                     'counter' => 1,
                     'status' => 'create',
