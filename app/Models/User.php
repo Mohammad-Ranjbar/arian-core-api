@@ -113,4 +113,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Setting::class);
     }
+
+    public function alternativeGroup(): BelongsTo
+    {
+    return  $this->belongsTo(AlternativeCategory::class);
+    }
 }

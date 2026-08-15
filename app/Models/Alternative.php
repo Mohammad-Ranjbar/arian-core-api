@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Alternative extends Model
 {
@@ -26,5 +27,8 @@ class Alternative extends Model
         'success_at' => 'datetime',
     ];
 
-
+    public function alternativeItem(): BelongsTo
+    {
+        return $this->belongsTo(AlternativeItem::class);
+    }
 }
