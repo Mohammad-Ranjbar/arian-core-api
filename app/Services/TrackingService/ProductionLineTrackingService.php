@@ -70,7 +70,8 @@ class ProductionLineTrackingService extends BaseTrackingService
 //                throw new Exception('Alternative Item already not Exists. => '.$item['item_no']);
             }
 
-            $alternative = Alternative::query()->where('item_no',$item['item_no'])
+            $alternative = Alternative::query()
+                ->where('item_no',$item['item_no'])
                 ->where('status','create')
                 ->first();
 
@@ -93,7 +94,7 @@ class ProductionLineTrackingService extends BaseTrackingService
                     'variant_code' => $colorMap,
                     'item_no' => $item['item_no'],
                     'counter' => 1,
-                    'status' => 'create',
+                    'status' => 'send',
                 ]);
             }
             if ($alternative->getAttribute('counter') == $alternative->alternativeItem->getAttribute('packing_qty')) {
@@ -102,9 +103,6 @@ class ProductionLineTrackingService extends BaseTrackingService
                 ]);
             }
         }
-
-
-
     }
 
     public function submitSynchronous(string $vin, $productionLineId): void
