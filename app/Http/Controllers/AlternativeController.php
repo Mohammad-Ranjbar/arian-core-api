@@ -49,8 +49,8 @@ class AlternativeController extends CrudController
                 'numberItemsP' => 1,
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
-                'variantArray' => $alternativeItem->getAttribute( 'variant_code'),
-                'crossRefArray' =>$alternativeItem->getAttribute( 'item_no'),
+                'variantArray' => $alternativeItem->getAttribute('variant_code'),
+                'crossRefArray' =>$alternativeItem->getAttribute('item_no'),
                 'makeCodeP' => $validatedData['make_code_reference'],
                 'documentNo' => 'ALT-'.Str::random(15),
             ];
