@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('send_at')->nullable();
             $table->timestamp('failed_at')->nullable();
             $table->timestamp('success_at')->nullable();
+            $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->jsonb('data')->nullable();//result from ERP
             $table->timestamps();
         });
