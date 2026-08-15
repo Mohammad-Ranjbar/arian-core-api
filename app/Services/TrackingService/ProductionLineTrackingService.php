@@ -60,12 +60,13 @@ class ProductionLineTrackingService extends BaseTrackingService
         $productionOrderNumber = $vehicle->getAttribute('production_order_number');
 
         $items = resolve(ErpGetBOMFromProductionOrderNumber::class)->get($productionOrderNumber);;
-        dd($items);
+
         foreach ($items as $item) {
 
             $alternativeItem = AlternativeItem::query()->where('item_no',$item['item_no'])->first();
             if (empty($alternativeItem)) {
-                throw new Exception('Alternative Item already not Exists. => '.$item['item_no']);
+                continue;
+//                throw new Exception('Alternative Item already not Exists. => '.$item['item_no']);
             }
 
             $alternative = Alternative::query()->where('item_no',$item['item_no'])
