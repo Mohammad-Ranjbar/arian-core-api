@@ -17,6 +17,7 @@ class Alternative extends Model
         'send_at',
         'failed_at',
         'success_at',
+        'user_id',
         'data',
     ];
 
@@ -30,5 +31,10 @@ class Alternative extends Model
     public function alternativeItem(): BelongsTo
     {
         return $this->belongsTo(AlternativeItem::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }
