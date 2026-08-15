@@ -32,7 +32,10 @@ class CrudController extends Controller
 
     public function index(Request $request): JsonResponse|AnonymousResourceCollection
     {
-        $perPage = $request->get('per_page', 15);
+        $perPage = min(
+            $request->integer('per_page', 15),
+            10
+        );
         if (isset($this->repository)) {
             return $this->collect($this->repository->paginate($perPage));
         }
