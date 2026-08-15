@@ -8,6 +8,7 @@ use App\Models\Alternative;
 use App\Models\AlternativeItem;
 use App\Models\ErpJob;
 use App\Models\ErpProductItem;
+use App\Models\NavColor;
 use App\Models\ProductionLine;
 use App\Models\ShortageItem;
 use App\Models\Synchronous;
@@ -76,10 +77,14 @@ class ProductionLineTrackingService extends BaseTrackingService
             if ( $alternative ) {
                 $alternative->increment('counter');
             }else{
+               $colorMap =  NavColor::query()->where('color',$item['variant_code'])->where('car_model_id',$vehicle->getAttribute('car_model_id'))->first();
+               if(empty($colorMap)){
+                   throw new Exception("برای آیتم مورد نظر تبدیل رنگ پیدا نشد");
+               }
               $alternative =  Alternative::query()->create([
                     'alternative_item_id' => $alternativeItem->getAttribute('id'),
                     'production_order_number' => $productionOrderNumber,
-                    'variant_code' => $item['variant_code'],
+                    'variant_code' => $colorMap->getAttribute('code'),
                     'item_no' => $item['item_no'],
                     'counter' => 1,
                     'status' => 'create',

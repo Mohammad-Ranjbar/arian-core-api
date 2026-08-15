@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NavColor extends Model
 {
-    use HasFactory;
-
     protected $fillable = ['color', 'code', 'car_model_id'];
 
     public function carModel(): BelongsTo
