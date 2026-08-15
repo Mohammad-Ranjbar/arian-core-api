@@ -60,7 +60,7 @@ class ProductionLineTrackingService extends BaseTrackingService
         $productionOrderNumber = $vehicle->getAttribute('production_order_number');
 
         $items = resolve(ErpGetBOMFromProductionOrderNumber::class)->get($productionOrderNumber);;
-
+        dd($items);
         foreach ($items as $item) {
 
             $alternativeItem = AlternativeItem::query()->where('item_no',$item['item_no'])->first();
@@ -79,6 +79,7 @@ class ProductionLineTrackingService extends BaseTrackingService
               $alternative =  Alternative::query()->create([
                     'alternative_item_id' => $alternativeItem->getAttribute('id'),
                     'production_order_number' => $productionOrderNumber,
+                    'variant_code' => $item['varian_code'],
                     'item_no' => $item['item_no'],
                     'counter' => 1,
                     'status' => 'create',

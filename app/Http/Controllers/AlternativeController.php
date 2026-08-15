@@ -6,10 +6,12 @@ use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
 use App\Models\AlternativeCategory;
+use App\Models\AlternativeItem;
 use App\Repositories\AlternativeRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class AlternativeController extends CrudController
 {
@@ -36,10 +38,26 @@ class AlternativeController extends CrudController
     public function sendAlternatives(SendAlternativeRequest $request)
     {
         try {
+            $validatedData  = $request->validated();
+            $alternativeItem = AlternativeItem::query()->where('item_no', $validatedData['item_no'])->first();
+            if (empty($alternativeItem)) {
+                throw new Exception('آيتم مورد نظر پیدا نشد');
+            }
+            $parameters = [
+                'itemNoArray' => $validatedData['item_no'],
+                'itemQtyArray' => $alternativeItem->getAttribute('packing_qty'),
+                'numberItemsP' => 1,
+                'fromLocationTypeP' => 'CENTRAL',
+                'toLacationTypeP' => 'PRODUCTION',
+                'variantArray' => '',
+                'crossRefArray' => '',
+                'makeCodeP' => $validatedData['make_code_reference'],
+                'documentNo' => 'ALT-'.Str::random(16),
+            ];
             $response = ErpWsdlClient::run(
-                $erpJob->getAttribute('url'),
-                $erpJob->getAttribute('method'),
-                $erpJob->getAttribute('parameters')
+                config('erp.send_alternative'),
+                'CreateTransfer_Zone',
+                $parameters
             );
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);

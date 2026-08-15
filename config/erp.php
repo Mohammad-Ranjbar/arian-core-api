@@ -6,6 +6,8 @@ return [
     'pdi_block_reason_id' =>env('PDI_BLOCK_REASON_ID'),
     'vehicles'  => env('ERP_URL_VEHICLES',
         "http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/Vehicle_List_API"),
+    'send_alternative'  => env('GENERAL_API',
+        "http://172.16.0.154:7047/PreBC/WS/Pars/Codeunit/GeneralAPI"),
     'vehicle_change'  => env('GENERAL_API',
         "http://172.16.0.154:7047/PreBC/WS/Pars/Codeunit/GeneralAPI"),
     'production_header'  => env('ERP_URL_PRODUCTION_HEADER',
