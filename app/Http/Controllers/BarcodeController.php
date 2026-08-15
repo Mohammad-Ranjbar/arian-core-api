@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Throwable;
 
 
 class BarcodeController extends CrudController
@@ -27,19 +28,17 @@ class BarcodeController extends CrudController
      */
     protected bool $appendUserId = true;
 
-    /**
-     * @param BarcodeRepository $repository
-     */
-    public function __construct(public readonly BarcodeRepository $repository,private readonly VehicleController $vehicleController)
+
+    public function __construct(public readonly BarcodeRepository $repository, private readonly VehicleController $vehicleController)
     {
         $this->applyAuthorizeResource();
         $this->setResource(BarcodeResource::class);
     }
 
-
     /**
      * @param Request $request
      * @return JsonResponse|mixed
+     * @throws Throwable
      */
     public function store(Request $request): mixed
     {
@@ -55,8 +54,8 @@ class BarcodeController extends CrudController
         $vehicle = Vehicle::query()->find($validatedData['vin']);
 
         if (!empty($validatedData['general_product_item_id'])) {
-            $x = $validatedData['general_product_item_id'] ;
-            $generalProductItem = GeneralProductItem::query()->find( $validatedData['general_product_item_id']);
+            $x = $validatedData['general_product_item_id'];
+            $generalProductItem = GeneralProductItem::query()->find($validatedData['general_product_item_id']);
 
             $validatedData['general_product_item_id'] = $generalProductItem->getAttribute('id');
 
@@ -65,18 +64,17 @@ class BarcodeController extends CrudController
             }
 
             if ($generalProductItem->getAttribute('carModels')
-                ->where('id',$vehicle->getAttribute('car_model_id'))->count() == 0) {
-                return $this->responseError('enter general item code is not valid for car models',400);
+                    ->where('id', $vehicle->getAttribute('car_model_id'))->count() == 0) {
+                return $this->responseError('enter general item code is not valid for car models', 400);
             }
-            if ($this->repository->model->newQuery()->where('vin',$validatedData['vin'])->where('general_product_item_id',$generalProductItem->getAttribute('id'))->count() > 0) {
-                return $this->responseError('for this vin and general product item has been registered code',400);
+            if ($this->repository->model->newQuery()->where('vin', $validatedData['vin'])->where('general_product_item_id', $generalProductItem->getAttribute('id'))->count() > 0) {
+                return $this->responseError('for this vin and general product item has been registered code', 400);
             }
-        }
-        else{
-           $x =  time();
+        } else {
+            $x = time();
         }
 
-        $submitted = Cache::get('barcode_submitted_' . $validatedData['code'].'_'.$x);
+        $submitted = Cache::get('barcode_submitted_' . $validatedData['code'] . '_' . $x);
 
         if ($submitted) {
             return new JsonResponse(
@@ -85,7 +83,7 @@ class BarcodeController extends CrudController
             );
         }
 
-        Cache::set('barcode_submitted_' . $validatedData['code'].'_'.$x, true, 10);
+        Cache::set('barcode_submitted_' . $validatedData['code'] . '_' . $x, true, 10);
 
         try {
             DB::beginTransaction();
@@ -99,7 +97,7 @@ class BarcodeController extends CrudController
 
                 if (isset($erpMap[$validatedData['type']])) {
                     $codeNav = $validatedData['code'];
-                    if ($vehicle->carModel->reference == "KSPCO010CP"){
+                    if ($vehicle->carModel->reference == "KSPCO010CP") {
                         $firstPart = Str::substr($code, 0, 10);
                         $secondPart = Str::substr($code, 10);
                         $code = $firstPart . '*' . $secondPart;
