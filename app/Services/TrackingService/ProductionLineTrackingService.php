@@ -64,7 +64,7 @@ class ProductionLineTrackingService extends BaseTrackingService
         foreach ($items as $item) {
 
             $alternativeItem = AlternativeItem::query()->where('item_no',$item['item_no'])->first();
-            if ($alternativeItem) {
+            if (empty($alternativeItem)) {
                 throw new Exception('Alternative Item already not Exists. => '.$item['item_no']);
             }
 

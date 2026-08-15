@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
 use App\Models\AlternativeCategory;
-use App\Models\User;
 use App\Repositories\AlternativeRepository;
+use App\Services\Erp\ErpWsdlClient;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class AlternativeController extends CrudController
@@ -29,6 +31,18 @@ class AlternativeController extends CrudController
         $alternatives = Alternative::query()->whereIn('item_no', $alternativeGroupItems)->get();
 
         return AlternativeResource::collection($alternatives);
+    }
 
+    public function sendAlternatives(SendAlternativeRequest $request)
+    {
+        try {
+            $response = ErpWsdlClient::run(
+                $erpJob->getAttribute('url'),
+                $erpJob->getAttribute('method'),
+                $erpJob->getAttribute('parameters')
+            );
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 500);
+        }
     }
 }
