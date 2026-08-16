@@ -16,7 +16,13 @@ class AlternativeItemResource extends JsonResource
     {
         return [
             'id'    => $this->resource->id,
-            'title' => $this->resource->title
+            'alternative_category_id' => $this->resource->alternative_category_id,
+            'erp_product_item_id' => $this->resource->erp_product_item_id,
+            'erpProductItem' => ErpPRoductItemResource::make($this->resource->erpProductItem),
+            'packing_qty' => $this->resource->packing_qty,
+            'user_id' => $this->resource->user_id,
+            'item_no' => $this->resource->item_no,
+            'created_at' => $this->resource->created_at,
         ];
     }
 }
