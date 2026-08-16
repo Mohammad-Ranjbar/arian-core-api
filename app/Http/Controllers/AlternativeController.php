@@ -43,7 +43,7 @@ class AlternativeController extends CrudController
                 ->first();
             $alternative->update([
                 'user_id' => Auth::id(),
-            ]);g
+            ]);
             if (empty($alternative->getAttribute('send_at'))){
                 $alternative->update(['send_at' => now()]);
             }
@@ -80,9 +80,8 @@ class AlternativeController extends CrudController
                 ]);
                 return $this->responseError($response['message'], 400);
             }
-            dd($response);
+
             $alternative->update([
-                'document_no' => $response['document_no'],
                 'success_at' => now(),
                 'data' => $response['message'],
             ]);
