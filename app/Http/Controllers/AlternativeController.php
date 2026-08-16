@@ -6,7 +6,6 @@ use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
 use App\Models\AlternativeCategory;
-use App\Models\AlternativeItem;
 use App\Repositories\AlternativeRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
@@ -38,8 +37,13 @@ class AlternativeController extends CrudController
     public function sendAlternatives(SendAlternativeRequest $request)
     {
         try {
-            $validatedData  = $request->validated();
-            $alternative = Alternative::query()->where('item_no', $validatedData['item_no'])->first();
+            $validatedData = $request->validated();
+            $alternative = Alternative::query()
+                ->where('item_no', $validatedData['item_no'])
+                ->first();
+            $alternative->update([
+                'user_id' => Auth::id(),
+            ]);
             if (empty($alternative)) {
                 throw new Exception('آيتم مورد نظر پیدا نشد');
             }
@@ -50,15 +54,19 @@ class AlternativeController extends CrudController
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
                 'variantArray' => $alternativeItem->getAttribute('variant_code'),
-                'crossRefArray' =>$alternativeItem->getAttribute('item_no'),
+                'crossRefArray' => $alternativeItem->getAttribute('item_no'),
                 'makeCodeP' => $validatedData['make_code_reference'],
-                'documentNo' => 'ALT-'.Str::random(15),
+                'documentNo' => 'ALT-' . Str::random(15),
             ];
             $response = ErpWsdlClient::run(
                 config('erp.send_alternative'),
                 'CreateTransfer_Zone',
                 $parameters
             );
+            if ($response['status'] !== 'ok') {
+                return $this->responseError($response['message'], 400);
+            }
+
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }

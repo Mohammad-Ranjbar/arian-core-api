@@ -18,4 +18,5 @@ class SendAlternativeRequest extends FormRequest
             'item_no' => 'required|string|exists:alternatives,item_no',
         ];
     }
+
 }
