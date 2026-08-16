@@ -36,7 +36,7 @@ class AlternativeController extends CrudController
 
     public function sendAlternatives(SendAlternativeRequest $request)
     {
-//        try {
+        try {
             $validatedData = $request->validated();
             $alternative = Alternative::query()
                 ->where('item_no', $validatedData['item_no'])
@@ -59,12 +59,12 @@ class AlternativeController extends CrudController
             }
             $parameters = [
                 'itemNoArray' => $validatedData['item_no'],
-                'itemQtyArray' => $alternativeItem->getAttribute('packing_qty'),
+                'itemQtyArray' => $alternative->getAttribute('packing_qty'),
                 'numberItemsP' => 1,
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
-                'variantArray' => $alternativeItem->getAttribute('variant_code'),
-                'crossRefArray' => $alternativeItem->getAttribute('item_no'),
+                'variantArray' => $alternative->getAttribute('variant_code'),
+                'crossRefArray' => $alternative->getAttribute('item_no'),
                 'makeCodeP' => $validatedData['make_code_reference'],
                 'documentNo' => $alternative->getAttribute('document_no'),
             ];
@@ -85,8 +85,8 @@ class AlternativeController extends CrudController
                 'success_at' => now(),
                 'data' => $response['message'],
             ]);
-//        } catch (Exception $exception) {
-//            return $this->responseError($exception->getMessage(), 500);
-//        }
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 500);
+        }
     }
 }
