@@ -36,7 +36,7 @@ class AlternativeController extends CrudController
 
     public function sendAlternatives(SendAlternativeRequest $request)
     {
-        try {
+//        try {
             $validatedData = $request->validated();
             $alternative = Alternative::query()
                 ->where('item_no', $validatedData['item_no'])
@@ -85,8 +85,8 @@ class AlternativeController extends CrudController
                 'success_at' => now(),
                 'data' => $response['message'],
             ]);
-        } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(), 500);
-        }
+//        } catch (Exception $exception) {
+//            return $this->responseError($exception->getMessage(), 500);
+//        }
     }
 }
