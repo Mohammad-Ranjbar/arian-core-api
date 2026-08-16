@@ -79,6 +79,7 @@ class AlternativeController extends CrudController
             if ($response['status'] !== 'ok') {
                 $alternative->update([
                     'failed_at' => now(),
+                    'status' => 'failed',
                     'data' => $response['message'],
                 ]);
                 return $this->responseError($response['message'], 400);
@@ -86,6 +87,7 @@ class AlternativeController extends CrudController
 
             $alternative->update([
                 'success_at' => now(),
+                'status' => 'success',
                 'data' => $response['message'],
             ]);
         } catch (Exception $exception) {
