@@ -6,6 +6,7 @@ use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
 use App\Models\AlternativeCategory;
+use App\Models\AlternativeItem;
 use App\Repositories\AlternativeRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
@@ -38,6 +39,7 @@ class AlternativeController extends CrudController
     {
         try {
             $validatedData = $request->validated();
+            $packingQty = AlternativeItem::query()->where('item_no', $validatedData['item_no'])->first()?->getAttribute('packing_qty') ?? null;
             $alternative = Alternative::query()
                 ->where('item_no', $validatedData['item_no'])
                 ->first();
@@ -51,10 +53,10 @@ class AlternativeController extends CrudController
                 throw new Exception('آيتم مورد نظر پیدا نشد');
             }
 
-            if (empty($alternative->getAttribute('document_no'))){
+            if (empty($alternative->getAttribute('document_number'))){
                 $documentNo = 'ALT-' . Str::random(15);
                 $alternative->update([
-                    'document_no' => $documentNo,
+                    'document_number' => $documentNo,
                 ]);
             }
             $parameters = [
@@ -66,7 +68,7 @@ class AlternativeController extends CrudController
                 'variantArray' => $alternative->getAttribute('variant_code'),
                 'crossRefArray' => $alternative->getAttribute('item_no'),
                 'makeCodeP' => $validatedData['make_code_reference'],
-                'documentNo' => $alternative->getAttribute('document_no'),
+                'documentNo' => $alternative->getAttribute('document_number'),
             ];
             dd($parameters);
             $response = ErpWsdlClient::run(
