@@ -44,8 +44,17 @@ class AlternativeController extends CrudController
             $alternative->update([
                 'user_id' => Auth::id(),
             ]);
+            if (empty($alternative->getAttribute('send_at'))){
+                $alternative->update(['send_at' => now()]);
+            }
             if (empty($alternative)) {
                 throw new Exception('آيتم مورد نظر پیدا نشد');
+            }
+            $documentNo = 'ALT-' . Str::random(15);
+            if (empty($alternative->getAttribute('document_no'))){
+                $alternative->update([
+                    'document_no' => $documentNo,
+                ]);
             }
             $parameters = [
                 'itemNoArray' => $validatedData['item_no'],
@@ -56,7 +65,7 @@ class AlternativeController extends CrudController
                 'variantArray' => $alternativeItem->getAttribute('variant_code'),
                 'crossRefArray' => $alternativeItem->getAttribute('item_no'),
                 'makeCodeP' => $validatedData['make_code_reference'],
-                'documentNo' => 'ALT-' . Str::random(15),
+                'documentNo' => ,
             ];
             $response = ErpWsdlClient::run(
                 config('erp.send_alternative'),
@@ -64,9 +73,18 @@ class AlternativeController extends CrudController
                 $parameters
             );
             if ($response['status'] !== 'ok') {
+                $alternative->update([
+                    'failed_at' => now(),
+                    'data' => $response['message'],
+                ]);
                 return $this->responseError($response['message'], 400);
             }
-
+            dd($response);
+            $alternative->update([
+                'document_no' => $response['document_no'],
+                'success_at' => now(),
+                'data' => $response['message'],
+            ]);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
