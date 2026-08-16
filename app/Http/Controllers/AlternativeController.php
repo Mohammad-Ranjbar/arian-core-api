@@ -61,7 +61,7 @@ class AlternativeController extends CrudController
             }
             $parameters = [
                 'itemNoArray' => $validatedData['item_no'],
-                'itemQtyArray' => $alternative->getAttribute('packing_qty'),
+                'itemQtyArray' =>$packingQty,
                 'numberItemsP' => 1,
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
