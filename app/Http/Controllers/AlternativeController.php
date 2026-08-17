@@ -66,12 +66,20 @@ class AlternativeController extends CrudController
                     $numberItemsP,
                     $validatedData['item_no']
                 )),
-                'itemQtyArray' =>1,//by reza pourmehr
+                'itemQtyArray' => implode(',', array_fill(
+                    0,
+                    $numberItemsP,
+                    1
+                )),
                 'numberItemsP' => $numberItemsP,
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
                 'variantArray' => implode(',',$alternative->variants->pluck('variant_code')->toArray()),
-                'crossRefArray' => ",,,",
+                'crossRefArray' => implode(',', array_fill(
+                    0,
+                    $numberItemsP,
+                    ''
+                )),
                 'makeCodeP' => $validatedData['make_code_reference'],
                 'documentNo' => $alternative->getAttribute('document_number'),
             ];
