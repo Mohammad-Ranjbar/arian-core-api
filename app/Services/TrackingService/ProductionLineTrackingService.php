@@ -94,7 +94,7 @@ class ProductionLineTrackingService extends BaseTrackingService
                     'variant_code' => $colorMap,
                     'item_no' => $item['item_no'],
                     'counter' => 1,
-                    'status' => 'send',
+                    'status' => 'create',
                 ]);
             }
             if ($alternative->getAttribute('counter') == $alternative->alternativeItem->getAttribute('packing_qty')) {
