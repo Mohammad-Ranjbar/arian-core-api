@@ -71,7 +71,7 @@ class AlternativeController extends CrudController
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
                 'variantArray' => implode(',',$alternative->variants->pluck('variant_code')->toArray()),
-                'crossRefArray' => '',
+                'crossRefArray' => ",,,",
                 'makeCodeP' => $validatedData['make_code_reference'],
                 'documentNo' => $alternative->getAttribute('document_number'),
             ];
