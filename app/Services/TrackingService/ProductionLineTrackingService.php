@@ -74,20 +74,12 @@ class ProductionLineTrackingService extends BaseTrackingService
                 ->where('item_no',$item['item_no'])
                 ->where('status','create')
                 ->first();
-
+            if ($item['has_color']){
+                $colorMap =  $this->colorMap($item['variant_code']);
+            }
             if ( $alternative ) {
                 $alternative->increment('counter');
             }else{
-                $colorMap = null;
-                if ($item['has_color']){
-                    $colorMap =  NavColor::query()->where('color',$item['variant_code'])
-                        ->where('car_model_id',$vehicle->getAttribute('car_model_id'))
-                        ->first()->getAttribute('code');
-                    if(empty($colorMap)){
-                        throw new Exception("برای آیتم مورد نظر تبدیل رنگ پیدا نشد");
-                    }
-                }
-
               $alternative =  Alternative::query()->create([
                     'alternative_item_id' => $alternativeItem->getAttribute('id'),
                     'production_order_number' => $productionOrderNumber,
@@ -97,12 +89,23 @@ class ProductionLineTrackingService extends BaseTrackingService
                     'status' => 'create',
                 ]);
             }
+            $alternative->variants()->create([
+                'variant_code' => $colorMap,
+            ]);
             if ($alternative->getAttribute('counter') == $alternative->alternativeItem->getAttribute('packing_qty')) {
                 $alternative->update([
                     'status' => 'send'
                 ]);
             }
         }
+    }
+
+
+    public function colorMap(string $variantCode)
+    {
+      return  NavColor::query()->where('color',$variantCode)
+                ->where('car_model_id',$vehicle->getAttribute('car_model_id'))
+                ->first()?->getAttribute('code') ?? '';
     }
 
     public function submitSynchronous(string $vin, $productionLineId): void
