@@ -66,7 +66,7 @@ class AlternativeController extends CrudController
                     $numberItemsP,
                     $validatedData['item_no']
                 )),
-                'itemQtyArray' =>$packingQty,
+                'itemQtyArray' =>1,//by reza pourmehr
                 'numberItemsP' => $numberItemsP,
                 'fromLocationTypeP' => 'CENTRAL',
                 'toLacationTypeP' => 'PRODUCTION',
