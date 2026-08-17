@@ -34,7 +34,7 @@ class BarcodeResource extends JsonResource
             'item' => $this->resource->erpProductItem,
             'general_product_item_id' => $this->resource->general_product_item_id,
             'generalProductItem' => $productItem,
-            'user' => UserShortResource::make($this->resource->user),
+            'user' =>['name' => $this->resource->user->name],
             'trackable' => $trackable,
             'created_at' => $this->resource->created_at,
         ];
