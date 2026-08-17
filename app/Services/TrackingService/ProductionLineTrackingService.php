@@ -83,7 +83,6 @@ class ProductionLineTrackingService extends BaseTrackingService
               $alternative =  Alternative::query()->create([
                     'alternative_item_id' => $alternativeItem->getAttribute('id'),
                     'production_order_number' => $productionOrderNumber,
-                    'variant_code' => $colorMap,
                     'item_no' => $item['item_no'],
                     'counter' => 1,
                     'status' => 'create',
