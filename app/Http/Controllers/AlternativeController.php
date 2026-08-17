@@ -75,6 +75,7 @@ class AlternativeController extends CrudController
                 'makeCodeP' => $validatedData['make_code_reference'],
                 'documentNo' => $alternative->getAttribute('document_number'),
             ];
+            dd($parameters);
 
             $response = ErpWsdlClient::run(
                 config('erp.send_alternative'),
