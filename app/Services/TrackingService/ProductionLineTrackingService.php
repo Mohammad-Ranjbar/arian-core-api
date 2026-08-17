@@ -75,7 +75,7 @@ class ProductionLineTrackingService extends BaseTrackingService
                 ->where('status','create')
                 ->first();
             if ($item['has_color']){
-                $colorMap =  $this->colorMap($item['variant_code']);
+                $colorMap =  $this->colorMap($item['variant_code'],$vehicle);
             }
             if ( $alternative ) {
                 $alternative->increment('counter');
@@ -101,7 +101,7 @@ class ProductionLineTrackingService extends BaseTrackingService
     }
 
 
-    public function colorMap(string $variantCode)
+    public function colorMap(string $variantCode,$vehicle)
     {
       return  NavColor::query()->where('color',$variantCode)
                 ->where('car_model_id',$vehicle->getAttribute('car_model_id'))

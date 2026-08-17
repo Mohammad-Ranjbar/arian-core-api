@@ -32,7 +32,7 @@ class ProductionTrackingController extends Controller
     public function submit(TrackingRequest $request, Vehicle $vehicle): JsonResponse|VehicleResource
     {
         $validatedData = $request->validated();
-//        try {
+        try {
             if ($validatedData['type'] == 'enter' && $validatedData['model_type'] == 'production_lines') {
                 $condition = Tracking::query()
                     ->where('model_type', ProductionLine::class)
@@ -50,7 +50,7 @@ class ProductionTrackingController extends Controller
             }
             Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists();
 
-//            DB::beginTransaction();
+            DB::beginTransaction();
 
             if ($validatedData['type'] == 'enter') {
                 $vehicle->update([
@@ -77,13 +77,13 @@ class ProductionTrackingController extends Controller
                     $modelTrackingService->sendToErp($record);
                 }
             }
-//            DB::commit();
+            DB::commit();
             return new VehicleResource($vehicle);
-//        } catch (Exception $exception) {
-//            DB::rollBack();
-//
-//            return $this->responseError($exception->getMessage(), 400);
-//        }
+        } catch (Exception $exception) {
+            DB::rollBack();
+
+            return $this->responseError($exception->getMessage(), 400);
+        }
 
     }
 
