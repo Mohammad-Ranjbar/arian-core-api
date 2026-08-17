@@ -60,27 +60,43 @@ class AlternativeController extends CrudController
                 ]);
             }
             $numberItemsP = $alternative->variants->count();
+
+            $arraySize = $numberItemsP + 1;
+
             $parameters = [
                 'itemNoArray' => implode(',', array_fill(
                     0,
-                    $numberItemsP,
+                    $arraySize,
                     $validatedData['item_no']
                 )),
+
                 'itemQtyArray' => implode(',', array_fill(
                     0,
-                    $numberItemsP,
+                    $arraySize,
                     1
                 )),
+
                 'numberItemsP' => $numberItemsP,
+
                 'fromLocationTypeP' => 'CENTRAL',
+
                 'toLacationTypeP' => 'PRODUCTION',
-                'variantArray' => implode(',',$alternative->variants->pluck('variant_code')->toArray()),
+
+                'variantArray' => implode(',', [
+                    ...$alternative->variants
+                        ->pluck('variant_code')
+                        ->toArray(),
+                    '',
+                ]),
+
                 'crossRefArray' => implode(',', array_fill(
                     0,
-                    $numberItemsP,
+                    $arraySize,
                     ''
                 )),
+
                 'makeCodeP' => $validatedData['make_code_reference'],
+
                 'documentNo' => $alternative->getAttribute('document_number'),
             ];
 
