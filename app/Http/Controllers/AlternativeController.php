@@ -27,7 +27,9 @@ class AlternativeController extends CrudController
         $alternativeGroupUser = AlternativeCategory::query()
             ->where('user_id', Auth::id())
             ->first();
-
+        if (empty($alternativeGroupUser)) {
+            return $this->responseError('الترناتیوی با اطلاعات کاربری شما یافت نشد');
+        }
         $alternativeGroupItems = $alternativeGroupUser->items()->select('item_no')->get()->toArray();
 
         $alternatives = Alternative::query()->whereIn('item_no', $alternativeGroupItems)->paginate(25);
