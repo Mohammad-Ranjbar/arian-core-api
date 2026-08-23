@@ -29,7 +29,9 @@ readonly class ErpGetBOMFromProductionOrderNumber
 
     private function getResult($result): array
     {
-        logger($result->toArray());
+        logger()->info('Business Central production BOM result', [
+            'result' => $result->toArray(),
+        ]);
         return collect($result->value)->map(fn($data) => [
             'production_order_number' => $data->ProductionOrderNo,
             'variant_code' => $data->VariantCode,
