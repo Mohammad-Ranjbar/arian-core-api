@@ -40,9 +40,7 @@ readonly class ErpGetBOMFromProductionOrderNumber
             'item_no' => $data->ItemNo,
             'item_description' => $data->Description,
             'quantity' => $data->Quantity,
-            'has_color' => $data->OptionClass == "COLOR",
-
-//            'data' => $data
+            'has_color' => strtoupper(trim((string) $data->OptionClass)) === 'COLOR',
         ])->values()->all();
     }
 
