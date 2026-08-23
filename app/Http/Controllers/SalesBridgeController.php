@@ -53,7 +53,7 @@ class SalesBridgeController extends Controller
     {
         $date = Carbon::make($payment['created_at']);
         if ($date->greaterThan(self::FROM_DATE)) {
-            $date->addDays(2);
+            $date->addDay();
             $payment['created_at'] = $date->format('Y-m-d H:i:s');
             $payment['created_at_date'] = $date->format('Y-m-d');
         }
@@ -61,7 +61,7 @@ class SalesBridgeController extends Controller
             if (isset($payment['bank_data']['date'])) {
                 $date = Carbon::make($payment['bank_data']['date']['full']);
                 if ($date->greaterThan(self::FROM_DATE)) {
-                    $date->addDays(2);
+                    $date->addDay();
                     $payment['bank_data']['date']['full'] = $date->format('Y-m-d H:i:s');
                     $payment['bank_data']['date']['date'] = $date->format('Y-m-d');
                 }
