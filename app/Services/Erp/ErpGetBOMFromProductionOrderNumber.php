@@ -29,7 +29,7 @@ readonly class ErpGetBOMFromProductionOrderNumber
 
     private function getResult($result): array
     {
-        logger($result);
+        logger($result->toArray());
         return collect($result->value)->map(fn($data) => [
             'production_order_number' => $data->ProductionOrderNo,
             'variant_code' => $data->VariantCode,
