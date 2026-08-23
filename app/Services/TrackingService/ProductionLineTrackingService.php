@@ -77,6 +77,9 @@ class ProductionLineTrackingService extends BaseTrackingService
             if ($item['has_color']){
                 $colorMap =  $this->colorMap($item['variant_code'],$vehicle);
             }
+            if (!$item['has_color']){
+                $colorMap =  null;
+            }
             if ( $alternative ) {
                 $alternative->increment('counter');
             }else{
