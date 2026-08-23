@@ -30,7 +30,7 @@ readonly class ErpGetBOMFromProductionOrderNumber
     private function getResult($result): array
     {
         logger()->info('Business Central production BOM result', [
-            'result' => $result->toArray(),
+            'result' => json_decode(json_encode($result), true),
         ]);
         return collect($result->value)->map(fn($data) => [
             'production_order_number' => $data->ProductionOrderNo,
