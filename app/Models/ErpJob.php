@@ -111,4 +111,9 @@ class ErpJob extends Model
         return static::query()->where('created_at', '<=', now()->subDays(5));
     }
 
+    public function pruning(): void
+    {
+        $this->model()->delete();
+    }
+
 }
