@@ -67,7 +67,6 @@ class ProductionLineTrackingService extends BaseTrackingService
             $alternativeItem = AlternativeItem::query()->where('item_no',$item['item_no'])->first();
             if (empty($alternativeItem)) {
                 continue;
-//                throw new Exception('Alternative Item already not Exists. => '.$item['item_no']);
             }
 
             $alternative = Alternative::query()
@@ -80,21 +79,21 @@ class ProductionLineTrackingService extends BaseTrackingService
             if (!$item['has_color']){
                 $colorMap =  null;
             }
-            if ( $alternative ) {
-                $alternative->increment('counter');
+            if ( $alternative && $alternative->getAttribute('counter') % $item['quantity'] > 0  ) {
+                $alternative->increment('counter',$item['quantity']);
             }else{
               $alternative =  Alternative::query()->create([
                     'alternative_item_id' => $alternativeItem->getAttribute('id'),
                     'production_order_number' => $productionOrderNumber,
                     'item_no' => $item['item_no'],
-                    'counter' => 1,
+                    'counter' => $item['quantity'],
                     'status' => 'create',
                 ]);
             }
             $alternative->variants()->create([
                 'variant_code' => $colorMap,
             ]);
-            if ($alternative->getAttribute('counter') == $alternative->alternativeItem->getAttribute('packing_qty')) {
+            if ($alternative->getAttribute('counter') == $alternativeItem->getAttribute('packing_qty')) {
                 $alternative->update([
                     'status' => 'send'
                 ]);
