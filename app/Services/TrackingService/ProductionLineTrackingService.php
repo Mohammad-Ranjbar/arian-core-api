@@ -63,7 +63,7 @@ class ProductionLineTrackingService extends BaseTrackingService
         $items = resolve(ErpGetBOMFromProductionOrderNumber::class)->get($productionOrderNumber);;
 
         foreach ($items as $item) {
-
+            logger($item);
             $alternativeItem = AlternativeItem::query()->where('item_no',$item['item_no'])->first();
             if (empty($alternativeItem)) {
                 continue;
@@ -92,7 +92,8 @@ class ProductionLineTrackingService extends BaseTrackingService
                         'counter' => $item['quantity'] - $finalQty,
                         'status' => 'create',
                     ]);
-                }else{
+                }
+                else{
                     $qty = ($alternative->getAttribute('counter') + $item['quantity']) - $item['quantity'];
                     $alternative =  Alternative::query()->create([
                         'alternative_item_id' => $alternativeItem->getAttribute('id'),
