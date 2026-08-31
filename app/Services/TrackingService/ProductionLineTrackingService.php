@@ -81,7 +81,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             }
             if ( $alternative &&   $alternative->getAttribute('counter') + $item['quantity']  <= $alternativeItem->getAttribute('packing_qty') ) {
                 $alternative->increment('counter',$item['quantity']);
-            }elseif($alternative->getAttribute('counter') + $item['quantity']  > $alternativeItem->getAttribute('packing_qty')){
+            }elseif($alternative && $alternative->getAttribute('counter') + $item['quantity']  > $alternativeItem->getAttribute('packing_qty')){
                $qty = ($alternative->getAttribute('counter') + $item['quantity']) - $item['quantity'];
                 $alternative =  Alternative::query()->create([
                     'alternative_item_id' => $alternativeItem->getAttribute('id'),
