@@ -79,7 +79,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             if (!$item['has_color']){
                 $colorMap =  null;
             }
-            if ( $alternative && $alternative->getAttribute('counter') % $item['quantity'] > 0  ) {
+            if ( $alternative &&   $alternative->getAttribute('counter') + $item['quantity']  <= $alternativeItem->getAttribute('packing_qty') ) {
                 $alternative->increment('counter',$item['quantity']);
             }else{
               $alternative =  Alternative::query()->create([
