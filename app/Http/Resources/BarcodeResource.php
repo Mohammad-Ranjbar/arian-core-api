@@ -21,7 +21,10 @@ class BarcodeResource extends JsonResource
         if (in_array($this->resource->code, ['shortage', 'noLabel', 'unreadable']) && $this->resource->type == null) {
             $trackable = false;
         }
-
+        $productItem = null;
+        if (!$request->get('resource') == 'short'){
+            $productItem = new GeneralProductItemResource($this->resource->generalProductItem);
+        }
         return [
             'id' => $this->resource->id,
             'title' => $title,
@@ -30,8 +33,8 @@ class BarcodeResource extends JsonResource
             'code' => $this->resource->code,
             'item' => $this->resource->erpProductItem,
             'general_product_item_id' => $this->resource->general_product_item_id,
-            'generalProductItem' => new GeneralProductItemResource($this->resource->generalProductItem),
-            'user' => new UserShortResource($this->resource->user),
+            'generalProductItem' => $productItem,
+            'user' =>['name' => $this->resource->user->name],
             'trackable' => $trackable,
             'created_at' => $this->resource->created_at,
         ];

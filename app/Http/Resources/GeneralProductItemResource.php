@@ -14,10 +14,14 @@ class GeneralProductItemResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $carModel = null;
+        if (!$request->get("resource") == "short"){
+            $carModel = CarModelResource::collection($this->resource->carModels);
+        }
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
-            'carModels' => CarModelResource::collection($this->resource->carModels),
+            'carModels' => $carModel,
             'height' => $this->resource->height,
             'priority' => $this->resource->priority,
             'type' => $this->resource->type,
