@@ -41,7 +41,7 @@ class AlternativeController extends CrudController
 
     public function sendAlternatives(Alternative $alternative,SendAlternativeRequest $request)
     {
-        try {
+//        try {
             $validatedData = $request->validated();
 
             $alternative->update([
@@ -120,8 +120,8 @@ class AlternativeController extends CrudController
                 'status' => 'success',
                 'data' => $response['message'],
             ]);
-        } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(), 500);
-        }
+//        } catch (Exception $exception) {
+//            return $this->responseError($exception->getMessage(), 500);
+//        }
     }
 }
