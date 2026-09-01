@@ -68,7 +68,7 @@ class AlternativeController extends CrudController
                 'itemNoArray' => implode(',', array_fill(
                     0,
                     $arraySize,
-                    $validatedData['item_no']
+                    $alternative->getAttribute('item_no')
                 )),
 
                 'itemQtyArray' => implode(',', array_fill(
