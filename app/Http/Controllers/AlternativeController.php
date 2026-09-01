@@ -28,7 +28,9 @@ class AlternativeController extends CrudController
             ->where('user_id', Auth::id())
             ->first();
         if (empty($alternativeGroupUser)) {
-            return $this->responseError('الترناتیوی با اطلاعات کاربری شما یافت نشد');
+            return response()->json([
+                'message' => 'الترنانتیوی به کاربری شما تخصیص داده نشده',
+            ]);
         }
         $alternativeGroupItems = $alternativeGroupUser->items()->select('item_no')->get()->toArray();
 
