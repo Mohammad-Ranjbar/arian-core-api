@@ -37,14 +37,11 @@ class AlternativeController extends CrudController
         return AlternativeResource::collection($alternatives);
     }
 
-    public function sendAlternatives(SendAlternativeRequest $request)
+    public function sendAlternatives(Alternative $alternative,SendAlternativeRequest $request)
     {
         try {
             $validatedData = $request->validated();
-            $packingQty = AlternativeItem::query()->where('item_no', $validatedData['item_no'])->first()?->getAttribute('packing_qty') ?? null;
-            $alternative = Alternative::query()
-                ->where('item_no', $validatedData['item_no'])
-                ->first();
+
             $alternative->update([
                 'user_id' => Auth::id(),
             ]);

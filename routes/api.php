@@ -142,7 +142,7 @@ Route::get('dl-file', [DownloadController::class, 's3'])->name('dl-s3');
 Route::any('/gateway-vehicle-information', SamtController::class);
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
-    Route::post('/send-alternatives',[AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
+    Route::post('/send-alternatives/{alternative}',[AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
     Route::get('/alternatives-list', [AlternativeController::class, 'listAlternatives'])->name('alternatives-list');
     Route::post('/alternative-category/{alternativeCategory}/assign-item', [AlternativeCategoryController::class, 'assignItem'])->name('alternative-category.assign-item');
     Route::delete('/alternative-category/{alternativeCategory}/delete-item/{erpItemId}', [AlternativeCategoryController::class, 'deleteItem'])->name('alternative-category.delete-item');

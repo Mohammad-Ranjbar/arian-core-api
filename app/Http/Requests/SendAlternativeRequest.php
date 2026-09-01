@@ -15,7 +15,6 @@ class SendAlternativeRequest extends FormRequest
     {
         return [
             'make_code_reference' => 'required|string|exists:make_codes,reference',
-            'item_no' => 'required|string|exists:alternatives,item_no',
         ];
     }
 
