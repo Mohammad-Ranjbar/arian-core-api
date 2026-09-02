@@ -64,12 +64,7 @@ class AlternativeController extends CrudController
 
             $arraySize = $numberItemsP + 1;
 
-            $parameters = [
-                'itemNoArray' => implode(',', array_fill(
-                    0,
-                    $arraySize,
-                    $alternative->getAttribute('item_no')
-                )),
+            $parameters = $alternative->getAttribute('item_no'),
 
                 'itemQtyArray' => $alternative->alternativeItem?->packing_qty ?? 0,
 
