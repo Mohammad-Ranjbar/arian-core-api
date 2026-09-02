@@ -106,8 +106,8 @@ class ProductionLineTrackingService extends BaseTrackingService
             if ($alternative && $alternative->getAttribute('counter') + $item['quantity'] <= $alternativeItem->getAttribute('packing_qty')) {
                 $alternative->increment('counter', $item['quantity']);
                 foreach ($alternative->variants as $variant) {
-                    $newQty =  $alternativeItem->getAttribute('packing_qty') - $item['quantity'];
-                    if (!empty($colorMap) && $variant->variant_code == $colorMap && $variant->quantity < $item['quantity']) {
+                    $newQty =   $item['quantity'] - $variant->quantity;
+                    if ( $variant->variant_code == $colorMap && $alternativeItem->getAttribute('packing_qty') > $alternative->variants()->sum('quantity') ) {
                             $variant->update([
                                 'quantity' => $variant->quantity +$newQty,
                             ]);
