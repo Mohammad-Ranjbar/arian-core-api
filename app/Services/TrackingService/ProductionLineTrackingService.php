@@ -108,7 +108,7 @@ class ProductionLineTrackingService extends BaseTrackingService
                 foreach ($alternative->variants as $variant) {
                     $newQty =  $alternativeItem->getAttribute('packing_qty') - $item['quantity'];
                     if (!$variant->variant_code == $item['variant_code']) {
-                            $variant->increatment('quantity', $newQty);
+                            $variant->increament('quantity', $newQty);
                     }else{
                         $alternative->variants()->create([
                             'variant_code' => $colorMap,
