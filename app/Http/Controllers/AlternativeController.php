@@ -82,11 +82,7 @@ class AlternativeController extends CrudController
 
                 'toLacationTypeP' => 'PRODUCTION',
 
-                'variantArray' => $alternative->variants
-                    ->pluck('variant')
-                    ->countBy()
-                    ->keys()
-                    ->implode(','),
+                'variantArray' => $variants->keys()->implode(','),
 
                 'crossRefArray' => implode(',', array_fill(
                     0,
