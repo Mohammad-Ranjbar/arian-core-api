@@ -71,11 +71,7 @@ class AlternativeController extends CrudController
                     $alternative->getAttribute('item_no')
                 )),
 
-                'itemQtyArray' => $alternative->variants
-                    ->pluck('variant')
-                    ->countBy()
-                    ->values()
-                    ->implode(','),
+                'itemQtyArray' => $alternative->alternativeItem?->packing_qty ?? 0,
 
                 'numberItemsP' => $numberItemsP,
 
