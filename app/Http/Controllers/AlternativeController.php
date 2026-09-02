@@ -63,13 +63,20 @@ class AlternativeController extends CrudController
             $numberItemsP = $alternative->variants->count();
 
             $arraySize = $numberItemsP + 1;
-
+            $variants = $alternative->variants
+                ->pluck('variant')
+                ->countBy();
             $parameters = [
-                'itemNoArray' => $alternative->getAttribute('item_no'),
+                'itemNoArray' => collect()
+                    ->times(
+                        $variants->count(),
+                        fn () => $alternative->getAttribute('item_no')
+                    )
+                    ->implode(','),
 
-                'itemQtyArray' => $alternative->alternativeItem?->packing_qty ?? 0,
+                'itemQtyArray' => $variants->values()->implode(','),
 
-                'numberItemsP' => $numberItemsP,
+                'numberItemsP' => $variants->count(),
 
                 'fromLocationTypeP' => 'CENTRAL',
 
