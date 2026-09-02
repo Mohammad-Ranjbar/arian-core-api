@@ -74,7 +74,7 @@ class AlternativeController extends CrudController
                     )
                     ->implode(','),
 
-                'itemQtyArray' => $variants->values()->implode(','),
+                'itemQtyArray' => $variants->alternativeItem->packing_qty,
 
                 'numberItemsP' => $variants->count(),
 
