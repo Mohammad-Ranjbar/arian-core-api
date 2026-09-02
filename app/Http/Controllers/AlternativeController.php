@@ -74,7 +74,7 @@ class AlternativeController extends CrudController
                 'itemQtyArray' => $alternative->variants
                     ->pluck('variant')
                     ->countBy()
-                    ->toArray()
+                    ->values()
                     ->implode(','),
 
                 'numberItemsP' => $numberItemsP,
