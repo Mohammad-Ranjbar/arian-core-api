@@ -81,9 +81,23 @@ class ProductionLineTrackingService extends BaseTrackingService
             }
             if ( $alternative &&   $alternative->getAttribute('counter') + $item['quantity']  <= $alternativeItem->getAttribute('packing_qty') ) {
                 $alternative->increment('counter',$item['quantity']);
+                foreach ($alternative->variants as $variant) {
+                    if($variant->variant_code == $item['variant_code'] ){
+                        if($alternativeItem->getAttribute('packing_qty') > $item['quantity']) {
+                            $newQty = $alternativeItem->getAttribute('packing_qty') - $item['quantity'];
+                            $variant->increatment('quantity', $newQty);
+                        }
+                        else{
+                            $oldSumQty = $alternative->variants()->sum('quantity');
+                            $alternative->variants()->create([
+                                'variant_code' => $item['variant_code'],
+                                'quantity' => $alternativeItem->getAttribute('packing_qty') - $oldSumQty,
+                            ]);
+                        }
+                    }
+                }
             }elseif($alternative && $alternative->getAttribute('counter') + $item['quantity']  > $alternativeItem->getAttribute('packing_qty')){
                 if ($alternativeItem->getAttribute('packing_qty') % $alternative->getAttribute('counter') < $alternativeItem->getAttribute('packing_qty') ) {
-                    $finalQty = ($alternative->getAttribute('counter') + $item['quantity']) - $alternativeItem->getAttribute('packing_qty');
                     $old = $alternative->getAttribute('counter')+$item['quantity'];
                     $alternative->update(['counter' => $alternativeItem->getAttribute('packing_qty') ]);
                     $alternative->refresh();
@@ -97,12 +111,17 @@ class ProductionLineTrackingService extends BaseTrackingService
                 }
                 else{
                     $qty = ($alternative->getAttribute('counter') + $item['quantity']) - $item['quantity'];
+                    $oldAlt = $alternative;
                     $alternative =  Alternative::query()->create([
                         'alternative_item_id' => $alternativeItem->getAttribute('id'),
                         'production_order_number' => $productionOrderNumber,
                         'item_no' => $item['item_no'],
                         'counter' => $qty,
                         'status' => 'create',
+                    ]);
+                    $alternative->variants()->create([
+                        'variant_code' => $colorMap,
+                        'quantity' => $oldAlt-$item['quantity'],
                     ]);
                 }
             }
@@ -115,11 +134,12 @@ class ProductionLineTrackingService extends BaseTrackingService
                     'counter' => $item['quantity'],
                     'status' => 'create',
                 ]);
+                $alternative->variants()->create([
+                    'variant_code' => $colorMap,
+                    'quantity' => $item['quantity'],
+                ]);
             }
-            $alternative->variants()->create([
-                'variant_code' => $colorMap,
-                'quantity' => $item['quantity'],
-            ]);
+
             if ($alternative->getAttribute('counter') == $alternativeItem->getAttribute('packing_qty')) {
                 $alternative->update([
                     'status' => 'send'
