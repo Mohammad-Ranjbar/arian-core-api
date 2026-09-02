@@ -100,7 +100,7 @@ class AlternativeController extends CrudController
 
                 'documentNo' => $alternative->getAttribute('document_number'),
             ];
-
+            logger($parameters);
             $response = ErpWsdlClient::run(
                 config('erp.send_alternative'),
                 'CreateTransfer_Zone',
