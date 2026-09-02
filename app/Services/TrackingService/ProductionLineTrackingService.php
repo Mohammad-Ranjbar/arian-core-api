@@ -107,13 +107,15 @@ class ProductionLineTrackingService extends BaseTrackingService
                 $alternative->increment('counter', $item['quantity']);
                 foreach ($alternative->variants as $variant) {
                     if ($variant->variant_code == $item['variant_code']) {
-                        if ($alternativeItem->getAttribute('packing_qty') > $item['quantity']) {
-                            $newQty = $alternativeItem->getAttribute('packing_qty') - $item['quantity'];
+                        if ($item['quantity'] > $variant->getAttribute('quantity')) {
+                            $newQty =  $item['quantity'] - $variant->getAttribute('quantity');
                             $variant->increatment('quantity', $newQty);
                         }
                     } else {
-                        $oldSumQty = $alternative->variants()->sum('quantity');
-                        $alternative->variants()->create(['variant_code' => $item['variant_code'], 'quantity' => $alternativeItem->getAttribute('packing_qty') - $oldSumQty,]);
+                        $alternative->variants()->create([
+                            'variant_code' => $item['variant_code'],
+                            'quantity' => $alternative->getAttribute('counter') - $item['quantity'],
+                            ]);
                     }
 
                 }
