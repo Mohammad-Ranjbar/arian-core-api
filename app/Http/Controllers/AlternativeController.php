@@ -71,11 +71,11 @@ class AlternativeController extends CrudController
                     $alternative->getAttribute('item_no')
                 )),
 
-                'itemQtyArray' => implode(',', array_fill(
-                    0,
-                    $arraySize,
-                    1
-                )),
+                'itemQtyArray' => $alternative->variants
+                    ->pluck('variant')
+                    ->countBy()
+                    ->toArray()
+                    ->implode(','),
 
                 'numberItemsP' => $numberItemsP,
 
@@ -83,12 +83,11 @@ class AlternativeController extends CrudController
 
                 'toLacationTypeP' => 'PRODUCTION',
 
-                'variantArray' => implode(',', [
-                    ...$alternative->variants
-                        ->pluck('variant_code')
-                        ->toArray(),
-                    '',
-                ]),
+                'variantArray' => $alternative->variants
+                    ->pluck('variant')
+                    ->countBy()
+                    ->keys()
+                    ->implode(','),
 
                 'crossRefArray' => implode(',', array_fill(
                     0,
