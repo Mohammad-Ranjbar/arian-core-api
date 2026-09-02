@@ -90,7 +90,7 @@ class AlternativeController extends CrudController
 
                 'crossRefArray' => implode(',', array_fill(
                     0,
-                    $arraySize,
+                    $variants->count(),
                     ''
                 )),
 
