@@ -70,6 +70,7 @@ class SalesBridgeController extends Controller
 
         $payment['bank_data'] = [
             'RetrivalRefNo' => $payment['bank_data']['RetrivalRefNo'],
+            'date'          => $payment['bank_data']['date'],
         ];
 
         return $payment;
