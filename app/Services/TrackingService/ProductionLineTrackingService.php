@@ -52,8 +52,10 @@ class ProductionLineTrackingService extends BaseTrackingService
         $vehicle = Vehicle::query()->find($vin);
 
         foreach ($synchronousTypes as $synchronousType) {
-            $synchronous = Synchronous::query()->where('capacity', '>', 0)->where('synchronous_type_id', $synchronousType->id)->first();
-            $item = $synchronousType->items()->where('car_model_id', $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
+            $synchronous = Synchronous::query()->where('capacity', '>', 0)->where('synchronous_type_id',
+                $synchronousType->id)->first();
+            $item = $synchronousType->items()->where('car_model_id',
+                $vehicle->getAttribute('car_model_id'))->where('is_active', true)->first();
 
             if (!$item) {
                 continue;
@@ -61,11 +63,18 @@ class ProductionLineTrackingService extends BaseTrackingService
             if (!$synchronous) {
                 $counter = Synchronous::query()->where('synchronous_type_id', $synchronousType->id)->max('counter') + 1;
 
-                $synchronous = Synchronous::query()->create(['synchronous_type_id' => $synchronousType->id, 'counter' => $counter, 'capacity' => $synchronousType->qty,]);
+                $synchronous = Synchronous::query()->create([
+                    'synchronous_type_id' => $synchronousType->id, 'counter' => $counter,
+                    'capacity'            => $synchronousType->qty,
+                ]);
 
             }
 
-            SynchronousItem::query()->create(['synchronous_id' => $synchronous->getAttribute('id'), 'vin' => $vin, 'erp_product_item_id' => $item->getAttribute('erp_product_item_id'), 'cross_reference' => $item->getAttribute('cross_reference'),]);
+            SynchronousItem::query()->create([
+                'synchronous_id'      => $synchronous->getAttribute('id'), 'vin' => $vin,
+                'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
+                'cross_reference'     => $item->getAttribute('cross_reference'),
+            ]);
             $synchronous->decrement('capacity');
 
             dispatch(new PrintSynchronousJob($synchronous->getAttribute('id')));
@@ -104,15 +113,15 @@ class ProductionLineTrackingService extends BaseTrackingService
             }
 
             $remaining = $item['quantity'];
-            do{
-                $alternative = $this->makeAlternative($item,$alternativeItem, $productionOrderNumber);
+            do {
+                $alternative = $this->makeAlternative($item, $alternativeItem, $productionOrderNumber);
                 $applicable = $alternativeItem->getAttribute('packing_qty') - $alternative->getAttribute('counter');
 
                 if ($applicable >= $remaining) {
                     $alternative->increment('counter', $remaining);
                     $addVar = $remaining;
                     $remaining = 0;
-                }else {
+                } else {
                     $alternative->increment('counter', $applicable);
                     $addVar = $applicable;
                     $remaining -= $applicable;
@@ -120,36 +129,38 @@ class ProductionLineTrackingService extends BaseTrackingService
 
                 if (!$alternative->variants()->where('variant_code', $colorMap)->exists()) {
                     $alternative->variants()->create(['variant_code' => $colorMap, 'quantity' => $addVar]);
-                }else{
+                } else {
                     $alternative->variants()->where('variant_code', $colorMap)->increment('quantity', $addVar);
                 }
 
-                if($alternative->getAttribute('counter') === $alternativeItem->getAttribute('packing_qty')) {
+                if ($alternative->getAttribute('counter') === $alternativeItem->getAttribute('packing_qty')) {
                     $alternative->update(['status' => 'send']);
                 }
-            }while ($remaining == 0);
+            } while ($remaining > 0);
 
         }
-    }
-
-    private function makeAlternative($item,$alternativeItem, $productionOrderNumber)
-    {
-        $alternative = Alternative::query()->where('item_no', $item['item_no'])->where('status', 'create')->first();
-        if (!$alternative) {
-            return Alternative::query()
-                ->create(['alternative_item_id' => $alternativeItem->getAttribute('id'),
-                          'production_order_number' => $productionOrderNumber,
-                          'item_no' => $item['item_no'],
-                          'counter' => 0,
-                          'status' => 'create'
-                ]);
-        }
-        return $alternative;
     }
 
     public function colorMap(string $variantCode, $vehicle)
     {
-        return NavColor::query()->where('color', $variantCode)->where('car_model_id', $vehicle->getAttribute('car_model_id'))->first()?->getAttribute('code') ?? '';
+        return NavColor::query()->where('color', $variantCode)->where('car_model_id',
+            $vehicle->getAttribute('car_model_id'))->first()?->getAttribute('code') ?? '';
+    }
+
+    private function makeAlternative($item, $alternativeItem, $productionOrderNumber)
+    {
+        $alternative = Alternative::query()->where('item_no', $item['item_no'])->where('status', 'create')->first();
+        if (!$alternative) {
+            return Alternative::query()
+                ->create([
+                    'alternative_item_id'     => $alternativeItem->getAttribute('id'),
+                    'production_order_number' => $productionOrderNumber,
+                    'item_no'                 => $item['item_no'],
+                    'counter'                 => 0,
+                    'status'                  => 'create'
+                ]);
+        }
+        return $alternative;
     }
 
     /**
@@ -181,7 +192,10 @@ class ProductionLineTrackingService extends BaseTrackingService
     {
         $type = $record->getAttribute('model')->item_type;
 
-        $params = ['vINL' => $record->vin, 'wCGroup' => '', 'withTracking' => 'false', 'withOutput' => 'true', 'itemTypeP' => $type];
+        $params = [
+            'vINL'      => $record->vin, 'wCGroup' => '', 'withTracking' => 'false', 'withOutput' => 'true',
+            'itemTypeP' => $type
+        ];
 
         if ($record->type == 'exit') {
             $params['withOutput'] = 'true';
@@ -189,7 +203,8 @@ class ProductionLineTrackingService extends BaseTrackingService
 
 
         $method = 'PostProduction_OnlyBIN';
-        $shortages = ShortageItem::query()->where('vin', $record->vin)->whereNull('shortage_item_id')->where('status', 'pending')->with('erpProductItem')->get();
+        $shortages = ShortageItem::query()->where('vin', $record->vin)->whereNull('shortage_item_id')->where('status',
+            'pending')->with('erpProductItem')->get();
         if ($count = $shortages->count()) {
             $method = 'PostProduction_OnlyBIN_Shortage';
             $params['lackItemNo'] = $shortages->implode('erpProductItem.reference', ',');
@@ -198,7 +213,11 @@ class ProductionLineTrackingService extends BaseTrackingService
             $params['itemTypeP'] = $type;
         }
 
-        $data = ['user_id' => Auth::id(), 'section' => 'production-line-tracking-' . $record->type, 'model_id' => $record->id, 'model_type' => Tracking::class, 'method' => $method, 'url' => config('erp.post_production'), 'parameters' => $params, 'queue' => ErpJob::QUEUE_UNIQUE];
+        $data = [
+            'user_id'    => Auth::id(), 'section' => 'production-line-tracking-'.$record->type,
+            'model_id'   => $record->id, 'model_type' => Tracking::class, 'method' => $method,
+            'url'        => config('erp.post_production'), 'parameters' => $params, 'queue' => ErpJob::QUEUE_UNIQUE
+        ];
 
         $erpJob = ErpJob::query()->where(['model_id' => $record->id, 'model_type' => Tracking::class,])->first();
         if (empty($erpJob)) {
