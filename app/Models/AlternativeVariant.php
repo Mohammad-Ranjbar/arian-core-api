@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AlternativeVariant extends Model
 {
-    protected $fillable = ['alternative_id', 'variant_code'];
+    protected $fillable = ['alternative_id', 'variant_code','quantity'];
 
     public function alternative(): BelongsTo
     {

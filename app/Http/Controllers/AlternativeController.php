@@ -64,7 +64,7 @@ class AlternativeController extends CrudController
             $variants = $alternative->variants
                 ->pluck('variant_code')
                 ->countBy();
-            logger($variants->toArray());
+
             $parameters = [
                 'itemNoArray' => collect()
                     ->times(
@@ -73,7 +73,7 @@ class AlternativeController extends CrudController
                     )
                     ->implode(','),
 
-                'itemQtyArray' => $alternative->alternativeItem->packing_qty,
+
 
                 'numberItemsP' => $variants->count(),
 

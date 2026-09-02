@@ -118,6 +118,7 @@ class ProductionLineTrackingService extends BaseTrackingService
             }
             $alternative->variants()->create([
                 'variant_code' => $colorMap,
+                'quantity' => $item['quantity'],
             ]);
             if ($alternative->getAttribute('counter') == $alternativeItem->getAttribute('packing_qty')) {
                 $alternative->update([

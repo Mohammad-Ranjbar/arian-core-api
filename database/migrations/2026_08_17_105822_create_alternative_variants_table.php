@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('alternative_id')->constrained()->restrictOnDelete();
             $table->string('variant_code')->nullable();
+            $table->unsignedBigInteger('quantity')->nullable();
             $table->timestamps();
         });
     }
