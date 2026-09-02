@@ -62,7 +62,7 @@ class AlternativeController extends CrudController
             }
 
             $variants = $alternative->variants
-                ->pluck('variant')
+                ->pluck('variant_code')
                 ->countBy();
             logger($variants->toArray());
             $parameters = [
