@@ -60,12 +60,11 @@ class AlternativeController extends CrudController
                     'document_number' => $documentNo,
                 ]);
             }
-            $numberItemsP = $alternative->variants->count();
 
-            $arraySize = $numberItemsP + 1;
             $variants = $alternative->variants
                 ->pluck('variant')
                 ->countBy();
+            logger($variants->toArray());
             $parameters = [
                 'itemNoArray' => collect()
                     ->times(
