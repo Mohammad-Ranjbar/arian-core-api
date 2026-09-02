@@ -96,49 +96,55 @@ class ProductionLineTrackingService extends BaseTrackingService
                 continue;
             }
 
-            $alternative = Alternative::query()->where('item_no', $item['item_no'])->where('status', 'create')->first();
             if ($item['has_color']) {
                 $colorMap = $this->colorMap($item['variant_code'], $vehicle);
             }
             if (!$item['has_color']) {
                 $colorMap = null;
             }
-            if ($alternative && $alternative->getAttribute('counter') + $item['quantity'] <= $alternativeItem->getAttribute('packing_qty')) {
-                $alternative->increment('counter', $item['quantity']);
-                foreach ($alternative->variants as $variant) {
-                    $newQty =   $item['quantity'] - $variant->quantity;
-                    if ( $variant->variant_code == $colorMap && $alternativeItem->getAttribute('packing_qty') > $alternative->variants()->sum('quantity') ) {
-                            $variant->update([
-                                'quantity' => $variant->quantity +$newQty,
-                            ]);
-                    }else{
-                        $alternative->variants()->create([
-                            'variant_code' => $colorMap,
-                            'quantity' => $newQty,
-                        ]);
-                    }
-                }
-            } elseif ($alternative && $alternative->getAttribute('counter') + $item['quantity'] > $alternativeItem->getAttribute('packing_qty')) {
-                if ($alternativeItem->getAttribute('packing_qty') % $alternative->getAttribute('counter') < $alternativeItem->getAttribute('packing_qty')) {
-                    $old = $alternative->getAttribute('counter') + $item['quantity'];
-                    $alternative->update(['counter' => $alternativeItem->getAttribute('packing_qty')]);
-                    $alternative->refresh();
-                    Alternative::query()->create(['alternative_item_id' => $alternativeItem->getAttribute('id'), 'production_order_number' => $productionOrderNumber, 'item_no' => $item['item_no'], 'counter' => $old - $alternative->getAttribute('counter'), 'status' => 'create',]);
-                } else {
-                    $qty = ($alternative->getAttribute('counter') + $item['quantity']) - $item['quantity'];
-                    $oldAlt = $alternative;
-                    $alternative = Alternative::query()->create(['alternative_item_id' => $alternativeItem->getAttribute('id'), 'production_order_number' => $productionOrderNumber, 'item_no' => $item['item_no'], 'counter' => $qty, 'status' => 'create',]);
-                    $alternative->variants()->create(['variant_code' => $colorMap, 'quantity' => $oldAlt - $item['quantity'],]);
-                }
-            } else {
-                $alternative = Alternative::query()->create(['alternative_item_id' => $alternativeItem->getAttribute('id'), 'production_order_number' => $productionOrderNumber, 'item_no' => $item['item_no'], 'counter' => $item['quantity'], 'status' => 'create',]);
-                $alternative->variants()->create(['variant_code' => $colorMap, 'quantity' => $item['quantity'],]);
-            }
 
-            if ($alternative->getAttribute('counter') == $alternativeItem->getAttribute('packing_qty')) {
-                $alternative->update(['status' => 'send']);
-            }
+            $remaining = $item['quantity'];
+            do{
+                $alternative = $this->makeAlternative($item,$alternativeItem, $productionOrderNumber);
+                $applicable = $alternativeItem->getAttribute('packing_qty') - $alternative->getAttribute('counter');
+
+                if ($applicable >= $remaining) {
+                    $alternative->increment('counter', $remaining);
+                    $addVar = $remaining;
+                    $remaining = 0;
+                }else {
+                    $alternative->increment('counter', $applicable);
+                    $addVar = $applicable;
+                    $remaining -= $applicable;
+                }
+
+                if (!$alternative->variants()->where('variant_code', $colorMap)->exists()) {
+                    $alternative->variants()->create(['variant_code' => $colorMap, 'quantity' => $addVar]);
+                }else{
+                    $alternative->variants()->where('variant_code', $colorMap)->incriment('quantity', $addVar);
+                }
+
+                if($alternative->getAttribute('counter') === $alternativeItem->getAttribute('packing_qty')) {
+                    $alternative->update(['status' => 'send']);
+                }
+            }while ($remaining == 0);
+
         }
+    }
+
+    private function makeAlternative($item,$alternativeItem, $productionOrderNumber)
+    {
+        $alternative = Alternative::query()->where('item_no', $item['item_no'])->where('status', 'create')->first();
+        if (!$alternative) {
+            return Alternative::query()
+                ->create(['alternative_item_id' => $alternativeItem->getAttribute('id'),
+                          'production_order_number' => $productionOrderNumber,
+                          'item_no' => $item['item_no'],
+                          'counter' => 0,
+                          'status' => 'create'
+                ]);
+        }
+        return $alternative;
     }
 
     public function colorMap(string $variantCode, $vehicle)
