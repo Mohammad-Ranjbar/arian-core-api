@@ -84,60 +84,73 @@ class ProductionLineTrackingService extends BaseTrackingService
 
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws DdException
-     * @throws Exception
-     */
     public function submitAlternative(string $vin)
     {
+        $vehicle = Vehicle::query()
+            ->where('vin', $vin)
+            ->firstOrFail();
 
-        $vehicle = Vehicle::query()->where('vin', $vin)->first();
         $productionOrderNumber = $vehicle->getAttribute('production_order_number');
 
-        $items = resolve(ErpGetBOMFromProductionOrderNumber::class)->get($productionOrderNumber);
+        $items = resolve(ErpGetBOMFromProductionOrderNumber::class)
+            ->get($productionOrderNumber);
 
         foreach ($items as $item) {
+            $alternativeItem = AlternativeItem::query()
+                ->where('item_no', $item['item_no'])
+                ->first();
 
-            $alternativeItem = AlternativeItem::query()->where('item_no', $item['item_no'])->first();
-            if (empty($alternativeItem)) {
+            if (!$alternativeItem) {
                 continue;
             }
 
-            if ($item['has_color']) {
-                $colorMap = $this->colorMap($item['variant_code'], $vehicle);
-            }
-            if (!$item['has_color']) {
-                $colorMap = null;
-            }
+            $colorMap = $item['has_color']
+                ? $this->colorMap($item['variant_code'], $vehicle)
+                : null;
 
             $remaining = $item['quantity'];
+
             do {
-                $alternative = $this->makeAlternative($item, $alternativeItem, $productionOrderNumber);
-                $applicable = $alternativeItem->getAttribute('packing_qty') - $alternative->getAttribute('counter');
+                $alternative = $this->makeAlternative(
+                    $item,
+                    $alternativeItem,
+                    $productionOrderNumber
+                );
 
-                if ($applicable >= $remaining) {
-                    $alternative->increment('counter', $remaining);
-                    $addVar = $remaining;
-                    $remaining = 0;
-                } else {
-                    $alternative->increment('counter', $applicable);
-                    $addVar = $applicable;
-                    $remaining -= $applicable;
+                $packingQty = $alternativeItem->getAttribute('packing_qty');
+                $counter = $alternative->getAttribute('counter');
+
+                $applicable = $packingQty - $counter;
+
+                if ($applicable <= 0) {
+                    break;
                 }
 
-                if (!$alternative->variants()->where('variant_code', $colorMap)->exists()) {
-                    $alternative->variants()->create(['variant_code' => $colorMap, 'quantity' => $addVar]);
+                $addVar = min($applicable, $remaining);
+
+                $alternative->increment('counter', $addVar);
+
+                $remaining -= $addVar;
+
+                $variant = $alternative->variants()
+                    ->where('variant_code', $colorMap)
+                    ->first();
+
+                if ($variant) {
+                    $variant->increment('quantity', $addVar);
                 } else {
-                    $alternative->variants()->where('variant_code', $colorMap)->increment('quantity', $addVar);
+                    $alternative->variants()->create([
+                        'variant_code' => $colorMap,
+                        'quantity' => $addVar,
+                    ]);
                 }
 
-                if ($alternative->getAttribute('counter') === $alternativeItem->getAttribute('packing_qty')) {
-                    $alternative->update(['status' => 'send']);
+                if ($counter + $addVar >= $packingQty) {
+                    $alternative->update([
+                        'status' => 'send',
+                    ]);
                 }
             } while ($remaining > 0);
-
         }
     }
 
