@@ -24,7 +24,7 @@ class AlternativeResource extends JsonResource
             'production_order_number' => $this->resource->production_order_number,
             'status' => $this->resource->status,
             'send_at' => $this->resource->send_at,
-            'variantCodes' => $this->resource->variants->pluck('variant_code'),
+            'variantCodes' => $this->resource->variants->pluck('quantity', 'variant_code'),
             'failed_at' => $this->resource->failed_at,
             'success_at' => $this->resource->success_at,
             'user_id' => $this->resource->user_id,
