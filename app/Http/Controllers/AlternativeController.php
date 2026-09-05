@@ -64,7 +64,7 @@ class AlternativeController extends CrudController
             $variants = $alternative->variants
                 ->pluck('variant_code')
                 ->countBy();
-
+            dd($variants);
             $parameters = [
                 'itemNoArray' => collect()
                     ->times(
