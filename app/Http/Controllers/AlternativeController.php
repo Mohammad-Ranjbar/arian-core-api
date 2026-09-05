@@ -67,8 +67,8 @@ class AlternativeController extends CrudController
             foreach ($alternative->variants as $variant) {
                 $qtyVariants[] = $variant->quantity;
             }
-
-            dd($qtyVariants);
+            $sumQty = implode(',',$qtyVariants);
+            dd($sumQty);
             $parameters = [
                 'itemNoArray' => collect()
                     ->times(
