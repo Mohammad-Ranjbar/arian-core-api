@@ -77,6 +77,8 @@ class AlternativeController extends CrudController
 
                 'numberItemsP' => $variants->count(),
 
+                'itemQtyArray' => $variants->values()->implode(','),
+
                 'fromLocationTypeP' => 'CENTRAL',
 
                 'toLacationTypeP' => 'PRODUCTION',
