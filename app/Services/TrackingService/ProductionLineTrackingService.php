@@ -108,49 +108,42 @@ class ProductionLineTrackingService extends BaseTrackingService
                 ? $this->colorMap($item['variant_code'], $vehicle)
                 : null;
 
-            $remaining = $item['quantity'];
+            $packingQty = (int) $alternativeItem->getAttribute('packing_qty');
+            $remaining = (int) $item['quantity'];
 
-            do {
+            while ($remaining > 0) {
                 $alternative = $this->makeAlternative(
                     $item,
                     $alternativeItem,
                     $productionOrderNumber
                 );
 
-                $packingQty = $alternativeItem->getAttribute('packing_qty');
-                $counter = $alternative->getAttribute('counter');
-
-                $applicable = $packingQty - $counter;
+                // capacity is the sum already registered on the variants, not the counter column
+                $used = (int) $alternative->variants()->sum('quantity');
+                $applicable = $packingQty - $used;
 
                 if ($applicable <= 0) {
-                    break;
+                    // already full but still open: close it and pick up a fresh one
+                    $alternative->update(['status' => 'send']);
+                    continue;
                 }
 
                 $addVar = min($applicable, $remaining);
+
+                $variant = $alternative->variants()->firstOrCreate(
+                    ['variant_code' => $colorMap],
+                    ['quantity' => 0]
+                );
+                $variant->increment('quantity', $addVar);
 
                 $alternative->increment('counter', $addVar);
 
                 $remaining -= $addVar;
 
-                $variant = $alternative->variants()
-                    ->where('variant_code', $colorMap)
-                    ->first();
-
-                if ($variant) {
-                    $variant->increment('quantity', $addVar);
-                } else {
-                    $alternative->variants()->create([
-                        'variant_code' => $colorMap,
-                        'quantity' => $addVar,
-                    ]);
+                if ($used + $addVar >= $packingQty) {
+                    $alternative->update(['status' => 'send']);
                 }
-
-                if ($counter + $addVar >= $packingQty) {
-                    $alternative->update([
-                        'status' => 'send',
-                    ]);
-                }
-            } while ($remaining > 0);
+            }
         }
     }
 
