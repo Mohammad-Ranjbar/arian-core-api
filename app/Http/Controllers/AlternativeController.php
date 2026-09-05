@@ -68,7 +68,7 @@ class AlternativeController extends CrudController
                 $qtyVariants[] = $variant->quantity;
             }
             $sumQty = implode(',',$qtyVariants);
-            dd($sumQty);
+
             $parameters = [
                 'itemNoArray' => collect()
                     ->times(
@@ -81,7 +81,7 @@ class AlternativeController extends CrudController
 
                 'numberItemsP' => $variants->count(),
 
-                'itemQtyArray' => $variants->values()->implode(','),
+                'itemQtyArray' => $sumQty,
 
                 'fromLocationTypeP' => 'CENTRAL',
 
