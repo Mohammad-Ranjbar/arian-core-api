@@ -64,7 +64,11 @@ class AlternativeController extends CrudController
             $variants = $alternative->variants
                 ->pluck('variant_code')
                 ->countBy();
-            dd($variants);
+            foreach ($alternative->variants as $variant) {
+                $qtyVariants[] = $variant->quantity;
+            }
+
+            dd($qtyVariants);
             $parameters = [
                 'itemNoArray' => collect()
                     ->times(
