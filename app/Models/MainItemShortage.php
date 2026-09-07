@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MainItemShortage extends Model
 {
-    //audit by action log that created user
+    //#TODO audit by action log that created user in observer
 
     protected $fillable = [
         'location_code',
