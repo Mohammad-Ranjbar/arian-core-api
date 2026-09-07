@@ -2,19 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CarModel extends Model
 {
-    use HasFactory;
 
-    /**
-     * @var string[]
-     */
+    protected $with = ['locations'];
+
     protected $fillable = [
         'title',
         'reference',
@@ -46,5 +42,10 @@ class CarModel extends Model
     public function carModelFiles(): HasMany
     {
         return $this->hasMany(CarModelFile::class);
+    }
+
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class);
     }
 }

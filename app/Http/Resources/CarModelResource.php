@@ -7,11 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CarModelResource extends JsonResource
 {
-
-    /**
-     * @param  Request  $request
-     * @return array
-     */
     public function toArray(Request $request): array
     {
         return [
@@ -24,6 +19,7 @@ class CarModelResource extends JsonResource
             'cabin_serial_chr_2' => $this->resource->cabin_serial_chr_2,
             'year_map_id'         => $this->resource->year_map_id,
             'production'         => $this->resource->production,
+            'locations' => CarModelLocationResource::collection($this->whenLoaded('locations')),
             'yearMap' => YearMapResource::make($this->resource->yearMap),
             'bodyOptions' => BodyOptionResource::collection($this->resource->bodyOptions),
             'carModelFiles' => CarModelFileResource::collection($this->resource->carModelFiles),
