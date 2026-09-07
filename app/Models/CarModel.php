@@ -46,6 +46,6 @@ class CarModel extends Model
 
     public function locations(): HasMany
     {
-        return $this->hasMany(Location::class);
+        return $this->hasMany(CarModelLocation::class);
     }
 }
