@@ -9,9 +9,11 @@ use App\Services\CustomerFinance\ExtraPaymentFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PublishMessageJob implements ShouldQueue
 {
@@ -27,6 +29,7 @@ class PublishMessageJob implements ShouldQueue
 
     /**
      * Execute the job.
+     * @throws RequestException
      */
     public function handle(): void
     {
@@ -42,7 +45,16 @@ class PublishMessageJob implements ShouldQueue
                 'order_id'  => $data['online_order_id'],
                 'status'    => $result,
             ];
-            Http::post($saleCompany->site_url.'-response', $responseData);
+
+            $url = $saleCompany->site_url.'-response';
+            if (strpos($data['online_order_id'],'_AM-',)) {
+                $url = str_replace('lamari.ir','arian-motor.com',$url);
+            }
+            if (strpos($data['online_order_id'],'_AD-',)) {
+                $url = str_replace('lamari.ir','arinadrive.com',$url);
+            }
+
+            Http::post($url, $responseData)->throw();
         }
         if ($this->data['action'] === 'customer-finance-paid') {
 
@@ -73,12 +85,21 @@ class PublishMessageJob implements ShouldQueue
             if (strpos($data['online_order_id'],'_AD-',)) {
                 $url = str_replace('lamari.ir','arinadrive.com',$url);
             }
-            try {
-
-                Http::withoutVerifying()->post($url, $responseData);
-            }catch (\Exception $e) {
-                logger($e->getMessage());
-            }
+            Http::withoutVerifying()
+                ->post($url, $responseData)
+                ->throw();
         }
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        Log::channel('jobs')->error('PublishMessageJob failed', [
+            'exception' => get_class($exception),
+            'message'   => $exception->getMessage(),
+            'file'      => $exception->getFile(),
+            'line'      => $exception->getLine(),
+            'data'      => $this->data,
+            'trace'     => $exception->getTraceAsString(),
+        ]);
     }
 }
