@@ -34,7 +34,7 @@ class AlternativeController extends CrudController
         }
         $alternativeGroupItems = $alternativeGroupUser->items()->select('item_no')->get()->toArray();
 
-        $alternatives = Alternative::query()->whereIn('item_no', $alternativeGroupItems)->paginate(request('perPage') ?? 10);
+        $alternatives = Alternative::query()->whereIn('item_no', $alternativeGroupItems)->paginate(request('per_page') ?? 10);
 
         return AlternativeResource::collection($alternatives);
     }
