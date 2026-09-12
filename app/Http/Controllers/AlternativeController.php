@@ -40,6 +40,21 @@ class AlternativeController extends CrudController
 
         $alternatives = Alternative::query()
             ->whereIn('item_no', $alternativeGroupItems);
+
+        if ($status = request('status')) {
+            if ($status === 'success') {
+                $alternatives->whereNotNull('success_at')
+                    ->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
+            }
+            elseif ($status === 'send') {
+                $alternatives->whereNull('success_at')
+                    ->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
+            }
+            elseif ($status === 'failed') {
+                $alternatives->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', '>', 'alternatives.counter'));
+            }
+        }
+
        $alternatives = Pipeline::send($alternatives)
            ->through([
                ItemNoFilter::class,
