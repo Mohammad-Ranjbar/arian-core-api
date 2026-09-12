@@ -21,7 +21,7 @@ class ItemNoFilter
         if (!request()->has('item_no') || !request()->get('item_no')) {
             return $next($request);
         }
-        return $next($request)->where('item_no','%LIKE%', request()->input('item_no'));
+        return $next($request)->where('item_no', 'LIKE', '%' . request()->input('item_no') . '%');
     }
 
 }
