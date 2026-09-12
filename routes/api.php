@@ -55,6 +55,7 @@ use App\Http\Controllers\JoinChannelController;
 use App\Http\Controllers\LineActivityStartStopController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationVehicleController;
+use App\Http\Controllers\MainItemShortageController;
 use App\Http\Controllers\MakeCodeController;
 use App\Http\Controllers\NavColorController;
 use App\Http\Controllers\OptionController;
@@ -74,6 +75,7 @@ use App\Http\Controllers\ProductionTestResultController;
 use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\QcCodeController;
 use App\Http\Controllers\ReceiptVehicleController;
+use App\Http\Controllers\RelatedItemShortageController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleCompanyController;
 use App\Http\Controllers\SaleInvoicesController;
@@ -527,6 +529,14 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'car-model-files' => CarModelFileController::class,
         'alternative-categories' => AlternativeCategoryController::class,
     ]);
+
+    Route::apiResource('main-item-shortages', MainItemShortageController::class)->except('update');
+    // authorizeResource does not cover custom actions, so this one guards itself
+    Route::post('main-item-shortages/{mainItemShortage}/activate',
+        [MainItemShortageController::class, 'activate'])
+        ->middleware('can:main-item-shortages.activate')
+        ->name('main-item-shortages.activate');
+    Route::apiResource('related-item-shortages', RelatedItemShortageController::class)->except('update');
 
     /*
      * Agency panel

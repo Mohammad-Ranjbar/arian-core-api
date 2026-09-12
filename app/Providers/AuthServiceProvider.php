@@ -32,7 +32,9 @@ use App\Models\ItemInputChecklist;
 use App\Models\ItemTechnicalChecklist;
 use App\Models\Location;
 use App\Models\LocationAttribute;
+use App\Models\MainItemShortage;
 use App\Models\MakeCode;
+use App\Models\RelatedItemShortage;
 use App\Models\NavColor;
 use App\Models\Pallet;
 use App\Models\PalletType;
@@ -150,6 +152,8 @@ class AuthServiceProvider extends ServiceProvider
         CarModelFile::class=>CrudPolicy::class,
         AlternativeCategory::class => CrudPolicy::class,
         CarModelLocation::class => CrudPolicy::class,
+        MainItemShortage::class => CrudPolicy::class,
+        RelatedItemShortage::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 

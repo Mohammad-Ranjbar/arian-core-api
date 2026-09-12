@@ -2,65 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreMainItemShortageRequest;
-use App\Http\Requests\UpdateMainItemShortageRequest;
+use App\Http\Resources\MainItemShortageResource;
 use App\Models\MainItemShortage;
+use App\Repositories\MainItemShortageRepository;
 
-class MainItemShortageController extends Controller
+class MainItemShortageController extends CrudController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function __construct(public readonly MainItemShortageRepository $repository)
     {
-        //
+        $this->applyAuthorizeResource();
+        $this->setResource(MainItemShortageResource::class);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Freeze a draft. From here on, a related item change forks a new draft
+     * instead of touching this record.
      */
-    public function create()
+    public function activate(MainItemShortage $mainItemShortage)
     {
-        //
-    }
+        if (!$mainItemShortage->isDraft()) {
+            return $this->responseError('این نسخه قبلا فعال شده است.');
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreMainItemShortageRequest $request)
-    {
-        //
-    }
+        $mainItemShortage->update(['is_active' => true]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MainItemShortage $mainItemShortage)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(MainItemShortage $mainItemShortage)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateMainItemShortageRequest $request, MainItemShortage $mainItemShortage)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MainItemShortage $mainItemShortage)
-    {
-        //
+        return MainItemShortageResource::make($mainItemShortage->load('relatedItems'));
     }
 }
