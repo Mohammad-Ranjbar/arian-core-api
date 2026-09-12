@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\CreatedAtFromFilter;
+use App\Filters\CreatedAtToFilter;
 use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
@@ -11,6 +13,7 @@ use App\Repositories\AlternativeRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Support\Str;
 
 class AlternativeController extends CrudController
@@ -34,7 +37,16 @@ class AlternativeController extends CrudController
         }
         $alternativeGroupItems = $alternativeGroupUser->items()->select('item_no')->get()->toArray();
 
-        $alternatives = Alternative::query()->whereIn('item_no', $alternativeGroupItems)->paginate(request('per_page') ?? 10);
+        $alternatives = Alternative::query()
+            ->whereIn('item_no', $alternativeGroupItems);
+       $alternatives = Pipeline::send($alternatives)
+           ->through([
+               ItemNoFilter::class,
+               CreatedAtFromFilter::class,
+               CreatedAtToFilter::class,
+
+           ])->thenReturn()->latest()
+            ->paginate(request('per_page') ?? 10);
 
         return AlternativeResource::collection($alternatives);
     }
