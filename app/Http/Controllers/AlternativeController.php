@@ -51,7 +51,7 @@ class AlternativeController extends CrudController
                     ->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
             }
             elseif ($status === 'failed') {
-                $alternatives->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', '>', 'alternatives.counter'));
+                $alternatives->whereNotNull('failed_at')->whereNull('success_at')->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
             }
         }
 
