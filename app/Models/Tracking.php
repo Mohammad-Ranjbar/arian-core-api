@@ -5,15 +5,15 @@ namespace App\Models;
 use App\Events\TrackingEvent;
 use App\Http\Resources\TrackingResource;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tracking extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
     /**
      * @var string
@@ -68,7 +68,7 @@ class Tracking extends Model
         if (!empty($data['model_id'])) {
             if (is_array($data['model_id'])) {
                 $query = $query->whereIn('model_id', $data['model_id']);
-            } else{
+            } else {
                 $query = $query->where('model_id', $data['model_id']);
             }
 
@@ -91,7 +91,7 @@ class Tracking extends Model
             return $query->latest()->paginate($data['per_page'] ?? 40);
         }
         $data['count'] = $query->count();
-        logger('data is :',$data);
+        logger('data is :', $data);
         return $query->get();
     }
 
