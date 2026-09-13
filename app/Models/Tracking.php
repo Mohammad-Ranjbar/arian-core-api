@@ -41,7 +41,7 @@ class Tracking extends Model
 
     public static function getReportData(array $data)
     {
-        logger('data is :',$data);
+
         $query = self::query();
         if (!empty($data['from'])) {
             $query = $query->where('created_at', '>=', $data['from']);
@@ -62,6 +62,7 @@ class Tracking extends Model
                 'stations' => Station::class,
                 'sale_locations' => SaleLocation::class,
             };
+            $data['model_type'] = $type;
             $query = $query->where('model_type', $type);
         }
         if (!empty($data['model_id'])) {
@@ -89,7 +90,8 @@ class Tracking extends Model
         if (!empty($data['paginate'])) {
             return $query->latest()->paginate($data['per_page'] ?? 40);
         }
-
+        $data['count'] = $query->count();
+        logger('data is :',$data);
         return $query->get();
     }
 
