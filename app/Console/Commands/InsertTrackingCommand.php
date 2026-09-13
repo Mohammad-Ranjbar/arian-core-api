@@ -25,6 +25,14 @@ class InsertTrackingCommand extends Command
         $rows = $rows->map(function ($row) use ($headers) {
             return $headers->combine($row);
         });
+        $rows = $rows->map(function ($row) {
+            $row['created_at'] = Jalalian::fromFormat(
+                'Y-m-d H:i:s',
+                $row['created_at_jalali']
+            )->toCarbon()->format('Y-m-d H:i:s');
+
+            return $row;
+        });
 
         dd($rows->first());
     }
