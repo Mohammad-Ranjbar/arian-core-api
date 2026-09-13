@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Facades\Excel;
+use Morilog\Jalali\Jalalian;
 
 class InsertTrackingCommand extends Command
 {
