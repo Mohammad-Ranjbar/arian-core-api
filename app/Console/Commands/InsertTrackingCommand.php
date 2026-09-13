@@ -25,7 +25,7 @@ class InsertTrackingCommand extends Command
 
         $headers = $rows->shift();
 
-        $rows->take(1)
+        $rows
             ->map(fn ($row) => $headers->combine($row))
             ->map(function ($row) {
                 $date = Jalalian::fromFormat(
