@@ -62,16 +62,17 @@ class RelatedItemShortageRepository extends BaseRepository
             }
             $main->fresh();
             if (filled($data['item_no']) && filled($data['description'])) {
-                $result = $main->relatedItems()->create([
+                $main->relatedItems()->create([
                     'item_no' => $data['item_no'],
                     'description' => $data['description'],
                 ]);
             }
 
             DB::commit();
+            $main->refresh();
+            $result = $main->relatedItems()->latest()->first();
 
-
-            return $result ?? true;
+            return $result;
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json([
