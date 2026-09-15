@@ -5,24 +5,27 @@ namespace App\Repositories;
 use App\libs\BaseRepository;
 use App\Models\MainItemShortage;
 use App\Models\RelatedItemShortage;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class RelatedItemShortageRepository extends BaseRepository
 {
+    public array $searchTerms = [
+        'item_no',
+        'description',
+    ];
     /**
      * @var array|array[]
      */
     protected array $rules = [
         'create' => [
             'main_item_shortage_id' => 'required|exists:main_item_shortages,id',
-            'item_no'               => 'required|string|max:200',
-            'description'           => 'required|string',
+            'item_no' => 'required|string|max:200',
+            'description' => 'required|string',
+            'location_code' => 'required|string|max:200',
         ]
-    ];
-
-    public array $searchTerms = [
-        'item_no',
-        'description',
     ];
 
     /**
@@ -49,14 +52,19 @@ class RelatedItemShortageRepository extends BaseRepository
     public function store($data)
     {
         $main = $this->mainItemShortage($data['main_item_shortage_id']);
-        if (!$main->isDraft()) {
-            $main = $main->forkVersion();
+        if (!$main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
+            $main = $main->forkVersion($data['location_code']);
         }
-
+        $main->fresh();
         return $main->relatedItems()->create([
-            'item_no'     => $data['item_no'],
+            'item_no' => $data['item_no'],
             'description' => $data['description'],
         ]);
+    }
+
+    private function mainItemShortage($id): Model|Collection|Builder|array|null
+    {
+        return MainItemShortage::query()->findOrFail($id);
     }
 
     /**
@@ -71,15 +79,10 @@ class RelatedItemShortageRepository extends BaseRepository
         return DB::transaction(function () use ($item) {
             $main = $this->mainItemShortage($item->main_item_shortage_id);
             if ($main->isDraft()) {
-                return (bool) $item->delete();
+                return (bool)$item->delete();
             }
             $main->forkVersion([$item->id]);
             return true;
         });
-    }
-
-    private function mainItemShortage($id): MainItemShortage
-    {
-        return MainItemShortage::query()->findOrFail($id);
     }
 }

@@ -43,11 +43,6 @@ class MainItemShortage extends Model
         return $this->belongsTo(self::class, 'main_item_shortage_id');
     }
 
-    public function versions(): HasMany
-    {
-        return $this->hasMany(self::class, 'main_item_shortage_id');
-    }
-
     public function relatedItems(): HasMany
     {
         return $this->hasMany(RelatedItemShortage::class);
@@ -58,40 +53,41 @@ class MainItemShortage extends Model
         return $this->morphTo(ActionLog::class);
     }
 
-    /**
-     * A draft absorbs related item changes directly; an active record is frozen
-     * and forks instead.
-     */
     public function isDraft(): bool
     {
         return !$this->is_active;
     }
 
-    /**
-     * Fork a new draft carrying version + 1 and a copy of the surviving related
-     * items, then deactivate this record so it stays an immutable snapshot.
-     *
-     * @param array $excludeRelatedItemIds related items left behind by the fork
-     */
-    public function forkVersion(array $excludeRelatedItemIds = []): self
+    public function forkVersion(string $locationCode): self
     {
-        $fork = static::query()->create(array_merge(
-            $this->only(['location_code', 'car_model_id', 'car_model_reference', 'item_no', 'description']),
-            [
-                'version'               => $this->version + 1,
-                'is_active'             => false,
-                'main_item_shortage_id' => $this->id,
-            ]
-        ));
+        $oldRelateds = $this->relatedItems;
+        $locationCode = $this->location_code !== $locationCode ? $locationCode : $this->locaiton_code;
+        $newMain = $this->versions()->create([
+            'version' => $this->version + 1,
+            'is_active' => false,
+            'main_item_shortage_id' => $this->id,
+            'location_code' => $locationCode,
+            'car_model_id' => $this->car_model_id,
+            'car_model_reference' => $this->car_model_reference,
+            'item_no' => $this->item_no,
+            'description' => $this->description,
+        ]);
 
-        $this->relatedItems()
-            ->when($excludeRelatedItemIds, fn($q) => $q->whereNotIn('id', $excludeRelatedItemIds))
-            ->get()
-            ->each(fn(RelatedItemShortage $item) => $fork->relatedItems()->create($item->only(['item_no', 'description'])));
+        foreach ($oldRelateds as $oldRelated) {
+            RelatedItemShortage::query()->create([
+                'main_item_shortage_id' => $newMain->getAttribute('id'),
+                'item_no' => $oldRelated->item_no,
+                'description' => $oldRelated->description,
+            ]);
+        }
 
-        $this->update(['is_active' => false]);
 
-        return $fork;
+        return $newMain;
+    }
+
+    public function versions(): HasMany
+    {
+        return $this->hasMany(self::class, 'main_item_shortage_id');
     }
 
 }
