@@ -71,7 +71,7 @@ class RelatedItemShortageRepository extends BaseRepository
             DB::commit();
 
 
-            return $result;
+            return $result ?? true;
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json([
