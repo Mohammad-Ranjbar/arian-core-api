@@ -62,6 +62,7 @@ class MainItemShortage extends Model
     {
         $oldRelateds = $this->relatedItems;
         $locationCode = $this->location_code !== $locationCode ? $locationCode : $this->locaiton_code;
+        dd($locationCode);
         $newMain = $this->versions()->create([
             'version' => $this->version + 1,
             'is_active' => false,

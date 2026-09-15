@@ -51,11 +51,13 @@ class RelatedItemShortageRepository extends BaseRepository
      */
     public function store($data)
     {
+        DB::beginTransaction();
         $main = $this->mainItemShortage($data['main_item_shortage_id']);
         if (!$main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
             $main = $main->forkVersion($data['location_code']);
         }
         $main->fresh();
+        DB::commit();
         return $main->relatedItems()->create([
             'item_no' => $data['item_no'],
             'description' => $data['description'],
