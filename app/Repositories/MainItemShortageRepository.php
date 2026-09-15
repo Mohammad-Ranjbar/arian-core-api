@@ -42,7 +42,7 @@ class MainItemShortageRepository extends BaseRepository
      */
     public function makeQuery(): mixed
     {
-        return parent::makeQuery()->whereDoesntHave('versions')->with('relatedItems');
+        return parent::makeQuery()->with('relatedItems');
     }
 
     public function show($id): mixed
