@@ -22,8 +22,8 @@ class RelatedItemShortageRepository extends BaseRepository
     protected array $rules = [
         'create' => [
             'main_item_shortage_id' => 'required|exists:main_item_shortages,id',
-            'item_no' => 'required|string|max:200',
-            'description' => 'required|string',
+            'item_no' => 'nullable|string|max:200',
+            'description' => 'nullable|string',
             'location_code' => 'required|string|max:200',
         ]
     ];
