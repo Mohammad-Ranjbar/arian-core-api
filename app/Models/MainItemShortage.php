@@ -60,10 +60,10 @@ class MainItemShortage extends Model
 
     public function forkVersion(string $locationCode): self
     {
-        dd($this->location_code);
+
         $oldRelateds = $this->relatedItems;
-        $locationCode = $this->location_code !== $locationCode ? $locationCode : $this->locaiton_code;
-        dd($locationCode);
+        $locationCode = $this->location_code !== $locationCode ? $locationCode : $this->location_code;
+
         $newMain = $this->versions()->create([
             'version' => $this->version + 1,
             'is_active' => false,
