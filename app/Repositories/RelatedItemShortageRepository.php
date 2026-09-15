@@ -5,10 +5,12 @@ namespace App\Repositories;
 use App\libs\BaseRepository;
 use App\Models\MainItemShortage;
 use App\Models\RelatedItemShortage;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class RelatedItemShortageRepository extends BaseRepository
 {
@@ -48,20 +50,35 @@ class RelatedItemShortageRepository extends BaseRepository
     /**
      * A draft main record takes the item directly; an active one is frozen, so
      * the item lands on a fresh fork of it.
+     * @throws Throwable
      */
     public function store($data)
     {
-        DB::beginTransaction();
-        $main = $this->mainItemShortage($data['main_item_shortage_id']);
-        if (!$main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
-            $main = $main->forkVersion($data['location_code']);
+        try {
+            DB::beginTransaction();
+            $main = $this->mainItemShortage($data['main_item_shortage_id']);
+            if (!$main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
+                $main = $main->forkVersion($data['location_code']);
+            }
+            $main->fresh();
+            if (filled($data['item_no']) && filled($data['description'])) {
+                $result = $main->relatedItems()->create([
+                    'item_no' => $data['item_no'],
+                    'description' => $data['description'],
+                ]);
+            }
+
+            DB::commit();
+
+
+            return $result;
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $exception->getMessage()
+            ]);
         }
-        $main->fresh();
-        DB::commit();
-        return $main->relatedItems()->create([
-            'item_no' => $data['item_no'],
-            'description' => $data['description'],
-        ]);
+
     }
 
     private function mainItemShortage($id): Model|Collection|Builder|array|null
