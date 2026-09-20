@@ -23,6 +23,7 @@ class MainItemShortageResource extends JsonResource
             'description'         => $this->resource->description,
             'version'             => $this->resource->version,
             'is_active'           => $this->resource->is_active,
+            'data'           => $this->resource->data,
             'main_item_shortage_id' => $this->resource->main_item_shortage_id,
             'related_items'       => RelatedItemShortageResource::collection($this->whenLoaded('relatedItems')),
             'created_at'          => $this->resource->created_at,

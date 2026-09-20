@@ -25,6 +25,7 @@ class MainItemShortage extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'version' => 'integer',
+        'data' => 'array'
     ];
 
     // records start as drafts; mirrors the column default for version so a
