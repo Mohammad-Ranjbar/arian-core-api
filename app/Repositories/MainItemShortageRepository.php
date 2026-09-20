@@ -17,7 +17,7 @@ class MainItemShortageRepository extends BaseRepository
             'car_model_reference' => 'required|string|max:200',
             'item_no'             => 'required|string|max:200',
             'description'         => 'required|string',
-            'routing_link_code'         => 'required|string',
+            'data'         => 'required',
         ]
     ];
 
