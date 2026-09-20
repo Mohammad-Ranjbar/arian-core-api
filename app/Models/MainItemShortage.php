@@ -19,7 +19,7 @@ class MainItemShortage extends Model
         'version',
         'is_active',
         'main_item_shortage_id',
-        'routing_link_code'
+        'data'
     ];
 
     protected $casts = [
