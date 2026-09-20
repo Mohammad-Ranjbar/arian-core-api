@@ -24,8 +24,11 @@ class MainItemShortageController extends CrudController
         if (!$mainItemShortage->isDraft()) {
             return $this->responseError('این نسخه قبلا فعال شده است.');
         }
-
+        MainItemShortage::query()
+            ->where('item_no',$mainItemShortage->getAttribute('item_no'))
+            ->update(['is_active' => false]);
         $mainItemShortage->update(['is_active' => true]);
+
 
         return MainItemShortageResource::make($mainItemShortage->load('relatedItems'));
     }
