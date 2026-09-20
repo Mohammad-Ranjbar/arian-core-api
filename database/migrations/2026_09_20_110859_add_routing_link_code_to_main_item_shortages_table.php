@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('main_item_shortages', function (Blueprint $table) {
-            $table->string('data')->nullable();
+            $table->string('routing_link_code')->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('main_item_shortages', function (Blueprint $table) {
-            $table->dropColumn('data');
+            $table->dropColumn('routing_link_code');
         });
     }
 };
