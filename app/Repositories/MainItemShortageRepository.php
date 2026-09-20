@@ -17,8 +17,7 @@ class MainItemShortageRepository extends BaseRepository
             'car_model_reference' => 'required|string|max:200',
             'item_no'             => 'required|string|max:200',
             'description'         => 'required|string',
-            // is_active is not client-supplied: records are born as drafts and
-            // are activated through the activate endpoint.
+            'routing_link_code'         => 'required|string',
         ]
     ];
 
