@@ -92,8 +92,9 @@ FROM
 WHERE
     production_tracking.`model_type` = ? and 
     production_tracking.created_at >= ? and 
-    production_tracking.created_at < ?
-GROUP BY 
+    production_tracking.created_at < ? and
+    production_tracking.deleted_at is null
+GROUP BY
     car_models.title, production_tracking.type  
         ";
         $gateTracking = collect(DB::select($sql, [Location::class, $startTime, $endTime]));

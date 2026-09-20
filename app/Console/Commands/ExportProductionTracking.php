@@ -18,6 +18,7 @@ class ExportProductionTracking extends Command
         $handle = fopen($filePath, 'w');
 
         DB::table('production_tracking')
+            ->whereNull('deleted_at')
             ->orderBy('id')
             ->chunk(500, function ($rows) use ($handle) {
                 foreach ($rows as $row) {

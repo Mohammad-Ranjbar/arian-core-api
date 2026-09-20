@@ -26,7 +26,7 @@ class SalesBridgeController extends Controller
 
 
         $urls = [
-            'l'    => $link3,
+            'l'    => $link1,
             'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
             'a'    => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
@@ -67,6 +67,11 @@ class SalesBridgeController extends Controller
                 }
             }
         }
+
+        $payment['bank_data'] = [
+            'RetrivalRefNo' => $payment['bank_data']['RetrivalRefNo'],
+            'date'          => $payment['bank_data']['date'],
+        ];
 
         return $payment;
     }
