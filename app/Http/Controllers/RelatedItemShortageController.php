@@ -18,4 +18,29 @@ class RelatedItemShortageController extends CrudController
         $this->applyAuthorizeResource();
         $this->setResource(RelatedItemShortageResource::class);
     }
+
+    /**
+     * @throws \Throwable
+     */
+    public function store(Request $request)
+    {
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
+        }
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
+        $validatedData = array_merge($validatedData, $this->appendStoreData);
+        if ($this->appendUserId) {
+            $validatedData['user_id'] = Auth::id();
+        }
+        try {
+            DB::beginTransaction();
+            $saveItem = $this->repository->store($validatedData);
+            DB::commit();
+
+            return new $this->resource($saveItem);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => $exception->getMessage()], 500);
+        }
+    }
 }
