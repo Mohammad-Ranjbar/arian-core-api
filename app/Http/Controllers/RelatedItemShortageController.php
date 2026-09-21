@@ -13,4 +13,9 @@ class RelatedItemShortageController extends CrudController
         $this->applyAuthorizeResource();
         $this->setResource(RelatedItemShortageResource::class);
     }
+
+    public function afterSave($record, $data)
+    {
+        return $record;
+    }
 }
