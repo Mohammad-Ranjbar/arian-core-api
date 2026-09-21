@@ -40,6 +40,11 @@ class RelatedItemShortageController extends CrudController
                         'location_code' => $validatedData['location_code'],
                     ]);
             }
+            if (!filled($validatedData['item_no'])) {
+                return response()->json([
+                    'message' => 'تغییر لوکیشن ایتم اصلی با موفقیت انجام شد'
+                ]);
+            }
             if (filled($validatedData['item_no'])){
                 unset($validatedData['location_code']);
                 $saveItem = $this->repository->store($validatedData);
