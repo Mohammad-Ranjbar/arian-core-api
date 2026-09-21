@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\RelatedItemShortageResource;
 use App\Repositories\RelatedItemShortageRepository;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RelatedItemShortageController extends CrudController
 {
@@ -14,8 +18,37 @@ class RelatedItemShortageController extends CrudController
         $this->setResource(RelatedItemShortageResource::class);
     }
 
-    public function afterSave($record, $data)
+    /**
+     * @throws \Throwable
+     */
+    public function store(Request $request)
     {
-        return $record;
+        if (!isset($this->repository)) {
+            return $this->responseError('repository not found', 400);
+        }
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
+        $validatedData = array_merge($validatedData, $this->appendStoreData);
+        if ($this->appendUserId) {
+            $validatedData['user_id'] = Auth::id();
+        }
+        try {
+            DB::beginTransaction();
+            if (filled($validatedData['location_code'])) {
+                $this->repository
+                    ->model
+                    ->mainItemShortage()
+                    ->update(['location_code' => $validatedData['location_code']]);
+            }
+            if (filled($validatedData['item_no'])){
+                $saveItem = $this->repository->store($validatedData);
+            }
+
+            DB::commit();
+
+            return new $this->resource($saveItem);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => $exception->getMessage()], 500);
+        }
     }
 }
