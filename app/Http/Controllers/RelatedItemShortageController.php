@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\RelatedItemShortageResource;
+use App\Models\MainItemShortage;
 use App\Repositories\RelatedItemShortageRepository;
 use Exception;
 use Illuminate\Http\Request;
@@ -34,12 +35,13 @@ class RelatedItemShortageController extends CrudController
         try {
             DB::beginTransaction();
             if (filled($validatedData['location_code'])) {
-                $this->repository
-                    ->model
-                    ->mainItemShortage()
-                    ->update(['location_code' => $validatedData['location_code']]);
+                MainItemShortage::query()->where('id',$validatedData['main_item_shortage_id'])
+                    ->first()->update([
+                        'location_code' => $validatedData['location_code'],
+                    ]);
             }
             if (filled($validatedData['item_no'])){
+                unset($validatedData['location_code']);
                 $saveItem = $this->repository->store($validatedData);
             }
 
