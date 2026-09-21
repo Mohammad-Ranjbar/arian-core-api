@@ -71,6 +71,7 @@ class RelatedItemShortageRepository extends BaseRepository
             DB::commit();
             $main->refresh();
             $result = $main->relatedItems()->latest()->first();
+            dd($main->relatedItems()->count());
             if ($main->relatedItems()->count() == 0) {
                 return true;
             }
