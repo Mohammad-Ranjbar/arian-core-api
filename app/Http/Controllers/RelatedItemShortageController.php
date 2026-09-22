@@ -41,7 +41,7 @@ class RelatedItemShortageController extends CrudController
                     'message' => 'تغییرات با موفقیت انجام شد'
                 ]);
             }
-            return new $this->resource($saveItem->relatedItems->latest()->first());
+            return new $this->resource($saveItem->relatedItems()->latest()->first());
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => $exception->getMessage()], 500);
