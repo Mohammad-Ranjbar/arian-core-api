@@ -75,6 +75,7 @@ use App\Http\Controllers\ProductionTestResultController;
 use App\Http\Controllers\ProductionTrackingController;
 use App\Http\Controllers\QcCodeController;
 use App\Http\Controllers\ReceiptVehicleController;
+use App\Http\Controllers\RegisterShortageController;
 use App\Http\Controllers\RelatedItemShortageController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleCompanyController;
@@ -537,6 +538,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         ->middleware('can:main-item-shortages.activate')
         ->name('main-item-shortages.activate');
     Route::apiResource('related-item-shortages', RelatedItemShortageController::class)->except('update');
+    Route::apiResource('register-shortages', RegisterShortageController::class);
 
     /*
      * Agency panel
@@ -568,4 +570,3 @@ Route::prefix('sb')->group(function () {
         Route::get('/import/users/{nationalCode}', [SalesBridgeController::class, 'getMember']);
     })->whereIn('companyPrefix', ['l', 'd', 'p', 'a', 'test']);
 });
-

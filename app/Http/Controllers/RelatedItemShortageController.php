@@ -27,6 +27,13 @@ class RelatedItemShortageController extends CrudController
         if (!isset($this->repository)) {
             return $this->responseError('repository not found', 400);
         }
+        $main = MainItemShortage::query()->where('id','main_item_shortage_id')->first();
+        if ($validatedData['item_no'] == $main->getAttribute('item_no')){
+            return $this->responseError('آیتم وابسته نمیتواند هم نوع آیتم اصلی باشد', 400);
+        }
+        if ($main->relatedItems()->where('item_no',$validatedData['item_no'])->exists()) {
+            return $this->responseError('ایتم انتخابی در ایتم های وابسته این مورد موجود است');
+        }
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         $validatedData = array_merge($validatedData, $this->appendStoreData);
         if ($this->appendUserId) {
