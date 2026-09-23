@@ -9,7 +9,6 @@ use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
 use App\Models\AlternativeCategory;
-use App\Models\AlternativeItem;
 use App\Repositories\AlternativeRepository;
 use App\Services\Erp\ErpWsdlClient;
 use Exception;
@@ -44,30 +43,28 @@ class AlternativeController extends CrudController
         if ($status = request('status')) {
             if ($status === 'success') {
                 $alternatives->whereNotNull('success_at')
-                    ->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
-            }
-            elseif ($status === 'send') {
+                    ->whereHas('alternativeItem', fn($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
+            } elseif ($status === 'send') {
                 $alternatives->whereNull('success_at')
-                    ->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
-            }
-            elseif ($status === 'failed') {
-                $alternatives->whereNotNull('failed_at')->whereNull('success_at')->whereHas('alternativeItem', fn ($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
+                    ->whereHas('alternativeItem', fn($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
+            } elseif ($status === 'failed') {
+                $alternatives->whereNotNull('failed_at')->whereNull('success_at')->whereHas('alternativeItem', fn($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
             }
         }
 
-       $alternatives = Pipeline::send($alternatives)
-           ->through([
-               ItemNoFilter::class,
-               CreatedAtFromFilter::class,
-               CreatedAtToFilter::class,
+        $alternatives = Pipeline::send($alternatives)
+            ->through([
+                ItemNoFilter::class,
+                CreatedAtFromFilter::class,
+                CreatedAtToFilter::class,
 
-           ])->thenReturn()->latest()
+            ])->thenReturn()->latest()
             ->paginate(request('per_page') ?? 10);
 
         return AlternativeResource::collection($alternatives);
     }
 
-    public function sendAlternatives(Alternative $alternative,SendAlternativeRequest $request)
+    public function sendAlternatives(Alternative $alternative, SendAlternativeRequest $request)
     {
         try {
             $validatedData = $request->validated();
@@ -75,14 +72,14 @@ class AlternativeController extends CrudController
             $alternative->update([
                 'user_id' => Auth::id(),
             ]);
-            if (empty($alternative->getAttribute('send_at'))){
+            if (empty($alternative->getAttribute('send_at'))) {
                 $alternative->update(['send_at' => now()]);
             }
             if (empty($alternative)) {
                 throw new Exception('آيتم مورد نظر پیدا نشد');
             }
 
-            if (empty($alternative->getAttribute('document_number'))){
+            if (empty($alternative->getAttribute('document_number'))) {
                 $documentNo = 'ALT-' . Str::random(15);
                 $alternative->update([
                     'document_number' => $documentNo,
@@ -95,16 +92,15 @@ class AlternativeController extends CrudController
             foreach ($alternative->variants as $variant) {
                 $qtyVariants[] = $variant->quantity;
             }
-            $sumQty = implode(',',$qtyVariants);
+            $sumQty = implode(',', $qtyVariants);
 
             $parameters = [
                 'itemNoArray' => collect()
                     ->times(
                         $variants->count(),
-                        fn () => $alternative->getAttribute('item_no')
+                        fn() => $alternative->getAttribute('item_no')
                     )
                     ->implode(','),
-
 
 
                 'numberItemsP' => $variants->count(),

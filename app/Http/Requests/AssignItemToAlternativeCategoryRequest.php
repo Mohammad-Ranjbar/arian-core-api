@@ -33,8 +33,9 @@ class AssignItemToAlternativeCategoryRequest extends FormRequest
 
             'packing_qty' => [
                 'required',
-                'integer',
+                'numeric',
                 'min:0',
+                'decimal:0,2',
             ],
             'user_id' => 'nullable'
         ];
