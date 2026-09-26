@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\VinExactFilter;
+use App\Filters\VinFilter;
 use App\Http\Requests\StoreRegisterShortageRequest;
 use App\Http\Requests\UpdateRegisterShortageRequest;
 use App\Http\Requests\VinReferenceRequest;
@@ -13,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Pipeline;
 
 class RegisterShortageController extends Controller
 {
@@ -69,12 +72,16 @@ class RegisterShortageController extends Controller
     {
         $perPage = min(max($request->integer('per_page', 15), 1), 100);
 
-        $registerShortages = RegisterShortage::query()
+        $data = Pipeline::send(RegisterShortage::query()
             ->with(['vehicle', 'carModel', 'makeCode', 'user'])
-            ->latest()
+            ->latest())
+            ->through([
+                VinExactFilter::class,
+            ])
+            ->thenReturn()
             ->paginate($perPage);
 
-        return RegisterShortageResource::collection($registerShortages);
+        return RegisterShortageResource::collection($data);
     }
 
     public function store(StoreRegisterShortageRequest $request): JsonResponse
