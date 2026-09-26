@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRegisterShortageRequest;
 use App\Http\Requests\UpdateRegisterShortageRequest;
+use App\Http\Requests\VinReferenceRequest;
 use App\Http\Resources\RegisterShortageResource;
 use App\Http\Resources\ShortageItemResource;
 use App\Models\RegisterShortage;
@@ -34,7 +35,7 @@ class RegisterShortageController extends Controller
         }
     }
 
-    public function setShortagesVehicle(Request $request, string $vin)
+    public function setShortagesVehicle(VinReferenceRequest $request, string $vin)
     {
         try {
             $vehicle = Vehicle::query()
