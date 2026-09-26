@@ -6,12 +6,9 @@ use App\Http\Requests\StoreRegisterShortageRequest;
 use App\Http\Requests\UpdateRegisterShortageRequest;
 use App\Http\Requests\VinReferenceRequest;
 use App\Http\Resources\RegisterShortageResource;
-use App\Http\Resources\ShortageItemResource;
 use App\Models\RegisterShortage;
-use App\Models\ShortageItem;
 use App\Models\Vehicle;
 use Exception;
-use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -43,22 +40,22 @@ class RegisterShortageController extends Controller
                 ->with('shortageItems')
                 ->firstOrFail();
 
-            $sourceVin = $request->input('vin');
+            $destinationVin = $request->input('vin');
+            if ($destinationVin == $vin) {
+                return $this->responseError("Vin is different from source vin");
+            }
+            $sourceShortages = RegisterShortage::query()
+                ->where('vin', $vin)
+                ->get();
 
-            if ($sourceVin && $sourceVin !== $vin) {
-                $sourceShortages = RegisterShortage::query()
-                    ->where('vin', $sourceVin)
-                    ->get();
-
-                foreach ($sourceShortages as $shortage) {
-                    $newShortage = $shortage->replicate();
-                    $newShortage->vin = $vin;
-                    $newShortage->save();
-                }
+            foreach ($sourceShortages as $shortage) {
+                $newShortage = $shortage->replicate();
+                $newShortage->vin = $destinationVin;
+                $newShortage->save();
             }
 
             $shortages = RegisterShortage::query()
-                ->where('vin', $vin)
+                ->where('vin', $destinationVin)
                 ->latest()
                 ->get();
 
