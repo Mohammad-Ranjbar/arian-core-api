@@ -34,6 +34,39 @@ class RegisterShortageController extends Controller
         }
     }
 
+    public function setShortagesVehicle(Request $request, string $vin)
+    {
+        try {
+            $vehicle = Vehicle::query()
+                ->where('vin', $vin)
+                ->with('shortageItems')
+                ->firstOrFail();
+
+            $sourceVin = $request->input('vin');
+
+            if ($sourceVin && $sourceVin !== $vin) {
+                $sourceShortages = RegisterShortage::query()
+                    ->where('vin', $sourceVin)
+                    ->get();
+
+                foreach ($sourceShortages as $shortage) {
+                    $newShortage = $shortage->replicate();
+                    $newShortage->vin = $vin;
+                    $newShortage->save();
+                }
+            }
+
+            $shortages = RegisterShortage::query()
+                ->where('vin', $vin)
+                ->latest()
+                ->get();
+
+            return RegisterShortageResource::collection($shortages);
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage());
+        }
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $perPage = min(max($request->integer('per_page', 15), 1), 100);
