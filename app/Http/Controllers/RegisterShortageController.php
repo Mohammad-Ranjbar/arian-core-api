@@ -54,6 +54,7 @@ class RegisterShortageController extends Controller
             foreach ($sourceShortages as $shortage) {
                 $newShortage = $shortage->replicate();
                 $newShortage->vin = $destinationVin;
+                $newShortage->user_id = Auth::id();
                 $newShortage->save();
             }
 
