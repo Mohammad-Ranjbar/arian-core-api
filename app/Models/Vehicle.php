@@ -82,7 +82,7 @@ class Vehicle extends Model
 
     public function shortageItems(): HasMany
     {
-        return $this->hasMany(ShortageItem::class, 'vin');
+        return $this->hasMany(ShortageItem::class, 'vin','vin');
     }
 
     /**
