@@ -24,7 +24,6 @@ class RegisterShortageController extends Controller
 
     public function shortagesVehicle(string $vin)
     {
-        Gate::authorize('get-shortages-vehicle');
         try {
             $vehicle = Vehicle::query()->where('vin', $vin)->with('shortageItems')->firstOrFail();
             return ShortageItemResource::collection($vehicle->getRelation('shortageItems'));
