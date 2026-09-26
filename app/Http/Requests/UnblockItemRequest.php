@@ -14,15 +14,19 @@ class UnblockItemRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'unblock_description' => 'required|string',
+            'unblock_description' => 'required|string|max:400',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'unblock_description.required' => 'وارد کردن توضیحات رفع مسدودی الزامی است.',
+            'unblock_description.string' => 'توضیحات رفع مسدودی باید به صورت متن باشد.',
+            'unblock_description.max' => 'توضیحات رفع مسدودی نباید بیشتر از ۴۰۰ کاراکتر باشد.',
         ];
     }
 }
