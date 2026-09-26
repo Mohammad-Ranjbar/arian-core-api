@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateRegisterShortageRequest;
 use App\Http\Resources\RegisterShortageResource;
 use App\Http\Resources\ShortageItemResource;
 use App\Models\RegisterShortage;
+use App\Models\ShortageItem;
 use App\Models\Vehicle;
 use Exception;
 use Illuminate\Auth\Access\Gate;
@@ -26,7 +27,8 @@ class RegisterShortageController extends Controller
     {
         try {
             $vehicle = Vehicle::query()->where('vin', $vin)->with('shortageItems')->firstOrFail();
-            return ShortageItemResource::collection($vehicle->shortageItems);
+            $shortages = RegisterShortage::query()->where('vin', $vin)->latest()->get();
+            return RegisterShortageResource::collection($shortages);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
