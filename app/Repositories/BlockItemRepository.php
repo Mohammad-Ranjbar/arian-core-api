@@ -17,11 +17,13 @@ class BlockItemRepository extends BaseRepository
             'description'     => 'nullable',
             'blocked_by'      => 'nullable',
             'vin'             => 'nullable',
+            'unblock_description' => 'nullable',
         ], 'update' => [
             'block_reason_id' => 'required|exists:block_reasons,id',
             'description'     => 'nullable',
             'blocked_by'      => 'nullable',
             'vin'             => 'nullable',
+            'unblock_description' => 'nullable',
         ]
     ];
 

@@ -9,6 +9,7 @@ use App\Filters\VinFilter;
 use App\Http\Requests\BlockItemStoreRequest;
 use App\Http\Requests\ImportBlockRequest;
 use App\Http\Requests\JobRequest;
+use App\Http\Requests\UnblockItemRequest;
 use App\Http\Resources\BlockItemResource;
 use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
@@ -118,7 +119,7 @@ class BlockItemController extends Controller
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    public function unblock(Vehicle $vehicle, $id): BlockItemResource|JsonResponse
+    public function unblock(Vehicle $vehicle, $id,UnblockItemRequest $request): BlockItemResource|JsonResponse
     {
         try {
             $this->authorize('block-items.unblock');
@@ -153,6 +154,7 @@ class BlockItemController extends Controller
                 $data = [
                     'unblocked_by' => Auth::id(),
                     'unblocked_at' => Carbon::now(),
+                    'unblock_description' => $request['unblock_description']
                 ];
                 $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
 
