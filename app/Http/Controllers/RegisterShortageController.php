@@ -26,7 +26,7 @@ class RegisterShortageController extends Controller
     {
         try {
             $vehicle = Vehicle::query()->where('vin', $vin)->with('shortageItems')->firstOrFail();
-            return ShortageItemResource::collection($vehicle->getRelation('shortageItems'));
+            return ShortageItemResource::collection($vehicle->shortageItems);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
