@@ -85,6 +85,11 @@ class Vehicle extends Model
         return $this->hasMany(ShortageItem::class, 'vin','vin');
     }
 
+    public function registerShortages()
+    {
+        return $this->hasMany(RegisterShortage::class, 'vin','vin');
+    }
+
     /**
      * @return BelongsTo
      */
