@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRegisterShortageRequest;
 use App\Http\Requests\UpdateRegisterShortageRequest;
 use App\Http\Resources\RegisterShortageResource;
+use App\Http\Resources\ShortageItemResource;
 use App\Models\RegisterShortage;
 use App\Models\Vehicle;
+use Exception;
+use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,6 +20,17 @@ class RegisterShortageController extends Controller
     public function __construct()
     {
         $this->authorizeResource(RegisterShortage::class, 'register_shortage');
+    }
+
+    public function shortagesVehicle(string $vin)
+    {
+        Gate::authorize('get-shortages-vehicle');
+        try {
+            $vehicle = Vehicle::query()->where('vin', $vin)->with('shortageItems')->firstOrFail();
+            return ShortageItemResource::collection($vehicle->getRelation('shortageItems'));
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage());
+        }
     }
 
     public function index(Request $request): AnonymousResourceCollection
@@ -58,8 +72,9 @@ class RegisterShortageController extends Controller
 
     public function update(
         UpdateRegisterShortageRequest $request,
-        RegisterShortage $registerShortage
-    ): RegisterShortageResource {
+        RegisterShortage              $registerShortage
+    ): RegisterShortageResource
+    {
         $validated = $request->validated();
 
         if (array_key_exists('vin', $validated)) {
