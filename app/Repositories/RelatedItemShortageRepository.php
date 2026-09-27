@@ -66,6 +66,7 @@ class RelatedItemShortageRepository extends BaseRepository
                 $main->relatedItems()->create([
                     'item_no' => $data['item_no'],
                     'description' => $data['description'],
+                    'data' => $data['data'],
                 ]);
             }
 
