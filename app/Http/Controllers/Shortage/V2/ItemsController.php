@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Shortage\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\CarModel;
-use App\Models\Location;
 use App\Services\Erp\ErpGetShortageBOM;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -17,7 +17,7 @@ class ItemsController extends Controller
         try {
             $items = resolve(ErpGetShortageBOM::class)
                 ->get($carModel->getAttribute('reference'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
 

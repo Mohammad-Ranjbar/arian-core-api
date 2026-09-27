@@ -31,11 +31,13 @@ class RegisterShortage extends Model
         'work_center',
         'status',
         'user_id',
-        'register_shortage_id'
+        'register_shortage_id',
+        'is_certified',
     ];
 
     protected $casts = [
         'qty' => 'integer',
+        'is_certified' => 'boolean',
     ];
 
     protected $attributes = [

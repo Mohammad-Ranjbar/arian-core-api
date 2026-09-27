@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('work_center')->index()->nullable()->comment('required when type is main');
             $table->enum('status',['has_shortage','resolve_shortage'])->default('has_shortage')->index();
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
+            $table->boolean('is_certified')->default(true)->index();
             $table->unique(['vin','item_no']);
             $table->timestamps();
         });
