@@ -116,6 +116,7 @@ class RegisterShortageController extends Controller
             foreach ($mainItem->relatedItems as $relatedItem){
                 $validated['item_no'] = $relatedItem->getAttribute('item_no');
                 $validated['register_shortage_id'] = $registerShortage->getAttribute('id');
+                $validated['item_description'] = $relatedItem->getAttribute('description');
                 $registerShortage = RegisterShortage::query()->create([
                     ...$validated,
                     'car_model_id' => $vehicle->getAttribute('car_model_id'),
