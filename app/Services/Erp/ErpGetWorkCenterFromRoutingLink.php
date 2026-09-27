@@ -19,7 +19,7 @@ class ErpGetWorkCenterFromRoutingLink
             );
 
         $result = $this->client->get($url);
-        dd($result);
+
         if (!$result) {
             Log::info('get routing link code From car model reference: ' . $carModelReference);
 
