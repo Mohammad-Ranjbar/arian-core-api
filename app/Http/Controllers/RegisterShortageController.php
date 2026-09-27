@@ -92,9 +92,10 @@ class RegisterShortageController extends Controller
         $validated = $request->validated();
         $vehicle = Vehicle::query()->findOrFail($validated['vin']);
         $carModel = $vehicle->carModel;
-        $workCenter = resolve(ErpGetWorkCenterFromRoutingLink::class)
+        $workCenters = resolve(ErpGetWorkCenterFromRoutingLink::class)
             ->get($carModel->reference);
-        dd($workCenter);
+        $mainItem = MainItemShortage::query()->where('item_no',$validated['item_no'])->first();
+        dd(collect($workCenters)->where('routing_link_code',$mainItem->data['routing_link_code'])->first());
         $registerShortage = RegisterShortage::query()->create([
             ...$validated,
             'car_model_id' => $vehicle->getAttribute('car_model_id'),
