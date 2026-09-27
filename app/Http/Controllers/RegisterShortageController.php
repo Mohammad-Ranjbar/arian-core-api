@@ -76,6 +76,7 @@ class RegisterShortageController extends Controller
         $perPage = min(max($request->integer('per_page', 15), 1), 100);
 
         $data = Pipeline::send(RegisterShortage::query()
+            ->whereNull('register_shortage_id')
             ->with(['vehicle', 'carModel', 'makeCode', 'user'])
             ->latest())
             ->through([
@@ -91,13 +92,18 @@ class RegisterShortageController extends Controller
     {
         $validated = $request->validated();
         $vehicle = Vehicle::query()->findOrFail($validated['vin']);
-        $carModel = $vehicle->carModel;
-        $workCenters = resolve(ErpGetWorkCenterFromRoutingLink::class)
-            ->get($carModel->reference);
-        $mainItem = MainItemShortage::query()->where('item_no',$validated['item_no'])->first();
-        dd(collect($workCenters)->where('routing_link_code',$mainItem->data['routing_link_code'])->first());
+        $workCenter = null;
+        if ($validated['type'] == 'main'){
+            $carModel = $vehicle->carModel;
+            $workCenters = resolve(ErpGetWorkCenterFromRoutingLink::class)
+                ->get($carModel->reference);
+            $workCenter = collect($workCenters)->where('routing_link_code',$validated['routing_link_code'])->first();
+            $workCenter = $workCenter['work_center'];
+        }
+
         $registerShortage = RegisterShortage::query()->create([
             ...$validated,
+            'work_center' => $workCenter,
             'car_model_id' => $vehicle->getAttribute('car_model_id'),
             'make_code_id' => $vehicle->getAttribute('make_code_id'),
             'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
@@ -107,6 +113,7 @@ class RegisterShortageController extends Controller
            $mainItem = MainItemShortage::query()->where('item_no',$validated['item_no'])->with('relatedItems')->first();
             foreach ($mainItem->relatedItems as $relatedItem){
                 $validated['item_no'] = $relatedItem->getAttribute('item_no');
+                $validated['register_shortage_id'] = $registerShortage->getAttribute('id');
                 $registerShortage = RegisterShortage::query()->create([
                     ...$validated,
                     'car_model_id' => $vehicle->getAttribute('car_model_id'),
@@ -117,9 +124,7 @@ class RegisterShortageController extends Controller
             }
         }
 
-        return RegisterShortageResource::make(
-            $registerShortage->load(['vehicle', 'carModel', 'makeCode', 'user'])
-        )->response()->setStatusCode(201);
+        return RegisterShortageResource::make($registerShortage)->response()->setStatusCode(201);
     }
 
     public function show(RegisterShortage $registerShortage): RegisterShortageResource

@@ -35,7 +35,7 @@ class StoreRegisterShortageRequest extends FormRequest
                 Rule::in([RegisterShortage::TYPE_MAIN, RegisterShortage::TYPE_SINGLE]),
             ],
             'qty' => ['required', 'integer', 'min:1', 'max:4294967295'],
-            'work_center' => [
+            'routing_link_code' => [
                 'nullable',
                 'required_if:type,'.RegisterShortage::TYPE_MAIN,
                 'string',

@@ -18,6 +18,8 @@ class RegisterShortage extends Model
 
     public const STATUS_RESOLVED = 'resolve_shortage';
 
+    protected $with = ['vehicle', 'carModel', 'makeCode', 'user','children'];
+
     protected $fillable = [
         'vin',
         'car_model_id',
@@ -58,5 +60,10 @@ class RegisterShortage extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function children()
+    {
+        return $this->hasMany(RegisterShortage::class, 'register_shortage_id', 'id');
     }
 }
