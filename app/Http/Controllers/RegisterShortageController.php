@@ -102,7 +102,7 @@ class RegisterShortageController extends Controller
 
             $workCenter = $item['work_center'] ?? null;
         }
-        dd($workCenter);
+
         $registerShortage = RegisterShortage::query()->create([
             ...$validated,
             'work_center' => $workCenter,
