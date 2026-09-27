@@ -26,7 +26,7 @@ class RelatedItemShortageController extends CrudController
      */
     public function store(Request $request)
     {
-        $main = MainItemShortage::query()->where('id','main_item_shortage_id')->first();
+        $main = MainItemShortage::query()->where('id',$request['main_item_shortage_id'])->first();
         if ($request['item_no'] == $main->getAttribute('item_no')){
             return $this->responseError('آیتم وابسته نمیتواند هم نوع آیتم اصلی باشد', 400);
         }
