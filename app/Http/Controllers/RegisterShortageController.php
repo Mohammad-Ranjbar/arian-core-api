@@ -78,7 +78,7 @@ class RegisterShortageController extends Controller
 
         $data = Pipeline::send(RegisterShortage::query()
             ->whereNull('register_shortage_id')
-            ->with(['vehicle', 'carModel', 'makeCode', 'user'])
+            ->with(['vehicle', 'carModel', 'makeCode', 'user','children'])
             ->latest())
             ->through([
                 VinExactFilter::class,
