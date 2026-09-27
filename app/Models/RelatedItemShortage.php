@@ -14,6 +14,10 @@ class RelatedItemShortage extends Model
         'data'
     ];
 
+    protected $casts = [
+        'data' => 'array'
+    ];
+
     public function mainItemShortage(): BelongsTo
     {
         return $this->belongsTo(MainItemShortage::class);
