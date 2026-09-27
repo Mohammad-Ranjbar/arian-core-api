@@ -37,6 +37,7 @@ class ErpProductItemRepository extends BaseRepository
             return [
                 'id' => $item->id,
                 'title' => $item->title . ' - ' . $item->reference,
+                'code' => $item->reference,
             ];
         })->all();
     }
