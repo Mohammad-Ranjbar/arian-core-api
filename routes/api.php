@@ -539,7 +539,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::apiResource('related-item-shortages', RelatedItemShortageController::class)->except('update');
     Route::apiResource('register-shortages', RegisterShortageController::class);
     Route::get('/shortages/{vin}',[RegisterShortageController::class, 'shortagesVehicle'])->name('get-shortages-vehicle');
-    Route::post('/shortages/{vin}',[RegisterShortageController::class, 'setShortagesVehicle'])->name('get-shortages-vehicle');
+    Route::post('/shortages/{vin}',[RegisterShortageController::class, 'setShortagesVehicle'])->name('set-shortages-vehicle');
 
     /*
      * Agency panel
