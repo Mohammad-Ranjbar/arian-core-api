@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('main_item_shortage_id')->constrained()->cascadeOnDelete();
             $table->string('item_no');
             $table->text('description');
+            $table->jsonb('data');
             $table->timestamps();
         });
     }
