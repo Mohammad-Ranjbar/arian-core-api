@@ -39,10 +39,10 @@ class RelatedItemShortageController extends CrudController
         if ($this->appendUserId) {
             $validatedData['user_id'] = Auth::id();
         }
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             $saveItem = $this->repository->store($validatedData);
-            DB::commit();
+//            DB::commit();
             if ($saveItem->relatedItems->count() == 0) {
                 return response()->json([
                     'message' => 'تغییرات با موفقیت انجام شد'
@@ -50,9 +50,9 @@ class RelatedItemShortageController extends CrudController
             }
             dd($saveItem);
             return new $this->resource($saveItem->relatedItems()->latest()->first());
-        } catch (Exception $exception) {
-            DB::rollBack();
-            return response()->json(['message' => $exception->getMessage()], 500);
-        }
+//        } catch (Exception $exception) {
+//            DB::rollBack();
+//            return response()->json(['message' => $exception->getMessage()], 500);
+//        }
     }
 }
