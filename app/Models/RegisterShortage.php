@@ -66,6 +66,6 @@ class RegisterShortage extends Model
 
     public function children()
     {
-        return $this->hasMany(RegisterShortage::class, 'register_shortage_id', 'id');
+        return self::hasMany(RegisterShortage::class, 'register_shortage_id', 'id');
     }
 }

@@ -42,6 +42,7 @@ class RegisterShortageResource extends JsonResource
                 'name' => $this->resource->user->name,
             ]),
             'children' => $this->resource->chilren,
+            'is_certified' => $this->resource->is_certified,
             'created_at' => $this->resource->created_at,
             'updated_at' => $this->resource->updated_at,
         ];
