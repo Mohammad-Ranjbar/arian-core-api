@@ -11,6 +11,7 @@ use App\Http\Resources\RegisterShortageResource;
 use App\Models\MainItemShortage;
 use App\Models\RegisterShortage;
 use App\Models\Vehicle;
+use App\Services\Erp\ErpGetWorkCenterFromRoutingLink;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -90,7 +91,10 @@ class RegisterShortageController extends Controller
     {
         $validated = $request->validated();
         $vehicle = Vehicle::query()->findOrFail($validated['vin']);
-
+        $carModel = $vehicle->carModel;
+        $workCenter = resolve(ErpGetWorkCenterFromRoutingLink::class)
+            ->get($carModel->reference);
+        dd($workCenter);
         $registerShortage = RegisterShortage::query()->create([
             ...$validated,
             'car_model_id' => $vehicle->getAttribute('car_model_id'),
