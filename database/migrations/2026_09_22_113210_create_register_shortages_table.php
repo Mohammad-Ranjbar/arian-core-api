@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('register_shortages', function (Blueprint $table) {
             $table->id();
-            $table->string('vin');
+            $table->foreignId('register_shortages')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('vin')->index();
             $table->foreign('vin')->references('vin')->on('vehicles')->restrictOnDelete();
-            $table->foreignId('car_model_id')->constrained('car_models')->restrictOnDelete();
-            $table->foreignId('make_code_id')->constrained('make_codes')->restrictOnDelete();
+            $table->foreignId('car_model_id')->index()->constrained('car_models')->restrictOnDelete();
+            $table->foreignId('make_code_id')->index()->constrained('make_codes')->restrictOnDelete();
             $table->string('item_no')->index();
             $table->text('item_description')->nullable();
             $table->enum('type',['main','single'])->index();
             $table->unsignedInteger('qty');
-            $table->string('work_center')->nullable()->comment('required when type is main');
+            $table->string('work_center')->index()->nullable()->comment('required when type is main');
             $table->enum('status',['has_shortage','resolve_shortage'])->default('has_shortage')->index();
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->unique(['vin','item_no']);

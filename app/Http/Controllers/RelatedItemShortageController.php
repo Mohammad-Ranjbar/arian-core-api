@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\RelatedItemShortageResource;
 use App\Models\MainItemShortage;
+use App\Models\RelatedItemShortage;
 use App\Repositories\RelatedItemShortageRepository;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,19 +20,18 @@ class RelatedItemShortageController extends CrudController
         $this->setResource(RelatedItemShortageResource::class);
     }
 
+
     /**
      * @throws \Throwable
      */
     public function store(Request $request)
     {
-        if (!isset($this->repository)) {
-            return $this->responseError('repository not found', 400);
-        }
         $main = MainItemShortage::query()->where('id','main_item_shortage_id')->first();
-        if ($validatedData['item_no'] == $main->getAttribute('item_no')){
+        if ($request['item_no'] == $main->getAttribute('item_no')){
             return $this->responseError('آیتم وابسته نمیتواند هم نوع آیتم اصلی باشد', 400);
         }
-        if ($main->relatedItems()->where('item_no',$validatedData['item_no'])->exists()) {
+        if (RelatedItemShortage::query()->where('main_item_shortage_id',$main->getAttribute('id'))
+            ->where('item_no',$validatedData['item_no'])->exists()) {
             return $this->responseError('ایتم انتخابی در ایتم های وابسته این مورد موجود است');
         }
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));

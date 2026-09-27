@@ -29,6 +29,7 @@ class RegisterShortage extends Model
         'work_center',
         'status',
         'user_id',
+        'register_shortage_id'
     ];
 
     protected $casts = [

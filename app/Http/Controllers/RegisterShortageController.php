@@ -8,6 +8,7 @@ use App\Http\Requests\StoreRegisterShortageRequest;
 use App\Http\Requests\UpdateRegisterShortageRequest;
 use App\Http\Requests\VinReferenceRequest;
 use App\Http\Resources\RegisterShortageResource;
+use App\Models\MainItemShortage;
 use App\Models\RegisterShortage;
 use App\Models\Vehicle;
 use Exception;
@@ -97,6 +98,19 @@ class RegisterShortageController extends Controller
             'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
             'user_id' => Auth::id(),
         ]);
+        if ($registerShortage->getAttribute('type') === 'main'){
+           $mainItem = MainItemShortage::query()->where('item_no',$validated['item_no'])->with('relatedItems')->first();
+            foreach ($mainItem->relatedItems as $relatedItem){
+                $validated['item_no'] = $relatedItem->getAttribute('item_no');
+                $registerShortage = RegisterShortage::query()->create([
+                    ...$validated,
+                    'car_model_id' => $vehicle->getAttribute('car_model_id'),
+                    'make_code_id' => $vehicle->getAttribute('make_code_id'),
+                    'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
+                    'user_id' => Auth::id(),
+                ]);
+            }
+        }
 
         return RegisterShortageResource::make(
             $registerShortage->load(['vehicle', 'carModel', 'makeCode', 'user'])
