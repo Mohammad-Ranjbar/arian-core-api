@@ -19,6 +19,7 @@ class RelatedItemShortageResource extends JsonResource
             'main_item_shortage_id' => $this->resource->main_item_shortage_id,
             'item_no'               => $this->resource->item_no,
             'description'           => $this->resource->description,
+            'data'           => $this->resource->data,
             'created_at'            => $this->resource->created_at,
         ];
     }
