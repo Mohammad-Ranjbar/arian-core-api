@@ -43,12 +43,13 @@ class RelatedItemShortageController extends CrudController
 //            DB::beginTransaction();
             $saveItem = $this->repository->store($validatedData);
 //            DB::commit();
+        dd($saveItem);
             if ($saveItem->relatedItems->count() == 0) {
                 return response()->json([
                     'message' => 'تغییرات با موفقیت انجام شد'
                 ]);
             }
-            dd($saveItem);
+
             return new $this->resource($saveItem->relatedItems()->latest()->first());
 //        } catch (Exception $exception) {
 //            DB::rollBack();
