@@ -11,6 +11,7 @@ class RelatedItemShortage extends Model
         'main_item_shortage_id',
         'item_no',
         'description',
+        'data'
     ];
 
     public function mainItemShortage(): BelongsTo
