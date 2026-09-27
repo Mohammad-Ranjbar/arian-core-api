@@ -39,6 +39,7 @@ class RelatedItemShortageController extends CrudController
         if ($this->appendUserId) {
             $validatedData['user_id'] = Auth::id();
         }
+        dd($validatedData);
 //        try {
 //            DB::beginTransaction();
             $saveItem = $this->repository->store($validatedData);
