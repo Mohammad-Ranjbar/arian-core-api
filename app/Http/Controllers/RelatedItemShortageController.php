@@ -48,6 +48,7 @@ class RelatedItemShortageController extends CrudController
                     'message' => 'تغییرات با موفقیت انجام شد'
                 ]);
             }
+            dd($saveItem);
             return new $this->resource($saveItem->relatedItems()->latest()->first());
         } catch (Exception $exception) {
             DB::rollBack();
