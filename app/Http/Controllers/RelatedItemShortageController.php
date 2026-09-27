@@ -31,7 +31,7 @@ class RelatedItemShortageController extends CrudController
             return $this->responseError('آیتم وابسته نمیتواند هم نوع آیتم اصلی باشد', 400);
         }
         if (RelatedItemShortage::query()->where('main_item_shortage_id',$main->getAttribute('id'))
-            ->where('item_no',$validatedData['item_no'])->exists()) {
+            ->where('item_no',$request['item_no'])->exists()) {
             return $this->responseError('ایتم انتخابی در ایتم های وابسته این مورد موجود است');
         }
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
