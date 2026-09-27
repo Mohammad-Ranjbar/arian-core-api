@@ -98,6 +98,7 @@ class RegisterShortageController extends Controller
             $workCenters = resolve(ErpGetWorkCenterFromRoutingLink::class)
                 ->get($carModel->reference);
             $workCenter = collect($workCenters)->where('routing_link_code',$validated['routing_link_code'])->first();
+            dd($workCenter);
             $workCenter = $workCenter['work_center'];
         }
 
