@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('register_shortages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('register_shortages')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('register_shortage_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('vin')->index();
             $table->foreign('vin')->references('vin')->on('vehicles')->restrictOnDelete();
             $table->foreignId('car_model_id')->index()->constrained('car_models')->restrictOnDelete();
