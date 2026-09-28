@@ -24,7 +24,8 @@ class PreGoLiveServer
 
         $username = config('erp.auth'[0]);
         $password = config('erp.auth'[1]);
-
+        logger($username);
+        logger($password);
         if (
             ! extension_loaded('curl')
             || ! is_string($username)
