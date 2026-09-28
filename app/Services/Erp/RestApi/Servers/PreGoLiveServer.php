@@ -22,8 +22,9 @@ class PreGoLiveServer
             throw new InvalidArgumentException('Unsupported ERP endpoint.');
         }
 
-        $username = config('erp.auth'[0]);
-        $password = config('erp.auth'[1]);
+        $username = config('erp.auth')[0];
+        $password = config('erp.auth')[1];
+
         logger('username' .$username);
         logger('password'.$password);
         if (
