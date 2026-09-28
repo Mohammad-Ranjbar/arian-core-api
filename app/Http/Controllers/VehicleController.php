@@ -23,6 +23,7 @@ use App\Repositories\YearMapRepository;
 use App\Services\Erp\ErpGetVehicle;
 use App\Services\Erp\ErpGetVehicleComponent;
 use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\SetQcStatusService;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -187,11 +188,23 @@ class VehicleController extends CrudController
                 }
             }
             $qcCode = QcCode::query()->where('title', $validatedData['qc_status'])->first();
-            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type'));
 
-            if ($response['status'] !== 'ok') {
-                return $this->responseError($response['message'], 400);
-            }
+
+
+        $result = resolve(SetQcStatusService::class)->send(
+            $vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type')
+        );
+
+        if (! $result['success']) {
+            return response()->json([
+                'error' => $result['error'],
+            ], $result['http_status']);
+        }
+//            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type'));
+//
+//            if ($response['status'] !== 'ok') {
+//                return $this->responseError($response['message'], 400);
+//            }
 
             ActionLog::query()->create([
                 'model_type' => Vehicle::class,
