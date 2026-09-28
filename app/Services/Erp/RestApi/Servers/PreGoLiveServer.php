@@ -16,23 +16,37 @@ class PreGoLiveServer
         'qcStatuses' => 'qcStatuses',
     ];
 
-    /**
-     * @return array{
-     *     success: bool,
-     *     data: array<string, mixed>|null,
-     *     error: array{code: string, message: string}|null,
-     *     http_status: int
-     * }
-     */
     public function post(string $endpoint, array $data): array
     {
         if (! array_key_exists($endpoint, self::ENDPOINTS)) {
             throw new InvalidArgumentException('Unsupported ERP endpoint.');
         }
 
+        $username = config('erp.auth'[0]);
+        $password = config('erp.auth'[1]);
+
+        if (
+            ! extension_loaded('curl')
+            || ! is_string($username)
+            || $username === ''
+            || ! is_string($password)
+            || $password === ''
+        ) {
+            Log::error('ERP NTLM configuration is incomplete');
+
+            return $this->failure(
+                'ERP_CONFIGURATION_ERROR',
+                'تنظیمات ارتباط با سامانه ERP کامل نیست.',
+                503
+            );
+        }
+
         try {
             $response = Http::acceptJson()
                 ->asJson()
+                ->withOptions([
+                    'auth' => [$username, $password, 'ntlm'],
+                ])
                 ->connectTimeout(5)
                 ->timeout(15)
                 ->withoutRedirecting()
@@ -47,6 +61,18 @@ class PreGoLiveServer
                 'ERP_CONNECTION_ERROR',
                 'ارتباط با سامانه ERP برقرار نشد.',
                 503
+            );
+        }
+
+        if (in_array($response->status(), [401, 403], true)) {
+            Log::warning('ERP NTLM authentication failed', [
+                'http_status' => $response->status(),
+            ]);
+
+            return $this->failure(
+                'ERP_AUTH_ERROR',
+                'احراز هویت در سامانه ERP ناموفق بود.',
+                502
             );
         }
 
@@ -83,14 +109,6 @@ class PreGoLiveServer
         ];
     }
 
-    /**
-     * @return array{
-     *     success: false,
-     *     data: null,
-     *     error: array{code: string, message: string},
-     *     http_status: int
-     * }
-     */
     private function failure(
         string $code,
         string $message,
