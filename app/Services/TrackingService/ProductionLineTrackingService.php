@@ -108,8 +108,11 @@ class ProductionLineTrackingService extends BaseTrackingService
                 ? $this->colorMap($item['variant_code'], $vehicle)
                 : null;
 
-            $packingQty = (int) $alternativeItem->getAttribute('packing_qty');
-            $remaining = (int) $item['quantity'];
+            // packing_qty is now decimal
+            $packingQty = (float) $alternativeItem->getAttribute('packing_qty');
+
+            // Quantity may also contain decimal values
+            $remaining = (float) $item['quantity'];
 
             while ($remaining > 0) {
                 $alternative = $this->makeAlternative(
@@ -118,33 +121,82 @@ class ProductionLineTrackingService extends BaseTrackingService
                     $productionOrderNumber
                 );
 
-                // capacity is the sum already registered on the variants, not the counter column
-                $used = (int) $alternative->variants()->sum('quantity');
+                // Calculate the actual used capacity from variants
+                $used = (float) $alternative
+                    ->variants()
+                    ->sum('quantity');
+
                 $applicable = $packingQty - $used;
 
+                /*
+                 * The alternative is already full but its status
+                 * has not been changed yet.
+                 */
                 if ($applicable <= 0) {
-                    // already full but still open: close it and pick up a fresh one
-                    $alternative->update(['status' => 'send']);
+                    $alternative->update([
+                        'status' => 'send',
+                    ]);
+
                     continue;
                 }
 
+                /*
+                 * Add only the amount that can fit into
+                 * the current alternative.
+                 */
                 $addVar = min($applicable, $remaining);
 
-                $variant = $alternative->variants()->firstOrCreate(
-                    ['variant_code' => $colorMap],
-                    ['quantity' => 0]
-                );
+                $variant = $alternative
+                    ->variants()
+                    ->firstOrCreate(
+                        [
+                            'variant_code' => $colorMap,
+                        ],
+                        [
+                            'quantity' => 0,
+                        ]
+                    );
+
                 $variant->increment('quantity', $addVar);
 
                 $alternative->increment('counter', $addVar);
 
                 $remaining -= $addVar;
 
-                if ($used + $addVar >= $packingQty) {
-                    $alternative->update(['status' => 'send']);
+                /*
+                 * If the packing capacity has been reached,
+                 * close this alternative.
+                 */
+                if (($used + $addVar) >= $packingQty) {
+                    $alternative->update([
+                        'status' => 'send',
+                    ]);
                 }
             }
         }
+    }
+
+    private function makeAlternative(
+        $item,
+        $alternativeItem,
+        $productionOrderNumber
+    ) {
+        $alternative = Alternative::query()
+            ->where('item_no', $item['item_no'])
+            ->where('status', 'create')
+            ->first();
+
+        if ($alternative) {
+            return $alternative;
+        }
+
+        return Alternative::query()->create([
+            'alternative_item_id'     => $alternativeItem->getAttribute('id'),
+            'production_order_number' => $productionOrderNumber,
+            'item_no'                 => $item['item_no'],
+            'counter'                 => 0,
+            'status'                  => 'create',
+        ]);
     }
 
     public function colorMap(string $variantCode, $vehicle)
@@ -153,36 +205,14 @@ class ProductionLineTrackingService extends BaseTrackingService
             $vehicle->getAttribute('car_model_id'))->first()?->getAttribute('code') ?? '';
     }
 
-    private function makeAlternative($item, $alternativeItem, $productionOrderNumber)
-    {
-        $alternative = Alternative::query()->where('item_no', $item['item_no'])->where('status', 'create')->first();
-        if (!$alternative) {
-            return Alternative::query()
-                ->create([
-                    'alternative_item_id'     => $alternativeItem->getAttribute('id'),
-                    'production_order_number' => $productionOrderNumber,
-                    'item_no'                 => $item['item_no'],
-                    'counter'                 => 0,
-                    'status'                  => 'create'
-                ]);
-        }
-        return $alternative;
-    }
 
-    /**
-     * @param $data
-     * @return array
-     */
+
     public function prepareData($data): array
     {
         $data['model_type'] = self::MODEL_TYPE;
         return $data;
     }
 
-    /**
-     * @param $data
-     * @return string|false
-     */
     public function exit($data): array|false
     {
         $productionLine = ProductionLine::query()->find($data['model_id']);
