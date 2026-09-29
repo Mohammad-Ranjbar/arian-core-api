@@ -27,18 +27,12 @@ class MainItemShortageRepository extends BaseRepository
         'location_code',
     ];
 
-    /**
-     * @param MainItemShortage $model
-     */
+
     public function __construct(MainItemShortage $model)
     {
         $this->model = $model;
     }
 
-    /**
-     * A record that has been forked from is a superseded snapshot, so the list
-     * shows the leaf of each chain — the draft or active record in play.
-     */
     public function makeQuery(): mixed
     {
         return parent::makeQuery()->with('relatedItems');

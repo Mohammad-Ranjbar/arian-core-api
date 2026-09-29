@@ -31,7 +31,7 @@ class RegisterShortageController extends Controller
     {
         try {
             $vehicle = Vehicle::query()->where('vin', $vin)->with('shortageItems')->firstOrFail();
-            $shortages = $vehicle->shortageItems()->where('is_active',1)->latest()->get();
+            $shortages = $vehicle->shortageItems()->latest()->get();
             return RegisterShortageResource::collection($shortages);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
@@ -105,6 +105,7 @@ class RegisterShortageController extends Controller
 
 
         if ($validated['type'] == 'main'){
+            $validated['is_certified'] = true;
             $carModel = $vehicle->carModel;
             $workCenters = resolve(ErpGetWorkCenterFromRoutingLink::class)
                 ->get($carModel->reference);
