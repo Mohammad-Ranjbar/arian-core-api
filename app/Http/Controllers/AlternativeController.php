@@ -92,6 +92,7 @@ class AlternativeController extends CrudController
             foreach ($alternative->variants as $variant) {
                 $qtyVariants[] = $variant->quantity;
             }
+            dd($qtyVariants);
             $sumQty = implode(',', $qtyVariants);
 
             $parameters = [
