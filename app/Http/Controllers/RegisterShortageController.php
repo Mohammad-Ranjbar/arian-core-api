@@ -30,8 +30,8 @@ class RegisterShortageController extends Controller
     public function shortagesVehicle(string $vin)
     {
         try {
-            $vehicle = Vehicle::query()->where('vin', $vin)->with('shortageItems')->firstOrFail();
-            $shortages = $vehicle->shortageItems()->latest()->get();
+            $vehicle = Vehicle::query()->where('vin', $vin)->firstOrFail();
+            $shortages = RegisterShortage::query()->where('vin', $vehicle->getAttribute('vin'))->latest()->get();
             return RegisterShortageResource::collection($shortages);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
