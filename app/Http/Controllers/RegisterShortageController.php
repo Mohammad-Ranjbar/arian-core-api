@@ -98,7 +98,7 @@ class RegisterShortageController extends Controller
         if ($validated['type'] == 'single'){
             $items = resolve(ErpGetShortageBOM::class)
                 ->get($vehicle->carModel->reference);
-            dd($items);
+            dd(collect($items)->where('line_itm_no',$validated['item_no']));
         }
 
 
