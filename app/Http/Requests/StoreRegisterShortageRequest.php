@@ -3,15 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Models\RegisterShortage;
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Models\Vehicle;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreRegisterShortageRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
@@ -20,6 +17,7 @@ class StoreRegisterShortageRequest extends FormRequest
 
     public function rules(): array
     {
+        $vehicle = Vehicle::query()->where('vin',$this->input('vin'))->firstOrFail();
         return [
             'vin' => ['required', 'string', 'max:255', 'exists:vehicles,vin'],
             'item_no' => [
@@ -27,7 +25,7 @@ class StoreRegisterShortageRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique('register_shortages', 'item_no')
-                    ->where(fn ($query) => $query->where('vin', $this->input('vin'))),
+                    ->where(fn($query) => $query->where('vin', $this->input('vin'))),
             ],
             'item_description' => ['nullable', 'string'],
             'type' => [
@@ -37,9 +35,15 @@ class StoreRegisterShortageRequest extends FormRequest
             'qty' => ['required', 'integer', 'min:1', 'max:4294967295'],
             'routing_link_code' => [
                 'nullable',
-                'required_if:type,'.RegisterShortage::TYPE_MAIN,
+                'required_if:type,' . RegisterShortage::TYPE_MAIN,
                 'string',
                 'max:255',
+            ],
+            'main_item_shortage_id' => [
+                'required_if:type,' . RegisterShortage::TYPE_MAIN,
+                Rule::exists('main_item_shortages', 'id')
+                    ->where('is_active', 1)
+                    ->where('car_model_id',$vehicle->getAttribute('car_model_id'))
             ],
         ];
     }

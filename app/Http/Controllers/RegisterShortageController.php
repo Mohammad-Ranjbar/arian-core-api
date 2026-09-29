@@ -47,18 +47,19 @@ class RegisterShortageController extends Controller
                 ->firstOrFail();
 
             $destinationVin = $request->input('vin');
-            if ($destinationVin == $vin) {
+            if ($destinationVin == $vehicle->getAttribute('vin')) {
                 return $this->responseError("Vin is different from source vin");
             }
+
             $sourceShortages = RegisterShortage::query()
                 ->where('vin', $vin)
                 ->get();
 
             foreach ($sourceShortages as $shortage) {
-                $newShortage = $shortage->replicate();
-                $newShortage->vin = $destinationVin;
-                $newShortage->user_id = Auth::id();
-                $newShortage->save();
+                if ($shortage->children->count() == 0){
+                    dd();
+                }
+
             }
 
             $shortages = RegisterShortage::query()
