@@ -94,11 +94,13 @@ class RegisterShortageController extends Controller
         $validated = $request->validated();
         $vehicle = Vehicle::query()->findOrFail($validated['vin']);
         $workCenter = null;
-
+        $validated['is_certified'] = false;
         if ($validated['type'] == 'single'){
             $items = resolve(ErpGetShortageBOM::class)
                 ->get($vehicle->carModel->reference);
-            dd(collect($items)->where('line_itm_no',$validated['item_no']));
+            if (collect($items)->where('line_itm_no',$validated['item_no'])->count() > 0){
+                $validated['is_certified'] = true;
+            }
         }
 
 
