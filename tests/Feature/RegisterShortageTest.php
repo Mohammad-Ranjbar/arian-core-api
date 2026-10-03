@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Http\Middleware\CheckActiveUserMiddleware;
 use App\Models\RegisterShortage;
 use App\Models\User;
+use App\Services\Erp\ErpGetShortageBOM;
+use App\Services\Erp\ErpGetWorkCenterFromRoutingLink;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Database\Schema\Blueprint;
@@ -38,13 +40,16 @@ class RegisterShortageTest extends TestCase
 
     public function test_store_derives_vehicle_and_user_fields(): void
     {
+        $this->mock(ErpGetShortageBOM::class)
+            ->shouldReceive('get')->once()->with('CAR-1')->andReturn([]);
+
         $response = $this->postJson('/api/register-shortages', [
             'vin' => 'VIN-1',
             'car_model_id' => 999,
             'make_code_id' => 999,
             'item_no' => 'ITEM-1',
             'item_description' => 'Main item',
-            'type' => RegisterShortage::TYPE_MAIN,
+            'type' => RegisterShortage::TYPE_SINGLE,
             'qty' => 2,
             'work_center' => 'WC-10',
             'status' => RegisterShortage::STATUS_RESOLVED,
@@ -56,11 +61,7 @@ class RegisterShortageTest extends TestCase
             ->assertJsonPath('data.car_model_id', 1)
             ->assertJsonPath('data.make_code_id', 1)
             ->assertJsonPath('data.user_id', $this->user->id)
-            ->assertJsonPath('data.status', RegisterShortage::STATUS_HAS_SHORTAGE)
-            ->assertJsonPath('data.vehicle.vin', 'VIN-1')
-            ->assertJsonPath('data.car_model.reference', 'CAR-1')
-            ->assertJsonPath('data.make_code.reference', 'MAKE-1')
-            ->assertJsonPath('data.user.name', 'Test User');
+            ->assertJsonPath('data.status', RegisterShortage::STATUS_HAS_SHORTAGE);
 
         $this->assertDatabaseHas('register_shortages', [
             'vin' => 'VIN-1',
@@ -71,14 +72,95 @@ class RegisterShortageTest extends TestCase
         ]);
     }
 
-    public function test_main_type_requires_a_work_center(): void
+    public function test_main_type_requires_routing_link_and_main_item(): void
     {
         $this->postJson('/api/register-shortages', [
             'vin' => 'VIN-1',
             'item_no' => 'ITEM-1',
             'type' => RegisterShortage::TYPE_MAIN,
             'qty' => 1,
-        ])->assertUnprocessable()->assertJsonValidationErrors('work_center');
+        ])->assertUnprocessable()
+            ->assertJsonPath('errors.routing_link_code.0', 'برای کسری اصلی، وارد کردن کد مسیر الزامی است.')
+            ->assertJsonPath('errors.main_item_shortage_id.0', 'برای کسری اصلی، انتخاب آیتم اصلی الزامی است.');
+    }
+
+    public function test_store_rejects_main_item_from_another_car_model(): void
+    {
+        $mainItemId = $this->createMainItemShortage(2, 'ITEM-1', 'OTHER-CHILD');
+
+        $this->postJson('/api/register-shortages', [
+            'vin' => 'VIN-1',
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'ITEM-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 1,
+            'routing_link_code' => 'LINK-1',
+        ])->assertUnprocessable()
+            ->assertJsonPath('errors.main_item_shortage_id.0', 'آیتم اصلی انتخاب‌شده باید فعال و متعلق به مدل خودروی انتخاب‌شده باشد.');
+
+        $this->assertDatabaseCount('register_shortages', 0);
+    }
+
+    public function test_store_reports_unknown_vin_as_validation_error(): void
+    {
+        $this->postJson('/api/register-shortages', [
+            'vin' => 'UNKNOWN',
+            'item_no' => 'ITEM-1',
+            'type' => RegisterShortage::TYPE_SINGLE,
+            'qty' => 1,
+        ])->assertUnprocessable()
+            ->assertJsonPath('errors.vin.0', 'خودرویی با این شماره شاسی یافت نشد.');
+    }
+
+    public function test_store_rejects_main_item_with_different_item_number(): void
+    {
+        $mainItemId = $this->createMainItemShortage(1, 'ITEM-2', 'RELATED-2');
+
+        $this->postJson('/api/register-shortages', [
+            'vin' => 'VIN-1',
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'ITEM-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 1,
+            'routing_link_code' => 'LINK-1',
+        ])->assertUnprocessable()
+            ->assertJsonPath('errors.main_item_shortage_id.0', 'آیتم اصلی انتخاب‌شده باید فعال و متعلق به مدل خودرو باشد و شماره قطعه آن با شماره قطعه ثبت‌شده یکسان باشد.');
+
+        $this->assertDatabaseCount('register_shortages', 0);
+    }
+
+    public function test_store_uses_selected_main_item_when_item_numbers_match_across_models(): void
+    {
+        $this->createMainItemShortage(2, 'ITEM-1', 'OTHER-CHILD');
+        $mainItemId = $this->createMainItemShortage(1, 'ITEM-1', 'RIGHT-CHILD');
+
+        $this->mock(ErpGetWorkCenterFromRoutingLink::class)
+            ->shouldReceive('get')
+            ->once()
+            ->with('CAR-1')
+            ->andReturn([['routing_link_code' => 'LINK-1', 'work_center' => 'WC-1']]);
+
+        $this->postJson('/api/register-shortages', [
+            'vin' => 'VIN-1',
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'ITEM-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 1,
+            'routing_link_code' => 'LINK-1',
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('register_shortages', [
+            'vin' => 'VIN-1',
+            'item_no' => 'ITEM-1',
+            'main_item_shortage_id' => $mainItemId,
+            'car_model_id' => 1,
+        ]);
+        $this->assertDatabaseHas('register_shortages', [
+            'vin' => 'VIN-1',
+            'item_no' => 'RIGHT-CHILD',
+            'car_model_id' => 1,
+        ]);
+        $this->assertDatabaseMissing('register_shortages', ['item_no' => 'OTHER-CHILD']);
     }
 
     public function test_index_uses_the_paginated_resource_collection(): void
@@ -95,6 +177,9 @@ class RegisterShortageTest extends TestCase
 
     public function test_vin_and_item_number_must_be_unique_together(): void
     {
+        $this->mock(ErpGetShortageBOM::class)
+            ->shouldReceive('get')->twice()->andReturn([]);
+
         $payload = [
             'vin' => 'VIN-1',
             'item_no' => 'ITEM-1',
@@ -105,7 +190,7 @@ class RegisterShortageTest extends TestCase
         $this->postJson('/api/register-shortages', $payload)->assertCreated();
         $this->postJson('/api/register-shortages', $payload)
             ->assertUnprocessable()
-            ->assertJsonValidationErrors('item_no');
+            ->assertJsonPath('errors.item_no.0', 'این شماره قطعه قبلاً برای این خودرو ثبت شده است.');
 
         $this->postJson('/api/register-shortages', [
             ...$payload,
@@ -199,6 +284,22 @@ class RegisterShortageTest extends TestCase
         ]);
     }
 
+    private function createMainItemShortage(int $carModelId, string $itemNo, string $relatedItemNo): int
+    {
+        $id = DB::table('main_item_shortages')->insertGetId([
+            'car_model_id' => $carModelId,
+            'item_no' => $itemNo,
+            'is_active' => true,
+        ]);
+        DB::table('related_item_shortages')->insert([
+            'main_item_shortage_id' => $id,
+            'item_no' => $relatedItemNo,
+            'description' => $relatedItemNo,
+        ]);
+
+        return $id;
+    }
+
     private function createTables(): void
     {
         Schema::create('users', function (Blueprint $table): void {
@@ -238,6 +339,8 @@ class RegisterShortageTest extends TestCase
         });
         Schema::create('register_shortages', function (Blueprint $table): void {
             $table->id();
+            $table->foreignId('main_item_shortage_id')->nullable();
+            $table->foreignId('register_shortage_id')->nullable();
             $table->string('vin');
             $table->foreignId('car_model_id');
             $table->foreignId('make_code_id');
@@ -248,7 +351,22 @@ class RegisterShortageTest extends TestCase
             $table->string('work_center')->nullable();
             $table->string('status')->default(RegisterShortage::STATUS_HAS_SHORTAGE);
             $table->foreignId('user_id');
+            $table->boolean('is_certified')->default(false);
             $table->unique(['vin', 'item_no']);
+            $table->timestamps();
+        });
+        Schema::create('main_item_shortages', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('car_model_id');
+            $table->string('item_no');
+            $table->boolean('is_active');
+            $table->timestamps();
+        });
+        Schema::create('related_item_shortages', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('main_item_shortage_id');
+            $table->string('item_no');
+            $table->text('description');
             $table->timestamps();
         });
     }

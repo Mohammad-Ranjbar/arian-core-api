@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
+use Illuminate\Validation\ValidationException;
 
 class RegisterShortageController extends Controller
 {
@@ -94,6 +95,22 @@ class RegisterShortageController extends Controller
     {
         $validated = $request->validated();
         $vehicle = Vehicle::query()->findOrFail($validated['vin']);
+        $mainItem = null;
+        if ($validated['type'] === RegisterShortage::TYPE_MAIN) {
+            $mainItem = MainItemShortage::query()
+                ->whereKey($validated['main_item_shortage_id'])
+                ->where('car_model_id', $vehicle->getAttribute('car_model_id'))
+                ->where('item_no', $validated['item_no'])
+                ->where('is_active', true)
+                ->with('relatedItems')
+                ->first();
+
+            if ($mainItem === null) {
+                throw ValidationException::withMessages([
+                    'main_item_shortage_id' => 'آیتم اصلی انتخاب‌شده باید فعال و متعلق به مدل خودرو باشد و شماره قطعه آن با شماره قطعه ثبت‌شده یکسان باشد.',
+                ]);
+            }
+        }
         $workCenter = null;
         $validated['is_certified'] = false;
         if ($validated['type'] == 'single'){
@@ -125,7 +142,6 @@ class RegisterShortageController extends Controller
             'user_id' => Auth::id(),
         ]);
         if ($registerShortage->getAttribute('type') === 'main'){
-           $mainItem = MainItemShortage::query()->where('item_no',$validated['item_no'])->with('relatedItems')->first();
             foreach ($mainItem->relatedItems as $relatedItem){
                 $validated['item_no'] = $relatedItem->getAttribute('item_no');
                 $validated['register_shortage_id'] = $registerShortage->getAttribute('id');

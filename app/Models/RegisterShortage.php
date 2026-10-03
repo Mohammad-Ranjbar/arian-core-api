@@ -21,6 +21,7 @@ class RegisterShortage extends Model
     protected $with = ['vehicle', 'carModel', 'makeCode', 'user','children'];
 
     protected $fillable = [
+        'main_item_shortage_id',
         'vin',
         'car_model_id',
         'make_code_id',
