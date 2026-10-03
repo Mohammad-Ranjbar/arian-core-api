@@ -87,7 +87,7 @@ class RelatedItemShortageRepository extends BaseRepository
             if ($main->isDraft()) {
                 return (bool)$item->delete();
             }
-            $main->forkVersion([$item->id]);
+            $main->forkVersion($main->location_code, [$item->id]);
             return true;
         });
     }

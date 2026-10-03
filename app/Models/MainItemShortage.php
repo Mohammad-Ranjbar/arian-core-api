@@ -60,10 +60,10 @@ class MainItemShortage extends Model
         return !$this->is_active;
     }
 
-    public function forkVersion(string $locationCode): self
+    public function forkVersion(string $locationCode, array $excludedRelatedItemIds = []): self
     {
 
-        $oldRelateds = $this->relatedItems;
+        $oldRelateds = $this->relatedItems->whereNotIn('id', $excludedRelatedItemIds);
         $locationCode = $this->location_code !== $locationCode ? $locationCode : $this->location_code;
 
         $newMain = $this->versions()->create([
