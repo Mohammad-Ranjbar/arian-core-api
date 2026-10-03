@@ -36,35 +36,69 @@ class RegisterShortageController extends Controller
         try {
             $vehicle = Vehicle::query()->where('vin', $vin)->firstOrFail();
             $shortages = RegisterShortage::query()->where('vin', $vehicle->getAttribute('vin'))->latest()->get();
+
             return RegisterShortageResource::collection($shortages);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function setShortagesVehicle(VinReferenceRequest $request, string $vin)
     {
         try {
             $vehicle = Vehicle::query()
                 ->where('vin', $vin)
-                ->with('shortageItems')
                 ->firstOrFail();
 
-            $destinationVin = $request->input('vin');
+            $destinationVin = $request->validated('vin');
             if ($destinationVin == $vehicle->getAttribute('vin')) {
-                return $this->responseError("Vin is different from source vin");
+                return $this->responseError('Vin is different from source vin');
             }
 
-            $sourceShortages = RegisterShortage::query()
-                ->where('vin', $vin)
-                ->get();
+            $destinationVehicle = Vehicle::query()->findOrFail($destinationVin);
 
-            foreach ($sourceShortages as $shortage) {
-                if ($shortage->children->count() == 0) {
-                    dd();
+            DB::transaction(function () use ($vin, $destinationVehicle) {
+                $sourceShortages = RegisterShortage::query()
+                    ->where('vin', $vin)
+                    ->whereNull('register_shortage_id')
+                    ->where(function ($query) {
+                        $query->where('type', RegisterShortage::TYPE_SINGLE)
+                            ->orWhere(function ($query) {
+                                $query->where('type', RegisterShortage::TYPE_MAIN)
+                                    ->whereIn('main_item_shortage_id', MainItemShortage::query()
+                                        ->select('id')
+                                        ->where('is_active', true));
+                            });
+                    })
+                    ->withOnly('children')
+                    ->get();
+
+                $destinationAttributes = [
+                    'vin' => $destinationVehicle->getAttribute('vin'),
+                    'car_model_id' => $destinationVehicle->getAttribute('car_model_id'),
+                    'make_code_id' => $destinationVehicle->getAttribute('make_code_id'),
+                    'user_id' => Auth::id(),
+                ];
+
+                foreach ($sourceShortages as $shortage) {
+                    $copiedShortage = RegisterShortage::query()->create([
+                        ...$shortage->only($shortage->getFillable()),
+                        ...$destinationAttributes,
+                        'register_shortage_id' => null,
+                    ]);
+
+                    foreach ($shortage->children->where('vin', $vin) as $child) {
+                        RegisterShortage::query()->create([
+                            ...$child->only($child->getFillable()),
+                            ...$destinationAttributes,
+                            'register_shortage_id' => $copiedShortage->getKey(),
+                        ]);
+                    }
                 }
-
-            }
+            });
 
             $shortages = RegisterShortage::query()
                 ->where('vin', $destinationVin)
@@ -72,6 +106,8 @@ class RegisterShortageController extends Controller
                 ->get();
 
             return RegisterShortageResource::collection($shortages);
+        } catch (UniqueConstraintViolationException $exception) {
+            return $this->responseError('شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.');
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
@@ -139,7 +175,6 @@ class RegisterShortageController extends Controller
             }
         }
 
-
         if ($validated['type'] == 'main') {
             $validated['is_certified'] = true;
             $carModel = $vehicle->carModel;
@@ -201,9 +236,8 @@ class RegisterShortageController extends Controller
 
     public function update(
         UpdateRegisterShortageRequest $request,
-        RegisterShortage              $registerShortage
-    ): RegisterShortageResource
-    {
+        RegisterShortage $registerShortage
+    ): RegisterShortageResource {
         $validated = $request->validated();
 
         if (array_key_exists('vin', $validated)) {

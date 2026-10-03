@@ -317,6 +317,159 @@ class RegisterShortageTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors('item_no');
     }
 
+    public function test_copy_filters_main_groups_and_preserves_single_and_child_attributes(): void
+    {
+        $activeId = $this->createMainItemShortage(1, 'MAIN-ACTIVE', 'CATALOG-CHILD');
+        $inactiveId = $this->createMainItemShortage(1, 'MAIN-INACTIVE', 'INACTIVE-CHILD');
+        DB::table('main_item_shortages')->where('id', $inactiveId)->update(['is_active' => false]);
+        $active = $this->createRegisterShortage([
+            'main_item_shortage_id' => $activeId,
+            'item_no' => 'MAIN-ACTIVE',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 3,
+            'work_center' => 'WC-1',
+            'is_certified' => true,
+        ]);
+        $child = $this->createRegisterShortage([
+            'main_item_shortage_id' => $activeId,
+            'register_shortage_id' => $active->id,
+            'item_no' => 'REGISTERED-CHILD',
+            'item_description' => 'Registered child description',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 4,
+            'work_center' => 'WC-CHILD',
+            'status' => RegisterShortage::STATUS_RESOLVED,
+            'is_certified' => true,
+        ]);
+        $inactive = $this->createRegisterShortage([
+            'main_item_shortage_id' => $inactiveId,
+            'item_no' => 'MAIN-INACTIVE',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $this->createRegisterShortage([
+            'main_item_shortage_id' => $inactiveId,
+            'register_shortage_id' => $inactive->id,
+            'item_no' => 'INACTIVE-CHILD',
+            'type' => RegisterShortage::TYPE_SINGLE,
+        ]);
+        $this->createRegisterShortage([
+            'item_no' => 'MAIN-WITHOUT-REFERENCE',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $this->createRegisterShortage([
+            'main_item_shortage_id' => $activeId,
+            'item_no' => 'MAIN-WITHOUT-CHILDREN',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $this->createRegisterShortage([
+            'item_no' => 'SINGLE-1',
+            'item_description' => 'Single description',
+            'qty' => 5,
+            'status' => RegisterShortage::STATUS_RESOLVED,
+            'is_certified' => false,
+        ]);
+        $sourceRecords = DB::table('register_shortages')->where('vin', 'VIN-1')->orderBy('id')->get();
+
+        $this->postJson('/api/shortages/VIN-1', ['vin' => 'VIN-2'])
+            ->assertOk()->assertJsonCount(4, 'data');
+
+        $copiedParent = RegisterShortage::query()->where('vin', 'VIN-2')->where('item_no', 'MAIN-ACTIVE')->firstOrFail();
+        $this->assertNotSame($active->id, $copiedParent->id);
+        $this->assertNull($copiedParent->register_shortage_id);
+        $this->assertDatabaseHas('register_shortages', [
+            'id' => $copiedParent->id,
+            'main_item_shortage_id' => $activeId,
+            'car_model_id' => 2,
+            'make_code_id' => 2,
+            'user_id' => $this->user->id,
+            'qty' => 3,
+            'work_center' => 'WC-1',
+            'is_certified' => true,
+        ]);
+        $this->assertDatabaseHas('register_shortages', [
+            'vin' => 'VIN-2',
+            'item_no' => 'REGISTERED-CHILD',
+            'item_description' => 'Registered child description',
+            'register_shortage_id' => $copiedParent->id,
+            'main_item_shortage_id' => $activeId,
+            'car_model_id' => 2,
+            'make_code_id' => 2,
+            'qty' => 4,
+            'work_center' => 'WC-CHILD',
+            'status' => RegisterShortage::STATUS_RESOLVED,
+            'is_certified' => true,
+        ]);
+        $this->assertDatabaseHas('register_shortages', [
+            'vin' => 'VIN-2',
+            'item_no' => 'SINGLE-1',
+            'item_description' => 'Single description',
+            'register_shortage_id' => null,
+            'type' => RegisterShortage::TYPE_SINGLE,
+            'qty' => 5,
+            'status' => RegisterShortage::STATUS_RESOLVED,
+            'is_certified' => false,
+        ]);
+        foreach (['MAIN-INACTIVE', 'INACTIVE-CHILD', 'MAIN-WITHOUT-REFERENCE', 'CATALOG-CHILD'] as $itemNo) {
+            $this->assertDatabaseMissing('register_shortages', ['vin' => 'VIN-2', 'item_no' => $itemNo]);
+        }
+        $this->assertEquals($sourceRecords, DB::table('register_shortages')->where('vin', 'VIN-1')->orderBy('id')->get());
+        $this->assertDatabaseHas('register_shortages', ['id' => $child->id, 'register_shortage_id' => $active->id]);
+    }
+
+    public function test_copy_rolls_back_all_inserts_when_a_child_already_exists_in_destination(): void
+    {
+        $this->createRegisterShortage(['item_no' => 'SINGLE-1']);
+        $mainId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
+        $main = $this->createRegisterShortage([
+            'main_item_shortage_id' => $mainId,
+            'item_no' => 'MAIN-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $this->createRegisterShortage([
+            'main_item_shortage_id' => $mainId,
+            'register_shortage_id' => $main->id,
+            'item_no' => 'CHILD-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $existing = $this->createRegisterShortage(['vin' => 'VIN-2', 'item_no' => 'CHILD-1']);
+
+        $this->postJson('/api/shortages/VIN-1', ['vin' => 'VIN-2'])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.');
+
+        $this->assertSame([$existing->id], RegisterShortage::query()->where('vin', 'VIN-2')->pluck('id')->all());
+        $this->assertDatabaseCount('register_shortages', 4);
+    }
+
+    public function test_copy_rejects_the_source_vin_as_destination(): void
+    {
+        $this->createRegisterShortage();
+
+        $this->postJson('/api/shortages/VIN-1', ['vin' => 'VIN-1'])->assertUnprocessable();
+
+        $this->assertDatabaseCount('register_shortages', 1);
+    }
+
+    public function test_copy_validates_destination_vin(): void
+    {
+        $this->createRegisterShortage();
+
+        $this->postJson('/api/shortages/VIN-1', [])->assertUnprocessable()->assertJsonValidationErrors('vin');
+        $this->postJson('/api/shortages/VIN-1', ['vin' => 'UNKNOWN'])->assertUnprocessable()->assertJsonValidationErrors('vin');
+
+        $this->assertDatabaseCount('register_shortages', 1);
+    }
+
+    public function test_copy_with_no_source_shortages_returns_existing_destination_records(): void
+    {
+        $existing = $this->createRegisterShortage(['vin' => 'VIN-2']);
+
+        $this->postJson('/api/shortages/VIN-1', ['vin' => 'VIN-2'])
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $existing->id);
+
+        $this->assertDatabaseCount('register_shortages', 1);
+    }
+
     private function createRegisterShortage(array $attributes = []): RegisterShortage
     {
         $vin = $attributes['vin'] ?? 'VIN-1';
