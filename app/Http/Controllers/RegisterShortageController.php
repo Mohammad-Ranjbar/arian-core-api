@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Filters\VinExactFilter;
-use App\Filters\VinFilter;
 use App\Http\Requests\StoreRegisterShortageRequest;
 use App\Http\Requests\UpdateRegisterShortageRequest;
 use App\Http\Requests\VinReferenceRequest;
@@ -20,6 +19,8 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Validation\ValidationException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class RegisterShortageController extends Controller
 {
@@ -57,7 +58,7 @@ class RegisterShortageController extends Controller
                 ->get();
 
             foreach ($sourceShortages as $shortage) {
-                if ($shortage->children->count() == 0){
+                if ($shortage->children->count() == 0) {
                     dd();
                 }
 
@@ -80,7 +81,7 @@ class RegisterShortageController extends Controller
 
         $data = Pipeline::send(RegisterShortage::query()
             ->whereNull('register_shortage_id')
-            ->with(['vehicle', 'carModel', 'makeCode', 'user','children'])
+            ->with(['vehicle', 'carModel', 'makeCode', 'user', 'children'])
             ->latest())
             ->through([
                 VinExactFilter::class,
@@ -91,6 +92,10 @@ class RegisterShortageController extends Controller
         return RegisterShortageResource::collection($data);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function store(StoreRegisterShortageRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -113,16 +118,16 @@ class RegisterShortageController extends Controller
         }
         $workCenter = null;
         $validated['is_certified'] = false;
-        if ($validated['type'] == 'single'){
+        if ($validated['type'] == 'single') {
             $items = resolve(ErpGetShortageBOM::class)
                 ->get($vehicle->carModel->reference);
-            if (collect($items)->where('line_itm_no',$validated['item_no'])->count() > 0){
+            if (collect($items)->where('line_itm_no', $validated['item_no'])->count() > 0) {
                 $validated['is_certified'] = true;
             }
         }
 
 
-        if ($validated['type'] == 'main'){
+        if ($validated['type'] == 'main') {
             $validated['is_certified'] = true;
             $carModel = $vehicle->carModel;
             $workCenters = resolve(ErpGetWorkCenterFromRoutingLink::class)
@@ -141,8 +146,8 @@ class RegisterShortageController extends Controller
             'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
             'user_id' => Auth::id(),
         ]);
-        if ($registerShortage->getAttribute('type') === 'main'){
-            foreach ($mainItem->relatedItems as $relatedItem){
+        if ($registerShortage->getAttribute('type') === 'main') {
+            foreach ($mainItem->relatedItems as $relatedItem) {
                 $validated['item_no'] = $relatedItem->getAttribute('item_no');
                 $validated['register_shortage_id'] = $registerShortage->getAttribute('id');
                 $validated['item_description'] = $relatedItem->getAttribute('description');
