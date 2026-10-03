@@ -75,6 +75,7 @@ class MainItemShortage extends Model
             'car_model_reference' => $this->car_model_reference,
             'item_no' => $this->item_no,
             'description' => $this->description,
+            'data' => $this->data,
         ]);
 
         foreach ($oldRelateds as $oldRelated) {
@@ -82,6 +83,7 @@ class MainItemShortage extends Model
                 'main_item_shortage_id' => $newMain->getAttribute('id'),
                 'item_no' => $oldRelated->item_no,
                 'description' => $oldRelated->description,
+                'data' => $oldRelated->data,
             ]);
         }
 

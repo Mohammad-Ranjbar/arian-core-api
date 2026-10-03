@@ -5,10 +5,6 @@ namespace App\Repositories;
 use App\libs\BaseRepository;
 use App\Models\MainItemShortage;
 use App\Models\RelatedItemShortage;
-use Exception;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -53,16 +49,14 @@ class RelatedItemShortageRepository extends BaseRepository
      * the item lands on a fresh fork of it.
      * @throws Throwable
      */
-    public function store($data)
+    public function store($data): MainItemShortage
     {
-        try {
-            DB::beginTransaction();
+        return DB::transaction(function () use ($data): MainItemShortage {
             $main = $this->mainItemShortage($data['main_item_shortage_id']);
             if (!$main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
                 $main = $main->forkVersion($data['location_code']);
             }
-            $main->fresh();
-            if (filled($data['item_no']) && filled($data['description'])) {
+            if (filled($data['item_no'] ?? null) && filled($data['description'] ?? null)) {
                 $main->relatedItems()->create([
                     'item_no' => $data['item_no'],
                     'description' => $data['description'],
@@ -70,20 +64,11 @@ class RelatedItemShortageRepository extends BaseRepository
                 ]);
             }
 
-            DB::commit();
-            $main->refresh();
-
-            return $main;
-        } catch (Exception $exception) {
-            DB::rollBack();
-            return response()->json([
-                'message' => $exception->getMessage()
-            ]);
-        }
-
+            return $main->refresh();
+        });
     }
 
-    private function mainItemShortage($id): Model|Collection|Builder|array|null
+    private function mainItemShortage($id): MainItemShortage
     {
         return MainItemShortage::query()->findOrFail($id);
     }

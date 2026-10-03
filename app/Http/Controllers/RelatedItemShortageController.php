@@ -26,15 +26,15 @@ class RelatedItemShortageController extends CrudController
      */
     public function store(Request $request)
     {
-        $main = MainItemShortage::query()->where('id',$request['main_item_shortage_id'])->first();
-        if ($request['item_no'] == $main->getAttribute('item_no')){
+        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
+        $main = MainItemShortage::query()->findOrFail($validatedData['main_item_shortage_id']);
+        if (($validatedData['item_no'] ?? null) == $main->getAttribute('item_no')){
             return $this->responseError('آیتم وابسته نمیتواند هم نوع آیتم اصلی باشد', 400);
         }
         if (RelatedItemShortage::query()->where('main_item_shortage_id',$main->getAttribute('id'))
-            ->where('item_no',$request['item_no'])->exists()) {
+            ->where('item_no',$validatedData['item_no'] ?? null)->exists()) {
             return $this->responseError('ایتم انتخابی در ایتم های وابسته این مورد موجود است');
         }
-        $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         $validatedData = array_merge($validatedData, $this->appendStoreData);
         if ($this->appendUserId) {
             $validatedData['user_id'] = Auth::id();
@@ -49,7 +49,7 @@ class RelatedItemShortageController extends CrudController
                 ]);
             }
 
-            return new $this->resource($saveItem->relatedItems()->latest()->first());
+            return new $this->resource($saveItem->relatedItems()->latest('id')->first());
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => $exception->getMessage()], 500);
