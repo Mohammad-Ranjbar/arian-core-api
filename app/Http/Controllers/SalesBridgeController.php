@@ -65,6 +65,11 @@ class SalesBridgeController extends Controller
                     $payment['bank_data']['date']['full'] = $date->format('Y-m-d H:i:s');
                     $payment['bank_data']['date']['date'] = $date->format('Y-m-d');
                 }
+            }else{
+                $payment['bank_data']['date'] = [
+                    'full' => $date->format('Y-m-d H:i:s'),
+                    'date' => $date->format('Y-m-d')
+                ];
             }
         }
 
