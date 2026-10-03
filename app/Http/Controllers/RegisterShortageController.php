@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Validation\ValidationException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 
 class RegisterShortageController extends Controller
 {
@@ -44,7 +45,7 @@ class RegisterShortageController extends Controller
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function setShortagesVehicle(VinReferenceRequest $request, string $vin)
     {
@@ -54,11 +55,14 @@ class RegisterShortageController extends Controller
                 ->firstOrFail();
 
             $destinationVin = $request->validated('vin');
+            $destinationVehicle = Vehicle::query()->findOrFail($destinationVin);
+            if ($vehicle->getAttribute('car_model_id') != $destinationVehicle->getAttribute('car_model_id')) {
+                return $this->responseError('دو شاسی از یک نوع نیستند.');
+            }
+
             if ($destinationVin == $vehicle->getAttribute('vin')) {
                 return $this->responseError('Vin is different from source vin');
             }
-
-            $destinationVehicle = Vehicle::query()->findOrFail($destinationVin);
 
             DB::transaction(function () use ($vin, $destinationVehicle) {
                 $sourceShortages = RegisterShortage::query()
@@ -214,8 +218,8 @@ class RegisterShortageController extends Controller
                 return $registerShortage->load('children');
             });
         } catch (UniqueConstraintViolationException $exception) {
-            if (! str_contains($exception->getMessage(), 'register_shortages_vin_item_no_unique')
-                && ! str_contains($exception->getMessage(), 'register_shortages.vin, register_shortages.item_no')) {
+            if (!str_contains($exception->getMessage(), 'register_shortages_vin_item_no_unique')
+                && !str_contains($exception->getMessage(), 'register_shortages.vin, register_shortages.item_no')) {
                 throw $exception;
             }
 
@@ -236,8 +240,9 @@ class RegisterShortageController extends Controller
 
     public function update(
         UpdateRegisterShortageRequest $request,
-        RegisterShortage $registerShortage
-    ): RegisterShortageResource {
+        RegisterShortage              $registerShortage
+    ): RegisterShortageResource
+    {
         $validated = $request->validated();
 
         if (array_key_exists('vin', $validated)) {

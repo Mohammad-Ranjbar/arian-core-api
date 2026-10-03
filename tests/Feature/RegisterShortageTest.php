@@ -319,6 +319,8 @@ class RegisterShortageTest extends TestCase
 
     public function test_copy_filters_main_groups_and_preserves_single_and_child_attributes(): void
     {
+        DB::table('vehicles')->where('vin', 'VIN-2')->update(['car_model_id' => 1]);
+
         $activeId = $this->createMainItemShortage(1, 'MAIN-ACTIVE', 'CATALOG-CHILD');
         $inactiveId = $this->createMainItemShortage(1, 'MAIN-INACTIVE', 'INACTIVE-CHILD');
         DB::table('main_item_shortages')->where('id', $inactiveId)->update(['is_active' => false]);
@@ -379,7 +381,7 @@ class RegisterShortageTest extends TestCase
         $this->assertDatabaseHas('register_shortages', [
             'id' => $copiedParent->id,
             'main_item_shortage_id' => $activeId,
-            'car_model_id' => 2,
+            'car_model_id' => 1,
             'make_code_id' => 2,
             'user_id' => $this->user->id,
             'qty' => 3,
@@ -392,7 +394,7 @@ class RegisterShortageTest extends TestCase
             'item_description' => 'Registered child description',
             'register_shortage_id' => $copiedParent->id,
             'main_item_shortage_id' => $activeId,
-            'car_model_id' => 2,
+            'car_model_id' => 1,
             'make_code_id' => 2,
             'qty' => 4,
             'work_center' => 'WC-CHILD',
@@ -418,6 +420,8 @@ class RegisterShortageTest extends TestCase
 
     public function test_copy_rolls_back_all_inserts_when_a_child_already_exists_in_destination(): void
     {
+        DB::table('vehicles')->where('vin', 'VIN-2')->update(['car_model_id' => 1]);
+
         $this->createRegisterShortage(['item_no' => 'SINGLE-1']);
         $mainId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
         $main = $this->createRegisterShortage([
@@ -441,6 +445,28 @@ class RegisterShortageTest extends TestCase
         $this->assertDatabaseCount('register_shortages', 4);
     }
 
+    public function test_copy_rejects_different_car_models_before_duplicate_item_checks(): void
+    {
+        $this->createRegisterShortage();
+        $this->createRegisterShortage(['vin' => 'VIN-2']);
+        $records = DB::table('register_shortages')->orderBy('id')->get();
+
+        $this->postJson('/api/shortages/VIN-1', ['vin' => 'VIN-2'])
+            ->assertUnprocessable()
+            ->assertExactJson(['message' => 'دو شاسی از یک نوع نیستند.']);
+
+        $this->assertEquals($records, DB::table('register_shortages')->orderBy('id')->get());
+    }
+
+    public function test_copy_rejects_different_car_models_even_without_source_shortages(): void
+    {
+        $this->postJson('/api/shortages/VIN-1', ['vin' => 'VIN-2'])
+            ->assertUnprocessable()
+            ->assertExactJson(['message' => 'دو شاسی از یک نوع نیستند.']);
+
+        $this->assertDatabaseCount('register_shortages', 0);
+    }
+
     public function test_copy_rejects_the_source_vin_as_destination(): void
     {
         $this->createRegisterShortage();
@@ -462,6 +488,8 @@ class RegisterShortageTest extends TestCase
 
     public function test_copy_with_no_source_shortages_returns_existing_destination_records(): void
     {
+        DB::table('vehicles')->where('vin', 'VIN-2')->update(['car_model_id' => 1]);
+
         $existing = $this->createRegisterShortage(['vin' => 'VIN-2']);
 
         $this->postJson('/api/shortages/VIN-1', ['vin' => 'VIN-2'])
