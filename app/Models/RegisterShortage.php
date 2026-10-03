@@ -10,13 +10,13 @@ class RegisterShortage extends Model
 {
     use HasFactory;
 
-    public const TYPE_MAIN = 'main';
+    public const string TYPE_MAIN = 'main';
 
-    public const TYPE_SINGLE = 'single';
+    public const string TYPE_SINGLE = 'single';
 
-    public const STATUS_HAS_SHORTAGE = 'has_shortage';
+    public const string STATUS_HAS_SHORTAGE = 'has_shortage';
 
-    public const STATUS_RESOLVED = 'resolve_shortage';
+    public const string STATUS_RESOLVED = 'resolve_shortage';
 
     protected $with = ['vehicle', 'carModel', 'makeCode', 'user','children'];
 

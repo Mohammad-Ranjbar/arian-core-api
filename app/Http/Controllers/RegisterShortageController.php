@@ -13,10 +13,12 @@ use App\Models\Vehicle;
 use App\Services\Erp\ErpGetShortageBOM;
 use App\Services\Erp\ErpGetWorkCenterFromRoutingLink;
 use Exception;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Validation\ValidationException;
 use Psr\Container\ContainerExceptionInterface;
@@ -115,6 +117,17 @@ class RegisterShortageController extends Controller
                     'main_item_shortage_id' => 'آیتم اصلی انتخاب‌شده باید فعال و متعلق به مدل خودرو باشد و شماره قطعه آن با شماره قطعه ثبت‌شده یکسان باشد.',
                 ]);
             }
+
+            $existingItemNo = RegisterShortage::query()
+                ->where('vin', $validated['vin'])
+                ->whereIn('item_no', $mainItem->relatedItems->pluck('item_no'))
+                ->value('item_no');
+
+            if ($existingItemNo !== null) {
+                throw ValidationException::withMessages([
+                    'item_no' => "قطعه وابسته با شماره {$existingItemNo} قبلاً برای این خودرو ثبت شده است.",
+                ]);
+            }
         }
         $workCenter = null;
         $validated['is_certified'] = false;
@@ -138,27 +151,42 @@ class RegisterShortageController extends Controller
             $workCenter = $item['work_center'] ?? null;
         }
 
-        $registerShortage = RegisterShortage::query()->create([
-            ...$validated,
-            'work_center' => $workCenter,
-            'car_model_id' => $vehicle->getAttribute('car_model_id'),
-            'make_code_id' => $vehicle->getAttribute('make_code_id'),
-            'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
-            'user_id' => Auth::id(),
-        ]);
-        if ($registerShortage->getAttribute('type') === 'main') {
-            foreach ($mainItem->relatedItems as $relatedItem) {
-                $validated['item_no'] = $relatedItem->getAttribute('item_no');
-                $validated['register_shortage_id'] = $registerShortage->getAttribute('id');
-                $validated['item_description'] = $relatedItem->getAttribute('description');
-                $registerShortage = RegisterShortage::query()->create([
+        try {
+            $registerShortage = DB::transaction(function () use ($validated, $vehicle, $mainItem, $workCenter) {
+                $attributes = [
                     ...$validated,
                     'car_model_id' => $vehicle->getAttribute('car_model_id'),
                     'make_code_id' => $vehicle->getAttribute('make_code_id'),
                     'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
                     'user_id' => Auth::id(),
+                ];
+                $registerShortage = RegisterShortage::query()->create([
+                    ...$attributes,
+                    'work_center' => $workCenter,
                 ]);
+
+                if ($mainItem !== null) {
+                    foreach ($mainItem->relatedItems as $relatedItem) {
+                        RegisterShortage::query()->create([
+                            ...$attributes,
+                            'item_no' => $relatedItem->getAttribute('item_no'),
+                            'register_shortage_id' => $registerShortage->getKey(),
+                            'item_description' => $relatedItem->getAttribute('description'),
+                        ]);
+                    }
+                }
+
+                return $registerShortage->load('children');
+            });
+        } catch (UniqueConstraintViolationException $exception) {
+            if (! str_contains($exception->getMessage(), 'register_shortages_vin_item_no_unique')
+                && ! str_contains($exception->getMessage(), 'register_shortages.vin, register_shortages.item_no')) {
+                throw $exception;
             }
+
+            throw ValidationException::withMessages([
+                'item_no' => 'شماره قطعه اصلی یا یکی از قطعات وابسته برای این خودرو تکراری است.',
+            ]);
         }
 
         return RegisterShortageResource::make($registerShortage)->response()->setStatusCode(201);

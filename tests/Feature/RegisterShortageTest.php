@@ -175,6 +175,90 @@ class RegisterShortageTest extends TestCase
             ->assertJsonStructure(['data', 'links', 'meta']);
     }
 
+    public function test_store_rejects_an_existing_related_shortage_without_partial_inserts(): void
+    {
+        $mainItemId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
+        DB::table('related_item_shortages')->insert([
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'CHILD-2',
+            'description' => 'Second child',
+        ]);
+        $this->createRegisterShortage(['item_no' => 'CHILD-2']);
+
+        $this->mock(ErpGetWorkCenterFromRoutingLink::class)
+            ->shouldNotReceive('get');
+
+        $this->postJson('/api/register-shortages', [
+            'vin' => 'VIN-1',
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'MAIN-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 1,
+            'routing_link_code' => 'LINK-1',
+        ])->assertUnprocessable()->assertJsonValidationErrors('item_no');
+
+        $this->assertDatabaseCount('register_shortages', 1);
+        $this->assertDatabaseMissing('register_shortages', ['item_no' => 'MAIN-1']);
+        $this->assertDatabaseMissing('register_shortages', ['item_no' => 'CHILD-1']);
+    }
+
+    public function test_store_rolls_back_when_related_items_repeat_the_same_item_number(): void
+    {
+        $mainItemId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
+        DB::table('related_item_shortages')->insert([
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'CHILD-1',
+            'description' => 'Repeated child',
+        ]);
+
+        $this->mock(ErpGetWorkCenterFromRoutingLink::class)
+            ->shouldReceive('get')->once()->andReturn([]);
+
+        $this->postJson('/api/register-shortages', [
+            'vin' => 'VIN-1',
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'MAIN-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 1,
+            'routing_link_code' => 'LINK-1',
+        ])->assertUnprocessable()->assertJsonValidationErrors('item_no');
+
+        $this->assertDatabaseCount('register_shortages', 0);
+    }
+
+    public function test_store_returns_the_parent_and_attaches_all_related_items_to_it(): void
+    {
+        $mainItemId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
+        DB::table('related_item_shortages')->insert([
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'CHILD-2',
+            'description' => 'Second child',
+        ]);
+
+        $this->mock(ErpGetWorkCenterFromRoutingLink::class)
+            ->shouldReceive('get')->once()->andReturn([]);
+
+        $response = $this->postJson('/api/register-shortages', [
+            'vin' => 'VIN-1',
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'MAIN-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 1,
+            'routing_link_code' => 'LINK-1',
+        ])->assertCreated()
+            ->assertJsonPath('data.item_no', 'MAIN-1')
+            ->assertJsonCount(2, 'data.children');
+
+        $parentId = $response->json('data.id');
+        foreach (['CHILD-1', 'CHILD-2'] as $itemNo) {
+            $this->assertDatabaseHas('register_shortages', [
+                'item_no' => $itemNo,
+                'register_shortage_id' => $parentId,
+            ]);
+        }
+        $this->assertDatabaseCount('register_shortages', 3);
+    }
+
     public function test_vin_and_item_number_must_be_unique_together(): void
     {
         $this->mock(ErpGetShortageBOM::class)
