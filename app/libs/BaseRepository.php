@@ -29,6 +29,7 @@ use App\Filters\ExitTypesFilter;
 use App\Filters\IdFilter;
 use App\Filters\IncidentIdFilter;
 use App\Filters\IntensityFilter;
+use App\Filters\IsActiveFilter;
 use App\Filters\MakeCodeFilter;
 use App\Filters\MakeCodesFilter;
 use App\Filters\MethodFilter;
@@ -117,6 +118,7 @@ abstract class BaseRepository
         CreatedAtFromFilter::class,
         CreatedAtToFilter::class,
         IdFilter::class,
+        IsActiveFilter::class,
         SalonIdFilter::class,
         ProductionLineIdFilter::class,
         WorkGroupCenterIdFilter::class,
