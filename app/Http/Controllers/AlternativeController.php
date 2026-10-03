@@ -10,7 +10,8 @@ use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
 use App\Models\AlternativeCategory;
 use App\Repositories\AlternativeRepository;
-use App\Services\Erp\ErpWsdlClient;
+// use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\CreateTransferZonesService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
@@ -90,6 +91,7 @@ class AlternativeController extends CrudController
                 ->pluck('variant_code')
                 ->countBy();
 
+            $qtyVariants = [];
             foreach ($alternative->variants as $variant) {
                 $qtyVariants[] = $variant->quantity;
             }
@@ -109,9 +111,9 @@ class AlternativeController extends CrudController
 
                 'itemQtyArray' => $sumQty,
 
-                'fromLocationTypeP' => 'CENTRAL',
+                'fromLocationTypeP' => 'Central',
 
-                'toLacationTypeP' => 'PRODUCTION',
+                'toLacationTypeP' => 'Production',
 
                 'variantArray' => $variants->keys()->implode(','),
 
@@ -126,24 +128,36 @@ class AlternativeController extends CrudController
                 'documentNo' => $alternative->getAttribute('document_number'),
             ];
             logger($parameters);
-            $response = ErpWsdlClient::run(
-                config('erp.send_alternative'),
-                'CreateTransfer_Zone',
-                $parameters
+            // $response = ErpWsdlClient::run(
+            //     config('erp.send_alternative'),
+            //     'CreateTransfer_Zone',
+            //     $parameters
+            // );
+
+            $response = resolve(CreateTransferZonesService::class)->send(
+                itemNoArray: $parameters['itemNoArray'],
+                itemQtyArray: $parameters['itemQtyArray'],
+                numberItems: $parameters['numberItemsP'],
+                fromLocationType: $parameters['fromLocationTypeP'],
+                toLacationType: $parameters['toLacationTypeP'],
+                variantArray: $parameters['variantArray'],
+                crossRefArray: $parameters['crossRefArray'],
+                makeCode: $parameters['makeCodeP'],
+                documentNo: $parameters['documentNo'],
             );
-            if ($response['status'] !== 'ok') {
+            if (! $response['success']) {
                 $alternative->update([
                     'failed_at' => now(),
                     'status' => 'failed',
-                    'data' => $response['message'],
+                    'data' => $response['error'],
                 ]);
-                return $this->responseError($response['message'], 400);
+                return $this->responseError($response['error']['message'], $response['http_status']);
             }
 
             $alternative->update([
                 'success_at' => now(),
                 'status' => 'success',
-                'data' => $response['message'],
+                'data' => $response['data'],
             ]);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);

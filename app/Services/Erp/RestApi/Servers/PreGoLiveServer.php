@@ -14,6 +14,7 @@ class PreGoLiveServer
 
     private const array ENDPOINTS = [
         'qcStatuses' => 'qcStatuses',
+        'CreateTransferZones' => 'CreateTransferZones',
     ];
 
     public function post(string $endpoint, array $data): array
@@ -25,8 +26,6 @@ class PreGoLiveServer
         $username = config('erp.auth')[0];
         $password = config('erp.auth')[1];
 
-        logger('username' .$username);
-        logger('password'.$password);
         if (
             ! extension_loaded('curl')
             || ! is_string($username)
@@ -53,7 +52,7 @@ class PreGoLiveServer
                 ->timeout(15)
                 ->withoutRedirecting()
                 ->post(
-                    self::BASE_URL . '/' . self::ENDPOINTS[$endpoint],
+                    self::BASE_URL.'/'.self::ENDPOINTS[$endpoint],
                     $data
                 );
         } catch (ConnectionException $exception) {
