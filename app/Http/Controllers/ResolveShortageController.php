@@ -23,7 +23,7 @@ class ResolveShortageController extends Controller
 
             $carModel = $vehicle->getRelation('carModel');
             $response = resolve(ErpGetVehicleLastLocation::class)->get(
-                vin: $parameters['itemNoArray'],
+                vin: $vehicle->getAttribute('vin'),
                 carModelReference: $carModel->getAttribute('reference'),
             );
             dd($response);
