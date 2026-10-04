@@ -52,6 +52,7 @@ use App\Http\Controllers\ItemInputChecklistController;
 use App\Http\Controllers\ItemTechnicalChecklistController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JoinChannelController;
+use App\Http\Controllers\LastLocationVehicleController;
 use App\Http\Controllers\LineActivityStartStopController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationVehicleController;
@@ -119,7 +120,8 @@ use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
+
+
 
 Route::get('compliance/{vin}', [ComplianceController::class, 'generate'])->name('compliance.generate');
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
@@ -150,6 +152,7 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 Route::get('/get-bom-certified-items/{carModel}', [ItemsController::class, 'certifiedItems'])->name('bom-certified-items');
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
+    Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
     Route::post('/send-alternatives/{alternative}', [AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
     Route::get('/alternatives-list', [AlternativeController::class, 'listAlternatives'])->name('alternatives-list');
     Route::post('/alternative-category/{alternativeCategory}/assign-item', [AlternativeCategoryController::class, 'assignItem'])->name('alternative-category.assign-item');
@@ -324,6 +327,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('options/{resource}', OptionController::class)->middleware(['CheckAccessUser']);
     Route::middleware('access.vehicle')->group(function () {
         Route::prefix('vehicles/{vehicle}')->group(function () {
+            Route::get('/last-location', LastLocationVehicleController::class);
             Route::apiResource('pdis', PDIController::class)->only(['index', 'store']);
             Route::get('action-logs', [ActionLogController::class, 'getList'])->name('vehicle.action.logs');
             Route::get('/screws', [ScrewController::class, 'listScrewsForVin'])->name('vehicles.screws');

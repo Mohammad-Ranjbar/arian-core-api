@@ -8,14 +8,14 @@ class ResolveShortageRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('resolve-shortage');
     }
 
     public function rules(): array
     {
         return [
             'vin' => ['required', 'string', 'exists:vehicles,vin'],
-            'register_shortage_id' => ['nullable', 'exists:register_shortages,id'],
+            'register_shortage_id' => ['required', 'exists:register_shortages,id'],
         ];
     }
 
