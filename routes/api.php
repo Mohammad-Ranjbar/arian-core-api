@@ -77,6 +77,7 @@ use App\Http\Controllers\QcCodeController;
 use App\Http\Controllers\ReceiptVehicleController;
 use App\Http\Controllers\RegisterShortageController;
 use App\Http\Controllers\RelatedItemShortageController;
+use App\Http\Controllers\ResolveShortageController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleCompanyController;
 use App\Http\Controllers\SaleInvoicesController;
@@ -117,6 +118,9 @@ use App\Http\Controllers\WorkGroupCenterController;
 use App\Http\Controllers\YearMapController;
 use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
+
 Route::get('compliance/{vin}', [ComplianceController::class, 'generate'])->name('compliance.generate');
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
@@ -538,8 +542,9 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         ->name('main-item-shortages.activate');
     Route::apiResource('related-item-shortages', RelatedItemShortageController::class)->except('update');
     Route::apiResource('register-shortages', RegisterShortageController::class);
-    Route::get('/shortages/{vin}',[RegisterShortageController::class, 'shortagesVehicle'])->name('get-shortages-vehicle');
-    Route::post('/shortages/{vin}',[RegisterShortageController::class, 'setShortagesVehicle'])->name('set-shortages-vehicle');
+    Route::get('/shortages/{vin}', [RegisterShortageController::class, 'shortagesVehicle'])->name('get-shortages-vehicle');
+    Route::post('/shortages/{vin}', [RegisterShortageController::class, 'setShortagesVehicle'])->name('set-shortages-vehicle');
+
 
     /*
      * Agency panel
