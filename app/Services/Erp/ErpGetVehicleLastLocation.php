@@ -17,7 +17,7 @@ readonly class ErpGetVehicleLastLocation
         $url = config('erp.last_location') . '?$filter=' . rawurlencode(
                 "Serial_No eq '$vin' and Item_No eq '$carModelReference'"
             );
-        dd($url);
+
         $result = $this->client->getOne($url);
 
         if (!$result) {
