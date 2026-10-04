@@ -7,11 +7,13 @@ use App\Listeners\SendErpJobListener;
 use App\Models\BlockItem;
 use App\Models\EnterEngine;
 use App\Models\ErpJob;
+use App\Models\SpecificShortageItem;
 use App\Models\Tracking;
 use App\Models\User;
 use App\Observers\BlockItemObserver;
 use App\Observers\EnterEngineObserver;
 use App\Observers\ErpJobObserver;
+use App\Observers\SpecificShortageItemObserver;
 use App\Observers\TrackingObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
@@ -43,6 +45,7 @@ class EventServiceProvider extends ServiceProvider
         EnterEngine::observe(EnterEngineObserver::class);
         ErpJob::observe(ErpJobObserver::class);
         Tracking::observe(TrackingObserver::class);
+        SpecificShortageItem::observe(SpecificShortageItemObserver::class);
     }
 
     /**

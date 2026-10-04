@@ -15,6 +15,10 @@ class ActionLog extends Model
     const string RETURN_CONTAINER_AT = 'return_container';
     const string REPORT_SHORTAGE = 'report_shortage';
     const string MAIN_SHORTAGE_ITEM = 'main_shortage_item';
+    const string SPECIFIC_SHORTAGE_ITEM_CREATED = 'specific_shortage_item_created';
+    const string SPECIFIC_SHORTAGE_ITEM_ACTIVATED = 'specific_shortage_item_activated';
+    const string SPECIFIC_SHORTAGE_ITEM_DEACTIVATED = 'specific_shortage_item_deactivated';
+    const string SPECIFIC_SHORTAGE_ITEM_DELETED = 'specific_shortage_item_deleted';
 
     /**
      * @var string[]

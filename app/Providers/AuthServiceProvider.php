@@ -57,6 +57,7 @@ use App\Models\Screw;
 use App\Models\Setting;
 use App\Models\ShortageItem;
 use App\Models\SmsService;
+use App\Models\SpecificShortageItem;
 use App\Models\Station;
 use App\Models\StopFact;
 use App\Models\StopReason;
@@ -154,6 +155,7 @@ class AuthServiceProvider extends ServiceProvider
         CarModelLocation::class => CrudPolicy::class,
         MainItemShortage::class => CrudPolicy::class,
         RelatedItemShortage::class => CrudPolicy::class,
+        SpecificShortageItem::class => CrudPolicy::class,
         Vehicle::class => VehiclePolicy::class,
     ];
 

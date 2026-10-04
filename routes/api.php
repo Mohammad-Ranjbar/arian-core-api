@@ -93,6 +93,7 @@ use App\Http\Controllers\ShiftErpController;
 use App\Http\Controllers\Shortage\V2\ItemsController;
 use App\Http\Controllers\ShortageController;
 use App\Http\Controllers\SmsServiceController;
+use App\Http\Controllers\SpecificShortageItemController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\StopFactController;
 use App\Http\Controllers\StopReasonController;
@@ -536,6 +537,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         'nav-colors' => NavColorController::class,
         'car-model-files' => CarModelFileController::class,
         'alternative-categories' => AlternativeCategoryController::class,
+        'specific-shortage-items' => SpecificShortageItemController::class,
     ]);
 
     Route::apiResource('main-item-shortages', MainItemShortageController::class)->except('update');
