@@ -45,6 +45,11 @@ class RegisterShortage extends Model
         'status' => self::STATUS_HAS_SHORTAGE,
     ];
 
+    public function resolvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by', 'id');
+    }
+
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class, 'vin', 'vin');

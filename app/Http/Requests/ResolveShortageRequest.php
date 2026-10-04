@@ -14,7 +14,6 @@ class ResolveShortageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vin' => ['required', 'string', 'exists:vehicles,vin'],
             'register_shortage_id' => ['required', 'exists:register_shortages,id'],
         ];
     }
