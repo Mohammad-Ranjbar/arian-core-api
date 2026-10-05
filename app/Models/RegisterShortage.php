@@ -18,7 +18,7 @@ class RegisterShortage extends Model
 
     public const string STATUS_RESOLVED = 'resolve_shortage';
 
-    protected $with = ['vehicle', 'carModel', 'makeCode', 'user','children'];
+    protected $with = ['vehicle', 'carModel', 'makeCode', 'user', 'children'];
 
     protected $fillable = [
         'main_item_shortage_id',
@@ -78,5 +78,10 @@ class RegisterShortage extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'register_shortage_id', 'id');
+    }
+
+    public function mainItemShortage(): BelongsTo
+    {
+        return $this->belongsTo(MainItemShortage::class);
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MainItemShortage extends Model
 {
-    //#TODO audit by action log that created user in observer
+    // #TODO audit by action log that created user in observer
 
     protected $fillable = [
         'location_code',
@@ -19,13 +19,13 @@ class MainItemShortage extends Model
         'version',
         'is_active',
         'main_item_shortage_id',
-        'data'
+        'data',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'version' => 'integer',
-        'data' => 'array'
+        'data' => 'array',
     ];
 
     // records start as drafts; mirrors the column default for version so a
@@ -50,6 +50,11 @@ class MainItemShortage extends Model
         return $this->hasMany(RelatedItemShortage::class);
     }
 
+    public function registerShortages(): HasMany
+    {
+        return $this->hasMany(RegisterShortage::class);
+    }
+
     public function actionLog(): BelongsTo
     {
         return $this->morphTo(ActionLog::class);
@@ -57,7 +62,7 @@ class MainItemShortage extends Model
 
     public function isDraft(): bool
     {
-        return !$this->is_active;
+        return ! $this->is_active;
     }
 
     public function forkVersion(string $locationCode, array $excludedRelatedItemIds = []): self
@@ -87,7 +92,6 @@ class MainItemShortage extends Model
             ]);
         }
 
-
         return $newMain;
     }
 
@@ -95,5 +99,4 @@ class MainItemShortage extends Model
     {
         return $this->hasMany(self::class, 'main_item_shortage_id');
     }
-
 }
