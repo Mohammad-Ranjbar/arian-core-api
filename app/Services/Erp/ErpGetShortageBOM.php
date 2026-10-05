@@ -25,7 +25,7 @@ readonly class ErpGetShortageBOM
         $url = config('erp.shortage_bom') . '?$filter=' . rawurlencode($filter);
 
         $result = $this->client->get($url);
-        dd($result);
+
         if (!$result) {
             throw ValidationException::withMessages(['message' => 'Bom Shortage Item from' . $CarModel . 'not found']);
         }
