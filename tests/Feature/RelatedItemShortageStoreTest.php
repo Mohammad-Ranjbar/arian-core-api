@@ -48,7 +48,8 @@ class RelatedItemShortageStoreTest extends TestCase
             ->assertOk()
             ->assertJsonPath('main_item_shortage_id', $main->id)
             ->assertJsonPath('item_no', 'NEW-CHILD')
-            ->assertJsonPath('data', ['qty' => 2]);
+            ->assertJsonPath('data', ['qty' => 2])
+            ->assertJsonMissingPath('message');
 
         $this->assertDatabaseCount('main_item_shortages', 1);
         $this->assertDatabaseCount('related_item_shortages', 1);
@@ -109,7 +110,9 @@ class RelatedItemShortageStoreTest extends TestCase
             'main_item_shortage_id' => $main->id,
             'location_code' => 'LOCATION-2',
             'data' => ['qty' => 2],
-        ])->assertOk()->assertExactJson(['message' => 'تغییرات با موفقیت انجام شد']);
+        ])->assertOk()->assertExactJson([
+            'message' => 'نسخه جدید قطعه اصلی «Main item» با شماره نسخه 2 ساخته شد.',
+        ]);
 
         $this->assertDatabaseCount('main_item_shortages', 2);
         $this->assertDatabaseCount('related_item_shortages', 0);
@@ -147,7 +150,8 @@ class RelatedItemShortageStoreTest extends TestCase
         $this->postJson('/api/related-item-shortages', $this->payload($main, $location))
             ->assertOk()
             ->assertJsonPath('item_no', 'NEW-CHILD')
-            ->assertJsonPath('data', ['qty' => 2]);
+            ->assertJsonPath('data', ['qty' => 2])
+            ->assertJsonPath('message', 'نسخه جدید قطعه اصلی «Main item» با شماره نسخه 2 ساخته شد.');
 
         $fork = MainItemShortage::query()->where('main_item_shortage_id', $main->id)->sole();
         $this->assertSame($location, $fork->location_code);

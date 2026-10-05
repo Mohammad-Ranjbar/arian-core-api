@@ -34,6 +34,8 @@ class RegisterShortage extends Model
         'user_id',
         'register_shortage_id',
         'is_certified',
+        'resolved_at',
+        'resolved_by',
     ];
 
     protected $casts = [
