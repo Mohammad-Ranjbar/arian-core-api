@@ -183,7 +183,7 @@ class RegisterShortageController extends Controller
             $validated['is_certified'] = true;
             $items = resolve(ErpGetShortageBOM::class)
                 ->get($vehicle->carModel->reference,$validated['item_no']);
-            dd($items);
+            dd(collect($items)->first);
             $workCenter = collect($items)
                 ->first()?->work_center ?? null;
         }
