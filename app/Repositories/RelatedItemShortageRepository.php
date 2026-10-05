@@ -5,6 +5,9 @@ namespace App\Repositories;
 use App\libs\BaseRepository;
 use App\Models\MainItemShortage;
 use App\Models\RelatedItemShortage;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -68,14 +71,13 @@ class RelatedItemShortageRepository extends BaseRepository
         });
     }
 
-    private function mainItemShortage($id): MainItemShortage
+    private function mainItemShortage($id): Model|Collection|Builder|array|null
     {
         return MainItemShortage::query()->findOrFail($id);
     }
 
     /**
-     * Same rule on removal: delete from a draft, fork without the item from an
-     * active record. CrudController wraps store in a transaction but not destroy.
+     * @throws Throwable
      */
     public function destroy($id): bool
     {
