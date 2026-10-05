@@ -2,9 +2,8 @@
 return [
 
     'last_location' =>env('LAST_LOCATION_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/LastLocationByVIN"),
-    'work_center' =>env('WORK_CENTER_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/ShortageRouting"),
     'production_line_location' =>env('PRODUCTION_LINE_LOCATION_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/Location"),
-    'shortage_bom' =>env('SHORTAGE_BOM_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/ShortageBOM"),
+    'shortage_bom' =>env('SHORTAGE_BOM_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/ShortageArianCore"),
     'bom_line' =>env('BOM_LIST_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/BOMVersionLines"),
     'alternative_list' => env('ALTERNATIVE_LIST_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/AlternativeBOMAPI"),
     'pdi_block_reason_id' =>env('PDI_BLOCK_REASON_ID'),

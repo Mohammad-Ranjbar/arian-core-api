@@ -174,20 +174,17 @@ class RegisterShortageController extends Controller
         if ($validated['type'] == 'single') {
             $items = resolve(ErpGetShortageBOM::class)
                 ->get($vehicle->carModel->reference);
-            if (collect($items)->where('line_itm_no', $validated['item_no'])->count() > 0) {
+            if (collect($items)->where('item_no', $validated['item_no'])->count() > 0) {
                 $validated['is_certified'] = true;
             }
         }
 
         if ($validated['type'] == 'main') {
             $validated['is_certified'] = true;
-            $carModel = $vehicle->carModel;
-            $workCenters = resolve(ErpGetWorkCenterFromRoutingLink::class)
-                ->get($carModel->reference);
-            $item = collect($workCenters)
-                ->firstWhere('routing_link_code', $validated['routing_link_code']);
-
-            $workCenter = $item['work_center'] ?? null;
+            $items = resolve(ErpGetShortageBOM::class)
+                ->get($vehicle->carModel->reference);
+            $workCenter = collect($items)
+                ->first()?->work_center ?? null;
         }
 
         try {

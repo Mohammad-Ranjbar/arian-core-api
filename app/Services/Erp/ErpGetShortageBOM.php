@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-class ErpGetShortageBOM
+readonly class ErpGetShortageBOM
 {
-    public function __construct(private readonly ErpOdataClient $client)
+    public function __construct(private ErpOdataClient $client)
     {
     }
 
@@ -16,15 +16,13 @@ class ErpGetShortageBOM
     {
         $CarModel = trim($CarModel);
 
-        $filter = "ItemNo eq '{$CarModel}' and VersionStatus eq 'Certified'";
+        $filter = "ItemNo eq '{$CarModel}'";
 
         $url = config('erp.shortage_bom') . '?$filter=' . rawurlencode($filter);
 
         $result = $this->client->get($url);
 
         if (!$result) {
-//            Log::info('get BOM From PO: ' . $CarModel . 'by User:' . Auth::id() . ' not found');
-
             throw ValidationException::withMessages(['message' => 'Bom Shortage Item from' . $CarModel . 'not found']);
         }
         return $this->getResult($result);
@@ -37,12 +35,15 @@ class ErpGetShortageBOM
             'item_no' => $data->ItemNo,
             'production_bom_no'      => $data->ProductionBOMNo,
             'routing_link_code'      => $data->RoutingLinkCode,
+            'work_center'      => $data->RoutingLineNo,
             'line_itm_no'      => $data->LineItemNo,
-            'line_itm_description'      => $data->LineDescription,
-            'quantity'      => $data->Quantityper,
+            'line_itm_description'      => $data->BOMLineDescription,
+            'quantity'      => $data->QuantityPer,
             'unit'      => $data->UnitMeasureCode,
-            'version_code'      => $data->VersionCode,
-            'bom_version_status'      => $data->VersionStatus,
+            'version_code'      => $data->BOMVersionCode,
+            'bom_version_status'      => $data->BOMVersionStatus,
+
+
 //            'data'              => $data,
         ])->values()->all();
     }
