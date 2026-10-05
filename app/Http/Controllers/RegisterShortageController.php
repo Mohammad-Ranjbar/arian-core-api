@@ -173,8 +173,8 @@ class RegisterShortageController extends Controller
         $validated['is_certified'] = false;
         if ($validated['type'] == 'single') {
             $items = resolve(ErpGetShortageBOM::class)
-                ->get($vehicle->carModel->reference);
-            if (collect($items)->where('item_no', $validated['item_no'])->count() > 0) {
+                ->get($vehicle->carModel->reference,$validated['item_no']);
+            if (collect($items)->count() > 0) {
                 $validated['is_certified'] = true;
             }
         }
@@ -182,7 +182,7 @@ class RegisterShortageController extends Controller
         if ($validated['type'] == 'main') {
             $validated['is_certified'] = true;
             $items = resolve(ErpGetShortageBOM::class)
-                ->get($vehicle->carModel->reference);
+                ->get($vehicle->carModel->reference,$validated['item_no']);
             $workCenter = collect($items)
                 ->first()?->work_center ?? null;
         }

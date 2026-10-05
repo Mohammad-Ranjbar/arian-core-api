@@ -12,16 +12,20 @@ readonly class ErpGetShortageBOM
     {
     }
 
-    public function get(string $CarModel): array
+    public function get(string $CarModel,string $itemNo = null): array
     {
         $CarModel = trim($CarModel);
+        $filter = "ItemNo eq '{$CarModel}'"; ;
+        if (!empty($itemNo)) {
+            $itemNo = trim($itemNo);
+            $filter = "ItemNo eq '{$CarModel}' and LineItemNo eq '{$itemNo}'"; ;
+        }
 
-        $filter = "ItemNo eq '{$CarModel}'";
 
         $url = config('erp.shortage_bom') . '?$filter=' . rawurlencode($filter);
 
         $result = $this->client->get($url);
-        dd($result);
+
         if (!$result) {
             throw ValidationException::withMessages(['message' => 'Bom Shortage Item from' . $CarModel . 'not found']);
         }
