@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class RelatedItemShortageController extends CrudController
 {
@@ -20,7 +21,7 @@ class RelatedItemShortageController extends CrudController
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function store(Request $request)
     {

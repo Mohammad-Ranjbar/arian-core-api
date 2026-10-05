@@ -26,7 +26,7 @@ class RelatedItemShortageRepository extends BaseRepository
             'item_no' => 'nullable|string|max:200',
             'description' => 'nullable|string',
             'location_code' => 'required|string|max:200',
-            'data' => 'required|array'
+            'data' => 'nullable|array'
         ]
     ];
 
