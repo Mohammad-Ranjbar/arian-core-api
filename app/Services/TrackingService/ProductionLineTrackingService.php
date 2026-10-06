@@ -9,6 +9,7 @@ use App\Models\AlternativeItem;
 use App\Models\ErpJob;
 use App\Models\NavColor;
 use App\Models\ProductionLine;
+use App\Models\RegisterShortage;
 use App\Models\ShortageItem;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
@@ -18,9 +19,6 @@ use App\Models\Vehicle;
 use App\Services\Erp\ErpGetBOMFromProductionOrderNumber;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Octane\Exceptions\DdException;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class ProductionLineTrackingService extends BaseTrackingService
 {
@@ -65,15 +63,15 @@ class ProductionLineTrackingService extends BaseTrackingService
 
                 $synchronous = Synchronous::query()->create([
                     'synchronous_type_id' => $synchronousType->id, 'counter' => $counter,
-                    'capacity'            => $synchronousType->qty,
+                    'capacity' => $synchronousType->qty,
                 ]);
 
             }
 
             SynchronousItem::query()->create([
-                'synchronous_id'      => $synchronous->getAttribute('id'), 'vin' => $vin,
+                'synchronous_id' => $synchronous->getAttribute('id'), 'vin' => $vin,
                 'erp_product_item_id' => $item->getAttribute('erp_product_item_id'),
-                'cross_reference'     => $item->getAttribute('cross_reference'),
+                'cross_reference' => $item->getAttribute('cross_reference'),
             ]);
             $synchronous->decrement('capacity');
 
@@ -84,7 +82,7 @@ class ProductionLineTrackingService extends BaseTrackingService
 
     }
 
-    public function submitAlternative(string $vin)
+    public function submitAlternative(string $vin): void
     {
         $vehicle = Vehicle::query()
             ->where('vin', $vin)
@@ -109,10 +107,10 @@ class ProductionLineTrackingService extends BaseTrackingService
                 : null;
 
             // packing_qty is now decimal
-            $packingQty = (float) $alternativeItem->getAttribute('packing_qty');
+            $packingQty = (float)$alternativeItem->getAttribute('packing_qty');
 
             // Quantity may also contain decimal values
-            $remaining = (float) $item['quantity'];
+            $remaining = (float)$item['quantity'];
 
             while ($remaining > 0) {
                 $alternative = $this->makeAlternative(
@@ -122,7 +120,7 @@ class ProductionLineTrackingService extends BaseTrackingService
                 );
 
                 // Calculate the actual used capacity from variants
-                $used = (float) $alternative
+                $used = (float)$alternative
                     ->variants()
                     ->sum('quantity');
 
@@ -176,11 +174,18 @@ class ProductionLineTrackingService extends BaseTrackingService
         }
     }
 
+    public function colorMap(string $variantCode, $vehicle)
+    {
+        return NavColor::query()->where('color', $variantCode)->where('car_model_id',
+            $vehicle->getAttribute('car_model_id'))->first()?->getAttribute('code') ?? '';
+    }
+
     private function makeAlternative(
         $item,
         $alternativeItem,
         $productionOrderNumber
-    ) {
+    )
+    {
         $alternative = Alternative::query()
             ->where('item_no', $item['item_no'])
             ->where('status', 'create')
@@ -191,21 +196,13 @@ class ProductionLineTrackingService extends BaseTrackingService
         }
 
         return Alternative::query()->create([
-            'alternative_item_id'     => $alternativeItem->getAttribute('id'),
+            'alternative_item_id' => $alternativeItem->getAttribute('id'),
             'production_order_number' => $productionOrderNumber,
-            'item_no'                 => $item['item_no'],
-            'counter'                 => 0,
-            'status'                  => 'create',
+            'item_no' => $item['item_no'],
+            'counter' => 0,
+            'status' => 'create',
         ]);
     }
-
-    public function colorMap(string $variantCode, $vehicle)
-    {
-        return NavColor::query()->where('color', $variantCode)->where('car_model_id',
-            $vehicle->getAttribute('car_model_id'))->first()?->getAttribute('code') ?? '';
-    }
-
-
 
     public function prepareData($data): array
     {
@@ -221,7 +218,28 @@ class ProductionLineTrackingService extends BaseTrackingService
         if ($tracking and $tracking->getAttribute('type') === 'exit') {
             return false;
         }
+        $this->checkShortages($data['vin']);
         return $this->prepareData($data);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function checkShortages(string $vin): void
+    {
+        $shortages = RegisterShortage::query()->where('vin', $vin)->get();
+        $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
+        foreach ($shortages as $shortage) {
+            $checkSpecificShortageItem = ShortageItem::query()
+                ->where('car_model_id', $carModelId)
+                ->where('item_no', $shortage->item_no)->exists();
+            if ($checkSpecificShortageItem) {
+                continue;
+            }
+            if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
+                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان خروج ندارد.');
+            }
+        }
     }
 
     public function sendToErp($record): void
@@ -229,7 +247,7 @@ class ProductionLineTrackingService extends BaseTrackingService
         $type = $record->getAttribute('model')->item_type;
 
         $params = [
-            'vINL'      => $record->vin, 'wCGroup' => '', 'withTracking' => 'false', 'withOutput' => 'true',
+            'vINL' => $record->vin, 'wCGroup' => '', 'withTracking' => 'false', 'withOutput' => 'true',
             'itemTypeP' => $type
         ];
 
@@ -250,9 +268,9 @@ class ProductionLineTrackingService extends BaseTrackingService
         }
 
         $data = [
-            'user_id'    => Auth::id(), 'section' => 'production-line-tracking-'.$record->type,
-            'model_id'   => $record->id, 'model_type' => Tracking::class, 'method' => $method,
-            'url'        => config('erp.post_production'), 'parameters' => $params, 'queue' => ErpJob::QUEUE_UNIQUE
+            'user_id' => Auth::id(), 'section' => 'production-line-tracking-' . $record->type,
+            'model_id' => $record->id, 'model_type' => Tracking::class, 'method' => $method,
+            'url' => config('erp.post_production'), 'parameters' => $params, 'queue' => ErpJob::QUEUE_UNIQUE
         ];
 
         $erpJob = ErpJob::query()->where(['model_id' => $record->id, 'model_type' => Tracking::class,])->first();
