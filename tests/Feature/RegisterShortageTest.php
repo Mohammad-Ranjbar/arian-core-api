@@ -11,6 +11,7 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -70,6 +71,59 @@ class RegisterShortageTest extends TestCase
             'make_code_id' => 1,
             'user_id' => $this->user->id,
         ]);
+    }
+
+    public function test_resolving_a_parent_also_resolves_its_unresolved_children(): void
+    {
+        Schema::create('permissions', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+            $table->string('guard_name');
+        });
+        Schema::create('stations', function (Blueprint $table): void {
+            $table->id();
+            $table->softDeletes();
+        });
+        Schema::create('station_user', function (Blueprint $table): void {
+            $table->foreignId('station_id');
+            $table->foreignId('user_id');
+            $table->json('data')->nullable();
+        });
+        Gate::define('resolve-shortage', fn () => true);
+
+        $parent = $this->createRegisterShortage([
+            'item_no' => 'MAIN-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $child = $this->createRegisterShortage([
+            'item_no' => 'CHILD-1',
+            'register_shortage_id' => $parent->id,
+        ]);
+        $previouslyResolvedAt = now()->subDay();
+        $resolvedChild = $this->createRegisterShortage([
+            'item_no' => 'CHILD-2',
+            'register_shortage_id' => $parent->id,
+            'status' => RegisterShortage::STATUS_RESOLVED,
+            'resolved_by' => $this->user->id,
+            'resolved_at' => $previouslyResolvedAt,
+        ]);
+
+        $this->postJson('/api/resolved-shortage', ['register_shortage_id' => $parent->id])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'رفع شده')
+            ->assertJsonPath('data.children.0.status', 'رفع شده')
+            ->assertJsonPath('data.children.1.status', 'رفع شده');
+
+        $parent->refresh();
+        $child->refresh();
+        $resolvedChild->refresh();
+
+        $this->assertSame(RegisterShortage::STATUS_RESOLVED, $parent->status);
+        $this->assertSame(RegisterShortage::STATUS_RESOLVED, $child->status);
+        $this->assertSame($this->user->id, $parent->resolved_by);
+        $this->assertSame($parent->resolved_by, $child->resolved_by);
+        $this->assertSame($parent->resolved_at, $child->resolved_at);
+        $this->assertSame($previouslyResolvedAt->toDateTimeString(), $resolvedChild->resolved_at);
     }
 
     public function test_main_type_requires_routing_link_and_main_item(): void
@@ -629,6 +683,8 @@ class RegisterShortageTest extends TestCase
             $table->unsignedInteger('qty');
             $table->string('work_center')->nullable();
             $table->string('status')->default(RegisterShortage::STATUS_HAS_SHORTAGE);
+            $table->foreignId('resolved_by')->nullable();
+            $table->timestamp('resolved_at')->nullable();
             $table->foreignId('user_id');
             $table->boolean('is_certified')->default(false);
             $table->unique(['vin', 'item_no']);

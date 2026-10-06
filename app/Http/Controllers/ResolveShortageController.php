@@ -29,24 +29,29 @@ class ResolveShortageController extends Controller
                     ->lockForUpdate()
                     ->find($validated['register_shortage_id']);
 
-                if (!$shortage) {
+                if (! $shortage) {
                     return $this->responseError('رکورد کسری پیدا نشد.');
                 }
 
                 if (
-                    $shortage->resolved_by !== null ||
-                    $shortage->resolved_at !== null
+                    $shortage->getAttribute('resolved_by') !== null ||
+                    $shortage->getAttribute('resolved_at') !== null
                 ) {
                     return $this->responseError(
                         'این کسری قبلاً رفع شده است و امکان ثبت مجدد وجود ندارد.'
                     );
                 }
 
-                $shortage->update([
+                $resolution = [
                     'status' => RegisterShortage::STATUS_RESOLVED,
                     'resolved_by' => Auth::id(),
                     'resolved_at' => now(),
-                ]);
+                ];
+
+                $shortage->update($resolution);
+                $shortage->children()
+                    ->where('status', RegisterShortage::STATUS_HAS_SHORTAGE)
+                    ->update($resolution);
 
                 $shortage->refresh();
 
