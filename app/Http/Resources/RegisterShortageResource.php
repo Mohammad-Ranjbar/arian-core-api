@@ -46,7 +46,9 @@ class RegisterShortageResource extends JsonResource
                 'id' => $this->resource->user->id,
                 'name' => $this->resource->user->name,
             ]),
-            'children' => $this->resource->children,
+            'children' => $this->resource->register_shortage_id === null
+                ? $this->whenLoaded('children', fn () => self::collection($this->resource->children))
+                : [],
             'is_certified' => $this->resource->is_certified,
             'resolved_at' => $this->resource->resolved_at,
             'resolvedBy' => UserShortResource::make($this->resource->resolvedBy),
