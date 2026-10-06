@@ -11,7 +11,6 @@ use App\Models\MainItemShortage;
 use App\Models\RegisterShortage;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpGetShortageBOM;
-use App\Services\Erp\ErpGetWorkCenterFromRoutingLink;
 use Exception;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
@@ -115,7 +114,7 @@ class RegisterShortageController extends Controller
 
             return RegisterShortageResource::collection($shortages);
         } catch (UniqueConstraintViolationException $exception) {
-            return $this->responseError('شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.');
+            return $this->responseError('شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.'.' '.$exception->getMessage());
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
@@ -138,9 +137,11 @@ class RegisterShortageController extends Controller
         return RegisterShortageResource::collection($data);
     }
 
+
     /**
-     * @throws ContainerExceptionInterface
+     * @throws Throwable
      * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public function store(StoreRegisterShortageRequest $request): JsonResponse
     {
@@ -169,7 +170,7 @@ class RegisterShortageController extends Controller
 
             if ($existingItemNo !== null) {
                 throw ValidationException::withMessages([
-                    'item_no' => "قطعه وابسته با شماره {$existingItemNo} قبلاً برای این خودرو ثبت شده است.",
+                    'item_no' => "قطعه وابسته با شماره $existingItemNo قبلاً برای این خودرو ثبت شده است.",
                 ]);
             }
         }
@@ -177,7 +178,7 @@ class RegisterShortageController extends Controller
         $validated['is_certified'] = false;
         if ($validated['type'] == 'single') {
             $items = resolve(ErpGetShortageBOM::class)
-                ->get($vehicle->carModel->reference,$validated['item_no']);
+                ->get($vehicle->getRelation('carModel')->reference, $validated['item_no']);
             if (collect($items)->count() > 0) {
                 $validated['is_certified'] = true;
             }
@@ -187,7 +188,7 @@ class RegisterShortageController extends Controller
             $validated['is_certified'] = true;
             $items = collect(
                 resolve(ErpGetShortageBOM::class)->get(
-                    $vehicle->carModel->reference,
+                    $vehicle->getRelation('carModel')->reference,
                     $validated['item_no']
                 )
             );
@@ -216,6 +217,7 @@ class RegisterShortageController extends Controller
                             'item_no' => $relatedItem->getAttribute('item_no'),
                             'register_shortage_id' => $registerShortage->getKey(),
                             'item_description' => $relatedItem->getAttribute('description'),
+                            'qty' => $relatedItem->getAttribute('data')['quantity'],
                         ]);
                     }
                 }
