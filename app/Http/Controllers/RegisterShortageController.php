@@ -51,7 +51,10 @@ class RegisterShortageController extends Controller
         try {
             $vehicle = Vehicle::query()
                 ->where('vin', $vin)
-                ->firstOrFail();
+                ->first();
+            if (empty($vehicle)) {
+                return $this->responseError('خودرو مورد نظر در سیستم ارین کور یافت نشد');
+            }
 
             $destinationVin = $request->validated('vin');
             $destinationVehicle = Vehicle::query()->findOrFail($destinationVin);
