@@ -91,6 +91,7 @@ class RegisterShortageController extends Controller
                         ...$shortage->only($shortage->getFillable()),
                         ...$destinationAttributes,
                         'register_shortage_id' => null,
+                        'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
                         'resolved_by' => null,
                         'resolved_at' => null,
                     ]);
@@ -100,6 +101,7 @@ class RegisterShortageController extends Controller
                             ...$child->only($child->getFillable()),
                             ...$destinationAttributes,
                             'register_shortage_id' => $copiedShortage->getKey(),
+                            'status' => RegisterShortage::STATUS_HAS_SHORTAGE,
                             'resolved_by' => null,
                             'resolved_at' => null,
                         ]);
@@ -114,7 +116,7 @@ class RegisterShortageController extends Controller
 
             return RegisterShortageResource::collection($shortages);
         } catch (UniqueConstraintViolationException $exception) {
-            return $this->responseError('شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.'.' '.$exception->getMessage());
+            return $this->responseError('شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.' . ' ' . $exception->getMessage());
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
