@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\RegisterShortage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,11 @@ class RegisterShortageResource extends JsonResource
             'type' => $this->resource->type,
             'qty' => $this->resource->qty,
             'work_center' => $this->resource->work_center,
-            'status' => $this->resource->status,
+            'status' => match ($this->resource->status) {
+                RegisterShortage::STATUS_RESOLVED => 'رفع شده',
+                RegisterShortage::STATUS_HAS_SHORTAGE => 'دارای کسری',
+                default => $this->resource->status,
+            },
             'user_id' => $this->resource->user_id,
             'vehicle' => $this->whenLoaded('vehicle', fn () => [
                 'vin' => $this->resource->vehicle->vin,

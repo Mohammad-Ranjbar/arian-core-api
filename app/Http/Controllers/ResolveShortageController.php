@@ -43,6 +43,7 @@ class ResolveShortageController extends Controller
                 }
 
                 $shortage->update([
+                    'status' => RegisterShortage::STATUS_RESOLVED,
                     'resolved_by' => Auth::id(),
                     'resolved_at' => now(),
                 ]);

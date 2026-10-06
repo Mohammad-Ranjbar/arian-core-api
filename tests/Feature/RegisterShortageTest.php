@@ -61,7 +61,7 @@ class RegisterShortageTest extends TestCase
             ->assertJsonPath('data.car_model_id', 1)
             ->assertJsonPath('data.make_code_id', 1)
             ->assertJsonPath('data.user_id', $this->user->id)
-            ->assertJsonPath('data.status', RegisterShortage::STATUS_HAS_SHORTAGE);
+            ->assertJsonPath('data.status', 'دارای کسری');
 
         $this->assertDatabaseHas('register_shortages', [
             'vin' => 'VIN-1',
@@ -170,6 +170,7 @@ class RegisterShortageTest extends TestCase
         $this->getJson('/api/register-shortages')
             ->assertOk()
             ->assertJsonPath('data.0.vin', 'VIN-1')
+            ->assertJsonPath('data.0.status', 'دارای کسری')
             ->assertJsonPath('data.0.vehicle.vin', 'VIN-1')
             ->assertJsonPath('meta.total', 1)
             ->assertJsonStructure(['data', 'links', 'meta']);
@@ -298,7 +299,7 @@ class RegisterShortageTest extends TestCase
             'status' => RegisterShortage::STATUS_RESOLVED,
         ])->assertOk()
             ->assertJsonPath('data.work_center', null)
-            ->assertJsonPath('data.status', RegisterShortage::STATUS_RESOLVED);
+            ->assertJsonPath('data.status', 'رفع شده');
     }
 
     public function test_update_rejects_a_composite_duplicate_when_only_vin_changes(): void
