@@ -92,6 +92,8 @@ class RegisterShortageController extends Controller
                         ...$shortage->only($shortage->getFillable()),
                         ...$destinationAttributes,
                         'register_shortage_id' => null,
+                        'resolved_by' => null,
+                        'resolved_at' => null,
                     ]);
 
                     foreach ($shortage->children->where('vin', $vin) as $child) {
@@ -99,6 +101,8 @@ class RegisterShortageController extends Controller
                             ...$child->only($child->getFillable()),
                             ...$destinationAttributes,
                             'register_shortage_id' => $copiedShortage->getKey(),
+                            'resolved_by' => null,
+                            'resolved_at' => null,
                         ]);
                     }
                 }
