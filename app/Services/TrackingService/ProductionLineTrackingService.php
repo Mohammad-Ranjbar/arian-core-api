@@ -20,14 +20,17 @@ use App\Models\Vehicle;
 use App\Services\Erp\ErpGetBOMFromProductionOrderNumber;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ProductionLineTrackingService extends BaseTrackingService
 {
     const string MODEL_TYPE = 'App\Models\ProductionLine';
 
+
     /**
-     * @param $data
-     * @return false|string
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function enter($data): array|false
     {
@@ -83,6 +86,10 @@ class ProductionLineTrackingService extends BaseTrackingService
 
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function submitAlternative(string $vin): void
     {
         $vehicle = Vehicle::query()
