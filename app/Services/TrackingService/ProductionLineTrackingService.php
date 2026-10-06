@@ -11,6 +11,7 @@ use App\Models\NavColor;
 use App\Models\ProductionLine;
 use App\Models\RegisterShortage;
 use App\Models\ShortageItem;
+use App\Models\SpecificShortageItem;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
@@ -210,6 +211,9 @@ class ProductionLineTrackingService extends BaseTrackingService
         return $data;
     }
 
+    /**
+     * @throws Exception
+     */
     public function exit($data): array|false
     {
         $productionLine = ProductionLine::query()->find($data['model_id']);
@@ -230,7 +234,8 @@ class ProductionLineTrackingService extends BaseTrackingService
         $shortages = RegisterShortage::query()->where('vin', $vin)->get();
         $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         foreach ($shortages as $shortage) {
-            $checkSpecificShortageItem = ShortageItem::query()
+            $checkSpecificShortageItem = SpecificShortageItem::query()
+                ->where('is_active', 1)
                 ->where('car_model_id', $carModelId)
                 ->where('item_no', $shortage->item_no)->exists();
             if ($checkSpecificShortageItem) {
