@@ -17,7 +17,11 @@ class RegisterShortageResource extends JsonResource
             'make_code_id' => $this->resource->make_code_id,
             'item_no' => $this->resource->item_no,
             'item_description' => $this->resource->item_description,
-            'type' => $this->resource->type,
+            'type' => match ($this->resource->type) {
+                RegisterShortage::TYPE_MAIN => 'اصلی',
+                RegisterShortage::TYPE_SINGLE => 'تکی',
+                default => $this->resource->type,
+            },
             'qty' => $this->resource->qty,
             'work_center' => $this->resource->work_center,
             'status' => match ($this->resource->status) {

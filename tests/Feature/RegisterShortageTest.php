@@ -165,7 +165,10 @@ class RegisterShortageTest extends TestCase
 
     public function test_index_uses_the_paginated_resource_collection(): void
     {
-        $parent = $this->createRegisterShortage();
+        $parent = $this->createRegisterShortage([
+            'type' => RegisterShortage::TYPE_MAIN,
+            'work_center' => 'WC-10',
+        ]);
         $this->createRegisterShortage([
             'item_no' => 'CHILD-1',
             'register_shortage_id' => $parent->id,
@@ -175,7 +178,9 @@ class RegisterShortageTest extends TestCase
         $this->getJson('/api/register-shortages')
             ->assertOk()
             ->assertJsonPath('data.0.vin', 'VIN-1')
+            ->assertJsonPath('data.0.type', 'اصلی')
             ->assertJsonPath('data.0.status', 'دارای کسری')
+            ->assertJsonPath('data.0.children.0.type', 'تکی')
             ->assertJsonPath('data.0.children.0.status', 'رفع شده')
             ->assertJsonPath('data.0.children.0.children', [])
             ->assertJsonPath('data.0.vehicle.vin', 'VIN-1')
@@ -305,6 +310,7 @@ class RegisterShortageTest extends TestCase
             'type' => RegisterShortage::TYPE_SINGLE,
             'status' => RegisterShortage::STATUS_RESOLVED,
         ])->assertOk()
+            ->assertJsonPath('data.type', 'تکی')
             ->assertJsonPath('data.work_center', null)
             ->assertJsonPath('data.status', 'رفع شده');
     }
