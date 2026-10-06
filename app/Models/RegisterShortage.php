@@ -39,7 +39,6 @@ class RegisterShortage extends Model
     ];
 
     protected $casts = [
-        'qty' => 'integer',
         'is_certified' => 'boolean',
     ];
 
