@@ -16,7 +16,7 @@ class SpecificShortageItemController extends CrudController
     public function destroy($id)
     {
         if(! $this->repository->findBy($id,'id')->getAttribute('canDelete')){
-            return response()->json('امکان حذف ایتم وجود ندارد');
+            return response()->json('امکان حذف ایتم وجود ندارد', 400);
         }
         if ($this->repository->destroy($id)) {
             return response()->json(['message' => 'item deleted!']);
