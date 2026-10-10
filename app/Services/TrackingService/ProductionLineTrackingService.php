@@ -240,6 +240,7 @@ class ProductionLineTrackingService extends BaseTrackingService
     {
         $shortages = RegisterShortage::query()
             ->where('vin', $vin)
+            ->where('type',RegisterShortage::TYPE_MAIN)
             ->whereHas('mainItemShortage',function ($mainItemShortage){
                 $mainItemShortage->where('location_code','offline');
             })
