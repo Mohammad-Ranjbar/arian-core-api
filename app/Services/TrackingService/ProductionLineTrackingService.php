@@ -238,7 +238,13 @@ class ProductionLineTrackingService extends BaseTrackingService
      */
     public function checkShortages(string $vin): void
     {
-        $shortages = RegisterShortage::query()->where('vin', $vin)->get();
+        $shortages = RegisterShortage::query()
+            ->where('vin', $vin)
+            ->whereHas('mainItemShortage',function ($mainItemShortage){
+                $mainItemShortage->where('location_code','offline');
+            })
+            ->orWhere('type', RegisterShortage::TYPE_SINGLE)
+            ->get();
         $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         foreach ($shortages as $shortage) {
             $checkSpecificShortageItem = SpecificShortageItem::query()
