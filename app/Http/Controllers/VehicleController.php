@@ -250,7 +250,7 @@ class VehicleController extends CrudController
                 }
             }
             if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
-                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان تغیر وضعیت کیفی ندارد.');
+                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان تغیر وضعیت کیفی ندارد.'.' :: '.$shortage->getAttribute('item_no'));
             }
         }
     }

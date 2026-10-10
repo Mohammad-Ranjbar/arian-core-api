@@ -213,7 +213,7 @@ class SaleLocationController extends CrudController
                 continue;
             }
             if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
-                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان انتقال به انبار قروش ندارد.');
+                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان انتقال به انبار قروش ندارد.'.' :: '.$shortage->getAttribute('item_no'));
             }
         }
     }
