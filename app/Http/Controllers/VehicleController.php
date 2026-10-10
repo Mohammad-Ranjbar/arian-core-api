@@ -13,6 +13,8 @@ use App\Models\ErpProductItem;
 use App\Models\GeneralProductItem;
 use App\Models\Job;
 use App\Models\QcCode;
+use App\Models\RegisterShortage;
+use App\Models\SpecificShortageItem;
 use App\Models\Vehicle;
 use App\Repositories\ActionLogRepository;
 use App\Repositories\CarModelRepository;
@@ -66,8 +68,8 @@ class VehicleController extends CrudController
             }
             $vehicle = $this->getData($vin);
 //            if (empty($vehicle->getAttribute('production_type'))) {
-                $this->updateProductionType($vehicle);
-                $vehicle->refresh();
+            $this->updateProductionType($vehicle);
+            $vehicle->refresh();
 //            }
             DB::commit();
             if (Gate::allows('access', $vehicle)) {
@@ -98,54 +100,54 @@ class VehicleController extends CrudController
     {
         try {
             $inputString = trim($inputString);
-        if (Str::length($inputString) == 17) {
-            $vehicleData = $this->erpGetVehicle->get($inputString);
-        } else {
-            $vehicleData = $this->erpGetVehicle->getByPo($inputString, false);
-            if (!$vehicleData) {
-                $vehicleData = $this->erpGetVehicle->getByPoFromHeader($inputString);
+            if (Str::length($inputString) == 17) {
+                $vehicleData = $this->erpGetVehicle->get($inputString);
+            } else {
+                $vehicleData = $this->erpGetVehicle->getByPo($inputString, false);
+                if (!$vehicleData) {
+                    $vehicleData = $this->erpGetVehicle->getByPoFromHeader($inputString);
+                }
+
             }
 
-        }
+            if (empty($vehicleData['make_code']) || empty($vehicleData['car_model'])) {
+                throw new Exception('اطلاعات دریافتی فاقد مدل و نوع خودرو میباشد');
+            }
+            $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
+            $carModel = $this->carModelRepository->make($vehicleData['car_model']);
 
-        if (empty($vehicleData['make_code']) || empty($vehicleData['car_model'])) {
-            throw new Exception('اطلاعات دریافتی فاقد مدل و نوع خودرو میباشد');
-        }
-        $makeCode = $this->makeCodeRepository->make($vehicleData['make_code']);
-        $carModel = $this->carModelRepository->make($vehicleData['car_model']);
+            if (!empty($colorMapCode = $vehicleData['color_code'])) {
+                $colorMapData = [
+                    'title' => $colorMapCode,
+                    'color_code' => $colorMapCode,
+                    'code' => 'change-it' . $colorMapCode,
+                ];
+                $this->colorMapRepository->make($colorMapData, 'color_code');
+            }
 
-        if (!empty($colorMapCode = $vehicleData['color_code'])) {
-            $colorMapData = [
-                'title' => $colorMapCode,
-                'color_code' => $colorMapCode,
-                'code' => 'change-it' . $colorMapCode,
+            if (!empty($vehicleData['data']->Model_Year)) {
+                $yearMap = [
+                    'year' => $vehicleData['data']->Model_Year,
+                ];
+                $this->yearMapRepository->make($yearMap, 'year');
+            }
+
+            $carModel->update(['make_code_id' => $makeCode->getAttribute('id')]);
+            $data = [
+                'data' => $vehicleData['data'],
+                'vin' => $vehicleData['vin'],
+                'color_code' => $vehicleData['color_code'],
+                'production_order_number' => ($vehicleData['production_order_number']) ?? $vehicleData['vin'],
+                'engine_no' => $vehicleData['engine_no'],
+                'cabin_no' => $vehicleData['cabin_no'],
+                'make_code_id' => $makeCode->getAttribute('id'),
+                'car_model_id' => $carModel->getAttribute('id'),
             ];
-            $this->colorMapRepository->make($colorMapData, 'color_code');
-        }
-
-        if (!empty($vehicleData['data']->Model_Year)) {
-            $yearMap = [
-                'year' => $vehicleData['data']->Model_Year,
-            ];
-            $this->yearMapRepository->make($yearMap, 'year');
-        }
-
-        $carModel->update(['make_code_id' => $makeCode->getAttribute('id')]);
-        $data = [
-            'data' => $vehicleData['data'],
-            'vin' => $vehicleData['vin'],
-            'color_code' => $vehicleData['color_code'],
-            'production_order_number' => ($vehicleData['production_order_number']) ?? $vehicleData['vin'],
-            'engine_no' => $vehicleData['engine_no'],
-            'cabin_no' => $vehicleData['cabin_no'],
-            'make_code_id' => $makeCode->getAttribute('id'),
-            'car_model_id' => $carModel->getAttribute('id'),
-        ];
 
 
-        return $this->vehicleRepository->make($data);
+            return $this->vehicleRepository->make($data);
         } catch (Exception $exception) {
-            throw new Exception( $exception->getMessage(), 0, $exception);
+            throw new Exception($exception->getMessage(), 0, $exception);
         }
 
     }
@@ -176,26 +178,26 @@ class VehicleController extends CrudController
     ): JsonResponse|VehicleResource
     {
 //        try {
-            $validatedData = $request->validated();
-            if (in_array($validatedData['qc_status'], [24, 84, 85])) {
-                $generalItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($vehicle) {
-                    $q->where('id', $vehicle->getAttribute('car_model_id'));
-                });
-                if (Barcode::query()->where('vin', $vehicle->vin)->whereIn('general_product_item_id',
-                        $generalItems->pluck('id'))->count()
-                    < $generalItems->count()) {
-                    return $this->responseError('All barcodes have not been submitted yet.', 400);
-                }
+        $validatedData = $request->validated();
+        $this->checkShortages($vehicle->getAttribute('vin'));
+        if (in_array($validatedData['qc_status'], [24, 84, 85])) {
+            $generalItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($vehicle) {
+                $q->where('id', $vehicle->getAttribute('car_model_id'));
+            });
+            if (Barcode::query()->where('vin', $vehicle->vin)->whereIn('general_product_item_id',
+                    $generalItems->pluck('id'))->count()
+                < $generalItems->count()) {
+                return $this->responseError('All barcodes have not been submitted yet.', 400);
             }
-            $qcCode = QcCode::query()->where('title', $validatedData['qc_status'])->first();
-
+        }
+        $qcCode = QcCode::query()->where('title', $validatedData['qc_status'])->first();
 
 
         $result = resolve(SetQcStatusService::class)->send(
             $vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type')
         );
 
-        if (! $result['success']) {
+        if (!$result['success']) {
             return response()->json([
                 'error' => $result['error'],
             ], $result['http_status']);
@@ -206,26 +208,45 @@ class VehicleController extends CrudController
 //                return $this->responseError($response['message'], 400);
 //            }
 
-            ActionLog::query()->create([
-                'model_type' => Vehicle::class,
-                'model_id' => $vehicle->getAttribute('vin'),
-                'action' => ActionLog::UPDATED_QC_STATUS,
-                'user_id' => Auth::id(),
-                'data' => $validatedData['qc_status'],
-            ]);
-            $this->vehicleRepository->update($vehicle->vin, $validatedData);
-            return new VehicleResource($vehicle);
+        ActionLog::query()->create([
+            'model_type' => Vehicle::class,
+            'model_id' => $vehicle->getAttribute('vin'),
+            'action' => ActionLog::UPDATED_QC_STATUS,
+            'user_id' => Auth::id(),
+            'data' => $validatedData['qc_status'],
+        ]);
+        $this->vehicleRepository->update($vehicle->vin, $validatedData);
+        return new VehicleResource($vehicle);
 //        } catch (Exception $exception) {
 //            return $this->responseError($exception->getMessage(), 500);
 //        }
     }
 
-
-    private function updateStatus(string $vin, string $qcStatus, $type, $qcType): array
+    public function checkShortages(string $vin): void
     {
-        return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts_Zone',
-            ['vINP' => $vin, 'qCStatusP' => $qcStatus, 'itemTypeP' => $type, 'qCTypeP' => $qcType]);
 
+        $shortages = RegisterShortage::query()
+            ->where('vin', $vin)
+            ->whereHas('mainItemShortage', function ($mainItemShortage) {
+                $mainItemShortage->where('location_code', 'signoff');
+            })
+            ->orWhere('type', RegisterShortage::TYPE_SINGLE)
+            ->get();
+        $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
+        foreach ($shortages as $shortage) {
+            if (!in_array($validatedData['qc_status'], [24, 85])) {
+                $checkSpecificShortageItem = SpecificShortageItem::query()
+                    ->where('is_active', 1)
+                    ->where('car_model_id', $carModelId)
+                    ->where('item_no', $shortage->item_no)->exists();
+                if ($checkSpecificShortageItem) {
+                    continue;
+                }
+            }
+            if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
+                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان تغیر وضعیت کیفی ندارد.');
+            }
+        }
     }
 
     /**
@@ -284,6 +305,13 @@ class VehicleController extends CrudController
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 400);
         }
+
+    }
+
+    private function updateStatus(string $vin, string $qcStatus, $type, $qcType): array
+    {
+        return ErpWsdlClient::run(config('erp.update_qc_status'), 'SetQCStatusCommercialProducts_Zone',
+            ['vINP' => $vin, 'qCStatusP' => $qcStatus, 'itemTypeP' => $type, 'qCTypeP' => $qcType]);
 
     }
 
