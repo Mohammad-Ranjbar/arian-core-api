@@ -25,7 +25,7 @@ class StoreRegisterShortageRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique('register_shortages', 'item_no')
-                    ->where(fn ($query) => $query->where('vin', $this->input('vin'))),
+                    ->where(fn ($query) => $query->where('type',RegisterShortage::TYPE_MAIN)->where('vin', $this->input('vin'))),
             ],
             'item_description' => ['nullable', 'string'],
             'type' => [
