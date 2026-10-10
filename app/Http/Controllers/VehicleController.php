@@ -177,9 +177,9 @@ class VehicleController extends CrudController
         Vehicle               $vehicle
     ): JsonResponse|VehicleResource
     {
-//        try {
+        try {
         $validatedData = $request->validated();
-        $this->checkShortages($vehicle->getAttribute('vin'));
+        $this->checkShortages($vehicle->getAttribute('vin'),$validatedData);
         if (in_array($validatedData['qc_status'], [24, 84, 85])) {
             $generalItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($vehicle) {
                 $q->where('id', $vehicle->getAttribute('car_model_id'));
@@ -217,12 +217,12 @@ class VehicleController extends CrudController
         ]);
         $this->vehicleRepository->update($vehicle->vin, $validatedData);
         return new VehicleResource($vehicle);
-//        } catch (Exception $exception) {
-//            return $this->responseError($exception->getMessage(), 500);
-//        }
+        } catch (Exception $exception) {
+            return $this->responseError($exception->getMessage(), 500);
+        }
     }
 
-    public function checkShortages(string $vin): void
+    public function checkShortages(string $vin,array $validatedData): void
     {
 
         $shortages = RegisterShortage::query()
