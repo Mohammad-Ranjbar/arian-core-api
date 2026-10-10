@@ -19,7 +19,9 @@ class LastLocationVehicleController extends Controller
             return response()->json($response);
         } catch (Exception $exception) {
             return response()->json([
-                'last_location' => $exception->getMessage()]);
+                'last_location' => $exception->getMessage(),
+                'color' => 'red'
+            ]);
         }
     }
 }

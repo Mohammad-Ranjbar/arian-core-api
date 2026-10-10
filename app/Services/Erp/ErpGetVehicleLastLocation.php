@@ -21,7 +21,10 @@ readonly class ErpGetVehicleLastLocation
         $result = $this->client->getOne($url);
 
         if (!$result) {
-            throw ValidationException::withMessages(['message' => "هیچ لوکیشینی از بیزینس سنترال برای این شماره خودرو پیدا نشد."]);
+            throw ValidationException::withMessages([
+                'message' => "تولید این خودرو ثبت نشده است",
+                'color' => "green",
+            ]);
         }
 
         return $this->getResult($result);
