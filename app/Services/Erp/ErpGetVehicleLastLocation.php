@@ -19,7 +19,7 @@ readonly class ErpGetVehicleLastLocation
             );
 
         $result = $this->client->getOne($url);
-        dd($result);
+
         if (!$result) {
             throw ValidationException::withMessages(['message' => 'هیچ لوکیشینی از BC برای این شماره VIN پیدا نشد.']);
         }
