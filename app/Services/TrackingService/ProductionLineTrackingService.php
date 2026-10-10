@@ -244,7 +244,6 @@ class ProductionLineTrackingService extends BaseTrackingService
             ->whereHas('mainItemShortage',function ($mainItemShortage){
                 $mainItemShortage->where('location_code','offline');
             })
-            ->orWhere('type', RegisterShortage::TYPE_SINGLE)
             ->get();
         $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         foreach ($shortages as $shortage) {
