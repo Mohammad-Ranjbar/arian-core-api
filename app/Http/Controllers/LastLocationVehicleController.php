@@ -16,10 +16,11 @@ class LastLocationVehicleController extends Controller
                 vin: $vehicle->getAttribute('vin'),
                 carModelReference: $vehicle->carModel->getAttribute('reference'),
             );
+            $response['color'] = 'green';
             return response()->json($response);
         } catch (Exception $exception) {
             return response()->json([
-                'last_location' => $exception->getMessage(),
+                'last_location' => 'تولید این خودرو ثبت نشده است',
                 'color' => 'red'
             ]);
         }
