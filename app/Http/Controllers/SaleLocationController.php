@@ -136,8 +136,8 @@ class SaleLocationController extends CrudController
             if (!$saleLocation) {
                 return $this->responseError('cant find sale location for this situation', 400);
             }
-            $response = $this->transfer($vehicle->getAttribute('vin'), $saleLocation->getAttribute('code'));
             $this->checkShortages($vehicle->getAttribute('vin'));
+            $response = $this->transfer($vehicle->getAttribute('vin'), $saleLocation->getAttribute('code'));
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
