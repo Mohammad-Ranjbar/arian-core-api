@@ -11,6 +11,7 @@ class SpecificShortageItemResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
+            'canDelete' => $this->resource->canDelete,
             'qc_code' => $this->resource->qc_code,
             'item_no' => $this->resource->item_no,
             'description' => $this->resource->description,
