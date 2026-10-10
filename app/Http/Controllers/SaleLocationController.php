@@ -7,7 +7,9 @@ use App\Http\Requests\SetSaleLocationRequest;
 use App\Http\Resources\SaleLocationResource;
 use App\Http\Resources\TrackingSaleLocationResource;
 use App\Http\Resources\UserShortResource;
+use App\Models\RegisterShortage;
 use App\Models\SaleLocation;
+use App\Models\SpecificShortageItem;
 use App\Models\Tracking;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -135,7 +137,7 @@ class SaleLocationController extends CrudController
                 return $this->responseError('cant find sale location for this situation', 400);
             }
             $response = $this->transfer($vehicle->getAttribute('vin'), $saleLocation->getAttribute('code'));
-
+            $this->checkShortages($vehicle->getAttribute('vin'));
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
@@ -175,5 +177,32 @@ class SaleLocationController extends CrudController
 
         return TrackingSaleLocationResource::collection($data);
 
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function checkShortages(string $vin): void
+    {
+        $shortages = RegisterShortage::query()
+            ->where('vin', $vin)
+            ->whereHas('mainItemShortage',function ($mainItemShortage){
+                $mainItemShortage->where('location_code','PDI');
+            })
+            ->orWhere('type', RegisterShortage::TYPE_SINGLE)
+            ->get();
+        $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
+        foreach ($shortages as $shortage) {
+            $checkSpecificShortageItem = SpecificShortageItem::query()
+                ->where('is_active', 1)
+                ->where('car_model_id', $carModelId)
+                ->where('item_no', $shortage->item_no)->exists();
+            if ($checkSpecificShortageItem) {
+                continue;
+            }
+            if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
+                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان انتقال به انبار قروش ندارد.');
+            }
+        }
     }
 }

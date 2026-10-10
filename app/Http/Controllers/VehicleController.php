@@ -59,6 +59,9 @@ class VehicleController extends CrudController
     }
 
 
+    /**
+     * @throws Throwable
+     */
     public function getByVin(string $vin): JsonResponse|VehicleResource
     {
         try {
@@ -222,7 +225,10 @@ class VehicleController extends CrudController
         }
     }
 
-    public function checkShortages(string $vin,array $validatedData): void
+    /**
+     * @throws Exception
+     */
+    public function checkShortages(string $vin, array $validatedData): void
     {
 
         $shortages = RegisterShortage::query()
