@@ -255,7 +255,7 @@ class ProductionLineTrackingService extends BaseTrackingService
                 continue;
             }
             if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
-                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان خروج ندارد.');
+                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان خروج ندارد.'.' ::'.$shortage->getAttribute('item_no'));
             }
         }
     }
