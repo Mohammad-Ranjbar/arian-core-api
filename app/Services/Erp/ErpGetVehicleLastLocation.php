@@ -34,6 +34,7 @@ readonly class ErpGetVehicleLastLocation
     {
         return [
             'last_location' => $result->Location_Code,
+            'color' => 'green',
         ];
     }
 }
