@@ -44,7 +44,7 @@ class SpecificShortageItem extends Model
     public function canDelete(): Attribute
     {
         return Attribute::get(function (){
-            if (RegisterShortage::query()->where(['item_no',$this->getAttribute('item_no')])->exists()){
+            if (RegisterShortage::query()->where('item_no',$this->item_no)->exists()){
                 return false;
             }
             return true;
