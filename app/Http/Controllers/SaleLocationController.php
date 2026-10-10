@@ -136,7 +136,7 @@ class SaleLocationController extends CrudController
             if (!$saleLocation) {
                 return $this->responseError('cant find sale location for this situation', 400);
             }
-            $this->checkShortages($vehicle->getAttribute('vin'));
+            $this->checkShortages($vehicle->getAttribute('vin'),$saleLocation->getAttribute('code'));
             $response = $this->transfer($vehicle->getAttribute('vin'), $saleLocation->getAttribute('code'));
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
@@ -182,15 +182,27 @@ class SaleLocationController extends CrudController
     /**
      * @throws Exception
      */
-    public function checkShortages(string $vin): void
+    public function checkShortages(string $vin,string $type): void
     {
-        $shortages = RegisterShortage::query()
-            ->where('vin', $vin)
-            ->whereHas('mainItemShortage',function ($mainItemShortage){
-                $mainItemShortage->where('location_code','PDI');
-            })
-            ->orWhere('type', RegisterShortage::TYPE_SINGLE)
-            ->get();
+        if ($type === "PDI"){
+            $shortages = RegisterShortage::query()
+                ->where('vin', $vin)
+                ->whereHas('mainItemShortage',function ($mainItemShortage){
+                    $mainItemShortage->where('location_code','PDI');
+                })
+                ->orWhere('type', RegisterShortage::TYPE_SINGLE)
+                ->get();
+        }
+        if ($type === "Sales"){
+            $shortages = RegisterShortage::query()
+                ->where('vin', $vin)
+                ->whereHas('mainItemShortage',function ($mainItemShortage){
+                    $mainItemShortage->where('location_code','sales');
+                })
+                ->orWhere('type', RegisterShortage::TYPE_SINGLE)
+                ->get();
+        }
+
         $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         foreach ($shortages as $shortage) {
             $checkSpecificShortageItem = SpecificShortageItem::query()
