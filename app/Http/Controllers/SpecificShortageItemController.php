@@ -12,4 +12,15 @@ class SpecificShortageItemController extends CrudController
         $this->applyAuthorizeResource();
         $this->setResource(SpecificShortageItemResource::class);
     }
+
+    public function destroy($id)
+    {
+        if(! $this->repository->findBy($id)->getAttribute('canDelete')){
+            return response()->json('امکان حذف ایتم وجود ندارد', 400);
+        }
+        if ($this->repository->destroy($id)) {
+            return response()->json(['message' => 'item deleted!']);
+        }
+        return $this->responseError('امکان حذف آیتم مورد نظر وجود ندارد.');
+    }
 }
