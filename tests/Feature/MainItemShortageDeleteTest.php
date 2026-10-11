@@ -36,7 +36,10 @@ class MainItemShortageDeleteTest extends TestCase
 
         Schema::create('register_shortages', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('main_item_shortage_id')->nullable();
+            $table->foreignId('main_item_shortage_id')
+                ->nullable()
+                ->constrained('main_item_shortages')
+                ->restrictOnDelete();
             $table->timestamps();
         });
 
@@ -55,6 +58,27 @@ class MainItemShortageDeleteTest extends TestCase
         DB::table('register_shortages')->insert([
             'main_item_shortage_id' => $mainItemShortage->getKey(),
         ]);
+
+        $this->deleteJson('/api/main-item-shortages/'.$mainItemShortage->getKey())
+            ->assertUnprocessable()
+            ->assertExactJson([
+                'message' => 'این مورد در کسری استفاده شده و امکان حذف آن وجود ندارد.',
+            ]);
+
+        $this->assertDatabaseHas('main_item_shortages', [
+            'id' => $mainItemShortage->getKey(),
+        ]);
+    }
+
+    public function test_foreign_key_violation_during_delete_returns_the_business_error(): void
+    {
+        $mainItemShortage = $this->createMainItemShortage();
+
+        MainItemShortage::deleting(function (MainItemShortage $item): void {
+            DB::table('register_shortages')->insert([
+                'main_item_shortage_id' => $item->getKey(),
+            ]);
+        });
 
         $this->deleteJson('/api/main-item-shortages/'.$mainItemShortage->getKey())
             ->assertUnprocessable()
