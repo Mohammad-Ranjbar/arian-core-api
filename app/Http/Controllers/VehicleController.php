@@ -181,45 +181,45 @@ class VehicleController extends CrudController
     ): JsonResponse|VehicleResource
     {
         try {
-        $validatedData = $request->validated();
-        $this->checkShortages($vehicle->getAttribute('vin'),$validatedData);
-        if (in_array($validatedData['qc_status'], [24, 84, 85])) {
-            $generalItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($vehicle) {
-                $q->where('id', $vehicle->getAttribute('car_model_id'));
-            });
-            if (Barcode::query()->where('vin', $vehicle->vin)->whereIn('general_product_item_id',
-                    $generalItems->pluck('id'))->count()
-                < $generalItems->count()) {
-                return $this->responseError('All barcodes have not been submitted yet.', 400);
+            $validatedData = $request->validated();
+            $this->checkShortages($vehicle->getAttribute('vin'), $validatedData);
+            if (in_array($validatedData['qc_status'], [24, 84, 85])) {
+                $generalItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($vehicle) {
+                    $q->where('id', $vehicle->getAttribute('car_model_id'));
+                });
+                if (Barcode::query()->where('vin', $vehicle->vin)->whereIn('general_product_item_id',
+                        $generalItems->pluck('id'))->count()
+                    < $generalItems->count()) {
+                    return $this->responseError('All barcodes have not been submitted yet.', 400);
+                }
             }
-        }
-        $qcCode = QcCode::query()->where('title', $validatedData['qc_status'])->first();
+            $qcCode = QcCode::query()->where('title', $validatedData['qc_status'])->first();
 
 
-        $result = resolve(SetQcStatusService::class)->send(
-            $vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type')
-        );
+            $result = resolve(SetQcStatusService::class)->send(
+                $vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type')
+            );
 
-        if (!$result['success']) {
-            return response()->json([
-                'error' => $result['error'],
-            ], $result['http_status']);
-        }
+            if (!$result['success']) {
+                return response()->json([
+                    'error' => $result['error'],
+                ], $result['http_status']);
+            }
 //            $response = $this->updateStatus($vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type'));
 //
 //            if ($response['status'] !== 'ok') {
 //                return $this->responseError($response['message'], 400);
 //            }
 
-        ActionLog::query()->create([
-            'model_type' => Vehicle::class,
-            'model_id' => $vehicle->getAttribute('vin'),
-            'action' => ActionLog::UPDATED_QC_STATUS,
-            'user_id' => Auth::id(),
-            'data' => $validatedData['qc_status'],
-        ]);
-        $this->vehicleRepository->update($vehicle->vin, $validatedData);
-        return new VehicleResource($vehicle);
+            ActionLog::query()->create([
+                'model_type' => Vehicle::class,
+                'model_id' => $vehicle->getAttribute('vin'),
+                'action' => ActionLog::UPDATED_QC_STATUS,
+                'user_id' => Auth::id(),
+                'data' => $validatedData['qc_status'],
+            ]);
+            $this->vehicleRepository->update($vehicle->vin, $validatedData);
+            return new VehicleResource($vehicle);
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
         }
@@ -233,14 +233,26 @@ class VehicleController extends CrudController
 
         $shortages = RegisterShortage::query()
             ->where('vin', $vin)
+            ->where('status', RegisterShortage::STATUS_HAS_SHORTAGE)
             ->whereHas('mainItemShortage', function ($mainItemShortage) {
                 $mainItemShortage->where('location_code', 'signoff');
             })
             ->orWhere('type', RegisterShortage::TYPE_SINGLE)
             ->get();
         $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
+        if (intval($validatedData['qc_status']) === 84) {
+            $allShortages = RegisterShortage::query()->where('vin', $vin)
+                ->where('status', RegisterShortage::STATUS_HAS_SHORTAGE);
+            foreach ($allShortages as $checkShortage) {
+                if ($this->checkSpecificShortage($carModelId, $checkShortage->item_no)) {
+                    continue;
+                }
+                throw new Exception('این شماره Vin دارای قطعه کسری 84 میباشد و امکان تغیر وضعیت کیفی ندارد.' . ' :: ' . $checkShortage->getAttribute('item_no'));
+            }
+
+        }
         foreach ($shortages as $shortage) {
-            if (!in_array($validatedData['qc_status'], [24, 85])) {
+            if (intval($validatedData['qc_status']) === 84) {
                 $checkSpecificShortageItem = SpecificShortageItem::query()
                     ->where('is_active', 1)
                     ->where('car_model_id', $carModelId)
@@ -249,10 +261,21 @@ class VehicleController extends CrudController
                     continue;
                 }
             }
-            if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
-                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان تغیر وضعیت کیفی ندارد.'.' :: '.$shortage->getAttribute('item_no'));
+            if (!in_array($validatedData['qc_status'], [24, 85])) {
+                if ($this->checkSpecificShortage($carModelId, $shortage->item_no)) {
+                    continue;
+                }
             }
+            throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان تغیر وضعیت کیفی ندارد.' . ' :: ' . $shortage->getAttribute('item_no'));
         }
+    }
+
+    public function checkSpecificShortage($carModelId, $itemNo)
+    {
+        return SpecificShortageItem::query()
+            ->where('is_active', 1)
+            ->where('car_model_id', $carModelId)
+            ->where('item_no', $itemNo)->exists();
     }
 
     /**
