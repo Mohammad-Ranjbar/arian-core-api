@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class MainItemShortage extends Model
 {
-    // #TODO audit by action log that created user in observer
-
     protected $fillable = [
         'location_code',
         'car_model_id',
@@ -55,9 +54,9 @@ class MainItemShortage extends Model
         return $this->hasMany(RegisterShortage::class);
     }
 
-    public function actionLog(): BelongsTo
+    public function actionLogs(): MorphMany
     {
-        return $this->morphTo(ActionLog::class);
+        return $this->morphMany(ActionLog::class, 'model');
     }
 
     public function isDraft(): bool
@@ -68,6 +67,7 @@ class MainItemShortage extends Model
     public function forkVersion(string $locationCode, array $excludedRelatedItemIds = []): self
     {
 
+        $excludedRelatedItems = $this->relatedItems->whereIn('id', $excludedRelatedItemIds);
         $oldRelateds = $this->relatedItems->whereNotIn('id', $excludedRelatedItemIds);
         $locationCode = $this->location_code !== $locationCode ? $locationCode : $this->location_code;
 
@@ -90,6 +90,10 @@ class MainItemShortage extends Model
                 'description' => $oldRelated->description,
                 'data' => $oldRelated->data,
             ]);
+        }
+
+        foreach ($excludedRelatedItems as $excludedRelatedItem) {
+            $excludedRelatedItem->recordRemovalFromFork($newMain);
         }
 
         return $newMain;

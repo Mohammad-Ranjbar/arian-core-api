@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckActiveUserMiddleware;
+use App\Models\ActionLog;
 use App\Models\MainItemShortage;
 use App\Models\RelatedItemShortage;
 use Illuminate\Auth\Middleware\Authorize;
@@ -12,10 +13,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
+use Tests\Concerns\CreatesShortageAuditTables;
 use Tests\TestCase;
 
 class RelatedItemShortageStoreTest extends TestCase
 {
+    use CreatesShortageAuditTables;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -23,6 +27,8 @@ class RelatedItemShortageStoreTest extends TestCase
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite.database', ':memory:');
         DB::purge('sqlite');
+
+        $this->createShortageAuditTablesAndAuthenticate();
 
         Schema::create('car_models', function (Blueprint $table): void {
             $table->id();
@@ -54,11 +60,43 @@ class RelatedItemShortageStoreTest extends TestCase
         $this->assertDatabaseCount('main_item_shortages', 1);
         $this->assertDatabaseCount('related_item_shortages', 1);
         $this->assertSame(0, DB::transactionLevel());
+
+        $log = ActionLog::query()
+            ->where('action', ActionLog::RELATED_ITEM_SHORTAGE_CREATED)
+            ->where('model_type', RelatedItemShortage::class)
+            ->where('model_id', '1')
+            ->sole();
+        $this->assertSame(1, $log->user_id);
+        $this->assertNull($log->data['before']);
+        $this->assertSame('NEW-CHILD', $log->data['after']['item_no']);
     }
 
     public function test_store_forks_an_active_main_and_preserves_existing_data(): void
     {
         $this->assertForkPreservesData(true, 'LOCATION-1');
+    }
+
+    public function test_model_updates_are_audited_for_related_items(): void
+    {
+        $main = $this->createMain();
+        $related = $main->relatedItems()->create([
+            'item_no' => 'RELATED-1',
+            'description' => 'Before update',
+            'data' => ['qty' => 1],
+        ]);
+
+        $related->update([
+            'description' => 'After update',
+            'data' => ['qty' => 2],
+        ]);
+
+        $log = ActionLog::query()
+            ->where('action', ActionLog::RELATED_ITEM_SHORTAGE_UPDATED)
+            ->where('model_id', (string) $related->getKey())
+            ->sole();
+
+        $this->assertSame('Before update', $log->data['before']['description']);
+        $this->assertSame('After update', $log->data['after']['description']);
     }
 
     public function test_store_forks_a_draft_when_its_location_changes(): void
@@ -87,6 +125,9 @@ class RelatedItemShortageStoreTest extends TestCase
 
         $this->assertDatabaseCount('main_item_shortages', 1);
         $this->assertDatabaseCount('related_item_shortages', 1);
+        $this->assertDatabaseMissing('action_logs', [
+            'action' => ActionLog::MAIN_ITEM_SHORTAGE_FORKED,
+        ]);
         $this->assertSame(['qty' => 3], $main->relatedItems()->sole()->data);
         $this->assertSame(0, DB::transactionLevel());
     }
@@ -165,6 +206,13 @@ class RelatedItemShortageStoreTest extends TestCase
         $this->assertSame(1, $main->relatedItems()->count());
         $this->assertDatabaseCount('main_item_shortages', 2);
         $this->assertDatabaseCount('related_item_shortages', 3);
+
+        $forkLog = ActionLog::query()
+            ->where('action', ActionLog::MAIN_ITEM_SHORTAGE_FORKED)
+            ->where('model_id', (string) $fork->getKey())
+            ->sole();
+        $this->assertSame($main->getKey(), $forkLog->data['before']['id']);
+        $this->assertSame($fork->getKey(), $forkLog->data['after']['id']);
     }
 
     private function createMain(bool $active = false): MainItemShortage

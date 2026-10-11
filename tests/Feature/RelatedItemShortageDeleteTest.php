@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckActiveUserMiddleware;
+use App\Models\ActionLog;
 use App\Models\MainItemShortage;
 use App\Models\RelatedItemShortage;
 use Illuminate\Auth\Middleware\Authorize;
@@ -12,10 +13,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
+use Tests\Concerns\CreatesShortageAuditTables;
 use Tests\TestCase;
 
 class RelatedItemShortageDeleteTest extends TestCase
 {
+    use CreatesShortageAuditTables;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -23,6 +27,8 @@ class RelatedItemShortageDeleteTest extends TestCase
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite.database', ':memory:');
         DB::purge('sqlite');
+
+        $this->createShortageAuditTablesAndAuthenticate();
 
         Schema::create('car_models', function (Blueprint $table): void {
             $table->id();
@@ -55,6 +61,13 @@ class RelatedItemShortageDeleteTest extends TestCase
         $this->assertDatabaseCount('main_item_shortages', 1);
         $this->assertDatabaseCount('related_item_shortages', 1);
         $this->assertSame(0, DB::transactionLevel());
+
+        $log = ActionLog::query()
+            ->where('action', ActionLog::RELATED_ITEM_SHORTAGE_DELETED)
+            ->where('model_id', (string) $removed->getKey())
+            ->sole();
+        $this->assertSame('REMOVED-CHILD', $log->data['before']['item_no']);
+        $this->assertNull($log->data['after']);
     }
 
     public function test_delete_forks_an_active_main_without_the_selected_item(): void
@@ -80,6 +93,13 @@ class RelatedItemShortageDeleteTest extends TestCase
         $this->assertDatabaseCount('main_item_shortages', 2);
         $this->assertDatabaseCount('related_item_shortages', 3);
         $this->assertSame(0, DB::transactionLevel());
+
+        $log = ActionLog::query()
+            ->where('action', ActionLog::RELATED_ITEM_SHORTAGE_DELETED)
+            ->where('model_id', (string) $removed->getKey())
+            ->sole();
+        $this->assertSame($fork->getKey(), $log->data['forked_main_item_shortage_id']);
+        $this->assertDatabaseHas('related_item_shortages', ['id' => $removed->getKey()]);
     }
 
     public function test_delete_the_last_item_of_an_active_main_creates_an_empty_draft(): void
@@ -120,6 +140,9 @@ class RelatedItemShortageDeleteTest extends TestCase
 
         $this->assertDatabaseCount('main_item_shortages', 1);
         $this->assertDatabaseCount('related_item_shortages', 3);
+        $this->assertDatabaseMissing('action_logs', [
+            'action' => ActionLog::MAIN_ITEM_SHORTAGE_FORKED,
+        ]);
         $this->assertSame(0, $main->versions()->count());
         $this->assertSame(0, DB::transactionLevel());
     }

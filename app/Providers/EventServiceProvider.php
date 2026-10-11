@@ -4,15 +4,17 @@ namespace App\Providers;
 
 use App\Events\ErpJobEvent;
 use App\Listeners\SendErpJobListener;
-use App\Models\BlockItem;
 use App\Models\EnterEngine;
 use App\Models\ErpJob;
+use App\Models\MainItemShortage;
+use App\Models\RelatedItemShortage;
 use App\Models\SpecificShortageItem;
 use App\Models\Tracking;
 use App\Models\User;
-use App\Observers\BlockItemObserver;
 use App\Observers\EnterEngineObserver;
 use App\Observers\ErpJobObserver;
+use App\Observers\MainItemShortageObserver;
+use App\Observers\RelatedItemShortageObserver;
 use App\Observers\SpecificShortageItemObserver;
 use App\Observers\TrackingObserver;
 use App\Observers\UserObserver;
@@ -22,7 +24,6 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 
 class EventServiceProvider extends ServiceProvider
 {
-
     /**
      * @var array[]
      */
@@ -31,14 +32,10 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         ErpJobEvent::class => [
-            SendErpJobListener::class
-        ]
+            SendErpJobListener::class,
+        ],
     ];
 
-
-    /**
-     * @return void
-     */
     public function boot(): void
     {
         User::observe(UserObserver::class);
@@ -46,11 +43,10 @@ class EventServiceProvider extends ServiceProvider
         ErpJob::observe(ErpJobObserver::class);
         Tracking::observe(TrackingObserver::class);
         SpecificShortageItem::observe(SpecificShortageItemObserver::class);
+        MainItemShortage::observe(MainItemShortageObserver::class);
+        RelatedItemShortage::observe(RelatedItemShortageObserver::class);
     }
 
-    /**
-     * @return bool
-     */
     public function shouldDiscoverEvents(): bool
     {
         return false;
