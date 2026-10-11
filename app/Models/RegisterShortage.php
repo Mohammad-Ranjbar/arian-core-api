@@ -92,25 +92,30 @@ class RegisterShortage extends Model
     public static function getReportData(array $filters): Collection
     {
         return self::query()
-            ->where(function ($query) {
-                $query->whereNotNull('main_item_shortage_id')
-                    ->orWhere(function ($query) {
-                        $query->whereNotNull('register_shortage_id')
-                            ->whereHas('parent', function ($query) {
-                                $query->whereNotNull('main_item_shortage_id');
-                            });
-                    });
-            })
             ->withOnly([
                 'carModel:id,title,reference',
                 'user:id,name',
                 'resolvedBy:id,name',
             ])
+            ->when(
+                filled($filters['item_no'] ?? null),
+                function ($query) use ($filters) {
+                    $query->where('item_no', trim($filters['item_no']));
+                },
+                function ($query) {
+                    $query->where(function ($query) {
+                        $query->whereNotNull('main_item_shortage_id')
+                            ->orWhere(function ($query) {
+                                $query->whereNotNull('register_shortage_id')
+                                    ->whereHas('parent', function ($query) {
+                                        $query->whereNotNull('main_item_shortage_id');
+                                    });
+                            });
+                    });
+                }
+            )
             ->when(filled($filters['vin'] ?? null), function ($query) use ($filters) {
                 $query->where('vin', $filters['vin']);
-            })
-            ->when(filled($filters['item_no'] ?? null), function ($query) use ($filters) {
-                $query->where('item_no', trim($filters['item_no']));
             })
             ->when(filled($filters['from'] ?? null), function ($query) use ($filters) {
                 $query->where('created_at', '>=', Carbon::parse($filters['from'])->startOfDay());

@@ -289,7 +289,7 @@ class RegisterShortageTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors(['from', 'to']);
     }
 
-    public function test_report_data_contains_only_model_linked_main_and_related_items(): void
+    public function test_report_scope_depends_on_the_selected_filter_mode(): void
     {
         $mainItemId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
         $parent = $this->createRegisterShortage([
@@ -311,15 +311,19 @@ class RegisterShortageTest extends TestCase
         DB::table('register_shortages')->where('id', $child->id)->update([
             'created_at' => '2026-06-15 23:59:59',
         ]);
-        $this->createRegisterShortage([
-            'item_no' => 'SINGLE-1',
+        $single = $this->createRegisterShortage([
+            'vin' => 'VIN-2',
+            'item_no' => 'CHILD-1',
             'type' => RegisterShortage::TYPE_SINGLE,
         ]);
 
         $rows = RegisterShortage::getReportData(['vin' => 'VIN-1']);
 
         $this->assertSame([$parent->id, $child->id], $rows->pluck('id')->all());
-        $this->assertSame([$child->id], RegisterShortage::getReportData(['item_no' => ' CHILD-1 '])->pluck('id')->all());
+        $this->assertSame(
+            [$child->id, $single->id],
+            RegisterShortage::getReportData(['item_no' => ' CHILD-1 '])->pluck('id')->all()
+        );
         $this->assertSame(
             [$parent->id, $child->id],
             RegisterShortage::getReportData([
@@ -351,11 +355,17 @@ class RegisterShortageTest extends TestCase
             'resolved_by' => $this->user->id,
             'resolved_at' => '2026-06-15 11:00:00',
         ]);
+        $single = $this->createRegisterShortage([
+            'vin' => 'VIN-2',
+            'item_no' => 'SINGLE-1',
+            'item_description' => 'Single item',
+            'type' => RegisterShortage::TYPE_SINGLE,
+        ]);
 
-        $binary = Excel::raw(new RegisterShortageReportExport(collect([$row, $child]), [
+        $binary = Excel::raw(new RegisterShortageReportExport(collect([$row, $child, $single]), [
             'id' => 'report-test',
             'user_id' => $this->user->id,
-            'total' => 2,
+            'total' => 3,
             'done' => 0,
             'success' => 0,
             'error' => 0,
@@ -380,6 +390,8 @@ class RegisterShortageTest extends TestCase
             $this->assertSame('CHILD-1', $sheet->getCell('D3')->getValue());
             $this->assertSame('وابسته', $sheet->getCell('F3')->getValue());
             $this->assertSame('رفع کسری شده', $sheet->getCell('H3')->getValue());
+            $this->assertSame('SINGLE-1', $sheet->getCell('D4')->getValue());
+            $this->assertSame('منفرد', $sheet->getCell('F4')->getValue());
             $this->assertTrue($sheet->getRightToLeft());
             $this->assertSame('A2', $sheet->getFreezePane());
         } finally {

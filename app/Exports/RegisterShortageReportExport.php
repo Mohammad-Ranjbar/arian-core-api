@@ -55,7 +55,11 @@ class RegisterShortageReportExport implements FromCollection, ShouldAutoSize, Wi
             $row->carModel?->title ?? $row->carModel?->reference ?? '',
             $row->item_no,
             $row->item_description ?? '',
-            $row->register_shortage_id === null ? 'اصلی' : 'وابسته',
+            match (true) {
+                $row->register_shortage_id !== null => 'وابسته',
+                $row->type === RegisterShortage::TYPE_MAIN => 'اصلی',
+                default => 'منفرد',
+            },
             $row->qty,
             match ($row->status) {
                 RegisterShortage::STATUS_HAS_SHORTAGE => 'کسری دارد',
