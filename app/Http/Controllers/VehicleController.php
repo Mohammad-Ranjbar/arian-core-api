@@ -182,8 +182,10 @@ class VehicleController extends CrudController
     {
         try {
             $validatedData = $request->validated();
-            $this->checkShortages($vehicle->getAttribute('vin'), $validatedData);
+
             if (in_array($validatedData['qc_status'], [24, 84, 85])) {
+                $this->checkShortages($vehicle->getAttribute('vin'), $validatedData);
+
                 $generalItems = GeneralProductItem::query()->whereHas('carModels', function ($q) use ($vehicle) {
                     $q->where('id', $vehicle->getAttribute('car_model_id'));
                 });
@@ -230,37 +232,22 @@ class VehicleController extends CrudController
      */
     public function checkShortages(string $vin, array $validatedData): void
     {
-
+        //maede goft location toye qc mohem nist
+        $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         $shortages = RegisterShortage::query()
             ->where('vin', $vin)
             ->where('status', RegisterShortage::STATUS_HAS_SHORTAGE)
-            ->whereHas('mainItemShortage', function ($mainItemShortage) {
-                $mainItemShortage->where('location_code', 'signoff');
-            })
-            ->orWhere('type', RegisterShortage::TYPE_SINGLE)
             ->get();
-        $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         if (intval($validatedData['qc_status']) === 84) {
-            $allShortages = RegisterShortage::query()->where('vin', $vin)
-                ->where('status', RegisterShortage::STATUS_HAS_SHORTAGE);
-            foreach ($allShortages as $checkShortage) {
-                if ($this->checkSpecificShortage($carModelId, $checkShortage->item_no)) {
+            foreach ($shortages as $shortage) {
+                if ($this->checkSpecificShortage($carModelId, $shortage->item_no)) {
                     continue;
                 }
-                throw new Exception('این شماره Vin دارای قطعه کسری 84 میباشد و امکان تغیر وضعیت کیفی ندارد.' . ' :: ' . $checkShortage->getAttribute('item_no'));
+                throw new Exception('این شماره Vin دارای قطعه کسری 84 میباشد و امکان تغیر وضعیت کیفی ندارد.' . ' :: ' . $shortage->getAttribute('item_no'));
             }
-
         }
+
         foreach ($shortages as $shortage) {
-            if (intval($validatedData['qc_status']) === 84) {
-                $checkSpecificShortageItem = SpecificShortageItem::query()
-                    ->where('is_active', 1)
-                    ->where('car_model_id', $carModelId)
-                    ->where('item_no', $shortage->item_no)->exists();
-                if ($checkSpecificShortageItem) {
-                    continue;
-                }
-            }
             if (!in_array($validatedData['qc_status'], [24, 85])) {
                 if ($this->checkSpecificShortage($carModelId, $shortage->item_no)) {
                     continue;
