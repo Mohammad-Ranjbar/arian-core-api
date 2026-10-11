@@ -190,7 +190,6 @@ class SaleLocationController extends CrudController
                 ->whereHas('mainItemShortage',function ($mainItemShortage){
                     $mainItemShortage->where('location_code','PDI');
                 })
-                ->orWhere('type', RegisterShortage::TYPE_SINGLE)
                 ->get();
         }
         if ($type === "Sales"){
@@ -199,7 +198,6 @@ class SaleLocationController extends CrudController
                 ->whereHas('mainItemShortage',function ($mainItemShortage){
                     $mainItemShortage->where('location_code','sales');
                 })
-                ->orWhere('type', RegisterShortage::TYPE_SINGLE)
                 ->get();
         }
 
