@@ -122,7 +122,7 @@ class RegisterShortageController extends Controller
 
             return RegisterShortageResource::collection($shortages);
         } catch (UniqueConstraintViolationException $exception) {
-            return $this->responseError('شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.' . ' ' . $exception->getMessage());
+            return $this->responseError('شماره قطعه اصلی یا یکی از قطعات وابسته قبلاً برای خودروی مقصد ثبت شده است؛ هیچ کسری کپی نشد.' );
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage());
         }
