@@ -203,15 +203,15 @@ class SaleLocationController extends CrudController
                 ->get();
         }
 
-        $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
+//        $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         foreach ($shortages as $shortage) {
-            $checkSpecificShortageItem = SpecificShortageItem::query()
-                ->where('is_active', 1)
-                ->where('car_model_id', $carModelId)
-                ->where('item_no', $shortage->item_no)->exists();
-            if ($checkSpecificShortageItem) {
-                continue;
-            }
+//            $checkSpecificShortageItem = SpecificShortageItem::query()
+//                ->where('is_active', 1)
+//                ->where('car_model_id', $carModelId)
+//                ->where('item_no', $shortage->item_no)->exists();
+//            if ($checkSpecificShortageItem) {
+//                continue;
+//            }
             if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
                 throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان انتقال به انبار قروش ندارد.'.' :: '.$shortage->getAttribute('item_no'));
             }
