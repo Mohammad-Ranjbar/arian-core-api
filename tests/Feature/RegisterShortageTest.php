@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Exports\RegisterShortageReportExport;
 use App\Http\Middleware\CheckActiveUserMiddleware;
+use App\Jobs\ExportJob;
 use App\Models\RegisterShortage;
 use App\Models\User;
 use App\Services\Erp\ErpGetShortageBOM;
@@ -11,8 +13,13 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Excel as ExcelWriter;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\TestCase;
 
 class RegisterShortageTest extends TestCase
@@ -240,6 +247,127 @@ class RegisterShortageTest extends TestCase
             ->assertJsonPath('data.0.vehicle.vin', 'VIN-1')
             ->assertJsonPath('meta.total', 1)
             ->assertJsonStructure(['data', 'links', 'meta']);
+    }
+
+    public function test_report_job_accepts_a_gregorian_date_range(): void
+    {
+        Queue::fake();
+
+        $response = $this->postJson('/api/register-shortages/report', [
+            'from' => '2026-06-15',
+            'to' => '2026-06-15',
+        ])->assertOk();
+
+        $job = DB::table('custom_jobs')->where('uuid', $response->json('data.uuid'))->first();
+        $this->assertNotNull($job);
+        $this->assertSame('export-register-shortages', $job->type);
+        $this->assertSame([
+            'from' => '2026-06-15',
+            'to' => '2026-06-15',
+        ], json_decode($job->data, true, flags: JSON_THROW_ON_ERROR));
+        Queue::assertPushed(ExportJob::class, fn (ExportJob $exportJob) => $exportJob->uuid === $job->uuid);
+    }
+
+    public function test_report_rejects_missing_or_mixed_filter_modes(): void
+    {
+        $this->postJson('/api/register-shortages/report')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('filter');
+
+        $this->postJson('/api/register-shortages/report', [
+            'vin' => 'VIN-1',
+            'item_no' => 'ITEM-1',
+        ])->assertUnprocessable()->assertJsonValidationErrors('filter');
+
+        $this->postJson('/api/register-shortages/report', [
+            'from' => '2026-06-15',
+        ])->assertUnprocessable()->assertJsonValidationErrors('to');
+
+        $this->postJson('/api/register-shortages/report', [
+            'from' => '1405/03/25',
+            'to' => '1405/03/25',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['from', 'to']);
+    }
+
+    public function test_report_data_contains_only_model_linked_main_and_related_items(): void
+    {
+        $mainItemId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
+        $parent = $this->createRegisterShortage([
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'MAIN-1',
+            'item_description' => 'Main item',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $child = $this->createRegisterShortage([
+            'main_item_shortage_id' => $mainItemId,
+            'register_shortage_id' => $parent->id,
+            'item_no' => 'CHILD-1',
+            'item_description' => 'Child item',
+        ]);
+        DB::table('register_shortages')->where('id', $parent->id)->update([
+            'created_at' => '2026-06-15 00:00:00',
+        ]);
+        DB::table('register_shortages')->where('id', $child->id)->update([
+            'created_at' => '2026-06-15 23:59:59',
+        ]);
+        $this->createRegisterShortage([
+            'item_no' => 'SINGLE-1',
+            'type' => RegisterShortage::TYPE_SINGLE,
+        ]);
+
+        $rows = RegisterShortage::getReportData(['vin' => 'VIN-1']);
+
+        $this->assertSame([$parent->id, $child->id], $rows->pluck('id')->all());
+        $this->assertSame([$child->id], RegisterShortage::getReportData(['item_no' => 'CHILD-1'])->pluck('id')->all());
+        $this->assertSame(
+            [$parent->id, $child->id],
+            RegisterShortage::getReportData([
+                'from' => '2026-06-15',
+                'to' => '2026-06-15',
+            ])->pluck('id')->all()
+        );
+    }
+
+    public function test_report_export_has_expected_columns_and_right_to_left_layout(): void
+    {
+        Event::fake();
+        $mainItemId = $this->createMainItemShortage(1, 'MAIN-1', 'CHILD-1');
+        $row = $this->createRegisterShortage([
+            'main_item_shortage_id' => $mainItemId,
+            'item_no' => 'MAIN-1',
+            'item_description' => 'Main item',
+            'type' => RegisterShortage::TYPE_MAIN,
+            'qty' => 1.5,
+            'resolved_by' => $this->user->id,
+            'resolved_at' => '2026-06-15 10:30:00',
+        ]);
+
+        $binary = Excel::raw(new RegisterShortageReportExport(collect([$row]), [
+            'id' => 'report-test',
+            'user_id' => $this->user->id,
+            'total' => 1,
+            'done' => 0,
+            'success' => 0,
+            'error' => 0,
+        ]), ExcelWriter::XLSX);
+        $path = tempnam(sys_get_temp_dir(), 'register-shortage-report-');
+        file_put_contents($path, $binary);
+
+        try {
+            $sheet = IOFactory::load($path)->getActiveSheet();
+
+            $this->assertSame('ردیف', $sheet->getCell('A1')->getValue());
+            $this->assertSame('رفع کسری توسط', $sheet->getCell('J1')->getValue());
+            $this->assertSame('VIN-1', $sheet->getCell('B2')->getValue());
+            $this->assertSame('MAIN-1', $sheet->getCell('D2')->getValue());
+            $this->assertSame('Main item', $sheet->getCell('E2')->getValue());
+            $this->assertSame(1.5, $sheet->getCell('F2')->getValue());
+            $this->assertSame('Test User', $sheet->getCell('J2')->getValue());
+            $this->assertTrue($sheet->getRightToLeft());
+            $this->assertSame('A2', $sheet->getFreezePane());
+        } finally {
+            unlink($path);
+        }
     }
 
     public function test_store_rejects_an_existing_related_shortage_without_partial_inserts(): void
@@ -688,6 +816,15 @@ class RegisterShortageTest extends TestCase
             $table->foreignId('user_id');
             $table->boolean('is_certified')->default(false);
             $table->unique(['vin', 'item_no']);
+            $table->timestamps();
+        });
+        Schema::create('custom_jobs', function (Blueprint $table): void {
+            $table->uuid()->primary();
+            $table->string('type');
+            $table->foreignId('user_id');
+            $table->json('data')->nullable();
+            $table->json('result')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
         Schema::create('main_item_shortages', function (Blueprint $table): void {

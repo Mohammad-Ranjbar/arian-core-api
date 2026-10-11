@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class RegisterShortage extends Model
 {
@@ -40,6 +42,7 @@ class RegisterShortage extends Model
 
     protected $casts = [
         'is_certified' => 'boolean',
+        'resolved_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -84,5 +87,31 @@ class RegisterShortage extends Model
     public function mainItemShortage(): BelongsTo
     {
         return $this->belongsTo(MainItemShortage::class);
+    }
+
+    public static function getReportData(array $filters): Collection
+    {
+        return self::query()
+            ->whereNotNull('main_item_shortage_id')
+            ->withOnly([
+                'carModel:id,title,reference',
+                'user:id,name',
+                'resolvedBy:id,name',
+            ])
+            ->when(filled($filters['vin'] ?? null), function ($query) use ($filters) {
+                $query->where('vin', $filters['vin']);
+            })
+            ->when(filled($filters['item_no'] ?? null), function ($query) use ($filters) {
+                $query->where('item_no', $filters['item_no']);
+            })
+            ->when(filled($filters['from'] ?? null), function ($query) use ($filters) {
+                $query->where('created_at', '>=', Carbon::parse($filters['from'])->startOfDay());
+            })
+            ->when(filled($filters['to'] ?? null), function ($query) use ($filters) {
+                $query->where('created_at', '<=', Carbon::parse($filters['to'])->endOfDay());
+            })
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get();
     }
 }

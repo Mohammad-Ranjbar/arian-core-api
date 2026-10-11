@@ -547,6 +547,9 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
         ->middleware('can:main-item-shortages.activate')
         ->name('main-item-shortages.activate');
     Route::apiResource('related-item-shortages', RelatedItemShortageController::class)->except('update');
+    Route::post('register-shortages/report', [RegisterShortageController::class, 'reportExcel'])
+        ->middleware('can:register-shortages.report')
+        ->name('register-shortages.report');
     Route::apiResource('register-shortages', RegisterShortageController::class);
     Route::get('/shortages/{vin}', [RegisterShortageController::class, 'shortagesVehicle'])->name('get-shortages-vehicle');
     Route::post('/shortages/{vin}', [RegisterShortageController::class, 'setShortagesVehicle'])->name('set-shortages-vehicle');

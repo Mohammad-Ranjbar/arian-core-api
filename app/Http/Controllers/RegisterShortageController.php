@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Filters\VinExactFilter;
+use App\Http\Requests\RegisterShortageReportRequest;
 use App\Http\Requests\StoreRegisterShortageRequest;
 use App\Http\Requests\UpdateRegisterShortageRequest;
 use App\Http\Requests\VinReferenceRequest;
 use App\Http\Resources\RegisterShortageResource;
+use App\Jobs\ExportJob;
+use App\Models\Job;
 use App\Models\MainItemShortage;
 use App\Models\RegisterShortage;
 use App\Models\Vehicle;
@@ -142,6 +145,24 @@ class RegisterShortageController extends Controller
         return RegisterShortageResource::collection($data);
     }
 
+    public function reportExcel(RegisterShortageReportRequest $request): JsonResponse
+    {
+        $job = Job::query()->create([
+            'type' => 'export-register-shortages',
+            'user_id' => Auth::id(),
+            'data' => $request->validated(),
+        ]);
+
+        ExportJob::dispatch($job->getAttribute('uuid'));
+
+        return response()->json([
+            'message' => 'export job created',
+            'data' => [
+                'uuid' => $job->getAttribute('uuid'),
+                'tracking_url' => route('job.tracking', $job->getAttribute('uuid')),
+            ],
+        ]);
+    }
 
     /**
      * @throws Throwable

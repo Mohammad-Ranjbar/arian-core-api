@@ -30,6 +30,7 @@ class ExporterServiceFactory
             'export-incidents' => new ExportIncidentsService($job),
             'export-production-line-activities' => new ExportProductionLineActivityService($job),
             'export-shortages' => new ExportShortageService($job),
+            'export-register-shortages' => new ExportRegisterShortageService($job),
             'export-cabin-numbers' => new ExportCabinNumberService($job),
             'export-pallet-transactions' => new ExportPalletTransactionService($job),
             'export-pallet-stocks' => new ExportPalletStockService($job),
