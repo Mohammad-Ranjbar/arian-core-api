@@ -300,7 +300,7 @@ class RegisterShortageController extends Controller
         $registerShortage->delete();
 
         return response()->json([
-            'message' => 'Register shortage deleted successfully.',
+            'message' => 'با موفقیت حذف گردید',
         ]);
     }
 }
