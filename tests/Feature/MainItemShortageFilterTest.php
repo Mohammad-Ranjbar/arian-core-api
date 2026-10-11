@@ -8,10 +8,13 @@ use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Tests\Concerns\CreatesShortageAuditTables;
 use Tests\TestCase;
 
 class MainItemShortageFilterTest extends TestCase
 {
+    use CreatesShortageAuditTables;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -19,6 +22,8 @@ class MainItemShortageFilterTest extends TestCase
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite.database', ':memory:');
         DB::purge('sqlite');
+
+        $this->createShortageAuditTablesAndAuthenticate();
 
         Schema::create('car_models', function (Blueprint $table): void {
             $table->id();

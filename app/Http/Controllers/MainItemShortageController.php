@@ -38,7 +38,10 @@ class MainItemShortageController extends CrudController
             $mainItemShortage->update(['is_active' => true]);
         });
 
-        return MainItemShortageResource::make($mainItemShortage->load('relatedItems'));
+        return MainItemShortageResource::make($mainItemShortage->load([
+            'relatedItems.actionLogs.user.stations',
+            'actionLogs.user.stations',
+        ]));
     }
 
     /**

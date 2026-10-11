@@ -14,8 +14,23 @@ trait CreatesShortageAuditTables
         Schema::create('users', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->string('email')->nullable();
+            $table->string('mobile')->nullable();
+            $table->string('national_code')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();
+        });
+
+        Schema::create('stations', function (Blueprint $table): void {
+            $table->id();
+            $table->softDeletes();
+        });
+
+        Schema::create('station_user', function (Blueprint $table): void {
+            $table->foreignId('station_id');
+            $table->foreignId('user_id');
+            $table->json('data')->nullable();
         });
 
         Schema::create('action_logs', function (Blueprint $table): void {

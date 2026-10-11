@@ -17,6 +17,7 @@ class RelatedItemShortageRepository extends BaseRepository
         'item_no',
         'description',
     ];
+
     /**
      * @var array|array[]
      */
@@ -26,13 +27,10 @@ class RelatedItemShortageRepository extends BaseRepository
             'item_no' => 'nullable|string|max:200',
             'description' => 'nullable|string',
             'location_code' => 'required|string|max:200',
-            'data' => 'nullable|array'
-        ]
+            'data' => 'nullable|array',
+        ],
     ];
 
-    /**
-     * @param RelatedItemShortage $model
-     */
     public function __construct(RelatedItemShortage $model)
     {
         $this->model = $model;
@@ -40,23 +38,37 @@ class RelatedItemShortageRepository extends BaseRepository
 
     public function makeQuery(): mixed
     {
-        $q = parent::makeQuery();
+        $q = parent::makeQuery()->with('actionLogs.user.stations');
         if (request()->filled('main_item_shortage_id')) {
             $q = $q->where('main_item_shortage_id', request()->integer('main_item_shortage_id'));
         }
+
         return $q;
+    }
+
+    public function show($id): mixed
+    {
+        return $this->model->newQuery()
+            ->with('actionLogs.user.stations')
+            ->findOrFail($id);
+    }
+
+    public function update($id, $data): RelatedItemShortage
+    {
+        return parent::update($id, $data)->load('actionLogs.user.stations');
     }
 
     /**
      * A draft main record takes the item directly; an active one is frozen, so
      * the item lands on a fresh fork of it.
+     *
      * @throws Throwable
      */
     public function store($data): MainItemShortage
     {
         return DB::transaction(function () use ($data): MainItemShortage {
             $main = $this->mainItemShortage($data['main_item_shortage_id']);
-            if (!$main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
+            if (! $main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
                 $main = $main->forkVersion($data['location_code']);
             }
             if (filled($data['item_no'] ?? null) && filled($data['description'] ?? null)) {
@@ -87,9 +99,10 @@ class RelatedItemShortageRepository extends BaseRepository
         return DB::transaction(function () use ($item) {
             $main = $this->mainItemShortage($item->main_item_shortage_id);
             if ($main->isDraft()) {
-                return (bool)$item->delete();
+                return (bool) $item->delete();
             }
             $main->forkVersion($main->location_code, [$item->id]);
+
             return true;
         });
     }

@@ -12,13 +12,13 @@ class MainItemShortageRepository extends BaseRepository
      */
     protected array $rules = [
         'create' => [
-            'location_code'       => 'required|string|max:200',
-            'car_model_id'        => 'required|exists:car_models,id',
+            'location_code' => 'required|string|max:200',
+            'car_model_id' => 'required|exists:car_models,id',
             'car_model_reference' => 'required|string|max:200',
-            'item_no'             => 'required|string|max:200',
-            'description'         => 'required|string',
-            'data'         => 'required',
-        ]
+            'item_no' => 'required|string|max:200',
+            'description' => 'required|string',
+            'data' => 'required',
+        ],
     ];
 
     public array $searchTerms = [
@@ -27,7 +27,6 @@ class MainItemShortageRepository extends BaseRepository
         'location_code',
     ];
 
-
     public function __construct(MainItemShortage $model)
     {
         $this->model = $model;
@@ -35,11 +34,33 @@ class MainItemShortageRepository extends BaseRepository
 
     public function makeQuery(): mixed
     {
-        return parent::makeQuery()->with('relatedItems');
+        return parent::makeQuery()->with([
+            'relatedItems.actionLogs.user.stations',
+            'actionLogs.user.stations',
+        ]);
     }
 
     public function show($id): mixed
     {
-        return $this->model->newQuery()->with('relatedItems')->findOrFail($id);
+        return $this->model->newQuery()->with([
+            'relatedItems.actionLogs.user.stations',
+            'actionLogs.user.stations',
+        ])->findOrFail($id);
+    }
+
+    public function store($data): MainItemShortage
+    {
+        return parent::store($data)->load([
+            'relatedItems.actionLogs.user.stations',
+            'actionLogs.user.stations',
+        ]);
+    }
+
+    public function update($id, $data): MainItemShortage
+    {
+        return parent::update($id, $data)->load([
+            'relatedItems.actionLogs.user.stations',
+            'actionLogs.user.stations',
+        ]);
     }
 }

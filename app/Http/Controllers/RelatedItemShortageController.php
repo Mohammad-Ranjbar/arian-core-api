@@ -52,7 +52,12 @@ class RelatedItemShortageController extends CrudController
                 ]);
             }
 
-            $resource = new $this->resource($saveItem->relatedItems()->latest('id')->first());
+            $resource = new $this->resource(
+                $saveItem->relatedItems()
+                    ->with('actionLogs.user.stations')
+                    ->latest('id')
+                    ->first()
+            );
 
             return $message ? $resource->additional(['message' => $message]) : $resource;
         } catch (Exception $exception) {

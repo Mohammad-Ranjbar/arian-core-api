@@ -55,6 +55,9 @@ class RelatedItemShortageStoreTest extends TestCase
             ->assertJsonPath('main_item_shortage_id', $main->id)
             ->assertJsonPath('item_no', 'NEW-CHILD')
             ->assertJsonPath('data', ['qty' => 2])
+            ->assertJsonPath('actionLogs.0.action', ActionLog::RELATED_ITEM_SHORTAGE_CREATED)
+            ->assertJsonPath('actionLogs.0.user.id', 1)
+            ->assertJsonCount(1, 'actionLogs')
             ->assertJsonMissingPath('message');
 
         $this->assertDatabaseCount('main_item_shortages', 1);

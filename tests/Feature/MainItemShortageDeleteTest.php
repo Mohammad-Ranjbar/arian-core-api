@@ -77,7 +77,10 @@ class MainItemShortageDeleteTest extends TestCase
             'description' => 'Main item',
             'data' => ['routing_link_code' => 'ROUTING-1'],
         ])->assertCreated()
-            ->assertJsonPath('item_no', 'MAIN-ITEM');
+            ->assertJsonPath('item_no', 'MAIN-ITEM')
+            ->assertJsonPath('actionLogs.0.action', ActionLog::MAIN_ITEM_SHORTAGE_CREATED)
+            ->assertJsonPath('actionLogs.0.user.id', 1)
+            ->assertJsonCount(1, 'actionLogs');
 
         $mainItemShortage = MainItemShortage::query()->sole();
         $log = ActionLog::query()
