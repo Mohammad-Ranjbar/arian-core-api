@@ -12,6 +12,19 @@ class RegisterShortageReportRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $normalized = [];
+
+        foreach (['vin', 'item_no'] as $field) {
+            if ($this->has($field) && is_string($this->input($field))) {
+                $normalized[$field] = trim($this->input($field));
+            }
+        }
+
+        $this->merge($normalized);
+    }
+
     public function rules(): array
     {
         return [

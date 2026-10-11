@@ -92,7 +92,15 @@ class RegisterShortage extends Model
     public static function getReportData(array $filters): Collection
     {
         return self::query()
-            ->whereNotNull('main_item_shortage_id')
+            ->where(function ($query) {
+                $query->whereNotNull('main_item_shortage_id')
+                    ->orWhere(function ($query) {
+                        $query->whereNotNull('register_shortage_id')
+                            ->whereHas('parent', function ($query) {
+                                $query->whereNotNull('main_item_shortage_id');
+                            });
+                    });
+            })
             ->withOnly([
                 'carModel:id,title,reference',
                 'user:id,name',
@@ -102,7 +110,7 @@ class RegisterShortage extends Model
                 $query->where('vin', $filters['vin']);
             })
             ->when(filled($filters['item_no'] ?? null), function ($query) use ($filters) {
-                $query->where('item_no', $filters['item_no']);
+                $query->where('item_no', trim($filters['item_no']));
             })
             ->when(filled($filters['from'] ?? null), function ($query) use ($filters) {
                 $query->where('created_at', '>=', Carbon::parse($filters['from'])->startOfDay());

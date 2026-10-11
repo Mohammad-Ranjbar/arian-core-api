@@ -299,10 +299,11 @@ class RegisterShortageTest extends TestCase
             'type' => RegisterShortage::TYPE_MAIN,
         ]);
         $child = $this->createRegisterShortage([
-            'main_item_shortage_id' => $mainItemId,
+            'main_item_shortage_id' => null,
             'register_shortage_id' => $parent->id,
             'item_no' => 'CHILD-1',
             'item_description' => 'Child item',
+            'status' => RegisterShortage::STATUS_RESOLVED,
         ]);
         DB::table('register_shortages')->where('id', $parent->id)->update([
             'created_at' => '2026-06-15 00:00:00',
@@ -318,7 +319,7 @@ class RegisterShortageTest extends TestCase
         $rows = RegisterShortage::getReportData(['vin' => 'VIN-1']);
 
         $this->assertSame([$parent->id, $child->id], $rows->pluck('id')->all());
-        $this->assertSame([$child->id], RegisterShortage::getReportData(['item_no' => 'CHILD-1'])->pluck('id')->all());
+        $this->assertSame([$child->id], RegisterShortage::getReportData(['item_no' => ' CHILD-1 '])->pluck('id')->all());
         $this->assertSame(
             [$parent->id, $child->id],
             RegisterShortage::getReportData([
@@ -341,11 +342,20 @@ class RegisterShortageTest extends TestCase
             'resolved_by' => $this->user->id,
             'resolved_at' => '2026-06-15 10:30:00',
         ]);
+        $child = $this->createRegisterShortage([
+            'main_item_shortage_id' => null,
+            'register_shortage_id' => $row->id,
+            'item_no' => 'CHILD-1',
+            'item_description' => 'Child item',
+            'status' => RegisterShortage::STATUS_RESOLVED,
+            'resolved_by' => $this->user->id,
+            'resolved_at' => '2026-06-15 11:00:00',
+        ]);
 
-        $binary = Excel::raw(new RegisterShortageReportExport(collect([$row]), [
+        $binary = Excel::raw(new RegisterShortageReportExport(collect([$row, $child]), [
             'id' => 'report-test',
             'user_id' => $this->user->id,
-            'total' => 1,
+            'total' => 2,
             'done' => 0,
             'success' => 0,
             'error' => 0,
@@ -357,12 +367,19 @@ class RegisterShortageTest extends TestCase
             $sheet = IOFactory::load($path)->getActiveSheet();
 
             $this->assertSame('ردیف', $sheet->getCell('A1')->getValue());
-            $this->assertSame('رفع کسری توسط', $sheet->getCell('J1')->getValue());
+            $this->assertSame('نوع آیتم', $sheet->getCell('F1')->getValue());
+            $this->assertSame('وضعیت کسری', $sheet->getCell('H1')->getValue());
+            $this->assertSame('رفع کسری توسط', $sheet->getCell('L1')->getValue());
             $this->assertSame('VIN-1', $sheet->getCell('B2')->getValue());
             $this->assertSame('MAIN-1', $sheet->getCell('D2')->getValue());
             $this->assertSame('Main item', $sheet->getCell('E2')->getValue());
-            $this->assertSame(1.5, $sheet->getCell('F2')->getValue());
-            $this->assertSame('Test User', $sheet->getCell('J2')->getValue());
+            $this->assertSame('اصلی', $sheet->getCell('F2')->getValue());
+            $this->assertSame(1.5, $sheet->getCell('G2')->getValue());
+            $this->assertSame('کسری دارد', $sheet->getCell('H2')->getValue());
+            $this->assertSame('Test User', $sheet->getCell('L2')->getValue());
+            $this->assertSame('CHILD-1', $sheet->getCell('D3')->getValue());
+            $this->assertSame('وابسته', $sheet->getCell('F3')->getValue());
+            $this->assertSame('رفع کسری شده', $sheet->getCell('H3')->getValue());
             $this->assertTrue($sheet->getRightToLeft());
             $this->assertSame('A2', $sheet->getFreezePane());
         } finally {

@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Events\JobProcessEvent;
+use App\Models\RegisterShortage;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -29,7 +30,9 @@ class RegisterShortageReportExport implements FromCollection, ShouldAutoSize, Wi
             'نوع خودرو',
             'کد قطعه',
             'نام قطعه',
+            'نوع آیتم',
             'تعداد کسری',
+            'وضعیت کسری',
             'کاربر ثبت کننده',
             'تاریخ ثبت کسری',
             'تاریخ رفع کسری',
@@ -52,7 +55,13 @@ class RegisterShortageReportExport implements FromCollection, ShouldAutoSize, Wi
             $row->carModel?->title ?? $row->carModel?->reference ?? '',
             $row->item_no,
             $row->item_description ?? '',
+            $row->register_shortage_id === null ? 'اصلی' : 'وابسته',
             $row->qty,
+            match ($row->status) {
+                RegisterShortage::STATUS_HAS_SHORTAGE => 'کسری دارد',
+                RegisterShortage::STATUS_RESOLVED => 'رفع کسری شده',
+                default => $row->status,
+            },
             $row->user?->name ?? '',
             jdate($row->created_at)->format('Y/m/d H:i'),
             $row->resolved_at ? jdate($row->resolved_at)->format('Y/m/d H:i') : '',
@@ -71,7 +80,7 @@ class RegisterShortageReportExport implements FromCollection, ShouldAutoSize, Wi
         return [
             'B' => NumberFormat::FORMAT_TEXT,
             'D' => NumberFormat::FORMAT_TEXT,
-            'F' => '#,##0.00',
+            'G' => '#,##0.00',
         ];
     }
 
