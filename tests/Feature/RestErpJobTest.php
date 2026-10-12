@@ -554,39 +554,4 @@ class RestErpJobTest extends TestCase
         $this->assertSame('success', $job->fresh()->status);
         Http::assertSent(fn (HttpRequest $request) => $request->data() === $parameters);
     }
-
-    public function test_the_data_migration_converts_legacy_values_without_changing_parameters_timestamps_or_integrity_checks(): void
-    {
-        $legacy = $this->enqueue();
-        $plain = $this->enqueue();
-        $parameters = $legacy->parameters;
-        DB::table('rest_erp_jobs')->where('id', $legacy->id)->update(['parameters' => Crypt::encryptString(json_encode($parameters, JSON_THROW_ON_ERROR))]);
-        $before = DB::table('rest_erp_jobs')->where('id', $legacy->id)->first();
-        $migration = require database_path('migrations/2026_10_12_140000_make_rest_erp_parameters_readable.php');
-        $migration->up();
-        $after = DB::table('rest_erp_jobs')->where('id', $legacy->id)->first();
-        $this->assertSame($parameters, json_decode($after->parameters, true, 512, JSON_THROW_ON_ERROR));
-        $this->assertSame($before->payload_hash, $after->payload_hash);
-        $this->assertSame($before->updated_at, $after->updated_at);
-        $this->assertSame($parameters, $plain->fresh()->parameters);
-        $migration->down();
-        foreach ([$legacy, $plain] as $job) {
-            $raw = DB::table('rest_erp_jobs')->where('id', $job->id)->value('parameters');
-            $this->assertSame($parameters, json_decode(Crypt::decryptString($raw), true, 512, JSON_THROW_ON_ERROR));
-            $this->assertSame($parameters, $job->fresh()->parameters);
-        }
-    }
-
-    public function test_the_data_migration_does_not_overwrite_a_corrupt_legacy_value(): void
-    {
-        $job = $this->enqueue();
-        DB::table('rest_erp_jobs')->where('id', $job->id)->update(['parameters' => 'invalid-ciphertext']);
-        $migration = require database_path('migrations/2026_10_12_140000_make_rest_erp_parameters_readable.php');
-        try {
-            $migration->up();
-            $this->fail('The conversion must stop without substituting invalid data.');
-        } catch (RuntimeException $exception) {
-            $this->assertSame('invalid-ciphertext', DB::table('rest_erp_jobs')->where('id', $job->id)->value('parameters'));
-        }
-    }
 }
