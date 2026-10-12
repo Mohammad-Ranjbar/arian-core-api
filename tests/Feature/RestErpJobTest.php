@@ -20,6 +20,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -115,8 +116,9 @@ class RestErpJobTest extends TestCase
         foreach (['query-secret', 'password-secret', 'key-secret', 'auth-secret', 'private-session', 'ref-secret'] as $secret) {
             $this->assertStringNotContainsString($secret, $serialized);
         }
-        $this->assertStringNotContainsString('BKJ1038538', DB::table('rest_erp_jobs')->value('parameters'));
-        $this->assertArrayNotHasKey('parameters', $job->toArray());
+        $this->assertSame($job->parameters, json_decode(DB::table('rest_erp_jobs')->value('parameters'), true, 512, JSON_THROW_ON_ERROR));
+        $this->assertSame($job->parameters, $job->toArray()['parameters']);
+        $this->assertArrayNotHasKey('payload_hash', $job->toArray());
     }
 
     public function test_an_untrusted_forwarded_ip_is_not_used(): void
@@ -345,7 +347,7 @@ class RestErpJobTest extends TestCase
         $this->assertGreaterThan(0, $job->actionLogs()->count());
     }
 
-    public function test_job_and_action_endpoints_enforce_access_control_and_hide_replay_parameters(): void
+    public function test_job_and_action_endpoints_enforce_access_control(): void
     {
         $job = $this->enqueue();
         $this->getJson('/api/rest-erp-jobs')->assertForbidden();
@@ -360,7 +362,9 @@ class RestErpJobTest extends TestCase
             Auth::user()->givePermissionTo(Permission::create(['name' => $ability, 'guard_name' => 'web']));
         }
         $job = $this->enqueue();
-        $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk()->assertJsonPath('data.uuid', $job->uuid)->assertJsonMissingPath('data.parameters');
+        $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk()->assertJsonPath('data.uuid', $job->uuid)
+            ->assertJsonPath('data.parameters', $job->parameters)->assertJsonMissingPath('data.payload_hash');
+        $this->getJson('/api/rest-erp-jobs')->assertOk()->assertJsonPath('data.0.parameters', $job->parameters);
         $this->getJson('/api/rest-erp-jobs/'.$job->id.'/actions')->assertOk()->assertJsonCount(3, 'data');
         $this->getJson('/api/rest-erp-jobs?per_page=1000')->assertUnprocessable();
         $this->putJson('/api/rest-erp-jobs/'.$job->id.'/retry')->assertUnprocessable();
@@ -412,7 +416,7 @@ class RestErpJobTest extends TestCase
         resolve(RestErpJobService::class)->execute($job->id);
         $this->assertSame('failed', $job->fresh()->status);
         $this->assertSame('ERP_JOB_ERROR', $job->fresh()->error_code);
-        $this->assertArrayNotHasKey('parameters', $job->fresh()->toArray());
+        $this->assertNull($job->fresh()->toArray()['parameters']);
         $this->assertStringNotContainsString('invalid-ciphertext', json_encode($job->actionLogs()->get()->toArray()));
         Http::assertNothingSent();
     }
@@ -517,5 +521,72 @@ class RestErpJobTest extends TestCase
         $this->assertSame('failed', $job->status);
         $this->assertStringNotContainsString('broker-secret', $response->getContent());
         Http::assertNothingSent();
+    }
+
+    public function test_sent_parameters_are_complete_in_storage_api_and_action_logs_without_truncation(): void
+    {
+        $codes = implode(',', array_fill(0, 1000, 'BKJ1038538'));
+        $result = resolve(ItemReclassJournalsService::class)->queue($codes, 'تست', 1000, 'LAMARI');
+        $job = RestErpJob::query()->findOrFail($result['data']['rest_erp_job_id']);
+        $parameters = ['ArrayCrossReferenceNo' => $codes, 'BatchNo' => 'تست', 'Number' => '1000', 'BatchName' => 'LAMARI'];
+        $this->assertSame($parameters, json_decode($job->getRawOriginal('parameters'), true, 512, JSON_THROW_ON_ERROR));
+        foreach ($job->actionLogs()->get() as $log) {
+            $this->assertSame($parameters, $log->data['snapshot']['parameters']);
+            $this->assertArrayNotHasKey('payload_hash', $log->data['snapshot']);
+        }
+        Auth::user()->givePermissionTo(Permission::create(['name' => 'erp-jobs', 'guard_name' => 'web']));
+        $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk()->assertJsonPath('data.parameters', $parameters);
+        $this->getJson('/api/rest-erp-jobs')->assertOk()->assertJsonPath('data.0.parameters', $parameters);
+        Http::fake([self::ERP_URL => Http::response(['Number' => '1000'], 201)]);
+        resolve(RestErpJobService::class)->execute($job->id);
+        $this->assertSame('success', $job->fresh()->status);
+        Http::assertSent(fn (HttpRequest $request) => $request->data() === $parameters);
+    }
+
+    public function test_legacy_encrypted_parameters_remain_readable_and_can_still_execute(): void
+    {
+        $job = $this->enqueue();
+        $parameters = $job->parameters;
+        DB::table('rest_erp_jobs')->where('id', $job->id)->update(['parameters' => Crypt::encryptString(json_encode($parameters, JSON_THROW_ON_ERROR))]);
+        $this->assertSame($parameters, $job->fresh()->parameters);
+        Http::fake([self::ERP_URL => Http::response(['Number' => '1'], 201)]);
+        resolve(RestErpJobService::class)->execute($job->id);
+        $this->assertSame('success', $job->fresh()->status);
+        Http::assertSent(fn (HttpRequest $request) => $request->data() === $parameters);
+    }
+
+    public function test_the_data_migration_converts_legacy_values_without_changing_parameters_timestamps_or_integrity_checks(): void
+    {
+        $legacy = $this->enqueue();
+        $plain = $this->enqueue();
+        $parameters = $legacy->parameters;
+        DB::table('rest_erp_jobs')->where('id', $legacy->id)->update(['parameters' => Crypt::encryptString(json_encode($parameters, JSON_THROW_ON_ERROR))]);
+        $before = DB::table('rest_erp_jobs')->where('id', $legacy->id)->first();
+        $migration = require database_path('migrations/2026_10_12_140000_make_rest_erp_parameters_readable.php');
+        $migration->up();
+        $after = DB::table('rest_erp_jobs')->where('id', $legacy->id)->first();
+        $this->assertSame($parameters, json_decode($after->parameters, true, 512, JSON_THROW_ON_ERROR));
+        $this->assertSame($before->payload_hash, $after->payload_hash);
+        $this->assertSame($before->updated_at, $after->updated_at);
+        $this->assertSame($parameters, $plain->fresh()->parameters);
+        $migration->down();
+        foreach ([$legacy, $plain] as $job) {
+            $raw = DB::table('rest_erp_jobs')->where('id', $job->id)->value('parameters');
+            $this->assertSame($parameters, json_decode(Crypt::decryptString($raw), true, 512, JSON_THROW_ON_ERROR));
+            $this->assertSame($parameters, $job->fresh()->parameters);
+        }
+    }
+
+    public function test_the_data_migration_does_not_overwrite_a_corrupt_legacy_value(): void
+    {
+        $job = $this->enqueue();
+        DB::table('rest_erp_jobs')->where('id', $job->id)->update(['parameters' => 'invalid-ciphertext']);
+        $migration = require database_path('migrations/2026_10_12_140000_make_rest_erp_parameters_readable.php');
+        try {
+            $migration->up();
+            $this->fail('The conversion must stop without substituting invalid data.');
+        } catch (RuntimeException $exception) {
+            $this->assertSame('invalid-ciphertext', DB::table('rest_erp_jobs')->where('id', $job->id)->value('parameters'));
+        }
     }
 }

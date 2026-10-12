@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ReadableRestErpParameters;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -19,10 +20,10 @@ class RestErpJob extends Model
         'dispatched_at', 'started_at', 'completed_at', 'failed_at', 'last_retry_at', 'last_retry_user_id', 'ignored_at',
     ];
 
-    protected $hidden = ['parameters'];
+    protected $hidden = ['payload_hash'];
 
     protected $casts = [
-        'parameters' => 'encrypted:array',
+        'parameters' => ReadableRestErpParameters::class,
         'response' => 'encrypted:array',
         'request_payload' => 'array',
         'request_headers' => 'array',

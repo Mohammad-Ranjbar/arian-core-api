@@ -329,24 +329,34 @@ readonly class RestErpJobService
         $actorId ??= $job->user_id;
         DB::table('rest_erp_job_actors')->insertOrIgnore(['rest_erp_job_id' => $job->getKey(), 'user_id' => $actorId]);
         $snapshot = $job->attributesToArray();
+        $parameters = $snapshot['parameters'] ?? null;
         unset($snapshot['parameters']);
+        $data = $this->sanitizer->sanitize([
+            'result' => [
+                'status' => $job->status, 'tries' => $job->tries,
+                'http_status' => $job->http_status, 'provider_http_status' => $job->provider_http_status,
+                'error_code' => $job->error_code, 'description' => $job->description,
+                'execute_time' => $job->execute_time,
+            ],
+            ...$extra, 'snapshot' => $snapshot,
+        ]);
+        if (! is_array($data)) {
+            $data = ['_truncated' => true];
+        }
+        if (! is_array($data['snapshot'] ?? null)) {
+            $data['snapshot'] = ['id' => $job->id, 'uuid' => $job->uuid, '_truncated' => true];
+        }
+        // Validated business parameters are size-limited at creation and must remain exact in the audit.
+        // Authentication headers/credentials are never part of these endpoint payloads.
+        $data['snapshot']['parameters'] = $parameters;
         $job->actionLogs()->create([
-            'user_id' => $actorId, 'action' => $action,
-            'data' => $this->sanitizer->sanitize([
-                'result' => [
-                    'status' => $job->status, 'tries' => $job->tries,
-                    'http_status' => $job->http_status, 'provider_http_status' => $job->provider_http_status,
-                    'error_code' => $job->error_code, 'description' => $job->description,
-                    'execute_time' => $job->execute_time,
-                ],
-                ...$extra, 'snapshot' => $snapshot,
-            ]),
+            'user_id' => $actorId, 'action' => $action, 'data' => $data,
         ]);
     }
 
     private function payloadHash(string $uuid, string $endpoint, string $userId, ?string $modelType, string $modelId, array $payload): string
     {
-        // Bind the authenticated ciphertext's payload to this job and its original actor/model.
+        // Bind the payload to this job and its original actor/model to detect tampering.
         $identity = implode("\0", ['rest-erp-payload-v1', $uuid, $endpoint, $userId, $modelType ?? '', $modelId]);
 
         return hash_hmac('sha256', $identity."\0".json_encode($payload, JSON_THROW_ON_ERROR), (string) config('app.key'));
