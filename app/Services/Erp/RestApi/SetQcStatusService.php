@@ -2,54 +2,44 @@
 
 namespace App\Services\Erp\RestApi;
 
-use App\Services\Erp\RestApi\Servers\PreGoLiveServer;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Model;
 
 readonly class SetQcStatusService
 {
-    public function __construct(
-        private PreGoLiveServer $server
-    ) {}
+    public function __construct(private RestErpJobService $jobs) {}
 
     public function send(
         string $vin,
         string|int $qcStatus,
         string|int $itemType,
+        string|int $qcType,
+        ?Model $model = null
+    ): array {
+        return $this->jobs->send('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'qc-status');
+    }
+
+    public function queue(
+        string $vin,
+        string|int $qcStatus,
+        string|int $itemType,
+        string|int $qcType,
+        ?Model $model = null,
+        ?int $userId = null
+    ): array {
+        return $this->jobs->enqueue('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'qc-status', $userId);
+    }
+
+    private function payload(
+        string $vin,
+        string|int $qcStatus,
+        string|int $itemType,
         string|int $qcType
     ): array {
-        $payload = [
+        return [
             'VIN' => $vin,
             'QCStatus' => (string) $qcStatus,
             'ItemType' => (string) $itemType,
             'QCType' => (string) $qcType,
         ];
-
-        $validator = Validator::make($payload, [
-            'VIN' => [
-                'required',
-                'string',
-                'regex:/^[A-HJ-NPR-Z0-9]{17}$/',
-            ],
-            'QCStatus' => ['required', 'string', 'regex:/^[0-9]{1,10}$/'],
-            'ItemType' => ['required', 'string', 'regex:/^[0-9]{1,10}$/'],
-            'QCType' => ['required', 'string', 'regex:/^[0-9]{1,10}$/'],
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                'success' => false,
-                'data' => null,
-                'error' => [
-                    'code' => 'VALIDATION_ERROR',
-                    'message' => $validator->errors()->first(),
-                ],
-                'http_status' => 422,
-            ];
-        }
-
-        return $this->server->post(
-            'qcStatuses',
-            $validator->validated()
-        );
     }
 }

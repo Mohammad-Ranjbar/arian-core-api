@@ -144,6 +144,7 @@ class AlternativeController extends CrudController
                 crossRefArray: $parameters['crossRefArray'],
                 makeCode: $parameters['makeCodeP'],
                 documentNo: $parameters['documentNo'],
+                model: $alternative,
             );
             if (! $response['success']) {
                 $alternative->update([

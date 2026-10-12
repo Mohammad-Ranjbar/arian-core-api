@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class BasketController extends CrudController
 {
@@ -79,18 +80,22 @@ class BasketController extends CrudController
         $lock = Cache::lock('batch_update_process_' . Auth::id(), 30);
         if ($lock->get()) {
             try {
-                $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
-                if ($baskets->count() == 0) {
-                    return response()->json([
-                        'message' => 'بارکدی وجود ندارد'
-                    ]);
-                }
-                $response = $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
-                    $baskets->first()->id, $validatedData['batch_name']);
-                if ($response !== null) {
+                return DB::transaction(function () use ($validatedData) {
+                    $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->lockForUpdate()->get();
+                    if ($baskets->count() == 0) {
+                        return response()->json([
+                            'message' => 'بارکدی وجود ندارد'
+                        ]);
+                    }
+                    $response = $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
+                        $baskets->first()->id, $validatedData['batch_name']);
+                    if ($response->getStatusCode() !== 202) {
+                        return $response;
+                    }
+                    Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
+
                     return $response;
-                }
-                Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
+                });
             } finally {
                 $lock->release();
             }
@@ -98,10 +103,9 @@ class BasketController extends CrudController
             return response()->json('Server busy',500);
         }
 
-        return true;
     }
 
-    public function sendBasketBatchBarcode(array $codes, $batch, $basketId, $batchName): ?JsonResponse
+    public function sendBasketBatchBarcode(array $codes, $batch, $basketId, $batchName): JsonResponse
     {
         // $parameters = [
         //     'numberP' => count($codes),
@@ -121,8 +125,9 @@ class BasketController extends CrudController
         // ]);
         // ErpJobEvent::dispatch($erpJob);
 
-        $result = resolve(ItemReclassJournalsService::class)->send(
-            implode(',', $codes), 'Batch-' . $batch, count($codes), $batchName
+        $result = resolve(ItemReclassJournalsService::class)->queue(
+            implode(',', $codes), 'Batch-' . $batch, count($codes), $batchName,
+            Basket::query()->findOrFail($basketId), Auth::id()
         );
 
         if (!$result['success']) {
@@ -131,7 +136,7 @@ class BasketController extends CrudController
             ], $result['http_status']);
         }
 
-        return null;
+        return response()->json($result['data'], 202);
     }
 
     /**

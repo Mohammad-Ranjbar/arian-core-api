@@ -7,15 +7,19 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\Concerns\CreatesRestErpTables;
 use Tests\TestCase;
 
 class CreateTransferZonesServiceTest extends TestCase
 {
+    use CreatesRestErpTables;
+
     private const ERP_URL = 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0/CreateTransferZones';
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->createRestErpTables();
 
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();

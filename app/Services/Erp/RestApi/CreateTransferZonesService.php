@@ -2,14 +2,11 @@
 
 namespace App\Services\Erp\RestApi;
 
-use App\Services\Erp\RestApi\Servers\PreGoLiveServer;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Model;
 
 readonly class CreateTransferZonesService
 {
-    public function __construct(
-        private PreGoLiveServer $server
-    ) {}
+    public function __construct(private RestErpJobService $jobs) {}
 
     public function send(
         string $itemNoArray,
@@ -20,9 +17,40 @@ readonly class CreateTransferZonesService
         string $variantArray,
         string $crossRefArray,
         string $makeCode,
+        string|int $documentNo,
+        ?Model $model = null
+    ): array {
+        return $this->jobs->send('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'send-alternative');
+    }
+
+    public function queue(
+        string $itemNoArray,
+        string $itemQtyArray,
+        string|int $numberItems,
+        string $fromLocationType,
+        string $toLacationType,
+        string $variantArray,
+        string $crossRefArray,
+        string $makeCode,
+        string|int $documentNo,
+        ?Model $model = null,
+        ?int $userId = null
+    ): array {
+        return $this->jobs->enqueue('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'send-alternative', $userId);
+    }
+
+    private function payload(
+        string $itemNoArray,
+        string $itemQtyArray,
+        string|int $numberItems,
+        string $fromLocationType,
+        string $toLacationType,
+        string $variantArray,
+        string $crossRefArray,
+        string $makeCode,
         string|int $documentNo
     ): array {
-        $payload = [
+        return [
             'ItemNoArray' => $itemNoArray,
             'ItemQtyArray' => $itemQtyArray,
             'NumberItems' => (string) $numberItems,
@@ -33,34 +61,5 @@ readonly class CreateTransferZonesService
             'MakeCode' => $makeCode,
             'DocumentNo' => (string) $documentNo,
         ];
-
-        $validator = Validator::make($payload, [
-            'ItemNoArray' => ['required', 'string'],
-            'ItemQtyArray' => ['required', 'string'],
-            'NumberItems' => ['required', 'string', 'regex:/^[1-9][0-9]*$/'],
-            'FromLocationType' => ['required', 'string'],
-            'ToLacationType' => ['required', 'string'],
-            'VariantArray' => ['present', 'string'],
-            'CrossRefArray' => ['present', 'string'],
-            'MakeCode' => ['required', 'string'],
-            'DocumentNo' => ['required', 'string'],
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                'success' => false,
-                'data' => null,
-                'error' => [
-                    'code' => 'VALIDATION_ERROR',
-                    'message' => $validator->errors()->first(),
-                ],
-                'http_status' => 422,
-            ];
-        }
-
-        return $this->server->post(
-            'CreateTransferZones',
-            $validator->validated()
-        );
     }
 }

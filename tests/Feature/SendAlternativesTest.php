@@ -10,15 +10,19 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Mockery;
+use Tests\Concerns\CreatesRestErpTables;
 use Tests\TestCase;
 
 class SendAlternativesTest extends TestCase
 {
+    use CreatesRestErpTables;
+
     private const ERP_URL = 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0/CreateTransferZones';
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->createRestErpTables();
 
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
@@ -88,6 +92,9 @@ class SendAlternativesTest extends TestCase
     private function alternative(): Alternative
     {
         $alternative = Mockery::mock(Alternative::class)->makePartial();
+        $alternative->setAttribute('id', 77);
+        $alternative->exists = true;
+        $alternative->shouldReceive('getMorphClass')->andReturn(Alternative::class);
         $alternative->fill([
             'item_no' => 'AC-90199752100001',
             'document_number' => 'ALT-77',

@@ -2,6 +2,7 @@
 
 namespace App\Services\Erp\RestApi\Servers;
 
+use App\Services\Erp\RestApi\RestErpLogSanitizer;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -9,23 +10,37 @@ use InvalidArgumentException;
 
 class PreGoLiveServer
 {
-    private const string BASE_URL =
-        'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0';
-
     private const array ENDPOINTS = [
         'qcStatuses' => 'qcStatuses',
         'CreateTransferZones' => 'CreateTransferZones',
         'ItemReclassJournals' => 'ItemReclassJournals',
     ];
 
-    public function post(string $endpoint, array $data): array
+    public function urlFor(string $endpoint): string
     {
         if (! array_key_exists($endpoint, self::ENDPOINTS)) {
             throw new InvalidArgumentException('Unsupported ERP endpoint.');
         }
 
-        $username = config('erp.auth')[0];
-        $password = config('erp.auth')[1];
+        $baseUrl = config('rest_erp.base_url');
+        $parts = is_string($baseUrl) ? parse_url($baseUrl) : false;
+        if (! is_array($parts)
+            || ! in_array($parts['scheme'] ?? null, ['http', 'https'], true)
+            || ! in_array($parts['host'] ?? null, config('rest_erp.allowed_hosts', []), true)
+            || isset($parts['user']) || isset($parts['pass'])
+            || isset($parts['query']) || isset($parts['fragment'])) {
+            throw new InvalidArgumentException('Invalid ERP base URL configuration.');
+        }
+
+        return rtrim($baseUrl, '/').'/'.self::ENDPOINTS[$endpoint];
+    }
+
+    public function post(string $endpoint, array $data, ?callable $onResponse = null, ?string $requestId = null): array
+    {
+        $url = $this->urlFor($endpoint);
+
+        $username = config('erp.auth.0');
+        $password = config('erp.auth.1');
 
         if (
             ! extension_loaded('curl')
@@ -46,6 +61,7 @@ class PreGoLiveServer
         try {
             $response = Http::acceptJson()
                 ->asJson()
+                ->withHeaders($requestId ? ['X-Request-ID' => $requestId] : [])
                 ->withOptions([
                     'auth' => [$username, $password, 'ntlm'],
                 ])
@@ -53,17 +69,31 @@ class PreGoLiveServer
                 ->timeout(15)
                 ->withoutRedirecting()
                 ->post(
-                    self::BASE_URL.'/'.self::ENDPOINTS[$endpoint],
+                    $url,
                     $data
                 );
         } catch (ConnectionException $exception) {
-            Log::warning('Could not connect to ERP. '.$exception->getMessage());
+            Log::warning('Could not connect to ERP', ['exception_class' => $exception::class]);
 
             return $this->failure(
                 'ERP_CONNECTION_ERROR',
                 'ارتباط با سامانه ERP برقرار نشد.',
                 503
             );
+        }
+
+        $rawBody = $response->body();
+        $headers = [];
+        foreach (config('rest_erp.response_headers', []) as $header) {
+            if ($value = $response->header($header)) {
+                $headers[$header] = $value;
+            }
+        }
+        if ($onResponse) {
+            $onResponse([
+                'http_status' => $response->status(), 'headers' => $headers,
+                'body_bytes' => strlen($rawBody), 'body_hash' => hash('sha256', $rawBody),
+            ]);
         }
 
         if (in_array($response->status(), [401, 403], true)) {
@@ -76,6 +106,10 @@ class PreGoLiveServer
                 'احراز هویت در سامانه ERP ناموفق بود.',
                 502
             );
+        }
+
+        if (strlen($rawBody) > (int) config('rest_erp.max_response_bytes', 1048576)) {
+            return $this->failure('ERP_RESPONSE_TOO_LARGE', 'حجم پاسخ ERP بیش از حد مجاز است.', 502);
         }
 
         $body = $response->json();
@@ -93,7 +127,7 @@ class PreGoLiveServer
         ) {
             Log::warning('ERP returned an invalid response', [
                 'http_status' => $response->status(),
-                'erp_code' => is_string($code) ? $code : null,
+                'erp_code' => is_string($code) ? resolve(RestErpLogSanitizer::class)->text($code, 255) : null,
             ]);
 
             return $this->failure(
@@ -107,7 +141,7 @@ class PreGoLiveServer
             'success' => true,
             'data' => $body,
             'error' => null,
-            'http_status' => 201,
+            'http_status' => $response->status(),
         ];
     }
 
