@@ -30,18 +30,27 @@ readonly class RestErpJobService
     {
         $job = $this->create($endpoint, $parameters, $model, $section, $userId, false);
 
-        return $job->status === 'rejected' ? $job->response : $this->execute($job->getKey());
+        return $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
     }
 
     public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'rest-erp', ?int $userId = null): array
     {
         $job = $this->create($endpoint, $parameters, $model, $section, $userId, true);
 
-        return $job->status === 'rejected' ? $job->response : [
+        return $job->status === 'rejected' ? $this->rejectedResult($job) : [
             'success' => true,
             'data' => ['rest_erp_job_id' => $job->getKey(), 'request_id' => $job->uuid],
             'error' => null,
             'http_status' => 202,
+        ];
+    }
+
+    private function rejectedResult(RestErpJob $job): array
+    {
+        return [
+            'success' => false, 'data' => null,
+            'error' => ['code' => $job->error_code, 'message' => $job->description],
+            'http_status' => $job->http_status,
         ];
     }
 
@@ -90,8 +99,7 @@ readonly class RestErpJobService
                 'parameters' => $payload,
                 'payload_hash' => $this->payloadHash($uuid, $endpoint, (string) $userId, $model?->getMorphClass(), (string) $model?->getKey(), $payload),
                 'request_payload' => $this->sanitizer->sanitize($parameters),
-                'request_headers' => ['Accept' => 'application/json', 'Content-Type' => 'application/json', 'X-Request-ID' => $uuid],
-                'response' => $error, 'http_status' => $error['http_status'] ?? null,
+                'http_status' => $error['http_status'] ?? null,
                 'error_code' => $error['error']['code'] ?? null, 'description' => $error['error']['message'] ?? null,
                 'queued_at' => $queued && ! $invalid ? now() : null, 'failed_at' => $invalid ? now() : null,
                 ...$metadata,
@@ -180,8 +188,7 @@ readonly class RestErpJobService
             }
             $job->update([
                 'status' => 'in-progress', 'tries' => $job->tries + 1, 'started_at' => now(), 'execute_time' => 0,
-                'completed_at' => null, 'failed_at' => null, 'response' => null,
-                'response_context' => null, 'response_headers' => null,
+                'completed_at' => null, 'failed_at' => null,
                 'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
             ]);
             $this->audit($job, 'rest_erp_started', ['worker' => [
@@ -194,7 +201,7 @@ readonly class RestErpJobService
             return null;
         }
         $start = microtime(true);
-        $responseMetadata = [];
+        $providerStatus = null;
         $sent = false;
         try {
             $payload = $job->parameters;
@@ -208,38 +215,36 @@ readonly class RestErpJobService
                 throw new InvalidArgumentException('REST ERP payload integrity check failed.');
             }
             $sent = true;
-            $result = $this->server->post($job->endpoint, $validated, function (array $metadata) use (&$responseMetadata) {
-                $responseMetadata = $metadata;
+            $result = $this->server->post($job->endpoint, $validated, function (array $metadata) use (&$providerStatus) {
+                $providerStatus = $metadata['http_status'];
             }, $job->uuid);
-        } catch (Throwable $exception) {
+        } catch (Throwable) {
             $result = [
                 'success' => false, 'data' => null,
                 'error' => ['code' => $sent ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_JOB_ERROR', 'message' => 'اجرای درخواست REST ERP ناموفق بود.'],
                 'http_status' => 500,
             ];
-            $responseMetadata['exception_class'] = $exception::class;
-            $responseMetadata['exception_fingerprint'] = hash('sha256', $exception->getMessage());
         }
         $code = $result['error']['code'] ?? null;
-        $providerStatus = $responseMetadata['http_status'] ?? null;
         $uncertain = in_array($code, ['ERP_CONNECTION_ERROR', 'ERP_EXECUTION_UNCERTAIN', 'ERP_RESPONSE_TOO_LARGE'], true)
             || ($code === 'ERP_ERROR' && ($providerStatus === null || $providerStatus >= 500 || ($providerStatus >= 200 && $providerStatus < 300)));
         $status = $result['success'] ? 'success' : ($uncertain ? 'uncertain' : 'failed');
-        DB::transaction(function () use ($job, $responseMetadata, $result, $providerStatus, $code, $status, $start) {
+        DB::transaction(function () use ($job, $result, $providerStatus, $code, $status, $start) {
             $current = RestErpJob::query()->lockForUpdate()->findOrFail($job->id);
             if ($current->tries !== $job->tries || ! in_array($current->status, ['in-progress', 'uncertain'], true)) {
                 $this->audit($current, 'rest_erp_late_result', [
-                    'attempt' => $job->tries, 'response' => $this->sanitizer->sanitize($result),
-                    'response_context' => $this->sanitizer->sanitize($responseMetadata),
+                    'attempt' => $job->tries,
+                    'outcome' => [
+                        'status' => $status, 'http_status' => $result['http_status'],
+                        'provider_http_status' => $providerStatus, 'error_code' => $code,
+                    ],
                 ]);
 
                 return;
             }
             $job->update([
-                'status' => $status, 'response' => $this->sanitizer->sanitize($result),
+                'status' => $status,
                 'http_status' => $result['http_status'], 'provider_http_status' => $providerStatus,
-                'response_headers' => $this->sanitizer->sanitize($responseMetadata['headers'] ?? []),
-                'response_context' => $this->sanitizer->sanitize($responseMetadata),
                 'error_code' => $code, 'description' => $this->sanitizer->text($result['error']['message'] ?? null),
                 'execute_time' => round(microtime(true) - $start, 4),
                 'completed_at' => now(), 'failed_at' => $result['success'] ? null : now(),
@@ -265,21 +270,11 @@ readonly class RestErpJobService
             }
             $uncertain = $job->status === 'in-progress';
             $message = $uncertain ? 'نتیجه اجرای درخواست ERP نامشخص است؛ قبل از تلاش مجدد بررسی شود.' : 'ارسال درخواست به صف ERP ناموفق بود.';
-            $response = [
-                'success' => false, 'data' => null,
-                'error' => ['code' => $uncertain ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_QUEUE_ERROR', 'message' => $message],
-                'http_status' => 503,
-            ];
             $job->update([
-                'status' => $uncertain ? 'uncertain' : 'failed', 'response' => $response,
-                'error_code' => $response['error']['code'], 'description' => $message,
+                'status' => $uncertain ? 'uncertain' : 'failed',
+                'error_code' => $uncertain ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_QUEUE_ERROR', 'description' => $message,
                 'http_status' => 503, 'failed_at' => now(), 'completed_at' => now(),
                 'execute_time' => $uncertain && $job->started_at ? round(max(0, microtime(true) - $job->started_at->getTimestamp()), 4) : 0,
-                'response_context' => [
-                    'exception_class' => $exception::class,
-                    'exception_fingerprint' => hash('sha256', $exception->getMessage()),
-                    'duration_source' => $uncertain ? 'wall_clock_estimate' : 'not_started',
-                ],
             ]);
             $this->audit($job, 'rest_erp_'.$job->status, ['exception_class' => $exception::class]);
         });
@@ -299,7 +294,6 @@ readonly class RestErpJobService
             $job->update([
                 'status' => 'pending', 'execution_mode' => 'queue', 'connection' => config('rest_erp.connection', 'redis'),
                 'queue' => 'parallel', 'queued_at' => now(), 'last_retry_at' => now(), 'last_retry_user_id' => $userId,
-                'response' => null, 'response_headers' => null, 'response_context' => null,
                 'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
                 'dispatched_at' => null, 'started_at' => null, 'completed_at' => null, 'failed_at' => null, 'execute_time' => 0,
             ]);

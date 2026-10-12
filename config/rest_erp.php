@@ -15,15 +15,6 @@ return [
     'log_item_limit' => 500,
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
-    'request_headers' => [
-        'accept', 'accept-language', 'content-type', 'content-length', 'user-agent',
-        'sec-ch-ua', 'sec-ch-ua-platform', 'sec-ch-ua-mobile',
-        'sec-fetch-site', 'sec-fetch-mode', 'sec-fetch-dest',
-    ],
-    'response_headers' => [
-        'content-type', 'content-length', 'date', 'request-id', 'x-request-id',
-        'x-correlation-id', 'retry-after',
-    ],
     'endpoints' => [
         'ItemReclassJournals' => [
             'service' => ItemReclassJournalsService::class,

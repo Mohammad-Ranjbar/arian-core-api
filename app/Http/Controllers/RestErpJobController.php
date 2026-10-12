@@ -25,7 +25,7 @@ class RestErpJobController extends Controller
         $query = RestErpJob::query()->select([
             'id', 'uuid', 'model_type', 'model_id', 'user_id', 'section', 'service', 'endpoint',
             'execution_mode', 'connection', 'queue', 'status', 'tries', 'execute_time', 'parameters',
-            'client_ip', 'peer_ip', 'client_computer_name', 'http_status', 'provider_http_status',
+            'http_status', 'provider_http_status',
             'error_code', 'description', 'queued_at', 'dispatched_at', 'started_at',
             'completed_at', 'failed_at', 'last_retry_at', 'last_retry_user_id', 'ignored_at',
             'created_at', 'updated_at',

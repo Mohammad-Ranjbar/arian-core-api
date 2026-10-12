@@ -30,15 +30,7 @@ return new class extends Migration
             $table->longText('parameters');
             $table->char('payload_hash', 64);
             $table->json('request_payload');
-            $table->json('request_headers');
             $table->json('request_context');
-            $table->string('client_ip', 45)->nullable()->index();
-            $table->string('peer_ip', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->string('client_computer_name', 128)->nullable();
-            $table->longText('response')->nullable();
-            $table->json('response_headers')->nullable();
-            $table->json('response_context')->nullable();
             $table->unsignedSmallInteger('http_status')->nullable();
             $table->unsignedSmallInteger('provider_http_status')->nullable();
             $table->string('error_code')->nullable();

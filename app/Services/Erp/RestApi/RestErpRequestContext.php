@@ -20,16 +20,6 @@ readonly class RestErpRequestContext
             return ['request_context' => $context];
         }
 
-        $headers = [];
-        foreach (config('rest_erp.request_headers', []) as $name) {
-            if ($request->headers->has($name)) {
-                $headers[$name] = $request->headers->get($name);
-            }
-        }
-        $ip = $this->ip($request->ip());
-        $peer = $this->ip($request->server('REMOTE_ADDR'));
-        $computer = $this->sanitizer->text($request->header('X-Client-Computer-Name'), 128);
-        $agent = $this->sanitizer->text($request->userAgent(), 4096);
         $context += [
             'method' => $request->method(),
             'path' => $request->path(),
@@ -38,14 +28,8 @@ readonly class RestErpRequestContext
             'scheme' => $request->getScheme(),
             'host' => $request->getHost(),
             'port' => $request->getPort(),
-            'client_ip' => $ip,
-            'peer_ip' => $peer,
-            'client_ips' => array_values(array_filter(array_map($this->ip(...), $request->ips()))),
-            'headers' => $headers,
             'query' => $request->query(),
             'input' => $request->input(),
-            'client_computer_name' => $computer,
-            'computer_name_source' => $computer ? 'unverified_client_header' : null,
             'client_request_id' => $request->header('X-Request-ID'),
             'client_timezone' => $request->header('X-Client-Timezone'),
             'client_metadata_trust' => 'unverified',
@@ -56,17 +40,8 @@ readonly class RestErpRequestContext
         ];
 
         return [
-            'client_ip' => $ip,
-            'peer_ip' => $peer,
-            'user_agent' => $agent,
-            'client_computer_name' => $computer,
             'request_context' => $this->sanitizer->sanitize($context),
         ];
-    }
-
-    private function ip(?string $value): ?string
-    {
-        return filter_var($value, FILTER_VALIDATE_IP) ? $value : null;
     }
 
     private function origin(?string $url): ?string

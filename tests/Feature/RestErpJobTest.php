@@ -39,6 +39,11 @@ class RestErpJobTest extends TestCase
 
     private const ERP_URL = 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0/ItemReclassJournals';
 
+    private const REMOVED_FIELDS = [
+        'client_computer_name', 'request_headers', 'client_ip', 'peer_ip', 'user_agent',
+        'response', 'response_headers', 'response_context',
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,13 +51,6 @@ class RestErpJobTest extends TestCase
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Queue::fake();
         Http::preventStrayRequests();
-        Request::setTrustedProxies([], Request::HEADER_X_FORWARDED_FOR);
-    }
-
-    protected function tearDown(): void
-    {
-        Request::setTrustedProxies([], Request::HEADER_X_FORWARDED_FOR);
-        parent::tearDown();
     }
 
     private function enqueue(): RestErpJob
@@ -92,9 +90,8 @@ class RestErpJobTest extends TestCase
         $this->assertSame(['rest_erp_created', 'rest_erp_queued', 'rest_erp_dispatched'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
     }
 
-    public function test_context_redacts_secrets_and_keeps_verified_network_and_unverified_client_metadata(): void
+    public function test_context_redacts_secrets_without_collecting_removed_client_metadata(): void
     {
-        Request::setTrustedProxies(['10.0.0.1'], Request::HEADER_X_FORWARDED_FOR);
         $request = Request::create('/api/basket-batch-update?access_token=query-secret', 'POST', [
             'password' => 'password-secret', 'nested' => ['api_key' => 'key-secret', 'ordinary' => "hello\r\nworld"],
         ], [], [], [
@@ -102,18 +99,19 @@ class RestErpJobTest extends TestCase
             'HTTP_USER_AGENT' => 'ExampleBrowser/1.0', 'HTTP_X_CLIENT_COMPUTER_NAME' => "PC-12\r\nforged",
             'HTTP_AUTHORIZATION' => 'Bearer auth-secret', 'HTTP_COOKIE' => 'session=private-session',
             'HTTP_REFERER' => 'https://example.test/account?token=ref-secret',
+            'HTTP_ACCEPT_LANGUAGE' => 'header-only-marker',
         ]);
         $this->app->instance('request', $request);
         $job = $this->enqueue();
-        $this->assertSame('203.0.113.9', $job->client_ip);
-        $this->assertSame('10.0.0.1', $job->peer_ip);
-        $this->assertSame('PC-12forged', $job->client_computer_name);
-        $this->assertSame('unverified_client_header', $job->request_context['computer_name_source']);
+        foreach ([...self::REMOVED_FIELDS, 'headers', 'client_ips', 'computer_name_source'] as $field) {
+            $this->assertArrayNotHasKey($field, $job->toArray());
+            $this->assertArrayNotHasKey($field, $job->request_context);
+        }
         $this->assertSame('https://example.test', $job->request_context['referer_origin']);
         $this->assertSame('[REDACTED]', $job->request_context['input']['password']);
         $this->assertSame('helloworld', $job->request_context['input']['nested']['ordinary']);
         $serialized = json_encode([$job->toArray(), $job->actionLogs()->get()->toArray()]);
-        foreach (['query-secret', 'password-secret', 'key-secret', 'auth-secret', 'private-session', 'ref-secret'] as $secret) {
+        foreach (['query-secret', 'password-secret', 'key-secret', 'auth-secret', 'private-session', 'ref-secret', '203.0.113.9', '10.0.0.1', 'PC-12', 'ExampleBrowser/1.0', 'header-only-marker'] as $secret) {
             $this->assertStringNotContainsString($secret, $serialized);
         }
         $this->assertSame($job->parameters, json_decode(DB::table('rest_erp_jobs')->value('parameters'), true, 512, JSON_THROW_ON_ERROR));
@@ -121,13 +119,29 @@ class RestErpJobTest extends TestCase
         $this->assertArrayNotHasKey('payload_hash', $job->toArray());
     }
 
-    public function test_an_untrusted_forwarded_ip_is_not_used(): void
+    public function test_removed_fields_are_absent_from_the_schema_job_and_action_api(): void
     {
-        $this->app->instance('request', Request::create('/api/test', 'POST', [], [], [], [
-            'REMOTE_ADDR' => '198.51.100.8', 'HTTP_X_FORWARDED_FOR' => '203.0.113.9',
-        ]));
+        foreach (self::REMOVED_FIELDS as $field) {
+            $this->assertFalse(Schema::hasColumn('rest_erp_jobs', $field));
+        }
+        Auth::user()->givePermissionTo(Permission::create(['name' => 'erp-jobs', 'guard_name' => 'web']));
         $job = $this->enqueue();
-        $this->assertSame('198.51.100.8', $job->client_ip);
+        Http::fake([self::ERP_URL => Http::response(['body' => 'response-body-marker'], 201, ['X-Request-ID' => 'response-header-marker'])]);
+        resolve(RestErpJobService::class)->execute($job->id);
+        $show = $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk();
+        $index = $this->getJson('/api/rest-erp-jobs')->assertOk();
+        $actions = $this->getJson('/api/rest-erp-jobs/'.$job->id.'/actions')->assertOk();
+        foreach (self::REMOVED_FIELDS as $field) {
+            $show->assertJsonMissingPath('data.'.$field);
+            $index->assertJsonMissingPath('data.0.'.$field);
+            foreach ($actions->json('data') as $log) {
+                $this->assertArrayNotHasKey($field, $log['data']);
+                $this->assertArrayNotHasKey($field, $log['data']['snapshot']);
+            }
+        }
+        $serialized = json_encode([$job->fresh()->toArray(), $job->actionLogs()->get()->toArray()]);
+        $this->assertStringNotContainsString('response-body-marker', $serialized);
+        $this->assertStringNotContainsString('response-header-marker', $serialized);
     }
 
     public function test_sync_qc_requests_are_also_audited_and_return_the_original_contract(): void
@@ -140,10 +154,13 @@ class RestErpJobTest extends TestCase
         $this->assertSame('success', $job->status);
         $this->assertSame('sync', $job->execution_mode);
         $this->assertSame(200, $job->provider_http_status);
-        $this->assertSame('[REDACTED]', $job->response['data']['access_token']);
-        $this->assertSame('provider-1', $job->response_headers['x-request-id']);
-        $this->assertArrayNotHasKey('set-cookie', $job->response_headers);
+        $this->assertSame('A1234567890123456', $result['data']['VIN']);
+        foreach (self::REMOVED_FIELDS as $field) {
+            $this->assertArrayNotHasKey($field, $job->toArray());
+        }
         $this->assertStringNotContainsString('response-secret', json_encode($job->actionLogs()->get()->toArray()));
+        $this->assertStringNotContainsString('provider-1', json_encode($job->actionLogs()->get()->toArray()));
+        $this->assertStringNotContainsString('private-cookie', json_encode($job->actionLogs()->get()->toArray()));
         Queue::assertNothingPushed();
     }
 
@@ -212,11 +229,30 @@ class RestErpJobTest extends TestCase
     public function test_invalid_input_is_rejected_and_audited_without_queue_or_http(): void
     {
         $result = resolve(ItemReclassJournalsService::class)->queue('', 'test', 0, 'LAMARI');
+        $this->assertFalse($result['success']);
+        $this->assertNull($result['data']);
+        $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
+        $this->assertNotEmpty($result['error']['message']);
         $this->assertSame(422, $result['http_status']);
         $job = RestErpJob::query()->sole();
         $this->assertSame('rejected', $job->status);
         $this->assertSame([], $job->parameters);
         $this->assertSame(['rest_erp_created', 'rest_erp_rejected'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        Queue::assertNothingPushed();
+        Http::assertNothingSent();
+    }
+
+    public function test_sync_invalid_input_preserves_the_error_contract_without_a_stored_response(): void
+    {
+        $result = resolve(ItemReclassJournalsService::class)->send('', 'test', 0, 'LAMARI');
+        $this->assertFalse($result['success']);
+        $this->assertNull($result['data']);
+        $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
+        $this->assertNotEmpty($result['error']['message']);
+        $this->assertSame(422, $result['http_status']);
+        $job = RestErpJob::query()->sole();
+        $this->assertSame('rejected', $job->status);
+        $this->assertArrayNotHasKey('response', $job->toArray());
         Queue::assertNothingPushed();
         Http::assertNothingSent();
     }
@@ -476,10 +512,13 @@ class RestErpJobTest extends TestCase
         resolve(RestErpJobService::class)->execute($job->id);
         $this->assertSame(2, $job->fresh()->tries);
         $this->assertSame('in-progress', $job->fresh()->status);
-        $this->assertNull($job->fresh()->response);
+        $this->assertArrayNotHasKey('response', $job->fresh()->toArray());
         $log = $job->actionLogs()->where('action', 'rest_erp_late_result')->sole();
         $this->assertSame(1, $log->data['attempt']);
-        $this->assertTrue($log->data['response']['success']);
+        $this->assertSame('success', $log->data['outcome']['status']);
+        $this->assertSame(201, $log->data['outcome']['provider_http_status']);
+        $this->assertArrayNotHasKey('response', $log->data);
+        $this->assertArrayNotHasKey('response_context', $log->data);
         Http::assertSentCount(1);
     }
 

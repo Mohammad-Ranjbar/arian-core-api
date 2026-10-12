@@ -83,17 +83,8 @@ class PreGoLiveServer
         }
 
         $rawBody = $response->body();
-        $headers = [];
-        foreach (config('rest_erp.response_headers', []) as $header) {
-            if ($value = $response->header($header)) {
-                $headers[$header] = $value;
-            }
-        }
         if ($onResponse) {
-            $onResponse([
-                'http_status' => $response->status(), 'headers' => $headers,
-                'body_bytes' => strlen($rawBody), 'body_hash' => hash('sha256', $rawBody),
-            ]);
+            $onResponse(['http_status' => $response->status()]);
         }
 
         if (in_array($response->status(), [401, 403], true)) {
