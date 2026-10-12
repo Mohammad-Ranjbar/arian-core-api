@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -143,7 +144,7 @@ class SalesBridgeController extends Controller
 
     public function getPayments($prefix)
     {
-        return Http::withoutVerifying()->get($this->getUrl($prefix).'/payments/get-latest')->json();
+        return Http::withoutVerifying()->get($this->getUrl($prefix).'/payments/get-latest', request()->toArray())->json();
     }
 
 }
