@@ -141,4 +141,9 @@ class SalesBridgeController extends Controller
         return Http::withoutVerifying()->get($this->getUrl($prefix).'/import/users/'.$nationalCode)->json();
     }
 
+    public function getPayments($prefix)
+    {
+        return Http::withoutVerifying()->get($this->getUrl($prefix).'/payments/get-latest')->json();
+    }
+
 }
