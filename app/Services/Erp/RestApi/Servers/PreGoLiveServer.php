@@ -15,6 +15,7 @@ class PreGoLiveServer
     private const array ENDPOINTS = [
         'qcStatuses' => 'qcStatuses',
         'CreateTransferZones' => 'CreateTransferZones',
+        'ItemReclassJournals' => 'ItemReclassJournals',
     ];
 
     public function post(string $endpoint, array $data): array

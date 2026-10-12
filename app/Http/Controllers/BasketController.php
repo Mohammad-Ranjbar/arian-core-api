@@ -9,6 +9,7 @@ use App\Models\Basket;
 use App\Models\ErpJob;
 use App\Repositories\BasketRepository;
 use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\ItemReclassJournalsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -75,18 +76,24 @@ class BasketController extends CrudController
     public function batchUpdate(UpdateBasketBatchRequest $request)
     {
         $validatedData = $request->validated();
-        $lock = Cache::lock('batch_update_process_' . Auth::id(), 10);
+        $lock = Cache::lock('batch_update_process_' . Auth::id(), 30);
         if ($lock->get()) {
-            $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
-            if ($baskets->count() == 0) {
-                return response()->json([
-                    'message' => 'بارکدی وجود ندارد'
-                ]);
+            try {
+                $baskets = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->get();
+                if ($baskets->count() == 0) {
+                    return response()->json([
+                        'message' => 'بارکدی وجود ندارد'
+                    ]);
+                }
+                $response = $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
+                    $baskets->first()->id, $validatedData['batch_name']);
+                if ($response !== null) {
+                    return $response;
+                }
+                Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
+            } finally {
+                $lock->release();
             }
-            $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
-                $baskets->first()->id,$validatedData['batch_name']);
-            Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
-            $lock->release();
         }else {
             return response()->json('Server busy',500);
         }
@@ -94,27 +101,37 @@ class BasketController extends CrudController
         return true;
     }
 
-    public function sendBasketBatchBarcode(array $codes, $batch, $basketId,$batchName): void
+    public function sendBasketBatchBarcode(array $codes, $batch, $basketId, $batchName): ?JsonResponse
     {
-        $parameters = [
-            'numberP' => count($codes),
-            'arrayCrossReferenceNoP' => implode(",", $codes),
-            'batchNoP' => 'Batch-' . $batch,
-            'batchNameP' => $batchName
-        ];
-        $erpJob = ErpJob::query()->create([
-            'model_id' => $basketId,
-            'model_type' => Basket::class,
-            'section' => 'send-basket',
-            'user_id' => Auth::id(),
-            'method' => 'GroupItemReclassJournal',
-            'url' => config('erp.basket_batch'),
-            'parameters' => $parameters,
-            'queue' => 'parallel'
-        ]);
+        // $parameters = [
+        //     'numberP' => count($codes),
+        //     'arrayCrossReferenceNoP' => implode(",", $codes),
+        //     'batchNoP' => 'Batch-' . $batch,
+        //     'batchNameP' => $batchName
+        // ];
+        // $erpJob = ErpJob::query()->create([
+        //     'model_id' => $basketId,
+        //     'model_type' => Basket::class,
+        //     'section' => 'send-basket',
+        //     'user_id' => Auth::id(),
+        //     'method' => 'GroupItemReclassJournal',
+        //     'url' => config('erp.basket_batch'),
+        //     'parameters' => $parameters,
+        //     'queue' => 'parallel'
+        // ]);
+        // ErpJobEvent::dispatch($erpJob);
 
-        ErpJobEvent::dispatch($erpJob);
+        $result = resolve(ItemReclassJournalsService::class)->send(
+            implode(',', $codes), 'Batch-' . $batch, count($codes), $batchName
+        );
 
+        if (!$result['success']) {
+            return response()->json([
+                'error' => $result['error'],
+            ], $result['http_status']);
+        }
+
+        return null;
     }
 
     /**
