@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use App\Services\Erp\ErpCreateExitRequest;
 use App\Services\Erp\ErpReturnRequest;
+use App\Services\Erp\RestApi\ExitRequestsService;
+use App\Services\Erp\RestApi\ExitPrintsService;
+use App\Services\Erp\RestApi\GroupExitsService;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -150,79 +153,120 @@ class BillOfLading extends Model
      */
     public function createAutoGatePermit($items, $itemType = null, $batch = false): void
     {
-        $exitIds = Location::query()->whereHas('attributes', function ($q) {
-            $q->where('attribute', 'autoExitPermit')->where('value', 'true');
-        })->get()->pluck('id')->all();
-        $enterIds = Location::query()->whereHas('attributes', function ($q) {
-            $q->where('attribute', 'autoEnterPermit')->where('value', 'true');
-        })->get()->pluck('id')->all();
-        $type = null;
-        if (in_array($this->getAttribute('location_source_id'), $exitIds)) {
-            $type = 'exit';
-        } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
-            $type = 'enter';
-        }
+        DB::transaction(function () use ($items, $itemType, $batch) {
+            $actorId = Auth::id() ?? $this->getAttribute('user_id');
+            $exitIds = Location::query()->whereHas('attributes', function ($q) {
+                $q->where('attribute', 'autoExitPermit')->where('value', 'true');
+            })->get()->pluck('id')->all();
+            $enterIds = Location::query()->whereHas('attributes', function ($q) {
+                $q->where('attribute', 'autoEnterPermit')->where('value', 'true');
+            })->get()->pluck('id')->all();
+            $type = null;
+            if (in_array($this->getAttribute('location_source_id'), $exitIds)) {
+                $type = 'exit';
+            } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
+                $type = 'enter';
+            }
 
-        if ($type) {
-            if (GatePermit::query()
-                    ->where('model_type', Vehicle::class)
-                    ->whereIn('model_id', $items)->count() < count($items)) {
-
-                foreach ($items as $vin) {
-                    if (GatePermit::query()
+            if ($type) {
+                if (GatePermit::query()
                         ->where('model_type', Vehicle::class)
-                        ->where('model_id', $vin)->exists()) {
-                        continue;
+                        ->whereIn('model_id', $items)->count() < count($items)) {
+
+                    foreach ($items as $vin) {
+                        if (GatePermit::query()
+                            ->where('model_type', Vehicle::class)
+                            ->where('model_id', $vin)->exists()) {
+                            continue;
+                        }
+
+                        $exitType = 2;
+
+                        $gate = GatePermit::query()->create([
+                            'model_type' => Vehicle::class,
+                            'model_id' => $vin,
+                            'location_id' => $this->getAttribute('location_destination_id'),
+                            'owner_id' => $actorId,
+                            'owner_type' => User::class,
+                            'type' => $type,
+                            'exit_type' => $exitType,
+                            'item_type' => $itemType,
+                            'source_id' => $this->getAttribute('location_source_id')
+                        ]);
+
+                        if ($type == 'exit') {
+                            if (!$batch) {
+                                // $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
+                                //     $gate->getAttribute('location')->code, $itemType);
+                                // if ($response['status'] !== 'ok') {
+                                //     throw new Exception($response['message']);
+                                // }
+                                $result = resolve(ExitRequestsService::class)->queue(
+                                    $vin, $exitType, (string) $gate->getAttribute('location')->code, (string) $itemType,
+                                    model: $gate, userId: $actorId
+                                );
+                                if (! $result['success']) {
+                                    throw new Exception($result['error']['message']);
+                                }
+                                $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
+                            }
+
+                        } else {
+                            if (!$batch) {
+                                $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
+                                if ($response['status'] !== 'ok') {
+                                    throw new Exception($response['message']);
+                                }
+                            }
+                        }
                     }
 
-                    $exitType = 2;
-
-                    $gate = GatePermit::query()->create([
-                        'model_type' => Vehicle::class,
-                        'model_id' => $vin,
-                        'location_id' => $this->getAttribute('location_destination_id'),
-                        'owner_id' => Auth::id(),
-                        'owner_type' => User::class,
-                        'type' => $type,
-                        'exit_type' => $exitType,
-                        'item_type' => $itemType,
-                        'source_id' => $this->getAttribute('location_source_id')
-                    ]);
-
-                    if ($type == 'exit') {
-                        if (!$batch) {
-                            $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
-                                $gate->getAttribute('location')->code, $itemType);
+                    if ($batch) {
+                        if ($type == 'enter') {
+                            $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code, $itemType);
                             if ($response['status'] !== 'ok') {
                                 throw new Exception($response['message']);
                             }
-                        }
-
-                    } else {
-                        if (!$batch) {
-                            $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
-                            if ($response['status'] !== 'ok') {
-                                throw new Exception($response['message']);
+                        } elseif ($type == 'exit') {
+                            // $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
+                            //     $gate->getAttribute('location')->code, $itemType);
+                            // if ($response['status'] !== 'ok') {
+                            //     throw new Exception($response['message']);
+                            // }
+                            $result = resolve(GroupExitsService::class)->queue(
+                                implode(',', $items), $exitType, (string) $gate->getAttribute('location')->code,
+                                count($items), (string) $itemType, model: $gate, userId: $actorId
+                            );
+                            if (! $result['success']) {
+                                throw new Exception($result['error']['message']);
                             }
-                        }
-                    }
-                }
-
-                if ($batch) {
-                    if ($type == 'enter') {
-                        $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code, $itemType);
-                        if ($response['status'] !== 'ok') {
-                            throw new Exception($response['message']);
-                        }
-                    } elseif ($type == 'exit') {
-                        $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
-                            $gate->getAttribute('location')->code, $itemType);
-                        if ($response['status'] !== 'ok') {
-                            throw new Exception($response['message']);
+                            $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
+                            $permits = GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->get();
+                            foreach ($permits as $permit) {
+                                $print = resolve(ExitPrintsService::class)->queue(
+                                    $permit->getAttribute('model_id'), (string) $itemType, model: $permit,
+                                    userId: $actorId, dependsOnId: $result['data']['rest_erp_job_id']
+                                );
+                                if (! $print['success']) {
+                                    throw new Exception($print['error']['message']);
+                                }
+                            }
                         }
                     }
                 }
             }
+        });
+    }
+
+    private function recordRestExitRequest(int $jobId, int $actorId): void
+    {
+        if ($this->exists) {
+            $this->actionLogs()->create([
+                'user_id' => $actorId,
+                'action' => 'rest_erp_exit_requested',
+                'data' => ['rest_erp_job_id' => $jobId],
+            ]);
+            $this->unsetRelation('actionLogs');
         }
     }
 

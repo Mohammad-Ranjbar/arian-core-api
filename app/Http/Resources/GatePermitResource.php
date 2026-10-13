@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Services\Erp\RestApi\RestErpJobLinksService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,6 +27,7 @@ class GatePermitResource extends JsonResource
             'billOfLading' => $this->resource->BillOfLadingItem?->billOfLading ,
             'deleted_at' => $this->resource->deleted_at,
             'created_at' => $this->resource->created_at,
+            'rest_erp_jobs' => RestErpJobSummaryResource::collection(resolve(RestErpJobLinksService::class)->forGatePermit($this->resource)),
         ];
     }
 }

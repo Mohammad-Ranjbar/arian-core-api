@@ -13,6 +13,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
+use Spatie\Permission\Models\Permission;
 use Tests\Concerns\CreatesRestErpTables;
 use Tests\TestCase;
 use TypeError;
@@ -257,6 +259,77 @@ class GatePermitTransferControllerTest extends TestCase
             Http::assertNothingSent();
             $this->assertNoQueuedOrLegacyDispatch();
         }
+    }
+
+    #[DataProvider('directions')]
+    public function test_approval_retry_remains_sync_and_transfer_reuses_its_success(string $type): void
+    {
+        $permit = $this->permit($type);
+        Auth::user()->givePermissionTo(Permission::create(['name' => 'retry-erp-jobs', 'guard_name' => 'web']));
+        Http::fakeSequence()
+            ->push(['error' => ['code' => 'Application_DialogException', 'message' => 'Approval refused.']], 400)
+            ->push([], 200);
+        $response = resolve(GatePermitTransferController::class)($this->vehicle());
+        $this->assertSame(422, $response->getStatusCode());
+        $job = RestErpJob::query()->sole();
+        $this->putJson(route('rest-erp-jobs.retry', ['restErpJob' => $job->id]))
+            ->assertOk()->assertJsonPath('data.status', 'success')->assertJsonPath('data.execution_mode', 'sync')
+            ->assertJsonPath('data.queue', null)->assertJsonPath('data.retry_url', null);
+        $this->assertNotSoftDeleted($permit);
+        $this->assertDatabaseCount('production_tracking', 0);
+        $response = resolve(GatePermitTransferController::class)($this->vehicle());
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSoftDeleted($permit);
+        $this->assertDatabaseCount('production_tracking', 1);
+        $this->assertDatabaseCount('rest_erp_jobs', 1);
+        $this->assertSame(2, $job->fresh()->tries);
+        Http::assertSentCount(2);
+        $this->assertNoQueuedOrLegacyDispatch();
+    }
+
+    #[DataProvider('directions')]
+    public function test_failed_sync_retry_returns_the_erp_http_status(string $type): void
+    {
+        $permit = $this->permit($type);
+        Auth::user()->givePermissionTo(Permission::create(['name' => 'retry-erp-jobs', 'guard_name' => 'web']));
+        Http::fake(['*' => Http::response(['error' => ['code' => 'Application_DialogException', 'message' => 'Approval refused.']], 400)]);
+        resolve(GatePermitTransferController::class)($this->vehicle());
+        $job = RestErpJob::query()->sole();
+        $this->putJson(route('rest-erp-jobs.retry', ['restErpJob' => $job->id]))
+            ->assertStatus(422)->assertJsonPath('data.status', 'failed')->assertJsonPath('data.execution_mode', 'sync');
+        $this->assertNotSoftDeleted($permit);
+        $this->assertDatabaseCount('production_tracking', 0);
+        Http::assertSentCount(2);
+        $this->assertNoQueuedOrLegacyDispatch();
+    }
+
+    public function test_an_uncertain_sync_retry_requires_acknowledgement(): void
+    {
+        $this->permit();
+        Auth::user()->givePermissionTo(Permission::create(['name' => 'retry-erp-jobs', 'guard_name' => 'web']));
+        Http::fakeSequence()->push([], 500)->push([], 200);
+        resolve(GatePermitTransferController::class)($this->vehicle());
+        $job = RestErpJob::query()->sole();
+        $this->assertSame('uncertain', $job->status);
+        $url = route('rest-erp-jobs.retry', ['restErpJob' => $job->id]);
+        $this->putJson($url)->assertUnprocessable();
+        Http::assertSentCount(1);
+        $this->putJson($url, ['acknowledge_uncertain_result' => true])->assertOk()->assertJsonPath('data.status', 'success');
+        Http::assertSentCount(2);
+        $this->assertNoQueuedOrLegacyDispatch();
+    }
+
+    public function test_transfer_does_not_duplicate_an_approval_retry_in_progress(): void
+    {
+        $permit = $this->permit();
+        Http::fake(['*' => Http::response(['error' => ['code' => 'Application_DialogException', 'message' => 'Approval refused.']], 400)]);
+        resolve(GatePermitTransferController::class)($this->vehicle());
+        RestErpJob::query()->sole()->update(['status' => 'in-progress']);
+        $this->assertSame(409, resolve(GatePermitTransferController::class)($this->vehicle())->getStatusCode());
+        $this->assertNotSoftDeleted($permit);
+        $this->assertDatabaseCount('production_tracking', 0);
+        Http::assertSentCount(1);
+        $this->assertNoQueuedOrLegacyDispatch();
     }
 
     private function assertNoQueuedOrLegacyDispatch(): void

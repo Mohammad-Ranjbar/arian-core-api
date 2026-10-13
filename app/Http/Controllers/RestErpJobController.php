@@ -23,7 +23,7 @@ class RestErpJobController extends Controller
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
         $query = RestErpJob::query()->select([
-            'id', 'uuid', 'model_type', 'model_id', 'user_id', 'section', 'service', 'endpoint',
+            'id', 'uuid', 'depends_on_id', 'model_type', 'model_id', 'user_id', 'section', 'service', 'endpoint',
             'execution_mode', 'connection', 'queue', 'status', 'tries', 'execute_time', 'parameters',
             'http_status', 'provider_http_status',
             'error_code', 'description', 'queued_at', 'dispatched_at', 'started_at',
@@ -63,7 +63,7 @@ class RestErpJobController extends Controller
         $data = $request->validate(['acknowledge_uncertain_result' => ['sometimes', 'boolean']]);
         $job = $service->retry($restErpJob, Auth::id(), $data['acknowledge_uncertain_result'] ?? false);
 
-        return (new RestErpJobResource($job))->response()->setStatusCode(202);
+        return (new RestErpJobResource($job))->response()->setStatusCode($job->execution_mode === 'sync' ? ($job->http_status ?? 202) : 202);
     }
 
     public function ignore(RestErpJob $restErpJob, RestErpJobService $service): RestErpJobResource

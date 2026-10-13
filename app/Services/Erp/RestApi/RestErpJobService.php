@@ -33,9 +33,9 @@ readonly class RestErpJobService
         return $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
     }
 
-    public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'rest-erp', ?int $userId = null): array
+    public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'rest-erp', ?int $userId = null, ?int $dependsOnId = null): array
     {
-        $job = $this->create($endpoint, $parameters, $model, $section, $userId, true);
+        $job = $this->create($endpoint, $parameters, $model, $section, $userId, true, $dependsOnId);
 
         return $job->status === 'rejected' ? $this->rejectedResult($job) : [
             'success' => true,
@@ -54,7 +54,7 @@ readonly class RestErpJobService
         ];
     }
 
-    private function create(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued): RestErpJob
+    private function create(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued, ?int $dependsOnId = null): RestErpJob
     {
         $definition = config('rest_erp.endpoints.'.$endpoint);
         if (! is_array($definition)) {
@@ -67,6 +67,9 @@ readonly class RestErpJobService
         $userId ??= Auth::id();
         if ($userId === null) {
             throw new InvalidArgumentException('An authenticated actor is required for REST ERP requests.');
+        }
+        if ($dependsOnId !== null && ! RestErpJob::query()->whereKey($dependsOnId)->where('user_id', $userId)->exists()) {
+            throw new InvalidArgumentException('The REST ERP dependency must belong to the same actor.');
         }
         $validator = Validator::make($parameters, $definition['rules']);
         $invalidEncoding = false;
@@ -87,17 +90,18 @@ readonly class RestErpJobService
         $uuid = (string) Str::uuid();
         $metadata = $this->context->capture($userId);
 
-        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata) {
+        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata, $dependsOnId) {
             $job = RestErpJob::query()->create([
                 'uuid' => $uuid, 'model_type' => $model?->getMorphClass(), 'model_id' => $model?->getKey(),
                 'user_id' => $userId, 'section' => $this->sanitizer->text($section, 255),
+                'depends_on_id' => $dependsOnId,
                 'service' => $definition['service'], 'endpoint' => $endpoint, 'method' => 'POST', 'url' => $url,
                 'server' => 'pre_go_live', 'tries' => 0, 'execute_time' => 0,
                 'execution_mode' => $queued ? 'queue' : 'sync',
                 'connection' => $queued ? config('rest_erp.connection', 'redis') : null,
                 'queue' => $queued ? 'parallel' : null, 'status' => $invalid ? 'rejected' : 'pending',
                 'parameters' => $payload,
-                'payload_hash' => $this->payloadHash($uuid, $endpoint, (string) $userId, $model?->getMorphClass(), (string) $model?->getKey(), $payload),
+                'payload_hash' => $this->payloadHash($uuid, $endpoint, (string) $userId, $model?->getMorphClass(), (string) $model?->getKey(), $payload, $dependsOnId),
                 'request_payload' => $this->sanitizer->sanitize($parameters),
                 'http_status' => $error['http_status'] ?? null,
                 'error_code' => $error['error']['code'] ?? null, 'description' => $error['error']['message'] ?? null,
@@ -129,6 +133,9 @@ readonly class RestErpJobService
             return DB::transaction(function () use ($id) {
                 $job = RestErpJob::query()->lockForUpdate()->find($id);
                 if (! $job || $job->status !== 'pending' || $job->execution_mode !== 'queue' || $job->dispatched_at) {
+                    return false;
+                }
+                if (! $this->dependencySucceeded($job)) {
                     return false;
                 }
                 if (config('queue.connections.'.$job->connection.'.driver') === 'sync') {
@@ -183,7 +190,7 @@ readonly class RestErpJobService
     {
         $job = DB::transaction(function () use ($id) {
             $job = RestErpJob::query()->lockForUpdate()->find($id);
-            if (! $job || $job->status !== 'pending') {
+            if (! $job || $job->status !== 'pending' || ! $this->dependencySucceeded($job)) {
                 return null;
             }
             $job->update([
@@ -211,7 +218,7 @@ readonly class RestErpJobService
                 throw new InvalidArgumentException('Unsupported REST ERP operation.');
             }
             $validated = Validator::make($payload, $definition['rules'])->validate();
-            if (! hash_equals($job->payload_hash, $this->payloadHash($job->uuid, $job->endpoint, (string) $job->user_id, $job->model_type, (string) $job->model_id, $validated))) {
+            if (! hash_equals($job->payload_hash, $this->payloadHash($job->uuid, $job->endpoint, (string) $job->user_id, $job->model_type, (string) $job->model_id, $validated, $job->depends_on_id))) {
                 throw new InvalidArgumentException('REST ERP payload integrity check failed.');
             }
             $sent = true;
@@ -256,6 +263,19 @@ readonly class RestErpJobService
                 'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
                 'endpoint' => $job->endpoint, 'status' => $status, 'error_code' => $code,
             ]);
+        } else {
+            RestErpJob::query()->where('depends_on_id', $job->id)->where('status', 'pending')
+                ->where('execution_mode', 'queue')->whereNull('dispatched_at')
+                ->chunkById(100, function ($jobs) {
+                    foreach ($jobs as $dependent) {
+                        try {
+                            $this->publish($dependent->id);
+                        } catch (RestErpQueueException) {
+                            // The child records its broker failure; the successful parent must not be replayed.
+                            Log::warning('Could not publish dependent REST ERP request', ['rest_erp_job_id' => $dependent->id]);
+                        }
+                    }
+                });
         }
 
         return $result;
@@ -282,7 +302,7 @@ readonly class RestErpJobService
 
     public function retry(RestErpJob $job, int $userId, bool $acknowledgeUncertain = false): RestErpJob
     {
-        return DB::transaction(function () use ($job, $userId, $acknowledgeUncertain) {
+        $retried = DB::transaction(function () use ($job, $userId, $acknowledgeUncertain) {
             $job = RestErpJob::query()->lockForUpdate()->findOrFail($job->getKey());
             if (! in_array($job->status, ['failed', 'uncertain'], true)) {
                 throw ValidationException::withMessages(['status' => 'فقط درخواست ناموفق یا با نتیجه نامشخص قابل ارسال مجدد است.']);
@@ -291,17 +311,25 @@ readonly class RestErpJobService
                 throw ValidationException::withMessages(['acknowledge_uncertain_result' => 'ممکن است ERP درخواست را اجرا کرده باشد؛ قبل از ارسال مجدد نتیجه را بررسی و تأیید کنید.']);
             }
             $this->audit($job, 'rest_erp_retry_requested', ['actor_context' => $this->context->capture($userId)], $userId);
+            $sync = config('rest_erp.endpoints.'.$job->endpoint.'.retry_execution_mode') === 'sync';
             $job->update([
-                'status' => 'pending', 'execution_mode' => 'queue', 'connection' => config('rest_erp.connection', 'redis'),
-                'queue' => 'parallel', 'queued_at' => now(), 'last_retry_at' => now(), 'last_retry_user_id' => $userId,
+                'status' => 'pending', 'execution_mode' => $sync ? 'sync' : 'queue',
+                'connection' => $sync ? null : config('rest_erp.connection', 'redis'),
+                'queue' => $sync ? null : 'parallel', 'queued_at' => $sync ? null : now(), 'last_retry_at' => now(), 'last_retry_user_id' => $userId,
                 'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
                 'dispatched_at' => null, 'started_at' => null, 'completed_at' => null, 'failed_at' => null, 'execute_time' => 0,
             ]);
-            $this->audit($job, 'rest_erp_queued', [], $userId);
-            $this->publishAfterCommit($job);
+            if ($sync) {
+                DB::afterCommit(fn () => $this->execute($job->getKey()));
+            } else {
+                $this->audit($job, 'rest_erp_queued', [], $userId);
+                $this->publishAfterCommit($job);
+            }
 
             return $job;
         });
+
+        return $retried->refresh();
     }
 
     public function ignore(RestErpJob $job, int $userId): RestErpJob
@@ -348,10 +376,19 @@ readonly class RestErpJobService
         ]);
     }
 
-    private function payloadHash(string $uuid, string $endpoint, string $userId, ?string $modelType, string $modelId, array $payload): string
+    private function dependencySucceeded(RestErpJob $job): bool
+    {
+        return $job->depends_on_id === null
+            || RestErpJob::query()->whereKey($job->depends_on_id)->where('status', 'success')->exists();
+    }
+
+    private function payloadHash(string $uuid, string $endpoint, string $userId, ?string $modelType, string $modelId, array $payload, ?int $dependsOnId = null): string
     {
         // Bind the payload to this job and its original actor/model to detect tampering.
         $identity = implode("\0", ['rest-erp-payload-v1', $uuid, $endpoint, $userId, $modelType ?? '', $modelId]);
+        if ($dependsOnId !== null) {
+            $identity .= "\0dependency\0".$dependsOnId;
+        }
 
         return hash_hmac('sha256', $identity."\0".json_encode($payload, JSON_THROW_ON_ERROR), (string) config('app.key'));
     }

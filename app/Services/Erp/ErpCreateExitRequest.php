@@ -4,55 +4,55 @@
 namespace App\Services\Erp;
 
 
-use Exception;
 
 class ErpCreateExitRequest {
-    /**
-     * @throws Exception
-     */
-    public static function createExitRequest(string $vin, string $type, string $locationCode,$itemType): array
-    {
-
-       $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
-            ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'itemTypeP' => $itemType]);
-
-        if ($exitRequest['status'] !== 'ok') {
-            throw new Exception($exitRequest['message']);
-        }
-
-        return   ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
-            'vINP' => $vin,
-            'itemTypeP' => $itemType
-        ]);
-
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function createBatchExitRequest(array $vin, string $type, string $locationCode,$itemType): array
-    {
-        $vins = implode(',',$vin);
-        $count = count($vin);
-        $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'GroupExitRequest',
-            ['vINArrayP' => $vins, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'numberVINP' => $count,'itemTypeP' => $itemType]);
-
-        if ($exitRequest['status'] !== 'ok') {
-            throw new Exception($exitRequest['message']);
-        }
-        foreach ($vin as $vehicle){
-          $res =  ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
-                'vINP' => $vehicle,
-                'itemTypeP' => $itemType
-            ]);
-            if ($res['status'] !== 'ok') {
-                throw new Exception($res['message']);
-            }
-        }
-        return [
-            'status' => 'ok'
-        ];
-
-
-    }
+    // Replaced by ExitRequestsService, GroupExitsService and ExitPrintsService.
+    // /**
+    //  * @throws Exception
+    //  */
+    // public static function createExitRequest(string $vin, string $type, string $locationCode,$itemType): array
+    // {
+    //
+    //    $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'CreateExitRequest',
+    //         ['vINP' => $vin, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'itemTypeP' => $itemType]);
+    //
+    //     if ($exitRequest['status'] !== 'ok') {
+    //         throw new Exception($exitRequest['message']);
+    //     }
+    //
+    //     return   ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
+    //         'vINP' => $vin,
+    //         'itemTypeP' => $itemType
+    //     ]);
+    //
+    // }
+    //
+    // /**
+    //  * @throws Exception
+    //  */
+    // public static function createBatchExitRequest(array $vin, string $type, string $locationCode,$itemType): array
+    // {
+    //     $vins = implode(',',$vin);
+    //     $count = count($vin);
+    //     $exitRequest = ErpWsdlClient::run(config('erp.exit_request'), 'GroupExitRequest',
+    //         ['vINArrayP' => $vins, 'typeOfExitP' => $type, 'destinationP' => $locationCode,'numberVINP' => $count,'itemTypeP' => $itemType]);
+    //
+    //     if ($exitRequest['status'] !== 'ok') {
+    //         throw new Exception($exitRequest['message']);
+    //     }
+    //     foreach ($vin as $vehicle){
+    //       $res =  ErpWsdlClient::run(config('erp.print'), 'PrintExitRequest', [
+    //             'vINP' => $vehicle,
+    //             'itemTypeP' => $itemType
+    //         ]);
+    //         if ($res['status'] !== 'ok') {
+    //             throw new Exception($res['message']);
+    //         }
+    //     }
+    //     return [
+    //         'status' => 'ok'
+    //     ];
+    //
+    //
+    // }
 }

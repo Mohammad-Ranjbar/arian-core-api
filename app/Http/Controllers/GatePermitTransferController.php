@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\GatePermit;
 use App\Models\Location;
+use App\Models\RestErpJob;
 use App\Models\Vehicle;
 use App\Services\Erp\RestApi\ApproveExitZonesService;
 use App\Services\Erp\RestApi\ApproveReturnZonesService;
 use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,6 @@ use Throwable;
 
 class GatePermitTransferController extends Controller
 {
-
     /**
      * @throws Throwable
      */
@@ -32,15 +31,44 @@ class GatePermitTransferController extends Controller
                 $permit = GatePermit::query()->where('model_type', Vehicle::class)
                     ->where('model_id', $vehicle->getAttribute('vin'))->latest()->lockForUpdate()->firstOrFail();
 
-                $result = match ($permit->getAttribute('type')) {
-                    'exit' => resolve(ApproveExitZonesService::class)->send(
-                        $permit->getAttribute('model_id'), (string) $permit->getAttribute('item_type'), model: $permit
-                    ),
-                    'enter' => resolve(ApproveReturnZonesService::class)->send(
-                        $permit->getAttribute('model_id'), (string) $permit->getAttribute('item_type'), model: $permit
-                    ),
+                $exitRequest = RestErpJob::query()->where('model_type', $permit->getMorphClass())
+                    ->where('model_id', $permit->getKey())->whereIn('endpoint', ['ExitRequests', 'GroupExits', 'ExitPrints'])->latest('id')->first();
+                if ($permit->getAttribute('type') === 'exit' && $exitRequest && $exitRequest->status !== 'success') {
+                    return response()->json([
+                        'error' => [
+                            'code' => 'ERP_EXIT_REQUEST_NOT_READY',
+                            'message' => 'مراحل درخواست خروج در ERP هنوز با موفقیت تکمیل نشده است.',
+                        ],
+                        'rest_erp_job_id' => $exitRequest->getKey(),
+                    ], 409);
+                }
+
+                $approvalEndpoint = match ($permit->getAttribute('type')) {
+                    'exit' => 'ApproveExitZones',
+                    'enter' => 'ApproveReturnZones',
                     default => null,
                 };
+                $approval = $approvalEndpoint ? RestErpJob::query()->where('model_type', $permit->getMorphClass())
+                    ->where('model_id', $permit->getKey())->where('endpoint', $approvalEndpoint)->latest('id')->first() : null;
+                $expectedPayload = [
+                    $permit->getAttribute('type') === 'exit' ? 'BarcodeInfo' : 'VIN' => $permit->getAttribute('model_id'),
+                    'ItemType' => (string) $permit->getAttribute('item_type'),
+                ];
+                if ($approval && $approval->parameters === $expectedPayload && in_array($approval->status, ['pending', 'in-progress'], true)) {
+                    return $this->responseError('تأیید تردد در ERP در حال پردازش است.', 409);
+                }
+                // A successful ERP retry can be finalized locally without approving the same permit twice.
+                $result = $approval?->status === 'success' && $approval->parameters === $expectedPayload
+                    ? ['success' => true, 'data' => null, 'error' => null, 'http_status' => $approval->http_status]
+                    : match ($permit->getAttribute('type')) {
+                        'exit' => resolve(ApproveExitZonesService::class)->send(
+                            $permit->getAttribute('model_id'), (string) $permit->getAttribute('item_type'), model: $permit
+                        ),
+                        'enter' => resolve(ApproveReturnZonesService::class)->send(
+                            $permit->getAttribute('model_id'), (string) $permit->getAttribute('item_type'), model: $permit
+                        ),
+                        default => null,
+                    };
 
                 if ($result === null) {
                     return $this->responseError('نوع تردد مجوز معتبر نیست.', 422);

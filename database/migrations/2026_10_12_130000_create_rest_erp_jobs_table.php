@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -10,6 +11,7 @@ return new class extends Migration
     {
         Schema::create('rest_erp_jobs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('depends_on_id')->nullable()->constrained('rest_erp_jobs')->restrictOnDelete();
             $table->uuid('uuid')->unique();
             $table->string('model_type')->nullable();
             $table->string('model_id')->nullable();
@@ -59,6 +61,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('rest_erp_job_actors');
+        // Clear self-references before dropping the table, including on SQLite.
+        if (Schema::hasColumn('rest_erp_jobs', 'depends_on_id')) {
+            DB::table('rest_erp_jobs')->whereNotNull('depends_on_id')->update(['depends_on_id' => null]);
+        }
         Schema::dropIfExists('rest_erp_jobs');
     }
 };

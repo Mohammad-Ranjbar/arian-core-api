@@ -16,6 +16,9 @@ class PreGoLiveServer
         'ItemReclassJournals' => 'ItemReclassJournals',
         'ApproveExitZones' => 'ApproveExitZones',
         'ApproveReturnZones' => 'ApproveReturnZones',
+        'ExitRequests' => 'ExitRequests',
+        'GroupExits' => 'GroupExits',
+        'ExitPrints' => 'ExitPrints',
     ];
 
     public function urlFor(string $endpoint): string

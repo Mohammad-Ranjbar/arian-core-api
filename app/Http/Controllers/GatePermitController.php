@@ -13,10 +13,11 @@ use App\Models\Location;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
-use App\Services\Erp\ErpCreateExitRequest;
 use App\Services\Erp\ErpReturnRequest;
+use App\Services\Erp\RestApi\ExitRequestsService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -52,39 +53,51 @@ class GatePermitController extends CrudController
     {
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         try {
-            DB::beginTransaction();
-            $validatedData['model_type'] = Vehicle::class;
-            $validatedData['model_id'] = $validatedData['vin'];
-            $validatedData['owner_id'] = Auth::id();
-            $validatedData['owner_type'] = User::class;
+            return DB::transaction(function () use ($validatedData) {
+                $validatedData['model_type'] = Vehicle::class;
+                $validatedData['model_id'] = $validatedData['vin'];
+                $validatedData['owner_id'] = Auth::id();
+                $validatedData['owner_type'] = User::class;
 
-            $location = Location::query()->find($validatedData['location_id']);
+                $location = Location::query()->findOrFail($validatedData['location_id']);
 
-            if ($validatedData['type'] == 'exit') {
-
-                $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
-                    $location->getAttribute('code'), $validatedData['item_type']);
-
-                if ($response['status'] !== 'ok') {
-                    return $this->responseError($response['message'], 400);
+                // if ($validatedData['type'] == 'exit') {
+                //     $response = ErpCreateExitRequest::createExitRequest($validatedData['vin'], $validatedData['exit_type'],
+                //         $location->getAttribute('code'), $validatedData['item_type']);
+                //     if ($response['status'] !== 'ok') {
+                //         return $this->responseError($response['message'], 400);
+                //     }
+                // }
+                if ($validatedData['type'] == 'enter') {
+                    $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'), $validatedData['item_type']);
+                    if ($response['status'] !== 'ok') {
+                        throw new HttpResponseException($this->responseError($response['message'], 400));
+                    }
                 }
-            } elseif ($validatedData['type'] == 'enter') {
-                $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'), $validatedData['item_type']);
 
-                if ($response['status'] !== 'ok') {
-                    return $this->responseError($response['message'], 400);
+                unset($validatedData['vin']);
+                $saveItem = $this->repository->store($validatedData);
+                $data = new $this->resource($saveItem);
+
+                if ($validatedData['type'] == 'exit') {
+                    $result = resolve(ExitRequestsService::class)->queue(
+                        $saveItem->getAttribute('model_id'), $saveItem->getAttribute('exit_type'),
+                        (string) $location->getAttribute('code'), (string) $saveItem->getAttribute('item_type'),
+                        model: $saveItem
+                    );
+                    if (! $result['success']) {
+                        throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));
+                    }
+
+                    return $data->additional($result['data'])->response()->setStatusCode(202);
                 }
-            }
 
-
-            unset($validatedData['vin']);
-
-            $saveItem = $this->repository->store($validatedData);
-            $data = new $this->resource($saveItem);
-            DB::commit();
-            return $data;
+                return $data;
+            });
+        } catch (HttpResponseException $exception) {
+            // Includes broker failures after commit; retain their 503 response and job ID.
+            throw $exception;
         } catch (Exception $exception) {
-            DB::rollBack();
             return $this->responseError($exception->getMessage(), 500);
         }
     }

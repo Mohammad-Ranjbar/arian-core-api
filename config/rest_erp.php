@@ -3,6 +3,9 @@
 use App\Services\Erp\RestApi\ApproveExitZonesService;
 use App\Services\Erp\RestApi\ApproveReturnZonesService;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
+use App\Services\Erp\RestApi\ExitPrintsService;
+use App\Services\Erp\RestApi\ExitRequestsService;
+use App\Services\Erp\RestApi\GroupExitsService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
 use App\Services\Erp\RestApi\SetQcStatusService;
 
@@ -18,8 +21,35 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'GroupExits' => [
+            'service' => GroupExitsService::class,
+            'rules' => [
+                'VINArray' => ['required', 'string'],
+                'TypeOfExit' => ['required', 'string'],
+                'Destination' => ['required', 'string'],
+                'NumberVIN' => ['required', 'string', 'regex:/^[1-9][0-9]*$/'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
+        'ExitPrints' => [
+            'service' => ExitPrintsService::class,
+            'rules' => [
+                'VIN' => ['required', 'string'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
+        'ExitRequests' => [
+            'service' => ExitRequestsService::class,
+            'rules' => [
+                'VIN' => ['required', 'string'],
+                'TypeOfExit' => ['required', 'string'],
+                'Destination' => ['required', 'string'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
         'ApproveExitZones' => [
             'service' => ApproveExitZonesService::class,
+            'retry_execution_mode' => 'sync',
             'rules' => [
                 'BarcodeInfo' => ['required', 'string'],
                 'ItemType' => ['required', 'string'],
@@ -27,6 +57,7 @@ return [
         ],
         'ApproveReturnZones' => [
             'service' => ApproveReturnZonesService::class,
+            'retry_execution_mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'ItemType' => ['required', 'string'],

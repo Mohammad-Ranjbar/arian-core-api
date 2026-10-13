@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\GatePermit;
+use App\Services\Erp\RestApi\RestErpJobLinksService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -53,6 +54,7 @@ class BillOfLadingResource extends JsonResource
                 }),
             'actionLogs' => ActionLogResource::collection($this->resource->actionLogs),
             'actions' => $this->resource->action,
+            'rest_erp_jobs' => RestErpJobSummaryResource::collection(resolve(RestErpJobLinksService::class)->forBillOfLading($this->resource)),
             'can_return' => $this->resource->canReturn()
         ];
     }
