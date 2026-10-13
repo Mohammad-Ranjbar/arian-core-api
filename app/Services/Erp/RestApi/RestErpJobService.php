@@ -73,16 +73,20 @@ readonly class RestErpJobService
         }
         $validator = Validator::make($parameters, $definition['rules']);
         $invalidEncoding = false;
+        $encodingError = null;
         $tooLarge = false;
+        $payloadBytes = 0;
         try {
-            $tooLarge = strlen(json_encode($parameters, JSON_THROW_ON_ERROR)) > (int) config('rest_erp.max_payload_bytes', 262144);
-        } catch (JsonException) {
+            $payloadBytes = strlen(json_encode($parameters, JSON_THROW_ON_ERROR));
+            $tooLarge = $payloadBytes > (int) config('rest_erp.max_payload_bytes', 262144);
+        } catch (JsonException $exception) {
             $invalidEncoding = true;
+            $encodingError = $this->sanitizer->exceptionText($exception);
         }
         $invalid = $invalidEncoding || $tooLarge || $validator->fails();
         $error = $invalid ? [
             'success' => false, 'data' => null,
-            'error' => ['code' => 'VALIDATION_ERROR', 'message' => $invalidEncoding ? 'فرمت داده‌های درخواست ERP معتبر نیست.' : ($tooLarge ? 'حجم درخواست ERP بیش از حد مجاز است.' : $validator->errors()->first())],
+            'error' => ['code' => 'VALIDATION_ERROR', 'message' => $this->sanitizer->errorText($invalidEncoding ? $encodingError : ($tooLarge ? 'ERP request size '.$payloadBytes.' bytes exceeds the '.config('rest_erp.max_payload_bytes', 262144).' byte limit.' : implode('; ', $validator->errors()->all())))],
             'http_status' => 422,
         ] : null;
         // Only declared business fields are retained for replay.
@@ -151,7 +155,7 @@ readonly class RestErpJobService
         } catch (Throwable $exception) {
             $this->fail($id, $exception);
 
-            throw new RestErpQueueException($id);
+            throw new RestErpQueueException($id, $this->sanitizer->exceptionText($exception));
         }
     }
 
@@ -210,6 +214,7 @@ readonly class RestErpJobService
         $start = microtime(true);
         $providerStatus = null;
         $sent = false;
+        $exceptionContext = [];
         try {
             $payload = $job->parameters;
             $definition = config('rest_erp.endpoints.'.$job->endpoint);
@@ -225,16 +230,22 @@ readonly class RestErpJobService
             $result = $this->server->post($job->endpoint, $validated, function (array $metadata) use (&$providerStatus) {
                 $providerStatus = $metadata['http_status'];
             }, $job->uuid);
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            $exceptionContext = [
+                'exception_class' => $exception::class, 'stage' => $sent ? 'request' : 'preflight',
+            ];
+            $message = $this->sanitizer->exceptionText($exception);
             $result = [
                 'success' => false, 'data' => null,
-                'error' => ['code' => $sent ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_JOB_ERROR', 'message' => 'اجرای درخواست REST ERP ناموفق بود.'],
+                'error' => ['code' => $sent ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_JOB_ERROR', 'message' => $message],
                 'http_status' => 500,
             ];
         }
         $code = $result['error']['code'] ?? null;
         $uncertain = in_array($code, ['ERP_CONNECTION_ERROR', 'ERP_EXECUTION_UNCERTAIN', 'ERP_RESPONSE_TOO_LARGE'], true)
-            || ($code === 'ERP_ERROR' && ($providerStatus === null || $providerStatus >= 500 || ($providerStatus >= 200 && $providerStatus < 300)));
+            || ($code === 'ERP_ERROR' && $providerStatus === null)
+            || (! $result['success'] && $code !== 'Application_DialogException' && $providerStatus !== null
+                && ($providerStatus >= 500 || ($providerStatus >= 200 && $providerStatus < 300)));
         $status = $result['success'] ? 'success' : ($uncertain ? 'uncertain' : 'failed');
         DB::transaction(function () use ($job, $result, $providerStatus, $code, $status, $start) {
             $current = RestErpJob::query()->lockForUpdate()->findOrFail($job->id);
@@ -259,9 +270,11 @@ readonly class RestErpJobService
             $this->audit($job, 'rest_erp_'.$status);
         });
         if (! $result['success']) {
-            Log::warning('REST ERP request did not succeed', [
+            $logMessage = $this->sanitizer->errorText($result['error']['message'] ?? 'REST ERP request did not succeed');
+            Log::warning($logMessage, [
                 'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
                 'endpoint' => $job->endpoint, 'status' => $status, 'error_code' => $code,
+                ...$exceptionContext,
             ]);
         } else {
             RestErpJob::query()->where('depends_on_id', $job->id)->where('status', 'pending')
@@ -289,7 +302,7 @@ readonly class RestErpJobService
                 return;
             }
             $uncertain = $job->status === 'in-progress';
-            $message = $uncertain ? 'نتیجه اجرای درخواست ERP نامشخص است؛ قبل از تلاش مجدد بررسی شود.' : 'ارسال درخواست به صف ERP ناموفق بود.';
+            $message = $this->sanitizer->exceptionText($exception);
             $job->update([
                 'status' => $uncertain ? 'uncertain' : 'failed',
                 'error_code' => $uncertain ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_QUEUE_ERROR', 'description' => $message,
@@ -297,6 +310,10 @@ readonly class RestErpJobService
                 'execute_time' => $uncertain && $job->started_at ? round(max(0, microtime(true) - $job->started_at->getTimestamp()), 4) : 0,
             ]);
             $this->audit($job, 'rest_erp_'.$job->status, ['exception_class' => $exception::class]);
+            Log::warning($message, [
+                'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
+                'endpoint' => $job->endpoint, 'status' => $job->status, 'error_code' => $job->error_code,
+            ]);
         });
     }
 

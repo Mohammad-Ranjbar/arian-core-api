@@ -6,12 +6,12 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class RestErpQueueException extends HttpResponseException
 {
-    public function __construct(int|string $jobId)
+    public function __construct(int|string $jobId, ?string $message = null)
     {
         parent::__construct(response()->json([
             'error' => [
                 'code' => 'ERP_QUEUE_ERROR',
-                'message' => 'درخواست ثبت شد، اما تحویل آن به صف ERP ناموفق بود.',
+                'message' => $message ?? 'درخواست ثبت شد، اما تحویل آن به صف ERP ناموفق بود.',
             ],
             'rest_erp_job_id' => $jobId,
         ], 503));

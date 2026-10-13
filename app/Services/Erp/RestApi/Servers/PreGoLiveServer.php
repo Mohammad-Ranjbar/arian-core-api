@@ -3,9 +3,11 @@
 namespace App\Services\Erp\RestApi\Servers;
 
 use App\Services\Erp\RestApi\RestErpLogSanitizer;
+use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 class PreGoLiveServer
@@ -47,20 +49,18 @@ class PreGoLiveServer
         $username = config('erp.auth.0');
         $password = config('erp.auth.1');
 
-        if (
-            ! extension_loaded('curl')
-            || ! is_string($username)
-            || $username === ''
-            || ! is_string($password)
-            || $password === ''
-        ) {
-            Log::error('ERP NTLM configuration is incomplete');
-
-            return $this->failure(
-                'ERP_CONFIGURATION_ERROR',
-                'تنظیمات ارتباط با سامانه ERP کامل نیست.',
-                503
-            );
+        $missing = [];
+        if (! extension_loaded('curl')) {
+            $missing[] = 'PHP curl extension';
+        }
+        if (! is_string($username) || $username === '') {
+            $missing[] = 'ERP username';
+        }
+        if (! is_string($password) || $password === '') {
+            $missing[] = 'ERP password';
+        }
+        if ($missing !== []) {
+            return $this->failure('ERP_CONFIGURATION_ERROR', 'Missing configuration: '.implode(', ', $missing), 503);
         }
 
         try {
@@ -78,13 +78,19 @@ class PreGoLiveServer
                     $data
                 );
         } catch (ConnectionException $exception) {
-            Log::warning('Could not connect to ERP', ['exception_class' => $exception::class]);
-
             return $this->failure(
                 'ERP_CONNECTION_ERROR',
-                'ارتباط با سامانه ERP برقرار نشد.',
+                resolve(RestErpLogSanitizer::class)->exceptionText($exception),
                 503
             );
+        } catch (RequestException $exception) {
+            // HTTP exceptions still carry the ERP response; parse it instead of losing its error.
+            $response = $exception->response;
+        } catch (GuzzleRequestException $exception) {
+            if (! $exception->hasResponse()) {
+                throw $exception;
+            }
+            $response = new Response($exception->getResponse());
         }
 
         $rawBody = $response->body();
@@ -92,45 +98,24 @@ class PreGoLiveServer
             $onResponse(['http_status' => $response->status()]);
         }
 
-        if (in_array($response->status(), [401, 403], true)) {
-            Log::warning('ERP NTLM authentication failed', [
-                'http_status' => $response->status(),
-            ]);
-
-            return $this->failure(
-                'ERP_AUTH_ERROR',
-                'احراز هویت در سامانه ERP ناموفق بود.',
-                502
-            );
-        }
-
         if (strlen($rawBody) > (int) config('rest_erp.max_response_bytes', 1048576)) {
-            return $this->failure('ERP_RESPONSE_TOO_LARGE', 'حجم پاسخ ERP بیش از حد مجاز است.', 502);
+            return $this->failure('ERP_RESPONSE_TOO_LARGE',
+                'ERP HTTP '.$response->status().': response size '.strlen($rawBody).' bytes exceeds the '.config('rest_erp.max_response_bytes', 1048576).' byte limit.', 502
+            );
         }
 
         $body = $response->json();
-        $code = is_array($body) ? data_get($body, 'error.code') : null;
-        $message = is_array($body) ? data_get($body, 'error.message') : null;
-
-        if ($code === 'Application_DialogException' && is_string($message)) {
-            return $this->failure($code, $message, 422);
+        $error = $this->erpError($body, $response->status());
+        if ($error !== null) {
+            return $error;
         }
 
-        if (
-            ! $response->successful()
-            || ! is_array($body)
-            || array_key_exists('error', $body)
-        ) {
-            Log::warning('ERP returned an invalid response', [
-                'http_status' => $response->status(),
-                'erp_code' => is_string($code) ? resolve(RestErpLogSanitizer::class)->text($code, 255) : null,
-            ]);
+        if (in_array($response->status(), [401, 403], true)) {
+            return $this->failure('ERP_AUTH_ERROR', $this->responseErrorMessage($response), 502);
+        }
 
-            return $this->failure(
-                'ERP_ERROR',
-                'خطا در پاسخ سامانه ERP.',
-                502
-            );
+        if (! $response->successful() || ! is_array($body)) {
+            return $this->failure('ERP_ERROR', $this->responseErrorMessage($response), 502);
         }
 
         return [
@@ -141,17 +126,54 @@ class PreGoLiveServer
         ];
     }
 
+    private function erpError(mixed $body, int $providerStatus): ?array
+    {
+        if (! is_array($body) || ! array_key_exists('error', $body)) {
+            return null;
+        }
+
+        $code = data_get($body, 'error.code');
+        $message = is_string($body['error']) ? $body['error'] : data_get($body, 'error.message');
+        if (is_array($message)) {
+            $message = $message['value'] ?? null;
+        }
+        $sanitizer = resolve(RestErpLogSanitizer::class);
+        if (! is_string($message) || trim($message) === '') {
+            $message = json_encode($sanitizer->sanitize($body['error']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        }
+        $code = is_string($code) && trim($code) !== '' ? $code : 'ERP_ERROR';
+
+        return $this->failure($code, $message,
+            $code === 'Application_DialogException' && ! in_array($providerStatus, [401, 403], true) ? 422 : 502
+        );
+    }
+
+    private function responseErrorMessage(Response $response): string
+    {
+        $detail = $response->json();
+        $sanitizer = resolve(RestErpLogSanitizer::class);
+        if (is_array($detail)) {
+            $detail = json_encode($sanitizer->sanitize($detail), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        } elseif (! is_string($detail)) {
+            $detail = strip_tags($response->body());
+        }
+
+        return 'ERP HTTP '.$response->status().': '.(trim($detail) !== '' ? $detail : 'Empty response body.');
+    }
+
     private function failure(
         string $code,
         string $message,
         int $httpStatus
     ): array {
+        $sanitizer = resolve(RestErpLogSanitizer::class);
+
         return [
             'success' => false,
             'data' => null,
             'error' => [
-                'code' => $code,
-                'message' => $message,
+                'code' => $sanitizer->errorText($code, 255),
+                'message' => $sanitizer->errorText($message),
             ],
             'http_status' => $httpStatus,
         ];

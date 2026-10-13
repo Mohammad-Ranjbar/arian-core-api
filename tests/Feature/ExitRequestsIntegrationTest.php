@@ -173,7 +173,7 @@ class ExitRequestsIntegrationTest extends TestCase
 
     public function test_controller_preserves_broker_failure_status_and_saved_job(): void
     {
-        Bus::shouldReceive('dispatch')->once()->andThrow(new RuntimeException('broker-secret'));
+        Bus::shouldReceive('dispatch')->once()->andThrow(new RuntimeException('Redis connection refused. password=broker-secret'));
         try {
             $this->store();
             $this->fail('Expected broker failure.');

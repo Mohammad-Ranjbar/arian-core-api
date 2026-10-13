@@ -111,7 +111,7 @@ class RestErpDependencyTest extends TestCase
     public function test_dependent_broker_failure_keeps_parent_success_and_releases_other_prints(): void
     {
         [$group, $prints] = $this->workflow();
-        Bus::shouldReceive('dispatch')->once()->andThrow(new RuntimeException('broker-secret'));
+        Bus::shouldReceive('dispatch')->once()->andThrow(new RuntimeException('Redis connection refused. password=broker-secret'));
         Bus::shouldReceive('dispatch')->once()->andReturn(null);
         Http::fake(['*' => Http::response([], 200)]);
         $result = resolve(RestErpJobService::class)->execute($group->id);

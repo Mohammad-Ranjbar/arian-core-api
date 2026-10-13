@@ -2,6 +2,8 @@
 
 namespace App\Services\Erp\RestApi;
 
+use Throwable;
+
 class RestErpLogSanitizer
 {
     public function sanitize(mixed $value): mixed
@@ -40,6 +42,31 @@ class RestErpLogSanitizer
         }
 
         return $value;
+    }
+
+    public function errorText(string $value, int $limit = 4096): string
+    {
+        $connection = config('database.connections.'.config('database.default'), []);
+        $credentials = array_filter([
+            config('erp.auth.0'), config('erp.auth.1'),
+            $connection['password'] ?? null,
+        ], fn ($credential) => is_string($credential) && $credential !== '');
+        $value = str_replace($credentials, '[REDACTED]', $value);
+        $value = preg_replace('/("(?:password|passwd|secret|token|api[_-]?key|authorization|cookie|set-cookie)"\s*:\s*)"(?:\\\\.|[^"\\\\])*"/i', '$1"[REDACTED]"', $value);
+        $value = preg_replace('/\b(?:NTLM|Negotiate)\s+[A-Za-z0-9+\/]{20,}={0,2}/i', '[REDACTED]', $value);
+        $value = preg_replace('/\b(cookie|set-cookie)\s*[:=]\s*[^\r\n]+/i', '$1=[REDACTED]', $value);
+
+        return $this->text($value, $limit) ?? '';
+    }
+
+    public function exceptionText(Throwable $exception): string
+    {
+        $messages = [];
+        for ($depth = 0; $exception !== null && $depth < 3; $depth++, $exception = $exception->getPrevious()) {
+            $messages[] = $exception::class.': '.$exception->getMessage();
+        }
+
+        return $this->errorText(implode(' | ', $messages));
     }
 
     private function walk(mixed $value, int $depth, int &$items, int &$bytes): mixed

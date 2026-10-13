@@ -106,7 +106,7 @@ class ItemReclassJournalsServiceTest extends TestCase
             'forbidden' => [[], 403, 'ERP_AUTH_ERROR', 502],
             'business error' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Insufficient inventory.']], 400, 'Application_DialogException', 422],
             'server error' => [[], 500, 'ERP_ERROR', 502],
-            'unexpected error' => [['error' => ['code' => 'Unknown']], 200, 'ERP_ERROR', 502],
+            'unexpected error' => [['error' => ['code' => 'Unknown']], 200, 'Unknown', 502],
             'invalid json' => ['<html>failure</html>', 200, 'ERP_ERROR', 502],
         ];
     }
