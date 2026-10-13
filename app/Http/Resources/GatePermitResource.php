@@ -12,6 +12,7 @@ class GatePermitResource extends JsonResource
     {
         $retryJob = ($request->user()?->can('retry-erp-jobs') ?? false)
             ? resolve(RestErpJobLinksService::class)->forGatePermit($this->resource)
+                ->unique('endpoint')
                 ->first(fn ($job) => in_array($job->status, ['failed', 'uncertain'], true))
             : null;
 

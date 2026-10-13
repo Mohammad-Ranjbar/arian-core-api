@@ -9,12 +9,14 @@ use App\Models\ActionLog;
 use App\Models\Basket;
 use App\Models\RestErpJob;
 use App\Models\User;
+use App\Models\Vehicle;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
 use App\Services\Erp\RestApi\RestErpJobService;
 use App\Services\Erp\RestApi\RestErpLogSanitizer;
 use App\Services\Erp\RestApi\SetQcStatusService;
 use Illuminate\Database\QueryException;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Http\Request;
@@ -140,16 +142,131 @@ class RestErpJobTest extends TestCase
         Http::assertSentCount(1);
     }
 
-    public function test_changed_sync_parameters_or_model_create_a_separate_job(): void
+    public function test_changed_sync_parameters_reuse_the_entity_job_but_a_different_model_gets_its_own_job(): void
     {
         Http::fake(['*' => Http::response(['error' => ['code' => 'Application_DialogException', 'message' => 'Refused.']], 400)]);
         $service = resolve(RestErpJobService::class);
         $service->send('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '2'], Auth::user());
         $service->send('ApproveReturnZones', ['VIN' => 'VIN-2', 'ItemType' => '2'], Auth::user());
         $service->send('ApproveReturnZones', ['VIN' => 'VIN-2', 'ItemType' => '2'], User::query()->findOrFail(43));
-        $this->assertDatabaseCount('rest_erp_jobs', 3);
-        $this->assertSame([1, 1, 1], RestErpJob::query()->pluck('tries')->all());
+        $this->assertDatabaseCount('rest_erp_jobs', 2);
+        $this->assertSame([2, 1], RestErpJob::query()->orderBy('id')->pluck('tries')->all());
         Http::assertSentCount(3);
+    }
+
+    public function test_qc_status_and_actor_changes_reuse_one_vehicle_job_across_sync_and_queue(): void
+    {
+        Schema::create('vehicles', function (Blueprint $table) {
+            $table->string('vin')->primary();
+            $table->softDeletes();
+        });
+        DB::table('vehicles')->insert(['vin' => 'A1234567890123456']);
+        $vehicle = Vehicle::without(['carModel', 'makeCode'])->findOrFail('A1234567890123456');
+        Http::fakeSequence()
+            ->push(['error' => ['code' => 'Application_DialogException', 'message' => 'QC refused.']], 400)
+            ->push([], 200)->push([], 200)->push([], 200);
+        $service = resolve(SetQcStatusService::class);
+        $this->assertFalse($service->send($vehicle->vin, 84, 2, 1, $vehicle)['success']);
+        $original = RestErpJob::query()->sole();
+        $this->actingAs(User::query()->findOrFail(43));
+        $this->assertTrue($service->send($vehicle->vin, 85, 2, 1, $vehicle)['success']);
+        $this->assertTrue($service->send($vehicle->vin, 24, 1, 2, $vehicle)['success']);
+        $queued = $service->queue($vehicle->vin, 25, 1, 2, $vehicle);
+        $duplicate = $service->queue($vehicle->vin, 25, 1, 2, $vehicle);
+        $this->assertSame($original->id, $queued['data']['rest_erp_job_id']);
+        $this->assertSame($queued['data'], $duplicate['data']);
+        Queue::assertPushed(SendToRestErpJob::class, 1);
+        $job = RestErpJob::query()->sole();
+        $this->assertSame($original->uuid, $job->uuid);
+        $this->assertSame('pending', $job->status);
+        $this->assertSame(['VIN' => $vehicle->vin, 'QCStatus' => '25', 'ItemType' => '1', 'QCType' => '2'], $job->parameters);
+        resolve(RestErpJobService::class)->execute($job->id);
+        $job->refresh();
+        $this->assertSame('success', $job->status);
+        $this->assertSame(4, $job->tries);
+        $this->assertSame(42, $job->user_id);
+        $this->assertSame(43, $job->last_retry_user_id);
+        $history = $job->actionLogs()->where('action', 'rest_erp_retry_requested')->oldest('id')->get();
+        $this->assertSame(['84', '85', '24'], $history->pluck('data.snapshot.parameters.QCStatus')->all());
+        $this->assertSame('QC refused.', $history->first()->data['snapshot']['description']);
+        Http::assertSentCount(4);
+    }
+
+    public function test_rejected_payload_is_corrected_on_the_same_entity_operation_job(): void
+    {
+        Http::fake(['*' => Http::response([], 200)]);
+        $service = resolve(RestErpJobService::class);
+        $invalid = ['VIN' => 'A1234567890123456', 'QCStatus' => '', 'ItemType' => '2', 'QCType' => '1'];
+        $this->assertSame(422, $service->send('qcStatuses', $invalid, Auth::user())['http_status']);
+        $original = RestErpJob::query()->sole();
+        $this->assertSame(422, $service->send('qcStatuses', $invalid, Auth::user())['http_status']);
+        $payload = [...$invalid, 'QCStatus' => '84'];
+        $this->assertTrue($service->send('qcStatuses', $payload, Auth::user(), 'changed-section')['success']);
+        $job = RestErpJob::query()->sole();
+        $this->assertSame($original->id, $job->id);
+        $this->assertSame($original->uuid, $job->uuid);
+        $this->assertSame($payload, $job->parameters);
+        $this->assertSame(1, $job->tries);
+        $this->assertSame('changed-section', $job->section);
+        Http::assertSentCount(1);
+    }
+
+    public function test_different_operations_on_the_same_entity_keep_separate_stable_jobs(): void
+    {
+        Http::fake(['*' => Http::response([], 200)]);
+        $service = resolve(RestErpJobService::class);
+        $service->send('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '2'], Auth::user());
+        $service->send('ApproveExitZones', ['BarcodeInfo' => 'VIN-1', 'ItemType' => '2'], Auth::user());
+        $service->send('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '1'], Auth::user());
+        $this->assertDatabaseCount('rest_erp_jobs', 2);
+        $this->assertSame([2, 1], RestErpJob::query()->orderBy('id')->pluck('tries')->all());
+        Http::assertSentCount(3);
+    }
+
+    public function test_queue_reexecution_after_failure_updates_the_same_entity_job_parameters(): void
+    {
+        $service = resolve(RestErpJobService::class);
+        $queued = $service->enqueue('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '2'], Auth::user());
+        Http::fakeSequence()
+            ->push(['error' => ['code' => 'Application_DialogException', 'message' => 'Return refused.']], 400)
+            ->push([], 200);
+        $service->execute($queued['data']['rest_erp_job_id']);
+        $retried = $service->enqueue('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '1'], Auth::user());
+        $this->assertSame($queued['data'], $retried['data']);
+        $service->execute($retried['data']['rest_erp_job_id']);
+        $job = RestErpJob::query()->sole();
+        $this->assertSame(2, $job->tries);
+        $this->assertSame('success', $job->status);
+        $this->assertSame('1', $job->parameters['ItemType']);
+        $this->assertSame('2', $job->actionLogs()->where('action', 'rest_erp_retry_requested')->sole()->data['snapshot']['parameters']['ItemType']);
+        Queue::assertPushed(SendToRestErpJob::class, 2);
+        Http::assertSentCount(2);
+    }
+
+    public static function activeJobStatuses(): array
+    {
+        return [['pending'], ['in-progress'], ['uncertain']];
+    }
+
+    #[DataProvider('activeJobStatuses')]
+    public function test_changed_parameters_cannot_replace_an_active_or_uncertain_entity_job(string $status): void
+    {
+        Http::fake(['*' => Http::response(['error' => ['code' => 'Application_DialogException', 'message' => 'Refused.']], 400)]);
+        $service = resolve(RestErpJobService::class);
+        $service->send('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '2'], Auth::user());
+        $job = RestErpJob::query()->sole();
+        $job->update(['status' => $status]);
+        foreach ([false, true] as $queued) {
+            $result = $queued
+                ? $service->enqueue('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '1'], Auth::user())
+                : $service->send('ApproveReturnZones', ['VIN' => 'VIN-1', 'ItemType' => '1'], Auth::user());
+            $this->assertSame(409, $result['http_status']);
+            $this->assertSame($job->id, $result['rest_erp_job_id']);
+        }
+        $this->assertDatabaseCount('rest_erp_jobs', 1);
+        $this->assertSame('2', $job->fresh()->parameters['ItemType']);
+        Http::assertSentCount(1);
+        Queue::assertNothingPushed();
     }
 
     public function test_unlinked_sync_jobs_are_reused_only_for_the_same_actor(): void

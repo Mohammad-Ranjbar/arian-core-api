@@ -13,6 +13,7 @@ use App\Models\GatePermit;
 use App\Models\RestErpJob;
 use App\Models\Vehicle;
 use App\Services\Erp\RestApi\ExitRequestsService;
+use App\Services\Erp\RestApi\GroupExitsService;
 use App\Services\Erp\RestApi\RestErpJobService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Client\Factory;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Mockery;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
@@ -383,6 +385,42 @@ class ExitRequestsIntegrationTest extends TestCase
         $resource = (new GatePermitResource($permit))->resolve($request);
         $this->assertNull($resource['retry_url']);
         $this->assertArrayNotHasKey('rest_erp_jobs', $resource);
+    }
+
+    public function test_transfer_waits_for_a_reexecuted_group_even_when_its_existing_print_succeeded(): void
+    {
+        $this->bill()->createAutoGatePermit([self::VIN, 'N5RT92CF6SP000482'], '2', true);
+        Http::fake(['*' => Http::response([], 200)]);
+        foreach (RestErpJob::query()->oldest('id')->get() as $job) {
+            resolve(RestErpJobService::class)->execute($job->id);
+        }
+        $group = RestErpJob::query()->where('endpoint', 'GroupExits')->sole();
+        $owner = GatePermit::query()->findOrFail($group->model_id);
+        $payload = $group->parameters;
+        $queued = resolve(GroupExitsService::class)->queue(
+            $payload['VINArray'], $payload['TypeOfExit'], $payload['Destination'],
+            $payload['NumberVIN'], $payload['ItemType'], model: $owner
+        );
+        $this->assertSame($group->id, $queued['data']['rest_erp_job_id']);
+        $response = resolve(GatePermitTransferController::class)($this->vehicle());
+        $this->assertSame(409, $response->getStatusCode());
+        $this->assertSame($group->id, $response->getData(true)['rest_erp_job_id']);
+        $this->assertDatabaseCount('rest_erp_jobs', 3);
+        $this->assertDatabaseCount('production_tracking', 0);
+        Http::assertSentCount(3);
+    }
+
+    public function test_gate_resource_does_not_retry_an_old_duplicate_when_the_current_operation_succeeded(): void
+    {
+        Auth::user()->givePermissionTo(Permission::create(['name' => 'retry-erp-jobs', 'guard_name' => 'web']));
+        $this->store();
+        $job = RestErpJob::query()->sole();
+        $job->update(['status' => 'failed']);
+        // Keep historical duplicates, as requested, while treating the newest record as canonical.
+        $current = $job->replicate(['uuid']);
+        $current->fill(['uuid' => (string) Str::uuid(), 'status' => 'success'])->save();
+        $this->assertNull($this->permitRetryUrl(GatePermit::query()->sole()));
+        $this->assertDatabaseCount('rest_erp_jobs', 2);
     }
 
     public function test_bill_resource_keeps_exact_request_ids_and_prints_without_vin_based_leakage(): void

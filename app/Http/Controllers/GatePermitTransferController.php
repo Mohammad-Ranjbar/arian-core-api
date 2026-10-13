@@ -8,6 +8,7 @@ use App\Models\RestErpJob;
 use App\Models\Vehicle;
 use App\Services\Erp\RestApi\ApproveExitZonesService;
 use App\Services\Erp\RestApi\ApproveReturnZonesService;
+use App\Services\Erp\RestApi\RestErpJobLinksService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -31,9 +32,11 @@ class GatePermitTransferController extends Controller
                 $permit = GatePermit::query()->where('model_type', Vehicle::class)
                     ->where('model_id', $vehicle->getAttribute('vin'))->latest()->lockForUpdate()->firstOrFail();
 
-                $exitRequest = RestErpJob::query()->where('model_type', $permit->getMorphClass())
-                    ->where('model_id', $permit->getKey())->whereIn('endpoint', ['ExitRequests', 'GroupExits', 'ExitPrints'])->latest('id')->first();
-                if ($permit->getAttribute('type') === 'exit' && $exitRequest && $exitRequest->status !== 'success') {
+                // Reexecution keeps the job ID; check each current stage, including the print's group parent.
+                $exitRequest = resolve(RestErpJobLinksService::class)->forGatePermit($permit)
+                    ->whereIn('endpoint', ['ExitRequests', 'GroupExits', 'ExitPrints'])->unique('endpoint')
+                    ->first(fn ($job) => $job->status !== 'success');
+                if ($permit->getAttribute('type') === 'exit' && $exitRequest) {
                     return response()->json([
                         'error' => [
                             'code' => 'ERP_EXIT_REQUEST_NOT_READY',
