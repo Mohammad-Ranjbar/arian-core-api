@@ -14,6 +14,8 @@ class PreGoLiveServer
         'qcStatuses' => 'qcStatuses',
         'CreateTransferZones' => 'CreateTransferZones',
         'ItemReclassJournals' => 'ItemReclassJournals',
+        'ApproveExitZones' => 'ApproveExitZones',
+        'ApproveReturnZones' => 'ApproveReturnZones',
     ];
 
     public function urlFor(string $endpoint): string

@@ -1,5 +1,7 @@
 <?php
 
+use App\Services\Erp\RestApi\ApproveExitZonesService;
+use App\Services\Erp\RestApi\ApproveReturnZonesService;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
 use App\Services\Erp\RestApi\SetQcStatusService;
@@ -16,6 +18,20 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'ApproveExitZones' => [
+            'service' => ApproveExitZonesService::class,
+            'rules' => [
+                'BarcodeInfo' => ['required', 'string'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
+        'ApproveReturnZones' => [
+            'service' => ApproveReturnZonesService::class,
+            'rules' => [
+                'VIN' => ['required', 'string'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
         'ItemReclassJournals' => [
             'service' => ItemReclassJournalsService::class,
             'rules' => [
