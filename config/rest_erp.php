@@ -76,7 +76,7 @@ return [
             'service' => SetQcStatusService::class,
             'rules' => [
                 'VIN' => ['required', 'string', 'regex:/^[A-HJ-NPR-Z0-9]{17}$/'],
-                'QCStatus' => ['required', 'string', 'regex:/^[0-9]{1,10}$/'],
+                'QCStatus' => ['required', 'string'],
                 'ItemType' => ['required', 'string', 'regex:/^[0-9]{1,10}$/'],
                 'QCType' => ['required', 'string', 'regex:/^[0-9]{1,10}$/'],
             ],
