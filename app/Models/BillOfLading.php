@@ -148,8 +148,9 @@ class BillOfLading extends Model
         return $this->morphMany(GatePermit::class, 'owner');
     }
 
+
     /**
-     * @throws Exception
+     * @throws \Throwable
      */
     public function createAutoGatePermit($items, $itemType = null, $batch = false): void
     {
