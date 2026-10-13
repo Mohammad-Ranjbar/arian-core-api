@@ -8,12 +8,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class GatePermitResource extends JsonResource
 {
-    /**
-     * @param Request $request
-     * @return array
-     */
     public function toArray(Request $request): array
     {
+        $retryJob = ($request->user()?->can('retry-erp-jobs') ?? false)
+            ? resolve(RestErpJobLinksService::class)->forGatePermit($this->resource)
+                ->first(fn ($job) => in_array($job->status, ['failed', 'uncertain'], true))
+            : null;
+
         return [
             'id' => $this->resource->id,
             'type' => $this->resource->type,
@@ -24,10 +25,10 @@ class GatePermitResource extends JsonResource
             'model' => $this->resource->model,
             'source_id' => $this->resource->source_id,
             'source' => LocationResource::make($this->resource->source),
-            'billOfLading' => $this->resource->BillOfLadingItem?->billOfLading ,
+            'billOfLading' => $this->resource->BillOfLadingItem?->billOfLading,
             'deleted_at' => $this->resource->deleted_at,
             'created_at' => $this->resource->created_at,
-            'rest_erp_jobs' => RestErpJobSummaryResource::collection(resolve(RestErpJobLinksService::class)->forGatePermit($this->resource)),
+            'retry_url' => $retryJob ? route('rest-erp-jobs.retry', ['restErpJob' => $retryJob->getKey()]) : null,
         ];
     }
 }

@@ -99,12 +99,14 @@ class ExitRequestsIntegrationTest extends TestCase
         return $request;
     }
 
-    private function permitJobs(GatePermit $permit): array
+    private function permitRetryUrl(GatePermit $permit): ?string
     {
         $request = $this->retryRequest();
         $resource = (new GatePermitResource($permit))->resolve($request);
 
-        return $resource['rest_erp_jobs']->resolve($request);
+        $this->assertArrayNotHasKey('rest_erp_jobs', $resource);
+
+        return $resource['retry_url'];
     }
 
     private function persistedBill(): BillOfLading
@@ -346,14 +348,41 @@ class ExitRequestsIntegrationTest extends TestCase
         $print = RestErpJob::query()->where('endpoint', 'ExitPrints')->where('model_id', $permit->id)->sole();
         $group->update(['status' => 'success']);
         $print->update(['status' => 'failed', 'error_code' => 'ERP_ERROR']);
-        $jobs = $this->permitJobs($permit);
-        $this->assertSame([$print->id, $group->id], array_column($jobs, 'id'));
-        $this->assertSame($group->id, $jobs[0]['depends_on_id']);
-        $this->assertSame('PUT', $jobs[0]['retry_method']);
-        $this->assertNull($jobs[1]['retry_url']);
-        $this->putJson($jobs[0]['retry_url'])->assertStatus(202)->assertJsonPath('data.status', 'pending');
+        $retryUrl = $this->permitRetryUrl($permit);
+        $this->assertSame(route('rest-erp-jobs.retry', ['restErpJob' => $print->id]), $retryUrl);
+        $this->putJson($retryUrl)->assertStatus(202)->assertJsonPath('data.status', 'pending');
         $this->assertSame(1, $print->fresh()->actionLogs()->where('action', 'rest_erp_retry_requested')->count());
         Http::assertNothingSent();
+    }
+
+    public function test_gate_resource_selects_the_latest_retryable_related_job_and_can_fall_back_to_its_parent(): void
+    {
+        Auth::user()->givePermissionTo(Permission::create(['name' => 'retry-erp-jobs', 'guard_name' => 'web']));
+        $this->bill()->createAutoGatePermit([self::VIN, 'N5RT92CF6SP000482'], '2', true);
+        $permit = GatePermit::query()->where('model_id', self::VIN)->sole();
+        $group = RestErpJob::query()->where('endpoint', 'GroupExits')->sole();
+        $print = RestErpJob::query()->where('endpoint', 'ExitPrints')->where('model_id', $permit->id)->sole();
+        $group->update(['status' => 'uncertain']);
+        RestErpJob::query()->where('endpoint', 'ExitPrints')->update(['status' => 'failed']);
+
+        $this->assertSame(route('rest-erp-jobs.retry', ['restErpJob' => $print->id]), $this->permitRetryUrl($permit));
+        $print->refresh()->update(['status' => 'pending']);
+        $this->assertSame(route('rest-erp-jobs.retry', ['restErpJob' => $group->id]), $this->permitRetryUrl($permit));
+        $group->update(['status' => 'success']);
+        $this->assertNull($this->permitRetryUrl($permit));
+    }
+
+    public function test_gate_resource_does_not_expose_retry_url_without_permission_or_for_an_anonymous_user(): void
+    {
+        $this->store();
+        RestErpJob::query()->update(['status' => 'failed']);
+        $permit = GatePermit::query()->sole();
+        $this->assertNull($this->permitRetryUrl($permit));
+        $request = $this->retryRequest();
+        $request->setUserResolver(fn () => null);
+        $resource = (new GatePermitResource($permit))->resolve($request);
+        $this->assertNull($resource['retry_url']);
+        $this->assertArrayNotHasKey('rest_erp_jobs', $resource);
     }
 
     public function test_bill_resource_keeps_exact_request_ids_and_prints_without_vin_based_leakage(): void
