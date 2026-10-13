@@ -7,8 +7,11 @@ use App\Http\Requests\SendAlternativeRequest;
 use App\Models\Alternative;
 use App\Models\AlternativeVariant;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 use Mockery;
 use Tests\Concerns\CreatesRestErpTables;
 use Tests\TestCase;
@@ -23,6 +26,8 @@ class SendAlternativesTest extends TestCase
     {
         parent::setUp();
         $this->createRestErpTables();
+        Schema::create('alternatives', fn (Blueprint $table) => $table->id());
+        DB::table('alternatives')->insert(['id' => 77]);
 
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
@@ -34,7 +39,8 @@ class SendAlternativesTest extends TestCase
         Http::fake([self::ERP_URL => Http::response($body, 201)]);
         $alternative = $this->alternative();
 
-        $this->send($alternative);
+        $response = $this->send($alternative);
+        $this->assertNull($response, $response?->getContent() ?? '');
 
         Http::assertSentCount(1);
         Http::assertSent(fn (Request $request) => $request->url() === self::ERP_URL
@@ -92,6 +98,7 @@ class SendAlternativesTest extends TestCase
     private function alternative(): Alternative
     {
         $alternative = Mockery::mock(Alternative::class)->makePartial();
+        $alternative->setTable('alternatives');
         $alternative->setAttribute('id', 77);
         $alternative->exists = true;
         $alternative->shouldReceive('getMorphClass')->andReturn(Alternative::class);

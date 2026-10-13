@@ -147,7 +147,7 @@ class RestErpErrorTraceTest extends TestCase
         Http::fakeSequence()->push('<html><body>Upstream gateway failed.</body></html>', 502)->push('Access denied.', 403);
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
         $this->assertSame('ERP HTTP 502: Upstream gateway failed.', $result['error']['message']);
-        $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
+        $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-2', 'ItemType' => '2']);
         $this->assertSame('ERP_AUTH_ERROR', $result['error']['code']);
         $this->assertSame('ERP HTTP 403: Access denied.', $result['error']['message']);
     }

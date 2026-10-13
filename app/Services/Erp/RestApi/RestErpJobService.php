@@ -28,7 +28,48 @@ readonly class RestErpJobService
 
     public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'rest-erp', ?int $userId = null): array
     {
-        $job = $this->create($endpoint, $parameters, $model, $section, $userId, false);
+        $job = DB::transaction(function () use ($endpoint, $parameters, $model, $section, $userId) {
+            $userId ??= Auth::id();
+            // Serialize requests for the same model, including the first request with no job yet.
+            if ($model?->exists && $model->getKey() !== null) {
+                DB::table($model->getTable())->where($model->getKeyName(), $model->getKey())->lockForUpdate()->first();
+            } elseif ($model === null && $userId !== null) {
+                DB::table('users')->where('id', $userId)->lockForUpdate()->first();
+            }
+            $previous = $userId !== null && ($model === null || ($model->exists && $model->getKey() !== null))
+                ? RestErpJob::query()->where('endpoint', $endpoint)
+                    ->where('section', $this->sanitizer->text($section, 255))
+                    ->where('model_type', $model?->getMorphClass())->where('model_id', $model?->getKey())
+                    ->when($model === null, fn ($query) => $query->where('user_id', $userId))
+                    ->latest('id')->lockForUpdate()->first()
+                : null;
+            if ($previous && $previous->execution_mode === 'sync' && $previous->parameters === $parameters
+                && $previous->url === $this->server->urlFor($endpoint)) {
+                if (in_array($previous->status, ['pending', 'in-progress', 'uncertain'], true)) {
+                    return [
+                        'success' => false, 'data' => null,
+                        'error' => [
+                            'code' => $previous->status === 'uncertain' ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_JOB_IN_PROGRESS',
+                            'message' => $previous->status === 'uncertain'
+                                ? 'نتیجه درخواست قبلی ERP نامشخص است؛ پس از بررسی نتیجه، همان جاب را با تأیید صریح retry کنید.'
+                                : 'درخواست قبلی ERP هنوز در حال پردازش است.',
+                        ],
+                        'rest_erp_job_id' => $previous->getKey(), 'http_status' => 409,
+                    ];
+                }
+                if ($previous->status === 'failed') {
+                    $this->prepareRetry($previous, $userId, true);
+
+                    return $previous;
+                }
+            }
+
+            return $this->create($endpoint, $parameters, $model, $section, $userId, false);
+        });
+
+        if (is_array($job)) {
+            return $job;
+        }
 
         return $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
     }
@@ -327,15 +368,8 @@ readonly class RestErpJobService
             if ($job->status === 'uncertain' && ! $acknowledgeUncertain) {
                 throw ValidationException::withMessages(['acknowledge_uncertain_result' => 'ممکن است ERP درخواست را اجرا کرده باشد؛ قبل از ارسال مجدد نتیجه را بررسی و تأیید کنید.']);
             }
-            $this->audit($job, 'rest_erp_retry_requested', ['actor_context' => $this->context->capture($userId)], $userId);
-            $sync = config('rest_erp.endpoints.'.$job->endpoint.'.retry_execution_mode') === 'sync';
-            $job->update([
-                'status' => 'pending', 'execution_mode' => $sync ? 'sync' : 'queue',
-                'connection' => $sync ? null : config('rest_erp.connection', 'redis'),
-                'queue' => $sync ? null : 'parallel', 'queued_at' => $sync ? null : now(), 'last_retry_at' => now(), 'last_retry_user_id' => $userId,
-                'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
-                'dispatched_at' => null, 'started_at' => null, 'completed_at' => null, 'failed_at' => null, 'execute_time' => 0,
-            ]);
+            $sync = $job->execution_mode === 'sync' || config('rest_erp.endpoints.'.$job->endpoint.'.retry_execution_mode') === 'sync';
+            $this->prepareRetry($job, $userId, $sync);
             if ($sync) {
                 DB::afterCommit(fn () => $this->execute($job->getKey()));
             } else {
@@ -347,6 +381,18 @@ readonly class RestErpJobService
         });
 
         return $retried->refresh();
+    }
+
+    private function prepareRetry(RestErpJob $job, int $userId, bool $sync): void
+    {
+        $this->audit($job, 'rest_erp_retry_requested', ['actor_context' => $this->context->capture($userId)], $userId);
+        $job->update([
+            'status' => 'pending', 'execution_mode' => $sync ? 'sync' : 'queue',
+            'connection' => $sync ? null : config('rest_erp.connection', 'redis'),
+            'queue' => $sync ? null : 'parallel', 'queued_at' => $sync ? null : now(), 'last_retry_at' => now(), 'last_retry_user_id' => $userId,
+            'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
+            'dispatched_at' => null, 'started_at' => null, 'completed_at' => null, 'failed_at' => null, 'execute_time' => 0,
+        ]);
     }
 
     public function ignore(RestErpJob $job, int $userId): RestErpJob

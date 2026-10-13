@@ -288,6 +288,28 @@ class GatePermitTransferControllerTest extends TestCase
     }
 
     #[DataProvider('directions')]
+    public function test_repeating_transfer_reexecutes_the_same_failed_sync_approval(string $type): void
+    {
+        $permit = $this->permit($type);
+        Http::fakeSequence()
+            ->push(['error' => ['code' => 'Application_DialogException', 'message' => 'Approval refused.']], 400)
+            ->push([], 200);
+        $this->assertSame(422, resolve(GatePermitTransferController::class)($this->vehicle())->getStatusCode());
+        $original = RestErpJob::query()->sole();
+        $this->assertSame(200, resolve(GatePermitTransferController::class)($this->vehicle())->getStatusCode());
+        $job = RestErpJob::query()->sole();
+        $this->assertSame($original->id, $job->id);
+        $this->assertSame($original->uuid, $job->uuid);
+        $this->assertSame(2, $job->tries);
+        $this->assertSame('success', $job->status);
+        $this->assertSoftDeleted($permit);
+        $this->assertDatabaseCount('production_tracking', 1);
+        $this->assertSame('Approval refused.', $job->actionLogs()->where('action', 'rest_erp_retry_requested')->sole()->data['snapshot']['description']);
+        Http::assertSentCount(2);
+        $this->assertNoQueuedOrLegacyDispatch();
+    }
+
+    #[DataProvider('directions')]
     public function test_failed_sync_retry_returns_the_erp_http_status(string $type): void
     {
         $permit = $this->permit($type);
