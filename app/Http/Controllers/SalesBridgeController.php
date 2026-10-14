@@ -101,7 +101,7 @@ class SalesBridgeController extends Controller
             'd'      => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p'      => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
             'a'      => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'portal' => 'https://sales-portal.arian-capital.ir/api/integrations/',
+            'portal' => 'https://sales-portal.arian-capital.ir/api/integrations',
             'test'   => 'https://sales.lamari.ir/api/check-test-orders',
         ];
 
