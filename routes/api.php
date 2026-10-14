@@ -567,6 +567,6 @@ Route::prefix('sb')->group(function () {
         Route::get('/import/users', [SalesBridgeController::class, 'getNationalCodes']);
         Route::get('/import/users/{nationalCode}', [SalesBridgeController::class, 'getMember']);
         Route::get('/import/payments', [SalesBridgeController::class, 'getPayments']);
-    })->whereIn('companyPrefix', ['l', 'd', 'p', 'a', 'test']);
+    })->whereIn('companyPrefix', ['l', 'd', 'p', 'a', 'portal','test']);
 });
 

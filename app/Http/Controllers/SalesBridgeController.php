@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -66,7 +65,7 @@ class SalesBridgeController extends Controller
                     $payment['bank_data']['date']['full'] = $date->format('Y-m-d H:i:s');
                     $payment['bank_data']['date']['date'] = $date->format('Y-m-d');
                 }
-            }else{
+            } else {
                 $payment['bank_data']['date'] = [
                     'full' => $date->format('Y-m-d H:i:s'),
                     'date' => $date->format('Y-m-d')
@@ -98,11 +97,12 @@ class SalesBridgeController extends Controller
     public function getUrl($prefix)
     {
         $urls = [
-            'l'    => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
-            'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
-            'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'a'    => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'test' => 'https://sales.lamari.ir/api/check-test-orders',
+            'l'      => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'd'      => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'p'      => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'a'      => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'portal' => 'https://sales-portal.arian-capital.ir/api/integrations/',
+            'test'   => 'https://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
@@ -144,7 +144,14 @@ class SalesBridgeController extends Controller
 
     public function getPayments($prefix)
     {
-        return Http::withoutVerifying()->get($this->getUrl($prefix).'/payments/get-latest', request()->toArray())->json();
+        $url = $this->getUrl($prefix);
+
+        if ($prefix == 'portal') {
+            $url .= '/payments';
+        }else{
+            $url .= '/payments/get-latest';
+        }
+        return Http::withoutVerifying()->get($url, request()->toArray())->json();
     }
 
 }
