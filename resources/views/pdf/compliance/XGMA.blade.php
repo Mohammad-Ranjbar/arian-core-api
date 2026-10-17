@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>گواهینامه تطابق تولید - XG822FL</title>
-    <link rel="stylesheet" href="{{url('assets/822-63.css')}}">
+    <link rel="stylesheet" href="{{'/assets/822-63.css'}}">
 </head>
 <body>
 <main class="page">
-    <img class="letterhead" src="{{url('assets/images/arian-pars-header.png')}}" alt="آرین پارس">
+    <img class="letterhead" src="{{'/assets/images/arian-pars-header.png'}}" alt="آرین پارس">
 
     <p class="date">تاریخ: <span id="certificate-date" dir="ltr">۱۴۰۳/۱۲/۰۵</span></p>
 
@@ -170,7 +170,7 @@
     </section>
 
     <footer class="letterfoot">
-        <img src="{{url('assets/images/arian-pars-footer.png')}}" alt="اطلاعات تماس آرین پارس و نشانی دفتر مرکزی و کارخانه">
+        <img src="{{'/assets/images/arian-pars-footer.png'}}" alt="اطلاعات تماس آرین پارس و نشانی دفتر مرکزی و کارخانه">
     </footer>
 </main>
 </body>
