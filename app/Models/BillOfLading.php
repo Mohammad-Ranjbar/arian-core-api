@@ -156,6 +156,7 @@ class BillOfLading extends Model
      */
     public function createAutoGatePermit($items, $itemType = null, $batch = false): void
     {
+        dd($items,$itemType,$batch);
         DB::transaction(function () use ($items, $itemType, $batch) {
             $actorId = Auth::id() ?? $this->getAttribute('user_id');
             $exitIds = Location::query()->whereHas('attributes', fn($query) => $query->where('attribute', 'autoExitPermit')->whereJsonContains('value', true))->pluck('id')->all();
@@ -209,7 +210,8 @@ class BillOfLading extends Model
                                 $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
                             }
 
-                        } else {
+                        }
+                        else {
                             if (!$batch) {
                                 // $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
                                 // if ($response['status'] !== 'ok') {
