@@ -167,7 +167,6 @@ class BillOfLading extends Model
             } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
                 $type = 'enter';
             }
-            dd($items,$itemType,$batch,$type);
             if ($type) {
                 if (GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->count() < count($items)) {
 
@@ -194,11 +193,6 @@ class BillOfLading extends Model
 
                         if ($type == 'exit') {
                             if (!$batch) {
-                                // $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
-                                //     $gate->getAttribute('location')->code, $itemType);
-                                // if ($response['status'] !== 'ok') {
-                                //     throw new Exception($response['message']);
-                                // }
                                 $result = resolve(ExitRequestsService::class)->queue(
                                     $vin, $exitType, (string)$gate->getAttribute('location')->code, (string)$itemType,
                                     model: $gate, userId: $actorId
@@ -212,10 +206,6 @@ class BillOfLading extends Model
                         }
                         else {
                             if (!$batch) {
-                                // $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
-                                // if ($response['status'] !== 'ok') {
-                                //     throw new Exception($response['message']);
-                                // }
                                 $result = resolve(ReturnRequestsService::class)->queue(
                                     $vin, (string)$gate->getAttribute('location')->code, (string)$itemType,
                                     model: $gate, userId: $actorId
@@ -230,10 +220,6 @@ class BillOfLading extends Model
 
                     if ($batch) {
                         if ($type == 'enter') {
-                            // $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code, $itemType);
-                            // if ($response['status'] !== 'ok') {
-                            //     throw new Exception($response['message']);
-                            // }
                             $result = resolve(GroupReturnsService::class)->queue(
                                 implode(',', $items), (string)$gate->getAttribute('location')->code,
                                 count($items), (string)$itemType, model: $gate, userId: $actorId
@@ -243,11 +229,6 @@ class BillOfLading extends Model
                             }
                             $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
                         } elseif ($type == 'exit') {
-                            // $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
-                            //     $gate->getAttribute('location')->code, $itemType);
-                            // if ($response['status'] !== 'ok') {
-                            //     throw new Exception($response['message']);
-                            // }
                             $result = resolve(GroupExitsService::class)->queue(
                                 implode(',', $items), $exitType, (string)$gate->getAttribute('location')->code,
                                 count($items), (string)$itemType, model: $gate, userId: $actorId
