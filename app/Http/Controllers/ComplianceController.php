@@ -49,7 +49,7 @@ class ComplianceController extends Controller
         }
 
 
-        $html = view('pdf.compliance.'.$bladeName, compact('vin','carModelTitle'))->render();
+        $html = view('pdf.compliance.'.$bladeName, compact('vin','carModelReference'))->render();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
