@@ -172,9 +172,8 @@ class BillOfLading extends Model
             }
 
             if ($type) {
-                if (GatePermit::query()
-                        ->where('model_type', Vehicle::class)
-                        ->whereIn('model_id', $items)->count() < count($items)) {
+                if (GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->count() < count($items))
+                {
 
                     foreach ($items as $vin) {
                         if (GatePermit::query()
@@ -214,7 +213,8 @@ class BillOfLading extends Model
                                 $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
                             }
 
-                        } else {
+                        } else
+                        {
                             if (!$batch) {
                                 // $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
                                 // if ($response['status'] !== 'ok') {
@@ -246,7 +246,9 @@ class BillOfLading extends Model
                                 throw new Exception($result['error']['message']);
                             }
                             $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
-                        } elseif ($type == 'exit') {
+                        }
+                        elseif ($type == 'exit') {
+                            dd('is here');
                             // $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
                             //     $gate->getAttribute('location')->code, $itemType);
                             // if ($response['status'] !== 'ok') {

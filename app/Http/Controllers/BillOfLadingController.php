@@ -77,9 +77,7 @@ class BillOfLadingController extends CrudController
         ]);
     }
 
-    /**
-     * @throws AuthorizationException
-     */
+
     public function changeStatus(
         BillOfLading $billOfLading,
         string       $status
@@ -216,10 +214,7 @@ class BillOfLadingController extends CrudController
 
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
+
     public function store(Request $request)
     {
         if (!isset($this->repository)) {
