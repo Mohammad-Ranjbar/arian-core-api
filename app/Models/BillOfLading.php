@@ -170,7 +170,7 @@ class BillOfLading extends Model
             } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
                 $type = 'enter';
             }
-            dd($exitIds, $type, $batch);
+            dd($enterIds,$exitIds, $type, $batch);
             if ($type) {
                 if (GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->count() < count($items))
                 {
