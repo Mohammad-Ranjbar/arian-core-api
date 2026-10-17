@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Services\Erp\ErpReturnRequest;
-use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\ExitPrintsService;
+use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\GroupExitsService;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 
 class BillOfLading extends Model
 {
@@ -150,7 +151,7 @@ class BillOfLading extends Model
 
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function createAutoGatePermit($items, $itemType = null, $batch = false): void
     {
@@ -203,10 +204,10 @@ class BillOfLading extends Model
                                 //     throw new Exception($response['message']);
                                 // }
                                 $result = resolve(ExitRequestsService::class)->queue(
-                                    $vin, $exitType, (string) $gate->getAttribute('location')->code, (string) $itemType,
+                                    $vin, $exitType, (string)$gate->getAttribute('location')->code, (string)$itemType,
                                     model: $gate, userId: $actorId
                                 );
-                                if (! $result['success']) {
+                                if (!$result['success']) {
                                     throw new Exception($result['error']['message']);
                                 }
                                 $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
@@ -235,20 +236,20 @@ class BillOfLading extends Model
                             //     throw new Exception($response['message']);
                             // }
                             $result = resolve(GroupExitsService::class)->queue(
-                                implode(',', $items), $exitType, (string) $gate->getAttribute('location')->code,
-                                count($items), (string) $itemType, model: $gate, userId: $actorId
+                                implode(',', $items), $exitType, (string)$gate->getAttribute('location')->code,
+                                count($items), (string)$itemType, model: $gate, userId: $actorId
                             );
-                            if (! $result['success']) {
+                            if (!$result['success']) {
                                 throw new Exception($result['error']['message']);
                             }
                             $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
                             $permits = GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->get();
                             foreach ($permits as $permit) {
                                 $print = resolve(ExitPrintsService::class)->queue(
-                                    $permit->getAttribute('model_id'), (string) $itemType, model: $permit,
+                                    $permit->getAttribute('model_id'), (string)$itemType, model: $permit,
                                     userId: $actorId, dependsOnId: $result['data']['rest_erp_job_id']
                                 );
-                                if (! $print['success']) {
+                                if (!$print['success']) {
                                     throw new Exception($print['error']['message']);
                                 }
                             }
@@ -271,17 +272,17 @@ class BillOfLading extends Model
         }
     }
 
-    public function canReturn(): bool
-    {
-        return $this->actionLogs()->where('action', 'discharge')->exists() && !$this->actionLogs()->where('action', ActionLog::RETURN_CONTAINER_AT)->exists();
-    }
-
     /**
      * @return MorphMany
      */
     public function actionLogs(): MorphMany
     {
         return $this->morphMany(ActionLog::class, 'model');
+    }
+
+    public function canReturn(): bool
+    {
+        return $this->actionLogs()->where('action', 'discharge')->exists() && !$this->actionLogs()->where('action', ActionLog::RETURN_CONTAINER_AT)->exists();
     }
 
     public function statusTime(string $status)
