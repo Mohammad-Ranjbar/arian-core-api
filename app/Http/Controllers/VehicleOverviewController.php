@@ -469,7 +469,7 @@ class VehicleOverviewController extends Controller
                         }
 
                         return [
-                            $record->user->name,
+                            $record->user?->name ?? '-',
                             $record->created_at ?
                                 jdate($record->created_at)->toDateTimeString()
                                 : '-'
