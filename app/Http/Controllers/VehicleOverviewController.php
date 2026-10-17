@@ -423,9 +423,9 @@ class VehicleOverviewController extends Controller
                             $record->type,
                             $record->method,
                             $record->intensity,
-                            $record->user->name,
-                            $record->element->title . ' (' . $record->element->code . ')',
-                            $record->incident->title . ' (' . $record->element->code . ')'
+                            $record->user?->name ?? '-',
+                            $record?->element?->title . ' (' . $record?->element?->code . ')',
+                            $record?->incident?->title . ' (' . $record?->element?->code . ')'
                         ];
                     })->all()
                 ],
