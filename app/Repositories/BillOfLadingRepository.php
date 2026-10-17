@@ -13,6 +13,7 @@ class BillOfLadingRepository extends BaseRepository
     protected array $rules = [
         'create' => [
             'type'                    => 'required|in:containers,vehicles,bodies',
+            'item_type'               => 'required_if:type,vehicles,bodies|in:0,1,2',
             'items'                   => 'array|required',
             'location_source_id'      => 'required|exists:locations,id',
             'location_destination_id' => 'required|exists:locations,id',
