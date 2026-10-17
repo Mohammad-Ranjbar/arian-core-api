@@ -14,6 +14,7 @@ use App\Models\RestErpJob;
 use App\Models\Vehicle;
 use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\GroupExitsService;
+use App\Services\Erp\RestApi\RestErpJobLinksService;
 use App\Services\Erp\RestApi\RestErpJobService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Client\Factory;
@@ -328,17 +329,129 @@ class ExitRequestsIntegrationTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_manual_enter_keeps_return_request_and_does_not_queue_exit_request(): void
+    public function test_batch_enter_queues_group_return_and_links_it_to_the_bill_without_soap(): void
     {
-        $this->soap->shouldReceive('run')->once()->with(config('erp.return_request'), 'ReturnRequest', [
-            'vINP' => self::VIN, 'destinationP' => 'CT004156', 'itemTypeP' => '2',
-        ])->andReturn(['status' => 'ok']);
-        $response = $this->store(['type' => 'enter', 'exit_type' => null]);
-        $this->assertInstanceOf(GatePermitResource::class, $response);
-        $this->assertDatabaseCount('gate_permits', 1);
+        DB::table('location_attributes')->delete();
+        DB::table('location_attributes')->insert(['location_id' => 2, 'attribute' => 'autoEnterPermit', 'value' => 'true']);
+        $bill = $this->persistedBill();
+        $bill->createAutoGatePermit([self::VIN, 'N5RT92CF6SP000482'], '2', true);
+
+        $this->assertDatabaseCount('gate_permits', 2);
+        $job = RestErpJob::query()->sole();
+        $this->assertSame('GroupReturns', $job->endpoint);
+        $this->assertSame('pending', $job->status);
+        $this->assertSame(42, $job->user_id);
+        $this->assertSame([
+            'VINArray' => self::VIN.',N5RT92CF6SP000482',
+            'Destination' => 'CT004156', 'NumberVIN' => '2', 'ItemTypeP' => '2',
+        ], $job->parameters);
+        $this->assertSame(GatePermit::class, $job->model_type);
+        $this->assertSame('enter', GatePermit::query()->findOrFail($job->model_id)->type);
+        $this->assertSame($job->id, $bill->actionLogs()->where('action', 'rest_erp_return_requested')->sole()->data['rest_erp_job_id']);
+        $this->assertSame([$job->id], resolve(RestErpJobLinksService::class)->forBillOfLading($bill)->modelKeys());
+        Queue::assertPushed(SendToRestErpJob::class, 1);
+        Http::assertNothingSent();
+        $this->soap->shouldNotHaveReceived('run');
+    }
+
+    public function test_invalid_batch_return_rolls_back_permits_and_job(): void
+    {
+        DB::table('location_attributes')->delete();
+        DB::table('location_attributes')->insert(['location_id' => 2, 'attribute' => 'autoEnterPermit', 'value' => 'true']);
+
+        try {
+            $this->bill()->createAutoGatePermit([self::VIN, 'N5RT92CF6SP000482'], null, true);
+            $this->fail('Expected validation failure.');
+        } catch (\Exception $exception) {
+            $this->assertNotEmpty($exception->getMessage());
+        }
+        $this->assertDatabaseCount('gate_permits', 0);
         $this->assertDatabaseCount('rest_erp_jobs', 0);
-        $this->assertSame(0, DB::transactionLevel());
         Queue::assertNothingPushed();
+        Http::assertNothingSent();
+        $this->soap->shouldNotHaveReceived('run');
+    }
+
+    public function test_manual_enter_queues_return_request_without_soap(): void
+    {
+        $response = $this->store(['type' => 'enter', 'exit_type' => null]);
+        $this->assertSame(202, $response->getStatusCode());
+        $permit = GatePermit::query()->sole();
+        $job = RestErpJob::query()->sole();
+        $this->assertSame('ReturnRequests', $job->endpoint);
+        $this->assertSame('pending', $job->status);
+        $this->assertSame((string) $permit->id, $job->model_id);
+        $this->assertSame(GatePermit::class, $job->model_type);
+        $this->assertSame(42, $job->user_id);
+        $this->assertSame(['VIN' => self::VIN, 'Destination' => 'CT004156', 'ItemType' => '2'], $job->parameters);
+        $this->assertSame($job->id, $response->getData(true)['rest_erp_job_id']);
+        $this->assertSame($job->uuid, $response->getData(true)['request_id']);
+        $this->assertSame($permit->id, $response->getData(true)['data']['id']);
+        $this->assertSame(0, DB::transactionLevel());
+        Queue::assertPushed(SendToRestErpJob::class, 1);
+        Http::assertNothingSent();
+        $this->soap->shouldNotHaveReceived('run');
+    }
+
+    public function test_auto_enter_queues_one_return_per_vin_and_links_jobs_to_bill(): void
+    {
+        DB::table('location_attributes')->delete();
+        DB::table('location_attributes')->insert(['location_id' => 2, 'attribute' => 'autoEnterPermit', 'value' => 'true']);
+        Auth::logout();
+        $bill = $this->persistedBill();
+        $vins = [self::VIN, 'N5RT92CF6SP000482'];
+        $bill->createAutoGatePermit($vins, '0', false);
+
+        $this->assertDatabaseCount('gate_permits', 2);
+        $jobs = RestErpJob::query()->orderBy('id')->get();
+        $this->assertCount(2, $jobs);
+        foreach ($jobs as $index => $job) {
+            $this->assertSame('ReturnRequests', $job->endpoint);
+            $this->assertSame('pending', $job->status);
+            $this->assertSame(42, $job->user_id);
+            $this->assertSame(['VIN' => $vins[$index], 'Destination' => 'CT004156', 'ItemType' => '0'], $job->parameters);
+            $this->assertSame($vins[$index], GatePermit::query()->findOrFail($job->model_id)->model_id);
+        }
+        $this->assertSame($jobs->modelKeys(), $bill->actionLogs()->where('action', 'rest_erp_return_requested')->orderBy('id')->get()->pluck('data.rest_erp_job_id')->all());
+        $this->assertSame(array_reverse($jobs->modelKeys()), resolve(RestErpJobLinksService::class)->forBillOfLading($bill)->modelKeys());
+        $bill->createAutoGatePermit($vins, '0', false);
+        $this->assertDatabaseCount('rest_erp_jobs', 2);
+        Queue::assertPushed(SendToRestErpJob::class, 2);
+        Http::assertNothingSent();
+        $this->soap->shouldNotHaveReceived('run');
+    }
+
+    public function test_invalid_auto_return_rolls_back_permits_and_jobs(): void
+    {
+        DB::table('location_attributes')->delete();
+        DB::table('location_attributes')->insert(['location_id' => 2, 'attribute' => 'autoEnterPermit', 'value' => 'true']);
+        try {
+            $this->bill()->createAutoGatePermit([self::VIN, 'N5RT92CF6SP000482'], null, false);
+            $this->fail('Expected validation failure.');
+        } catch (\Exception $exception) {
+            $this->assertNotEmpty($exception->getMessage());
+        }
+        $this->assertDatabaseCount('gate_permits', 0);
+        $this->assertDatabaseCount('rest_erp_jobs', 0);
+        Queue::assertNothingPushed();
+        Http::assertNothingSent();
+        $this->soap->shouldNotHaveReceived('run');
+    }
+
+    public function test_invalid_manual_return_rolls_back_permit_and_job(): void
+    {
+        DB::table('locations')->where('id', 2)->update(['code' => '']);
+        try {
+            $this->store(['type' => 'enter', 'exit_type' => null]);
+            $this->fail('Expected validation failure.');
+        } catch (HttpResponseException $exception) {
+            $this->assertSame(422, $exception->getResponse()->getStatusCode());
+        }
+        $this->assertDatabaseCount('gate_permits', 0);
+        $this->assertDatabaseCount('rest_erp_jobs', 0);
+        Queue::assertNothingPushed();
+        Http::assertNothingSent();
+        $this->soap->shouldNotHaveReceived('run');
     }
 
     public function test_gate_resource_links_the_group_parent_and_its_own_print_and_can_retry_the_print(): void

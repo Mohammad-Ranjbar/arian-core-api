@@ -6,7 +6,9 @@ use App\Services\Erp\RestApi\CreateTransferZonesService;
 use App\Services\Erp\RestApi\ExitPrintsService;
 use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\GroupExitsService;
+use App\Services\Erp\RestApi\GroupReturnsService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
+use App\Services\Erp\RestApi\ReturnRequestsService;
 use App\Services\Erp\RestApi\SetQcStatusService;
 
 return [
@@ -21,6 +23,23 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'ReturnRequests' => [
+            'service' => ReturnRequestsService::class,
+            'rules' => [
+                'VIN' => ['required', 'string'],
+                'Destination' => ['required', 'string'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
+        'GroupReturns' => [
+            'service' => GroupReturnsService::class,
+            'rules' => [
+                'VINArray' => ['required', 'string'],
+                'Destination' => ['required', 'string'],
+                'NumberVIN' => ['required', 'string', 'regex:/^[1-9][0-9]*$/'],
+                'ItemTypeP' => ['required', 'string'],
+            ],
+        ],
         'GroupExits' => [
             'service' => GroupExitsService::class,
             'rules' => [

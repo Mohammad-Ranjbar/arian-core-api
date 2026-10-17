@@ -20,6 +20,8 @@ class PreGoLiveServer
         'ApproveReturnZones' => 'ApproveReturnZones',
         'ExitRequests' => 'ExitRequests',
         'GroupExits' => 'GroupExits',
+        'GroupReturns' => 'GroupReturns',
+        'ReturnRequests' => 'ReturnRequests',
         'ExitPrints' => 'ExitPrints',
     ];
 

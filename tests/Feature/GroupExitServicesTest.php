@@ -6,7 +6,9 @@ use App\Jobs\SendToRestErpJob;
 use App\Models\RestErpJob;
 use App\Services\Erp\RestApi\ExitPrintsService;
 use App\Services\Erp\RestApi\GroupExitsService;
+use App\Services\Erp\RestApi\GroupReturnsService;
 use App\Services\Erp\RestApi\RestErpJobService;
+use App\Services\Erp\RestApi\ReturnRequestsService;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -33,6 +35,12 @@ class GroupExitServicesTest extends TestCase
         return [
             'group' => [GroupExitsService::class, 'GroupExits', ['N5RT92CF6SP000445,N5RT92CF6SP000444', 1, 'CT041381', 2, 2], [
                 'VINArray' => 'N5RT92CF6SP000445,N5RT92CF6SP000444', 'TypeOfExit' => '1', 'Destination' => 'CT041381', 'NumberVIN' => '2', 'ItemType' => '2',
+            ]],
+            'return' => [GroupReturnsService::class, 'GroupReturns', ['N5RTLS4M5S2101126,N5RTLS4M5S2101125', 'CT004156', 2, 2], [
+                'VINArray' => 'N5RTLS4M5S2101126,N5RTLS4M5S2101125', 'Destination' => 'CT004156', 'NumberVIN' => '2', 'ItemTypeP' => '2',
+            ]],
+            'single return' => [ReturnRequestsService::class, 'ReturnRequests', ['JE4LSW140TZ700439', 'CT006030', 2], [
+                'VIN' => 'JE4LSW140TZ700439', 'Destination' => 'CT006030', 'ItemType' => '2',
             ]],
             'print' => [ExitPrintsService::class, 'ExitPrints', ['JE4LSW140TZ700411', 2], ['VIN' => 'JE4LSW140TZ700411', 'ItemType' => '2']],
         ];
@@ -102,6 +110,8 @@ class GroupExitServicesTest extends TestCase
             }
         }
         $cases['zero count'] = [GroupExitsService::class, ['custom-1,custom-2', 'custom-type', 'custom-destination', 0, 'custom-item']];
+
+        $cases['return zero count'] = [GroupReturnsService::class, ['custom-1,custom-2', 'custom-destination', 0, 'custom-item']];
 
         return $cases;
     }

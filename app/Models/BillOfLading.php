@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use App\Services\Erp\ErpReturnRequest;
+// use App\Services\Erp\ErpReturnRequest;
 use App\Services\Erp\RestApi\ExitPrintsService;
 use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\GroupExitsService;
+use App\Services\Erp\RestApi\GroupReturnsService;
+use App\Services\Erp\RestApi\ReturnRequestsService;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -22,10 +23,10 @@ use Throwable;
 
 class BillOfLading extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
 
-    const HEAD_CONTAINER = [
+    const array HEAD_CONTAINER = [
         'container_number',
         'shipping_company',
         'vehicle_title',
@@ -43,7 +44,7 @@ class BillOfLading extends Model
         'batch',
         'description',
     ];
-    const HEAD_VEHICLE = [
+    const array HEAD_VEHICLE = [
         'VIN',
         'shipping_company',
         'vehicle_title',
@@ -215,20 +216,36 @@ class BillOfLading extends Model
 
                         } else {
                             if (!$batch) {
-                                $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
-                                if ($response['status'] !== 'ok') {
-                                    throw new Exception($response['message']);
+                                // $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
+                                // if ($response['status'] !== 'ok') {
+                                //     throw new Exception($response['message']);
+                                // }
+                                $result = resolve(ReturnRequestsService::class)->queue(
+                                    $vin, (string)$gate->getAttribute('location')->code, (string)$itemType,
+                                    model: $gate, userId: $actorId
+                                );
+                                if (!$result['success']) {
+                                    throw new Exception($result['error']['message']);
                                 }
+                                $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
                             }
                         }
                     }
 
                     if ($batch) {
                         if ($type == 'enter') {
-                            $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code, $itemType);
-                            if ($response['status'] !== 'ok') {
-                                throw new Exception($response['message']);
+                            // $response = ErpReturnRequest::returnBatchRequest($items, $gate->getAttribute('location')->code, $itemType);
+                            // if ($response['status'] !== 'ok') {
+                            //     throw new Exception($response['message']);
+                            // }
+                            $result = resolve(GroupReturnsService::class)->queue(
+                                implode(',', $items), (string)$gate->getAttribute('location')->code,
+                                count($items), (string)$itemType, model: $gate, userId: $actorId
+                            );
+                            if (!$result['success']) {
+                                throw new Exception($result['error']['message']);
                             }
+                            $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
                         } elseif ($type == 'exit') {
                             // $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
                             //     $gate->getAttribute('location')->code, $itemType);
@@ -258,6 +275,18 @@ class BillOfLading extends Model
                 }
             }
         });
+    }
+
+    private function recordRestReturnRequest(int $jobId, int $actorId): void
+    {
+        if ($this->exists) {
+            $this->actionLogs()->create([
+                'user_id' => $actorId,
+                'action' => 'rest_erp_return_requested',
+                'data' => ['rest_erp_job_id' => $jobId],
+            ]);
+            $this->unsetRelation('actionLogs');
+        }
     }
 
     private function recordRestExitRequest(int $jobId, int $actorId): void

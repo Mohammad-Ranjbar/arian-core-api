@@ -13,8 +13,9 @@ use App\Models\Location;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
-use App\Services\Erp\ErpReturnRequest;
+// use App\Services\Erp\ErpReturnRequest;
 use App\Services\Erp\RestApi\ExitRequestsService;
+use App\Services\Erp\RestApi\ReturnRequestsService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -68,12 +69,12 @@ class GatePermitController extends CrudController
                 //         return $this->responseError($response['message'], 400);
                 //     }
                 // }
-                if ($validatedData['type'] == 'enter') {
-                    $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'), $validatedData['item_type']);
-                    if ($response['status'] !== 'ok') {
-                        throw new HttpResponseException($this->responseError($response['message'], 400));
-                    }
-                }
+                // if ($validatedData['type'] == 'enter') {
+                //     $response = ErpReturnRequest::returnRequest($validatedData['vin'], $location->getAttribute('code'), $validatedData['item_type']);
+                //     if ($response['status'] !== 'ok') {
+                //         throw new HttpResponseException($this->responseError($response['message'], 400));
+                //     }
+                // }
 
                 unset($validatedData['vin']);
                 $saveItem = $this->repository->store($validatedData);
@@ -84,6 +85,18 @@ class GatePermitController extends CrudController
                         $saveItem->getAttribute('model_id'), $saveItem->getAttribute('exit_type'),
                         (string) $location->getAttribute('code'), (string) $saveItem->getAttribute('item_type'),
                         model: $saveItem
+                    );
+                    if (! $result['success']) {
+                        throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));
+                    }
+
+                    return $data->additional($result['data'])->response()->setStatusCode(202);
+                }
+
+                if ($validatedData['type'] == 'enter') {
+                    $result = resolve(ReturnRequestsService::class)->queue(
+                        $saveItem->getAttribute('model_id'), (string) $location->getAttribute('code'),
+                        (string) $saveItem->getAttribute('item_type'), model: $saveItem
                     );
                     if (! $result['success']) {
                         throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));

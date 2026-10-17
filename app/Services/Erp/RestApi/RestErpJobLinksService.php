@@ -23,7 +23,7 @@ class RestErpJobLinksService
     public function forBillOfLading(BillOfLading $bill): Collection
     {
         // Use recorded job IDs, not VIN matching, which can attach a previous bill's requests.
-        $ids = $bill->actionLogs->where('action', 'rest_erp_exit_requested')
+        $ids = $bill->actionLogs->whereIn('action', ['rest_erp_exit_requested', 'rest_erp_return_requested'])
             ->pluck('data.rest_erp_job_id')->filter()->unique()->values()->all();
 
         $jobs = RestErpJob::query()->where(function ($query) use ($ids) {
