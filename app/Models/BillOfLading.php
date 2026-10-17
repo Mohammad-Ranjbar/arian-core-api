@@ -158,23 +158,18 @@ class BillOfLading extends Model
     {
         DB::transaction(function () use ($items, $itemType, $batch) {
             $actorId = Auth::id() ?? $this->getAttribute('user_id');
-            $exitIds = Location::query()->whereHas('attributes', function ($q) {
-                $q->where('attribute', 'autoExitPermit')->whereJsonContains('value', 'true');
-            })->get()->pluck('id')->all();
-            dd($exitIds);
-            $enterIds = Location::query()->whereHas('attributes', function ($q) {
-                $q->where('attribute', 'autoEnterPermit')->whereJsonContains('value', 'true');
-            })->get()->pluck('id')->all();
+            $exitIds = Location::query()->whereHas('attributes', fn($query) => $query->where('attribute', 'autoExitPermit')->whereJsonContains('value', true))->pluck('id')->all();
+            $enterIds = Location::query()->whereHas('attributes', fn($query) => $query->where('attribute', 'autoEnterPermit')->whereJsonContains('value', true))->pluck('id')->all();
+
             $type = null;
             if (in_array($this->getAttribute('location_source_id'), $exitIds)) {
                 $type = 'exit';
             } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
                 $type = 'enter';
             }
-            dd($enterIds,$exitIds, $type, $batch);
+            dd($enterIds, $exitIds, $type, $batch);
             if ($type) {
-                if (GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->count() < count($items))
-                {
+                if (GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->count() < count($items)) {
 
                     foreach ($items as $vin) {
                         if (GatePermit::query()
@@ -214,8 +209,7 @@ class BillOfLading extends Model
                                 $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
                             }
 
-                        } else
-                        {
+                        } else {
                             if (!$batch) {
                                 // $response = ErpReturnRequest::returnRequest($vin, $gate->getAttribute('location')->code, $itemType);
                                 // if ($response['status'] !== 'ok') {
@@ -247,8 +241,7 @@ class BillOfLading extends Model
                                 throw new Exception($result['error']['message']);
                             }
                             $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
-                        }
-                        elseif ($type == 'exit') {
+                        } elseif ($type == 'exit') {
                             dd('is here');
                             // $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
                             //     $gate->getAttribute('location')->code, $itemType);
@@ -280,18 +273,6 @@ class BillOfLading extends Model
         });
     }
 
-    private function recordRestReturnRequest(int $jobId, int $actorId): void
-    {
-        if ($this->exists) {
-            $this->actionLogs()->create([
-                'user_id' => $actorId,
-                'action' => 'rest_erp_return_requested',
-                'data' => ['rest_erp_job_id' => $jobId],
-            ]);
-            $this->unsetRelation('actionLogs');
-        }
-    }
-
     private function recordRestExitRequest(int $jobId, int $actorId): void
     {
         if ($this->exists) {
@@ -310,6 +291,18 @@ class BillOfLading extends Model
     public function actionLogs(): MorphMany
     {
         return $this->morphMany(ActionLog::class, 'model');
+    }
+
+    private function recordRestReturnRequest(int $jobId, int $actorId): void
+    {
+        if ($this->exists) {
+            $this->actionLogs()->create([
+                'user_id' => $actorId,
+                'action' => 'rest_erp_return_requested',
+                'data' => ['rest_erp_job_id' => $jobId],
+            ]);
+            $this->unsetRelation('actionLogs');
+        }
     }
 
     public function canReturn(): bool
