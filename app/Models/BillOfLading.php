@@ -156,7 +156,6 @@ class BillOfLading extends Model
      */
     public function createAutoGatePermit($items, $itemType = null, $batch = false): void
     {
-        dd($items,$itemType,$batch);
         DB::transaction(function () use ($items, $itemType, $batch) {
             $actorId = Auth::id() ?? $this->getAttribute('user_id');
             $exitIds = Location::query()->whereHas('attributes', fn($query) => $query->where('attribute', 'autoExitPermit')->whereJsonContains('value', true))->pluck('id')->all();
@@ -168,7 +167,7 @@ class BillOfLading extends Model
             } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
                 $type = 'enter';
             }
-
+            dd($items,$itemType,$batch,$type);
             if ($type) {
                 if (GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->count() < count($items)) {
 
