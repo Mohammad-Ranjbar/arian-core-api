@@ -15,7 +15,7 @@ use Mpdf\Output\Destination;
 class ComplianceController extends Controller
 {
 
-    public function generate(string $vin): string
+    public function generate(string $vin)
     {
         $vehicle = Vehicle::query()->where('vin', $vin)->firstOrFail();
         $vin = $vehicle->getAttribute('vin');
