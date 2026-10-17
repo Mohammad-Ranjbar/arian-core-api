@@ -159,11 +159,11 @@ class BillOfLading extends Model
         DB::transaction(function () use ($items, $itemType, $batch) {
             $actorId = Auth::id() ?? $this->getAttribute('user_id');
             $exitIds = Location::query()->whereHas('attributes', function ($q) {
-                $q->where('attribute', 'autoExitPermit')->where('value', 'true');
+                $q->where('attribute', 'autoExitPermit')->whereJsonContains('value', 'true');
             })->get()->pluck('id')->all();
             dd($exitIds);
             $enterIds = Location::query()->whereHas('attributes', function ($q) {
-                $q->where('attribute', 'autoEnterPermit')->where('value', 'true');
+                $q->where('attribute', 'autoEnterPermit')->whereJsonContains('value', 'true');
             })->get()->pluck('id')->all();
             $type = null;
             if (in_array($this->getAttribute('location_source_id'), $exitIds)) {
