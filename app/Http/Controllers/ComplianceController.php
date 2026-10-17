@@ -48,6 +48,10 @@ class ComplianceController extends Controller
             $bladeName = 'TN721-N120';
         }
 
+        if (in_array($carModelReference, ['XSHEX013MD','XSHEX023MD'])){
+            return view('pdf.compliance.'.$bladeName, compact('vin','carModelReference'));
+        }
+
 
         $html = view('pdf.compliance.'.$bladeName, compact('vin','carModelReference'))->render();
 
