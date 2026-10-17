@@ -10,7 +10,9 @@
 <main class="page">
     <img class="letterhead" src="{{'/assets/images/arian-pars-header.png'}}" alt="آرین پارس">
 
-    <p class="date">تاریخ: <span id="certificate-date" dir="ltr">۱۴۰۳/۱۲/۰۵</span></p>
+    <p class="date">تاریخ: <span id="certificate-date" dir="ltr">
+            {{jdate('Y/m/d')}}
+        </span></p>
 
     <section class="content">
         <h1>گواهینامه تطابق تولید - <span class="latin" dir="ltr">COC</span></h1>
