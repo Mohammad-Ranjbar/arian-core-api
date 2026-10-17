@@ -11,7 +11,7 @@
     <img class="letterhead" src="{{'/assets/images/arian-pars-header.png'}}" alt="آرین پارس">
 
     <p class="date">تاریخ: <span id="certificate-date" dir="ltr">
-            {{jdate('Y/m/d')}}
+            {{jdate()->format('Y/m/d')}}
         </span></p>
 
     <section class="content">
