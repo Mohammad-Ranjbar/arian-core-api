@@ -167,7 +167,7 @@ class BillOfLading extends Model
             } elseif (in_array($this->getAttribute('location_destination_id'), $enterIds)) {
                 $type = 'enter';
             }
-            dd($enterIds, $exitIds, $type, $batch);
+
             if ($type) {
                 if (GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->count() < count($items)) {
 
@@ -191,7 +191,7 @@ class BillOfLading extends Model
                             'item_type' => $itemType,
                             'source_id' => $this->getAttribute('location_source_id')
                         ]);
-                        dd($gate);
+
                         if ($type == 'exit') {
                             if (!$batch) {
                                 // $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
