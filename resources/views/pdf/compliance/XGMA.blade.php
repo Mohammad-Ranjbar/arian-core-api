@@ -20,9 +20,9 @@
             منطبق با موارد مربوط به نوع شرح داده شده در استاندارد ماشین‌های راهسازی، ساختمانی و معدنی
             (<span id="standard" class="latin" dir="ltr">INSO-12544: 1<sup>st</sup> Revision 2015</span>)
             و با شماره تایید نوع <span id="approval-number" class="latin" dir="ltr">
-                @if($carModelTitle === "XSHEX013MD")
+                @if($carModelReference === "XSHEX013MD")
                     IRN*12544*0011
-                @elseif($carModelTitle === "XSHEX023MD")
+                @elseif($carModelReference === "XSHEX023MD")
                     IRN*12544*0012
                 @endif
 
@@ -45,9 +45,9 @@
                 <td class="number">۲.</td>
                 <th scope="row">نوع:</th>
                 <td><span id="machine-type" class="latin" dir="ltr">
-                          @if($carModelTitle === "XSHEX013MD")
+                          @if($carModelReference === "XSHEX013MD")
                             XG822FL
-                        @elseif($carModelTitle === "XSHEX023MD")
+                        @elseif($carModelReference === "XSHEX023MD")
                             XG836FL
                         @endif
 
@@ -95,9 +95,9 @@
                 <td class="number">۱۰.</td>
                 <th scope="row">جرم کاری:</th>
                 <td><span id="operating-mass">
-                          @if($carModelTitle === "XSHEX013MD")
+                          @if($carModelReference === "XSHEX013MD")
                             21500
-                        @elseif($carModelTitle === "XSHEX023MD")
+                        @elseif($carModelReference === "XSHEX023MD")
                             35000
                         @endif
                         کیلوگرم</span></td>
@@ -106,9 +106,9 @@
                 <td class="number">۱۱.</td>
                 <th scope="row">حداکثر توان خالص یا توان اسمی:</th>
                 <td><span id="rated-power">
-                             @if($carModelTitle === "XSHEX013MD")
+                             @if($carModelReference === "XSHEX013MD")
                             133
-                        @elseif($carModelTitle === "XSHEX023MD")
+                        @elseif($carModelReference === "XSHEX023MD")
                             212
                         @endif
                         کیلووات در ۲۰۰۰ دور بر دقیقه</span></td>
@@ -117,9 +117,9 @@
                 <td class="number">۱۲.</td>
                 <th scope="row">تعداد سیلندر:</th>
                 <td><span id="cylinders">
-                              @if($carModelTitle === "XSHEX013MD")
+                              @if($carModelReference === "XSHEX013MD")
                             4
-                        @elseif($carModelTitle === "XSHEX023MD")
+                        @elseif($carModelReference === "XSHEX023MD")
                             6
                         @endif
                     </span></td>
@@ -128,9 +128,9 @@
                 <td class="number">۱۳.</td>
                 <th scope="row">حجم موتور:</th>
                 <td><span id="engine-capacity"><bdi dir="ltr">
-                                   @if($carModelTitle === "XSHEX013MD")
+                                   @if($carModelReference === "XSHEX013MD")
                                 5.193
-                            @elseif($carModelTitle === "XSHEX023MD")
+                            @elseif($carModelReference === "XSHEX023MD")
                                 7.49
                             @endif
                         </bdi> لیتر</span></td>
