@@ -35,7 +35,7 @@ class ComplianceController extends Controller
         if (!$bladeName){
             return response()->json("cant find ane view for car model $carModelReference");
         }
-
+        $bladeName = $carModelReference;
         if (in_array($carModelReference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
             $bladeName = 'X5000';
         }
@@ -49,9 +49,8 @@ class ComplianceController extends Controller
         }
 
         if (in_array($carModelReference, ['XSHEX013MD','XSHEX023MD'])){
-            return view('pdf.compliance.'.$bladeName, compact('vin','carModelReference'));
+            return view('pdf.compliance.XGMA', compact('vin','carModelReference'));
         }
-
 
         $html = view('pdf.compliance.'.$bladeName, compact('vin','carModelReference'))->render();
 
