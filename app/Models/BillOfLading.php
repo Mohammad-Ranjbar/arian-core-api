@@ -154,7 +154,7 @@ class BillOfLading extends Model
     /**
      * @throws Throwable
      */
-    public function createAutoGatePermit($items, $itemType = null, $batch = false): void
+    public function createAutoGatePermit($items, $itemType, $batch = false): void
     {
         DB::transaction(function () use ($items, $itemType, $batch) {
             $actorId = Auth::id() ?? $this->getAttribute('user_id');
@@ -202,9 +202,29 @@ class BillOfLading extends Model
                                 }
                                 $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
                             }
+                            else{
+                                $result = resolve(GroupExitsService::class)->queue(
+                                    implode(',', $items), $exitType, (string)$gate->getAttribute('location')->code,
+                                    count($items), (string)$itemType, model: $gate, userId: $actorId
+                                );
+                                if (!$result['success']) {
+                                    throw new Exception($result['error']['message']);
+                                }
+                                $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
+                                $permits = GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->get();
+                                foreach ($permits as $permit) {
+                                    $print = resolve(ExitPrintsService::class)->queue(
+                                        $permit->getAttribute('model_id'), (string)$itemType, model: $permit,
+                                        userId: $actorId, dependsOnId: $result['data']['rest_erp_job_id']
+                                    );
+                                    if (!$print['success']) {
+                                        throw new Exception($print['error']['message']);
+                                    }
+                                }
+                            }
 
                         }
-                        else {
+                        elseif ($type == 'enter') {
                             if (!$batch) {
                                 $result = resolve(ReturnRequestsService::class)->queue(
                                     $vin, (string)$gate->getAttribute('location')->code, (string)$itemType,
@@ -214,38 +234,15 @@ class BillOfLading extends Model
                                     throw new Exception($result['error']['message']);
                                 }
                                 $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
-                            }
-                        }
-                    }
-
-                    if ($batch) {
-                        if ($type == 'enter') {
-                            $result = resolve(GroupReturnsService::class)->queue(
-                                implode(',', $items), (string)$gate->getAttribute('location')->code,
-                                count($items), (string)$itemType, model: $gate, userId: $actorId
-                            );
-                            if (!$result['success']) {
-                                throw new Exception($result['error']['message']);
-                            }
-                            $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
-                        } elseif ($type == 'exit') {
-                            $result = resolve(GroupExitsService::class)->queue(
-                                implode(',', $items), $exitType, (string)$gate->getAttribute('location')->code,
-                                count($items), (string)$itemType, model: $gate, userId: $actorId
-                            );
-                            if (!$result['success']) {
-                                throw new Exception($result['error']['message']);
-                            }
-                            $this->recordRestExitRequest($result['data']['rest_erp_job_id'], $actorId);
-                            $permits = GatePermit::query()->where('model_type', Vehicle::class)->whereIn('model_id', $items)->get();
-                            foreach ($permits as $permit) {
-                                $print = resolve(ExitPrintsService::class)->queue(
-                                    $permit->getAttribute('model_id'), (string)$itemType, model: $permit,
-                                    userId: $actorId, dependsOnId: $result['data']['rest_erp_job_id']
+                            }else{
+                                $result = resolve(GroupReturnsService::class)->queue(
+                                    implode(',', $items), (string)$gate->getAttribute('location')->code,
+                                    count($items), (string)$itemType, model: $gate, userId: $actorId
                                 );
-                                if (!$print['success']) {
-                                    throw new Exception($print['error']['message']);
+                                if (!$result['success']) {
+                                    throw new Exception($result['error']['message']);
                                 }
+                                $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
                             }
                         }
                     }

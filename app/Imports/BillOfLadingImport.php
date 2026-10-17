@@ -227,7 +227,7 @@ class BillOfLadingImport implements ToCollection, WithStartRow, WithMapping
             });
 
             foreach ($this->billOfLadingList as $row) {
-                $row['billOfLading']->createAutoGatePermit($row['vin'], true);
+                $row['billOfLading']->createAutoGatePermit($row['vin'],$row['item_type'], true);
             }
 
             $uuid = Str::uuid();
