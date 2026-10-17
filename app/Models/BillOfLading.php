@@ -161,6 +161,7 @@ class BillOfLading extends Model
             $exitIds = Location::query()->whereHas('attributes', function ($q) {
                 $q->where('attribute', 'autoExitPermit')->where('value', 'true');
             })->get()->pluck('id')->all();
+            dd($exitIds);
             $enterIds = Location::query()->whereHas('attributes', function ($q) {
                 $q->where('attribute', 'autoEnterPermit')->where('value', 'true');
             })->get()->pluck('id')->all();
