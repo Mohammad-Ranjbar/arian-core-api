@@ -242,7 +242,6 @@ class BillOfLading extends Model
                             }
                             $this->recordRestReturnRequest($result['data']['rest_erp_job_id'], $actorId);
                         } elseif ($type == 'exit') {
-                            dd('is here');
                             // $response = ErpCreateExitRequest::createBatchExitRequest($items, $exitType,
                             //     $gate->getAttribute('location')->code, $itemType);
                             // if ($response['status'] !== 'ok') {
