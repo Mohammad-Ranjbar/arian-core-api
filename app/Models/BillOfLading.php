@@ -195,7 +195,7 @@ class BillOfLading extends Model
                             'item_type' => $itemType,
                             'source_id' => $this->getAttribute('location_source_id')
                         ]);
-
+                        dd($gate);
                         if ($type == 'exit') {
                             if (!$batch) {
                                 // $response = ErpCreateExitRequest::createExitRequest($vin, $exitType,
