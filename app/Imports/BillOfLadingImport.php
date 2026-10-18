@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
+use App\Http\Controllers\VehicleController;
 use App\Models\BillOfLading;
 use App\Models\Car;
 use App\Models\Container;
@@ -12,6 +13,7 @@ use App\Models\Job;
 use App\Models\TransitCompany;
 use App\Models\Vehicle;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -24,6 +26,8 @@ use Throwable;
 class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
 {
     public $billOfLadingList = [];
+
+    private array $vehicleLookupErrors = [];
 
     public function __construct(
         public $data,
@@ -104,6 +108,7 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
 
             if (! empty($row['VIN'])) {
                 $this->checkingData($row);
+                $this->ensureVehicleExists($row['VIN']);
             }
 
             $container = null;
@@ -119,7 +124,7 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
                 $billOfLading = $this->createBillOfLading($row);
             }
 
-            $this->insertItems($billOfLading, $row, $container, $isNew);
+            $this->insertItems($billOfLading, $row, $container);
 
             if ($isNew) {
                 $this->data['success']++;
@@ -132,6 +137,34 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
 
         $this->data['done']++;
         $this->sendEvent();
+    }
+
+    private function ensureVehicleExists(string $vin): void
+    {
+        if (Vehicle::withTrashed()->whereKey($vin)->exists()) {
+            return;
+        }
+
+        if (isset($this->vehicleLookupErrors[$vin])) {
+            throw new Exception($this->vehicleLookupErrors[$vin]);
+        }
+
+        try {
+            $response = app(VehicleController::class)->getByVin($vin);
+
+            // getByVin may return 403 after saving because of its display permission check.
+            if (! Vehicle::withTrashed()->whereKey($vin)->exists()) {
+                $message = $response instanceof JsonResponse
+                    ? ($response->getData(true)['message'] ?? 'Vehicle not found after ERP lookup: '.$vin)
+                    : 'Vehicle not found after ERP lookup: '.$vin;
+
+                throw new Exception($message);
+            }
+        } catch (Exception $exception) {
+            $this->vehicleLookupErrors[$vin] = $exception->getMessage();
+
+            throw $exception;
+        }
     }
 
     /**
@@ -191,23 +224,13 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
         ]);
     }
 
-    private function insertItems(BillOfLading $billOfLading, $row, ?Container $container, bool $isNew): void
+    private function insertItems(BillOfLading $billOfLading, $row, ?Container $container): void
     {
         if (! empty($row['VIN'])) {
-            if ($isNew) {
-                $this->insertItem($billOfLading, $row['VIN'], Vehicle::class, $this->type);
+            $this->insertItem($billOfLading, $row['VIN'], Vehicle::class, $this->type);
 
-                // For a new bill, its type is determined by the item just inserted.
-                if ($billOfLading->getAttribute('type') == 'bodies') {
-                    $this->addVin($billOfLading, $row['VIN']);
-                }
-            } else {
-                $itemType = 'vehicles';
-                if ($billOfLading->getAttribute('type') == 'bodies') {
-                    $this->addVin($billOfLading, $row['VIN']);
-                    $itemType = 'bodies';
-                }
-                $this->insertItem($billOfLading, $row['VIN'], Vehicle::class, $itemType);
+            if ($this->type === 'bodies') {
+                $this->addVin($billOfLading, $row['VIN']);
             }
         }
 

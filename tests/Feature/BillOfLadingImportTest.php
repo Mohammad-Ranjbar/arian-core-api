@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
+use App\Http\Controllers\VehicleController;
 use App\Imports\BillOfLadingImport;
 use App\Models\BillOfLading;
 use App\Models\Container;
 use App\Models\Job;
 use App\Models\Vehicle;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -30,6 +32,7 @@ class BillOfLadingImportTest extends TestCase
         config()->set('database.connections.sqlite.database', ':memory:');
         DB::purge('sqlite');
         Event::fake([JobProcessEvent::class]);
+        $this->mock(VehicleController::class)->shouldNotReceive('getByVin');
 
         Schema::create('custom_jobs', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
@@ -109,7 +112,8 @@ class BillOfLadingImportTest extends TestCase
         $this->assertDatabaseCount('transit_companies', 1);
         $this->assertDatabaseCount('cars', 1);
         $this->assertDatabaseCount('bill_of_lading_item', 2);
-        $this->assertDatabaseHas('bill_of_lading_item', ['model_type' => $model, 'type' => $type]);
+        $this->assertSame([$type, $type], DB::table('bill_of_lading_item')->pluck('type')->all());
+        $this->assertSame([$model, $model], DB::table('bill_of_lading_item')->pluck('model_type')->all());
         $this->assertSame([2, 2, 1, 0], array_map(fn ($key) => $import->data[$key], ['total', 'done', 'success', 'error']));
         $result = Job::query()->findOrFail($import->data['id'])->getAttribute('result');
         $this->assertSame(1, $result['success']);
@@ -121,8 +125,93 @@ class BillOfLadingImportTest extends TestCase
         }
     }
 
+    public static function unavailableVehicles(): array
+    {
+        return ['missing vehicle' => [false], 'soft deleted vehicle' => [true]];
+    }
+
+    #[DataProvider('unavailableVehicles')]
+    public function test_body_import_uses_import_type_when_previous_vehicle_is_not_visible(bool $softDeleted): void
+    {
+        $import = $this->importer('bodies');
+        if ($softDeleted) {
+            DB::table('vehicles')->insert(['VIN' => 'VIN-1', 'deleted_at' => now()]);
+        } else {
+            $this->mock(VehicleController::class)->shouldReceive('getByVin')->once()->with('VIN-1')
+                ->andReturnUsing(function () {
+                    DB::table('vehicles')->insert(['VIN' => 'VIN-1']);
+
+                    return new JsonResponse(['message' => 'You are not authorized to access this vehicle'], 403);
+                });
+        }
+        DB::table('vehicles')->insert(['VIN' => 'VIN-2']);
+        $rows = collect([$this->row($import), $this->row($import, ['item' => 'VIN-2'])]);
+        Excel::shouldReceive('store')->once()->andReturn(true);
+
+        $import->collection($rows);
+
+        $this->assertSame(['bodies', 'bodies'], DB::table('bill_of_lading_item')->orderBy('model_id')->pluck('type')->all());
+        $this->assertSame(['VIN-1', 'VIN-2'], array_values($import->billOfLadingList)[0]['vin']);
+        $this->assertSame(0, $import->data['error']);
+    }
+
+    public function test_missing_vin_is_fetched_once_and_existing_vin_is_not_fetched(): void
+    {
+        $import = $this->importer('bodies');
+        DB::table('vehicles')->insert(['VIN' => 'VIN-2']);
+        $this->mock(VehicleController::class)->shouldReceive('getByVin')->once()->with('VIN-1')
+            ->andReturnUsing(function () {
+                DB::table('vehicles')->insert(['VIN' => 'VIN-1']);
+
+                return new JsonResponse(['message' => 'Saved']);
+            });
+        $rows = collect([$this->row($import), $this->row($import), $this->row($import, ['item' => 'VIN-2'])]);
+        Excel::shouldReceive('store')->once()->andReturn(true);
+
+        $import->collection($rows);
+
+        $this->assertDatabaseCount('vehicles', 2);
+        $this->assertDatabaseCount('bill_of_lading_item', 3);
+        $this->assertSame(0, $import->data['error']);
+        $this->assertSame(3, $import->data['done']);
+    }
+
+    public static function failedLookups(): array
+    {
+        return ['error response' => ['response'], 'no saved vehicle' => ['empty'], 'exception' => ['exception']];
+    }
+
+    #[DataProvider('failedLookups')]
+    public function test_failed_lookup_is_not_repeated_and_does_not_register_the_missing_vin(string $failure): void
+    {
+        $import = $this->importer('bodies');
+        DB::table('vehicles')->insert(['VIN' => 'VIN-2']);
+        $lookup = $this->mock(VehicleController::class)->shouldReceive('getByVin')->once()->with('VIN-1');
+        if ($failure === 'exception') {
+            $lookup->andThrow(new RuntimeException('ERP unavailable'));
+        } else {
+            $lookup->andReturn($failure === 'response'
+                ? new JsonResponse(['message' => 'ERP unavailable'], 400)
+                : new JsonResponse([]));
+        }
+        $rows = collect([$this->row($import), $this->row($import), $this->row($import, ['item' => 'VIN-2'])]);
+        Excel::shouldReceive('store')->once()->andReturn(true);
+
+        $import->collection($rows);
+
+        $this->assertSame($failure === 'empty' ? 'Vehicle not found after ERP lookup: VIN-1' : 'ERP unavailable', $rows[1]['result']);
+        $this->assertSame($rows[1]['result'], $rows[2]['result']);
+        $this->assertSame(2, $import->data['error']);
+        $this->assertSame(3, $import->data['done']);
+        $this->assertDatabaseCount('bill_of_lading_item', 1);
+        $this->assertDatabaseHas('bill_of_lading_item', ['model_id' => 'VIN-2', 'type' => 'bodies']);
+        $this->assertSame(['VIN-2'], array_values($import->billOfLadingList)[0]['vin']);
+        $this->assertSame(0, DB::transactionLevel());
+    }
+
     public function test_row_errors_keep_prior_side_effects_and_continue_processing(): void
     {
+        DB::table('vehicles')->insert(['VIN' => 'VIN-1']);
         $import = $this->importer();
         $rows = collect([
             $this->row($import, ['vehicle_title' => '', 'plate_area' => '']),
@@ -146,6 +235,7 @@ class BillOfLadingImportTest extends TestCase
 
     public function test_export_failure_rolls_back_all_database_changes(): void
     {
+        DB::table('vehicles')->insert(['VIN' => 'VIN-1']);
         $import = $this->importer();
         $rows = collect([$this->row($import)]);
         Excel::shouldReceive('store')->once()->andThrow(new RuntimeException('Export failed'));
@@ -162,6 +252,7 @@ class BillOfLadingImportTest extends TestCase
 
     public function test_gate_permit_failure_rolls_back_before_export(): void
     {
+        DB::table('vehicles')->insert(['VIN' => 'VIN-1']);
         $import = $this->importer('vehicles', '2');
         $rows = collect([$this->row($import)]);
         $bill = Mockery::mock(BillOfLading::class);
