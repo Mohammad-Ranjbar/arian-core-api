@@ -221,11 +221,14 @@ class ExitRequestsIntegrationTest extends TestCase
             }
         }
 
+        $cases['exit batch zero'] = ['exit', [self::VIN, 'N5RT92CF6SP000482'], true, true, '0'];
+        $cases['enter batch zero'] = ['enter', [self::VIN, 'N5RT92CF6SP000482'], true, true, '0'];
+
         return $cases;
     }
 
     #[DataProvider('autoPermitInputs')]
-    public function test_service_accepts_single_and_array_inputs(string $type, string|array $items, bool $batch, bool $grouped): void
+    public function test_service_accepts_single_and_array_inputs(string $type, string|array $items, bool $batch, bool $grouped, string $itemType = '2'): void
     {
         if ($type === 'enter') {
             DB::table('location_attributes')->delete();
@@ -235,13 +238,16 @@ class ExitRequestsIntegrationTest extends TestCase
         $bill->load('actionLogs');
         $vins = is_array($items) ? $items : [$items];
 
-        resolve(CreateAutoGatePermitService::class)->create($bill, $items, '2', $batch);
+        resolve(CreateAutoGatePermitService::class)->create($bill, $items, $itemType, $batch);
 
         $endpoint = $type === 'exit'
             ? ($grouped ? 'GroupExits' : 'ExitRequests')
             : ($grouped ? 'GroupReturns' : 'ReturnRequests');
         $jobs = RestErpJob::query()->where('endpoint', $endpoint)->orderBy('id')->get();
         $this->assertCount($grouped ? 1 : count($vins), $jobs);
+        foreach ($jobs as $job) {
+            $this->assertSame($itemType, $job->parameters[$type === 'enter' && $grouped ? 'ItemTypeP' : 'ItemType']);
+        }
         $this->assertDatabaseCount('gate_permits', count($vins));
         $this->assertSame($jobs->modelKeys(), $bill->actionLogs->pluck('data.rest_erp_job_id')->all());
         if ($grouped) {

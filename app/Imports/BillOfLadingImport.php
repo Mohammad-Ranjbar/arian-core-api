@@ -229,7 +229,7 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
         if (! empty($row['VIN'])) {
             $this->insertItem($billOfLading, $row['VIN'], Vehicle::class, $this->type);
 
-            if ($this->type === 'bodies') {
+            if (in_array($this->type, ['bodies', 'vehicles'], true)) {
                 $this->addVin($billOfLading, $row['VIN']);
             }
         }
@@ -251,7 +251,7 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
 
     private function createAutoGatePermits(): void
     {
-        if ($this->item_type) {
+        if ($this->item_type !== '') {
             foreach ($this->billOfLadingList as $row) {
                 $row['billOfLading']->createAutoGatePermit($row['vin'], $this->item_type, true);
             }

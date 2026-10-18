@@ -10,6 +10,7 @@ use App\Models\BillOfLading;
 use App\Models\Container;
 use App\Models\Job;
 use App\Models\Vehicle;
+use App\Services\CreateAutoGatePermitService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
@@ -61,7 +62,7 @@ class BillOfLadingImportTest extends TestCase
         }
     }
 
-    private function importer(string $type = 'vehicles', string $itemType = ''): BillOfLadingImport
+    private function importer(string $type = 'vehicles', string|int $itemType = ''): BillOfLadingImport
     {
         $job = Job::query()->create([
             'user_id' => 42,
@@ -207,6 +208,42 @@ class BillOfLadingImportTest extends TestCase
         $this->assertDatabaseHas('bill_of_lading_item', ['model_id' => 'VIN-2', 'type' => 'bodies']);
         $this->assertSame(['VIN-2'], array_values($import->billOfLadingList)[0]['vin']);
         $this->assertSame(0, DB::transactionLevel());
+    }
+
+    public static function gatePermitItemTypes(): array
+    {
+        $cases = [];
+        foreach (['bodies', 'vehicles'] as $type) {
+            foreach (['0', 0, '1', '2'] as $index => $itemType) {
+                $cases[$type.' item type '.$index] = [$type, $itemType];
+            }
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('gatePermitItemTypes')]
+    public function test_import_passes_all_vins_of_each_bill_to_the_batch_service(string $type, string|int $itemType): void
+    {
+        $import = $this->importer($type, $itemType);
+        DB::table('vehicles')->insert([['VIN' => 'VIN-1'], ['VIN' => 'VIN-2']]);
+        $rows = collect([$this->row($import), $this->row($import, ['item' => 'VIN-2'])]);
+        $this->mock(CreateAutoGatePermitService::class)->shouldReceive('create')->once()
+            ->withArgs(function (BillOfLading $bill, array $vins, string $actualItemType, bool $batch) use ($itemType) {
+                $this->assertSame('F-1', $bill->code);
+                $this->assertSame(['VIN-1', 'VIN-2'], $vins);
+                $this->assertSame((string) $itemType, $actualItemType);
+                $this->assertTrue($batch);
+                $this->assertDatabaseCount('bill_of_lading_item', 2);
+
+                return true;
+            });
+        Excel::shouldReceive('store')->once()->andReturn(true);
+
+        $import->collection($rows);
+
+        $this->assertSame(0, $import->data['error']);
+        $this->assertNotNull(Job::query()->findOrFail($import->data['id'])->getAttribute('result'));
     }
 
     public function test_row_errors_keep_prior_side_effects_and_continue_processing(): void
