@@ -9,7 +9,7 @@ use App\Jobs\ImportJob;
 use App\Models\Job;
 use App\Models\PDI;
 use App\Models\Vehicle;
-use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\ImportVehiclesService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -68,6 +68,7 @@ class PDIController extends Controller
             $response = self::sendPDIToErp($vehicle->getAttribute('vin'), $validatedData);
 
             if ($response['status'] !== 'ok') {
+                DB::rollBack();
                 return $this->responseError($response['message'], 400);
             }
             $saveItem = PDI::query()->create($validatedData);
@@ -84,16 +85,23 @@ class PDIController extends Controller
 
     public static function sendPDIToErp(string $vin, array $data): array
     {
-        return ErpWsdlClient::run(config('erp.pdi_result'), 'ImportVehicleInformation',
-            [
-                'vINP' => $vin,
-                'pDIResultP' => $data['pdi_result'] ?? '',
-                'pDIDescriptionP' => $data['pdi_result_description'] ?? '',
-                'pDIResultDescP' => $data['pdi_result_description_2'] ?? '',
-                'engineNoP' => $data['engine_no'] ?? '',
-                'modelYearP' => $data['model_year'] ?? '',
-                'policeInspectionDateP' => $data['police_inspection_date'] ?? '',
-            ]);
+        // return ErpWsdlClient::run(config('erp.pdi_result'), 'ImportVehicleInformation',
+        //     [
+        //         'vINP' => $vin,
+        //         'pDIResultP' => $data['pdi_result'] ?? '',
+        //         'pDIDescriptionP' => $data['pdi_result_description'] ?? '',
+        //         'pDIResultDescP' => $data['pdi_result_description_2'] ?? '',
+        //         'engineNoP' => $data['engine_no'] ?? '',
+        //         'modelYearP' => $data['model_year'] ?? '',
+        //         'policeInspectionDateP' => $data['police_inspection_date'] ?? '',
+        //     ]);
+
+        $result = resolve(ImportVehiclesService::class)->send($vin, $data, userId: $data['user_id'] ?? null);
+
+        return [
+            'status' => $result['success'] ? 'ok' : 'error',
+            'message' => $result['error']['message'] ?? '',
+        ];
     }
 
     public function getTemplateEngine(): BinaryFileResponse

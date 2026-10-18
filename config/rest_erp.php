@@ -7,6 +7,7 @@ use App\Services\Erp\RestApi\ExitPrintsService;
 use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\GroupExitsService;
 use App\Services\Erp\RestApi\GroupReturnsService;
+use App\Services\Erp\RestApi\ImportVehiclesService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
 use App\Services\Erp\RestApi\ReturnRequestsService;
 use App\Services\Erp\RestApi\SetQcStatusService;
@@ -23,6 +24,19 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'ImportVehicles' => [
+            'service' => ImportVehiclesService::class,
+            'retry_execution_mode' => 'sync',
+            'rules' => [
+                'VIN' => ['required', 'string'],
+                'PDIResult' => ['present', 'string'],
+                'PDIDescription' => ['present', 'string'],
+                'PDIResultDesc' => ['present', 'string'],
+                'EngineNo' => ['present', 'string'],
+                'ModelYear' => ['present', 'string'],
+                'PoliceInspectionDate' => ['present', 'string'],
+            ],
+        ],
         'ReturnRequests' => [
             'service' => ReturnRequestsService::class,
             'rules' => [
