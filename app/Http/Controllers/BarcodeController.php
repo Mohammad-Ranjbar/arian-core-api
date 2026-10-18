@@ -86,10 +86,7 @@ class BarcodeController extends CrudController
         Cache::set('barcode_submitted_' . $validatedData['code'] . '_' . $x, true, 10);
 
         try {
-            DB::beginTransaction();
-            $saveItem = $this->repository->store($validatedData);
-
-
+            // Persist the ERP job and its result outside the local barcode transaction.
             if (!empty($validatedData['type'])) {
                 $erpMap = config('serial_barcodes.erp_map');
                 $code = $validatedData['code'];
@@ -101,27 +98,26 @@ class BarcodeController extends CrudController
                         $firstPart = Str::substr($code, 0, 10);
                         $secondPart = Str::substr($code, 10);
                         $code = $firstPart . '*' . $secondPart;
-                        $saveItem->code = $code;
-                        $saveItem->save();
+                        $validatedData['code'] = $code;
                         $codeNav = Str::of($code)->trim('*')->toString();
                     }
 
                     $response = $this->submitSerialBarcode($validatedData['vin'], $codeNav, $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
-                        DB::rollBack();
                         return $this->responseError($response['message'], 400);
                     }
                 }
             }
 
-            $saveItem = $this->afterSave($saveItem, $validatedData);
+            $data = DB::transaction(function () use ($validatedData) {
+                $saveItem = $this->repository->store($validatedData);
+                $saveItem = $this->afterSave($saveItem, $validatedData);
 
-            $data = new $this->resource($saveItem);
-            DB::commit();
+                return new $this->resource($saveItem);
+            });
             $this->vehicleController->getData($vehicle->getAttribute('vin'));
             return $data;
         } catch (Exception $exception) {
-            DB::rollBack();
             return response()->json(['message' => $exception->getMessage()], 500);
         }
     }
