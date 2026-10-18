@@ -20,7 +20,6 @@ use App\Repositories\BillOfLadingRepository;
 use App\Services\SmsService;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Bus\PendingClosureDispatch;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Http\JsonResponse;
@@ -32,6 +31,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class BillOfLadingController extends CrudController
 {
@@ -78,6 +78,9 @@ class BillOfLadingController extends CrudController
     }
 
 
+    /**
+     * @throws Throwable
+     */
     public function changeStatus(
         BillOfLading $billOfLading,
         string       $status
@@ -130,6 +133,10 @@ class BillOfLadingController extends CrudController
         return $this->smsService->send($billOfLading->getAttribute('car')->driver->phone, 'driver-enter-notify');
     }
 
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
     public function getTemplateBillOfLadingForVehicle(): BinaryFileResponse
     {
         $headers = BillOfLading::HEAD_VEHICLE;
@@ -137,6 +144,10 @@ class BillOfLadingController extends CrudController
         return Excel::download($export, $this->repository->model->getTable() . '-template-for-vehicle' . time() . '.xlsx');
     }
 
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
     public function getTemplateBillOfLadingForContainer(): BinaryFileResponse
     {
         $headers = BillOfLading::HEAD_CONTAINER;
@@ -156,6 +167,7 @@ class BillOfLadingController extends CrudController
             'location_source_id' => $validatedData['location_source_id'],
             'location_destination_id' => $validatedData['location_destination_id'],
             'type' => $validatedData['type_bill_of_lading'],
+            'item_type' => $validatedData['item_type'],
         ];
         $job = Job::query()->create($validatedData);
 
@@ -215,6 +227,11 @@ class BillOfLadingController extends CrudController
     }
 
 
+    /**
+     * @throws Throwable
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
     public function store(Request $request)
     {
         if (!isset($this->repository)) {
@@ -244,7 +261,7 @@ class BillOfLadingController extends CrudController
                 foreach ($validatedData['items'] as $vin) {
                     $body = Vehicle::query()->where('vin', $vin)->first();
                     if (empty($body->getAttribute('qc_status'))) {
-                        $message = ' لطفا کد کیفیت '.$body->getAttribute('vin').' وارد شود ';
+                        $message = ' لطفا کد کیفیت ' . $body->getAttribute('vin') . ' وارد شود ';
                         throw new Exception($message);
                     }
                 }
@@ -284,7 +301,7 @@ class BillOfLadingController extends CrudController
         }
         if (request()->get('type') === 'vehicles' || request()->get('type') === 'bodies') {
             return [
-                'item_type' => request()->get('type') == 'bodies'?'required|in:0,1,2' :'nullable',
+                'item_type' => request()->get('type') == 'bodies' ? 'required|in:0,1,2' : 'nullable',
                 'code' => [
 //                    'item_type' => 'required_if:type,bodies|in:0,1,2',
                     'required',
@@ -335,7 +352,7 @@ class BillOfLadingController extends CrudController
         }
 
         if ($data['type'] == 'bodies') {
-            $record->createAutoGatePermit($data['items'],$data['item_type'],true);
+            $record->createAutoGatePermit($data['items'], $data['item_type'], true);
             $record->vehicles()->syncWithPivotValues($data['items'], ['type' => 'bodies']);
         }
 
@@ -353,17 +370,16 @@ class BillOfLadingController extends CrudController
 
     public function reportBol(string $batch): array
     {
-        $billOfLadingIds  = BillOfLading::query()->where('batch', $batch)->pluck('id')->toArray();
+        $billOfLadingIds = BillOfLading::query()->where('batch', $batch)->pluck('id')->toArray();
         $query = ActionLog::query()
-            ->where('model_type',BillOfLading::class)
+            ->where('model_type', BillOfLading::class)
             ->whereIn('model_id', $billOfLadingIds)
-            ->where('action','discharge');
+            ->where('action', 'discharge');
 
         return [
             'min' => $query->min('created_at'),
             'max' => $query->max('created_at'),
         ];
-
 
 
     }
