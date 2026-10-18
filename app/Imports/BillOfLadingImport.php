@@ -109,6 +109,7 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
             if (! empty($row['VIN'])) {
                 $this->checkingData($row);
                 $this->ensureVehicleExists($row['VIN']);
+                $this->validateBodyQuality($row['VIN']);
             }
 
             $container = null;
@@ -137,6 +138,18 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
 
         $this->data['done']++;
         $this->sendEvent();
+    }
+
+    private function validateBodyQuality(string $vin): void
+    {
+        if ($this->type !== 'bodies') {
+            return;
+        }
+
+        $qcStatus = Vehicle::query()->whereKey($vin)->value('qc_status');
+        if (empty($qcStatus)) {
+            throw new Exception(' لطفا کد کیفیت '.$vin.' وارد شود ');
+        }
     }
 
     private function ensureVehicleExists(string $vin): void
@@ -270,6 +283,7 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
         } else {
             $headers = BillOfLading::HEAD_CONTAINER;
         }
+        $headers[] = 'result';
         Excel::store(new ResultExport($collection->prepend($headers)), 'public/results/'.$uuid.'.xlsx');
         Job::query()->find($this->data['id'])->update([
             'result' => [

@@ -55,6 +55,9 @@ class BillOfLadingController extends CrudController
     }
 
 
+    /**
+     * @throws Throwable
+     */
     public function destroy($id): JsonResponse
     {
         return DB::transaction(function () use ($id): JsonResponse {

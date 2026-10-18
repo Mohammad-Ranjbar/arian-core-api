@@ -18,8 +18,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Mockery;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
@@ -47,14 +49,17 @@ class BillOfLadingImportTest extends TestCase
             'transit_companies' => ['title'],
             'cars' => ['plate', 'car', 'transit_company_id', 'driver_id'],
             'containers' => ['code'],
-            'vehicles' => ['VIN'],
+            'vehicles' => ['VIN', 'qc_status'],
             'bill_of_ladings' => ['user_id', 'location_source_id', 'location_destination_id', 'car_id', 'code', 'request_no', 'status', 'priority', 'cottage', 'weight', 'batch', 'description'],
             'bill_of_lading_item' => ['model_id', 'model_type', 'bill_of_lading_id', 'type'],
         ] as $name => $columns) {
             Schema::create($name, function (Blueprint $table) use ($columns) {
                 $table->id();
                 foreach ($columns as $column) {
-                    $table->string($column)->nullable();
+                    $definition = $table->string($column)->nullable();
+                    if ($column === 'qc_status') {
+                        $definition->default('QC-OK');
+                    }
                 }
                 $table->softDeletes();
                 $table->timestamps();
@@ -97,7 +102,7 @@ class BillOfLadingImportTest extends TestCase
         DB::table('vehicles')->insert([['VIN' => 'VIN-1'], ['VIN' => 'VIN-2']]);
         $rows = collect([$this->row($import), $this->row($import, ['item' => 'VIN-2'])]);
         Excel::shouldReceive('store')->once()->withArgs(function (ResultExport $export, string $path) use ($rows, $type) {
-            $this->assertSame($type === 'containers' ? BillOfLading::HEAD_CONTAINER : BillOfLading::HEAD_VEHICLE, $export->collection()->first());
+            $this->assertSame(array_merge($type === 'containers' ? BillOfLading::HEAD_CONTAINER : BillOfLading::HEAD_VEHICLE, ['result']), $export->collection()->first());
             $this->assertSame('imported', $rows[1]['result']);
             $this->assertFalse($rows[2]->has('result'));
             $this->assertStringStartsWith('public/results/', $path);
@@ -128,7 +133,7 @@ class BillOfLadingImportTest extends TestCase
 
     public static function unavailableVehicles(): array
     {
-        return ['missing vehicle' => [false], 'soft deleted vehicle' => [true]];
+        return ['missing vehicle' => [false]];
     }
 
     #[DataProvider('unavailableVehicles')]
@@ -244,6 +249,87 @@ class BillOfLadingImportTest extends TestCase
 
         $this->assertSame(0, $import->data['error']);
         $this->assertNotNull(Job::query()->findOrFail($import->data['id'])->getAttribute('result'));
+    }
+
+    public static function missingQualityStatuses(): array
+    {
+        return ['null' => [null, false], 'empty' => ['', false], 'zero' => ['0', false], 'soft deleted' => ['QC-OK', true]];
+    }
+
+    #[DataProvider('missingQualityStatuses')]
+    public function test_body_quality_errors_are_exported_beside_each_vin_and_excluded_from_gate_permits(?string $qcStatus, bool $softDeleted): void
+    {
+        config()->set('filesystems.default', 'local');
+        Storage::fake('local');
+        $import = $this->importer('bodies', '0');
+        DB::table('vehicles')->insert([
+            ['VIN' => 'VIN-1', 'qc_status' => $qcStatus, 'deleted_at' => $softDeleted ? now() : null],
+            ['VIN' => 'VIN-2', 'qc_status' => 'QC-OK', 'deleted_at' => null],
+            ['VIN' => 'VIN-3', 'qc_status' => null, 'deleted_at' => null],
+        ]);
+        $rows = collect([
+            $this->row($import),
+            $this->row($import, ['item' => 'VIN-2']),
+            $this->row($import, ['item' => 'VIN-3']),
+        ]);
+        $this->mock(CreateAutoGatePermitService::class)->shouldReceive('create')->once()
+            ->withArgs(fn (BillOfLading $bill, array $vins, string $itemType, bool $batch) => $vins === ['VIN-2'] && $itemType === '0' && $batch);
+
+        $import->collection($rows);
+
+        $this->assertSame(2, $import->data['error']);
+        $this->assertSame(3, $import->data['done']);
+        $this->assertDatabaseCount('bill_of_lading_item', 1);
+        $this->assertDatabaseHas('bill_of_lading_item', ['model_id' => 'VIN-2', 'type' => 'bodies']);
+        $files = Storage::disk('local')->allFiles('public/results');
+        $this->assertCount(1, $files);
+        $spreadsheet = IOFactory::load(Storage::disk('local')->path($files[0]));
+        try {
+            $sheet = $spreadsheet->getActiveSheet();
+            $this->assertSame('result', $sheet->getCell('Q1')->getValue());
+            $this->assertSame('VIN-1', $sheet->getCell('A2')->getValue());
+            $this->assertSame(' لطفا کد کیفیت VIN-1 وارد شود ', $sheet->getCell('Q2')->getValue());
+            $this->assertSame('VIN-2', $sheet->getCell('A3')->getValue());
+            $this->assertSame('imported', $sheet->getCell('Q3')->getValue());
+            $this->assertSame('VIN-3', $sheet->getCell('A4')->getValue());
+            $this->assertSame(' لطفا کد کیفیت VIN-3 وارد شود ', $sheet->getCell('Q4')->getValue());
+        } finally {
+            $spreadsheet->disconnectWorksheets();
+        }
+    }
+
+    public function test_quality_is_checked_after_fetching_missing_vehicle_from_erp(): void
+    {
+        $import = $this->importer('bodies');
+        $rows = collect([$this->row($import)]);
+        $this->mock(VehicleController::class)->shouldReceive('getByVin')->once()->with('VIN-1')
+            ->andReturnUsing(function () {
+                DB::table('vehicles')->insert(['VIN' => 'VIN-1', 'qc_status' => null]);
+
+                return new JsonResponse(['message' => 'Saved']);
+            });
+        Excel::shouldReceive('store')->once()->andReturn(true);
+
+        $import->collection($rows);
+
+        $this->assertSame(' لطفا کد کیفیت VIN-1 وارد شود ', $rows[1]['result']);
+        $this->assertSame(1, $import->data['error']);
+        $this->assertDatabaseCount('bill_of_ladings', 0);
+        $this->assertDatabaseCount('bill_of_lading_item', 0);
+        $this->assertSame([], $import->billOfLadingList);
+    }
+
+    public function test_vehicle_import_does_not_require_body_quality_status(): void
+    {
+        $import = $this->importer('vehicles');
+        DB::table('vehicles')->insert(['VIN' => 'VIN-1', 'qc_status' => null]);
+        $rows = collect([$this->row($import)]);
+        Excel::shouldReceive('store')->once()->andReturn(true);
+
+        $import->collection($rows);
+
+        $this->assertSame(0, $import->data['error']);
+        $this->assertDatabaseHas('bill_of_lading_item', ['model_id' => 'VIN-1', 'type' => 'vehicles']);
     }
 
     public function test_row_errors_keep_prior_side_effects_and_continue_processing(): void
