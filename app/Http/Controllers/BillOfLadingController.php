@@ -12,6 +12,7 @@ use App\Jobs\ExportJob;
 use App\Jobs\ImportJob;
 use App\Models\ActionLog;
 use App\Models\BillOfLading;
+use App\Models\BillOfLadingItem;
 use App\Models\GatePermit;
 use App\Models\Job;
 use App\Models\Vehicle;
@@ -56,25 +57,21 @@ class BillOfLadingController extends CrudController
 
     public function destroy($id): JsonResponse
     {
-        $model = $this->repository->show($id);
-        if ($model->status != 'new') {
-            return $this->responseError('Can not delete this item', 400);
-        }
+        return DB::transaction(function () use ($id): JsonResponse {
+            $model = $this->repository->show($id);
+            if ($model->status != 'new') {
+                return $this->responseError('Can not delete this item', 400);
+            }
 
-        if ($model->type === 'containers') {
             $model->containers()->update(['on_shipping' => false]);
-            $model->containers()->detach();
-        }
-        if ($model->type === 'vehicles' || $model->type === 'bodies') {
-            $model->vehicles()->detach();
-        }
+            BillOfLadingItem::query()->where('bill_of_lading_id', $model->getKey())->delete();
+            $model->actionLogs()->delete();
+            $model->forceDelete();
 
-        $model->actionLogs()->delete();
-        $model->forceDelete();
-
-        return response()->json([
-            'message' => 'حذف با موفقیت انجام گردید'
-        ]);
+            return response()->json([
+                'message' => 'حذف با موفقیت انجام گردید'
+            ]);
+        });
     }
 
 
