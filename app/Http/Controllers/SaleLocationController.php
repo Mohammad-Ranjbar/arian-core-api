@@ -14,7 +14,7 @@ use App\Models\Tracking;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\SaleLocationRepository;
-use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\TransferVehicleProdZonesService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Model;
@@ -161,9 +161,15 @@ class SaleLocationController extends CrudController
      */
     private function transfer(string $vin, string $saleLocationCode): array
     {
-        return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts_Zone',
-            ['vINP' => $vin, 'toLocationTypeP' => $saleLocationCode]);
+        // return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts_Zone',
+        //     ['vINP' => $vin, 'toLocationTypeP' => $saleLocationCode]);
 
+        $result = resolve(TransferVehicleProdZonesService::class)->send($vin, $saleLocationCode);
+
+        return [
+            'status' => $result['success'] ? 'ok' : 'error',
+            'message' => $result['error']['message'] ?? '',
+        ];
     }
 
 
