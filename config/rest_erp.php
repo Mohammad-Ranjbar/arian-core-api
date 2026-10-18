@@ -11,6 +11,7 @@ use App\Services\Erp\RestApi\ImportVehiclesService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
 use App\Services\Erp\RestApi\ReturnRequestsService;
 use App\Services\Erp\RestApi\SetQcStatusService;
+use App\Services\Erp\RestApi\TrackingsService;
 use App\Services\Erp\RestApi\TransferVehicleProdZonesService;
 
 return [
@@ -25,6 +26,15 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'Trackings' => [
+            'service' => TrackingsService::class,
+            'retry_execution_mode' => 'sync',
+            'rules' => [
+                'VIN' => ['required', 'string'],
+                'BarCode' => ['required', 'string'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
         'TransferVehicleProdZones' => [
             'service' => TransferVehicleProdZonesService::class,
             'retry_execution_mode' => 'sync',

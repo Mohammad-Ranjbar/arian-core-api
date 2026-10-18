@@ -10,7 +10,7 @@ use App\Models\GeneralProductItem;
 use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\BarcodeRepository;
-use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\TrackingsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -108,6 +108,7 @@ class BarcodeController extends CrudController
 
                     $response = $this->submitSerialBarcode($validatedData['vin'], $codeNav, $erpMap[$validatedData['type']]);
                     if ($response['status'] !== 'ok') {
+                        DB::rollBack();
                         return $this->responseError($response['message'], 400);
                     }
                 }
@@ -127,12 +128,18 @@ class BarcodeController extends CrudController
 
     public function submitSerialBarcode($vin, $barcode, $erpCode): array
     {
-        return ErpWsdlClient::run(config('erp.barcode'), 'SetTracking', [
-            'vINP' => $vin,
-            'barCodeP' => $barcode,
-            'itemTypeP' => $erpCode,
-        ]);
+        // return ErpWsdlClient::run(config('erp.barcode'), 'SetTracking', [
+        //     'vINP' => $vin,
+        //     'barCodeP' => $barcode,
+        //     'itemTypeP' => $erpCode,
+        // ]);
 
+        $result = resolve(TrackingsService::class)->send($vin, $barcode, $erpCode);
+
+        return [
+            'status' => $result['success'] ? 'ok' : 'error',
+            'message' => $result['error']['message'] ?? '',
+        ];
     }
 
     /**
