@@ -12,6 +12,7 @@ use App\Models\BillOfLading;
 use App\Models\GatePermit;
 use App\Models\RestErpJob;
 use App\Models\Vehicle;
+use App\Services\CreateAutoGatePermitService;
 use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\GroupExitsService;
 use App\Services\Erp\RestApi\RestErpJobLinksService;
@@ -207,6 +208,107 @@ class ExitRequestsIntegrationTest extends TestCase
         $this->assertDatabaseCount('rest_erp_jobs', 0);
         $this->assertSame(0, DB::transactionLevel());
         Queue::assertNothingPushed();
+        Http::assertNothingSent();
+    }
+
+    public static function autoPermitInputs(): array
+    {
+        $cases = [];
+        foreach (['exit', 'enter'] as $type) {
+            foreach ([false, true] as $batch) {
+                $cases[$type.' scalar batch='.(int) $batch] = [$type, self::VIN, $batch, false];
+                $cases[$type.' array batch='.(int) $batch] = [$type, [self::VIN, 'N5RT92CF6SP000482'], $batch, $batch];
+            }
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('autoPermitInputs')]
+    public function test_service_accepts_single_and_array_inputs(string $type, string|array $items, bool $batch, bool $grouped): void
+    {
+        if ($type === 'enter') {
+            DB::table('location_attributes')->delete();
+            DB::table('location_attributes')->insert(['location_id' => 2, 'attribute' => 'autoEnterPermit', 'value' => 'true']);
+        }
+        $bill = $this->persistedBill();
+        $bill->load('actionLogs');
+        $vins = is_array($items) ? $items : [$items];
+
+        resolve(CreateAutoGatePermitService::class)->create($bill, $items, '2', $batch);
+
+        $endpoint = $type === 'exit'
+            ? ($grouped ? 'GroupExits' : 'ExitRequests')
+            : ($grouped ? 'GroupReturns' : 'ReturnRequests');
+        $jobs = RestErpJob::query()->where('endpoint', $endpoint)->orderBy('id')->get();
+        $this->assertCount($grouped ? 1 : count($vins), $jobs);
+        $this->assertDatabaseCount('gate_permits', count($vins));
+        $this->assertSame($jobs->modelKeys(), $bill->actionLogs->pluck('data.rest_erp_job_id')->all());
+        if ($grouped) {
+            $this->assertSame(implode(',', $vins), $jobs->sole()->parameters['VINArray']);
+            $this->assertSame((string) count($vins), $jobs->sole()->parameters['NumberVIN']);
+        } else {
+            $this->assertSame($vins, $jobs->pluck('parameters.VIN')->all());
+        }
+        $prints = RestErpJob::query()->where('endpoint', 'ExitPrints')->get();
+        $this->assertCount($type === 'exit' && $grouped ? count($vins) : 0, $prints);
+        foreach ($prints as $print) {
+            $this->assertSame($jobs->sole()->id, $print->depends_on_id);
+        }
+        $this->assertDatabaseCount('rest_erp_jobs', $jobs->count() + $prints->count());
+        Queue::assertPushed(SendToRestErpJob::class, $jobs->count());
+        Http::assertNothingSent();
+    }
+
+    public function test_batch_service_skips_existing_permits_and_duplicate_vins(): void
+    {
+        $service = resolve(CreateAutoGatePermitService::class);
+        $bill = $this->persistedBill();
+        $service->create($bill, self::VIN, '2');
+        $items = ['existing' => self::VIN, 'new' => 'N5RT92CF6SP000482', 'duplicate' => 'N5RT92CF6SP000482'];
+
+        $service->create($bill, $items, '2', true);
+
+        $group = RestErpJob::query()->where('endpoint', 'GroupExits')->sole();
+        $this->assertSame('N5RT92CF6SP000482', $group->parameters['VINArray']);
+        $this->assertSame('1', $group->parameters['NumberVIN']);
+        $print = RestErpJob::query()->where('endpoint', 'ExitPrints')->sole();
+        $this->assertSame('N5RT92CF6SP000482', $print->parameters['VIN']);
+        $this->assertSame($group->id, $print->depends_on_id);
+        $this->assertSame($print->model_id, $group->model_id);
+        $this->assertDatabaseCount('gate_permits', 2);
+        $this->assertDatabaseCount('rest_erp_jobs', 3);
+        $this->assertCount(2, $bill->actionLogs);
+
+        $service->create($bill, $items, '2', true);
+
+        $this->assertDatabaseCount('rest_erp_jobs', 3);
+        $this->assertCount(2, $bill->fresh()->actionLogs);
+        Queue::assertPushed(SendToRestErpJob::class, 2);
+        Http::assertNothingSent();
+    }
+
+    public function test_service_does_nothing_without_auto_permit_configuration_or_with_empty_items(): void
+    {
+        $service = resolve(CreateAutoGatePermitService::class);
+        $service->create($this->bill(), [], '2', true);
+        DB::table('location_attributes')->delete();
+        $service->create($this->bill(), self::VIN, '2');
+
+        $this->assertDatabaseCount('gate_permits', 0);
+        $this->assertDatabaseCount('rest_erp_jobs', 0);
+        Queue::assertNothingPushed();
+        Http::assertNothingSent();
+    }
+
+    public function test_exit_configuration_takes_priority_over_enter_configuration(): void
+    {
+        DB::table('location_attributes')->insert(['location_id' => 2, 'attribute' => 'autoEnterPermit', 'value' => 'true']);
+
+        resolve(CreateAutoGatePermitService::class)->create($this->bill(), self::VIN, '2');
+
+        $this->assertSame('exit', GatePermit::query()->sole()->type);
+        $this->assertSame('ExitRequests', RestErpJob::query()->sole()->endpoint);
         Http::assertNothingSent();
     }
 
