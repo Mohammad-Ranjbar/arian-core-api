@@ -153,5 +153,16 @@ class SalesBridgeController extends Controller
         }
         return Http::withoutVerifying()->get($url, request()->toArray())->json();
     }
+    public function getOrders($prefix)
+    {
+        $url = $this->getUrl($prefix);
+
+        if ($prefix == 'portal') {
+            $url .= '/orders';
+        }else{
+            $url .= '/orders/get-report';
+        }
+        return Http::withoutVerifying()->get($url, request()->toArray())->json();
+    }
 
 }
