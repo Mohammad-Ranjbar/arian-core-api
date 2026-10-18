@@ -86,11 +86,14 @@ class UpdateOnlineOrdersCommand extends Command
                             ]);
                         }
                         if (count($portalList)) {
+                            $this->info('https://sales-portal.arian-capital.ir/api/integrations/update-orders');
+                            $this->info(print_r($arinaList, true));
                             $portalUrl = 'https://sales-portal.arian-capital.ir/api/integrations/update-orders';
-                            Http::withoutVerifying()->post($portalUrl, [
+                            $res = Http::withoutVerifying()->post($portalUrl, [
                                 'items'  => $arinaList,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
+                            $this->info('http status: '.$res->status());
                         }
                     } catch (Exception $exception) {
                         $this->error($exception->getMessage());
