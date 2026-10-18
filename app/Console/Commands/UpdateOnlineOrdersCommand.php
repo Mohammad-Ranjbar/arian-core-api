@@ -40,6 +40,7 @@ class UpdateOnlineOrdersCommand extends Command
                     $list = [];
                     $parsList = [];
                     $arinaList = [];
+                    $portalList = [];
                     foreach ($content['value'] as $item) {
                         $row = (object) $item;
                         if ($row->Online_Contract_ID) {
@@ -55,6 +56,8 @@ class UpdateOnlineOrdersCommand extends Command
                                 $parsList[] = $z;
                             }elseif (Str::contains($row->Online_Contract_ID,'PARS_AD')) {
                                 $arinaList[] = $z;
+                            }elseif (Str::contains($row->Online_Contract_ID,'portal')) {
+                                $portalList[] = $z;
                             }else{
                                 $list[] = $z;
                             }
@@ -78,6 +81,13 @@ class UpdateOnlineOrdersCommand extends Command
                         if (count($arinaList)) {
                             $parsUrl = 'https://sales.arinadrive.com/api/sync-orders-erp' ;
                             Http::withoutVerifying()->post($parsUrl, [
+                                'items'  => $arinaList,
+                                'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
+                            ]);
+                        }
+                        if (count($portalList)) {
+                            $portalUrl = 'https://sales-portal.arian-capital.ir/api/integrations/update-orders' ;
+                            Http::withoutVerifying()->post($portalUrl, [
                                 'items'  => $arinaList,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
