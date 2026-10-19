@@ -76,6 +76,7 @@ return [
         ],
         'ReturnRequests' => [
             'service' => ReturnRequestsService::class,
+            'retry_execution_mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'Destination' => ['required', 'string'],

@@ -17,6 +17,14 @@ class RestErpJobLinksService
         return RestErpJob::query()->where(function ($query) use ($direct) {
             $query->whereIn('id', (clone $direct)->select('id'))
                 ->orWhereIn('id', (clone $direct)->whereNotNull('depends_on_id')->select('depends_on_id'));
+        })->when($permit->type === 'enter' && $permit->owner_id !== null && $permit->location_id !== null, function ($query) use ($permit) {
+            $query->orWhere(function ($returns) use ($permit) {
+                $returns->where('endpoint', 'ReturnRequests')->whereNull('model_type')->whereNull('model_id')
+                    ->where('user_id', $permit->owner_id)
+                    ->where('request_payload->VIN', $permit->model_id)
+                    ->where('request_payload->Destination', (string) $permit->location->code)
+                    ->where('request_payload->ItemType', (string) $permit->item_type);
+            });
         })->latest('id')->get();
     }
 

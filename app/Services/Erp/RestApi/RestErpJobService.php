@@ -26,15 +26,17 @@ readonly class RestErpJobService
         private RestErpRequestContext $context
     ) {}
 
-    public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null): array
+    public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, bool $reuseExistingResult = false): array
     {
-        $job = $this->register($endpoint, $parameters, $model, $section, $userId, false);
+        $job = $this->register($endpoint, $parameters, $model, $section, $userId, false, reuseExistingResult: $reuseExistingResult);
 
         if (is_array($job)) {
             return $job;
         }
 
-        return $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
+        $result = $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
+
+        return $reuseExistingResult ? $this->storedResult($job->refresh()) : $result;
     }
 
     public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, ?int $dependsOnId = null): array
@@ -61,7 +63,7 @@ readonly class RestErpJobService
         ];
     }
 
-    private function register(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued, ?int $dependsOnId = null): RestErpJob|array
+    private function register(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued, ?int $dependsOnId = null, bool $reuseExistingResult = false): RestErpJob|array
     {
         $definition = config('rest_erp.endpoints.'.$endpoint);
         if (! is_array($definition)) {
@@ -101,9 +103,25 @@ readonly class RestErpJobService
         $uuid = (string) Str::uuid();
         $metadata = $this->context->capture($userId);
 
-        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata, $dependsOnId) {
-            // Lock the entity even on the first request, before any job exists.
-            if ($model !== null) {
+        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata, $dependsOnId, $reuseExistingResult) {
+            // Serialize registration even on the first request, before any job exists.
+            if ($reuseExistingResult) {
+                DB::table('users')->where('id', $userId)->lockForUpdate()->first();
+                $query = RestErpJob::query()->where('user_id', $userId)->where('endpoint', $endpoint);
+                $safeParameters = $this->sanitizer->sanitize($parameters);
+                if (is_array($safeParameters)) {
+                    foreach ($safeParameters as $key => $value) {
+                        $query->where('request_payload->'.$key, $value);
+                    }
+                }
+                // Logged values may be redacted; compare the actual validated payload as well.
+                $job = $query->latest('id')->lockForUpdate()->get()->first(fn ($candidate) => $invalid
+                    ? $candidate->request_payload === $safeParameters
+                    : $candidate->parameters === $payload);
+                if ($job) {
+                    return $this->storedResult($job);
+                }
+            } elseif ($model !== null) {
                 DB::table($model->getTable())->where($model->getKeyName(), $model->getKey())->lockForUpdate()->first();
                 $job = RestErpJob::query()->where('model_type', $model->getMorphClass())
                     ->where('model_id', $model->getKey())->where('endpoint', $endpoint)->latest('id')->lockForUpdate()->first();
@@ -164,6 +182,23 @@ readonly class RestErpJobService
 
             return $job;
         });
+    }
+
+    private function storedResult(RestErpJob $job): array
+    {
+        $pending = in_array($job->status, ['pending', 'in-progress'], true);
+        $success = $job->status === 'success';
+
+        return [
+            'success' => $success,
+            'data' => $success ? ['rest_erp_job_id' => $job->id, 'request_id' => $job->uuid] : null,
+            'error' => $success ? null : [
+                'code' => $pending ? 'ERP_JOB_IN_PROGRESS' : ($job->error_code ?? 'ERP_JOB_NOT_SUCCESSFUL'),
+                'message' => $pending ? 'درخواست قبلی ERP هنوز در حال پردازش است.' : ($job->description ?? 'درخواست قبلی ERP موفق نبوده است.'),
+            ],
+            'http_status' => $pending ? 409 : ($job->http_status ?? 409),
+            'rest_erp_job_id' => $job->id,
+        ];
     }
 
     private function blockedResult(RestErpJob $job): array

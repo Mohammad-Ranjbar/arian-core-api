@@ -55,7 +55,20 @@ class GatePermitController extends CrudController
     {
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
         try {
-            return DB::transaction(function () use ($validatedData) {
+            $returnResult = null;
+            if ($validatedData['type'] === 'enter') {
+                $location = Location::query()->findOrFail($validatedData['location_id']);
+                $returnResult = resolve(ReturnRequestsService::class)->sendOnce(
+                    $validatedData['vin'], (string) $location->code, (string) $validatedData['item_type']
+                );
+                if (! $returnResult['success']) {
+                    throw new HttpResponseException(response()->json([
+                        'error' => $returnResult['error'], 'rest_erp_job_id' => $returnResult['rest_erp_job_id'],
+                    ], $returnResult['http_status']));
+                }
+            }
+
+            return DB::transaction(function () use ($validatedData, $returnResult) {
                 $validatedData['model_type'] = Vehicle::class;
                 $validatedData['model_id'] = $validatedData['vin'];
                 $validatedData['owner_id'] = Auth::id();
@@ -103,15 +116,7 @@ class GatePermitController extends CrudController
                 }
 
                 if ($validatedData['type'] == 'enter') {
-                    $result = resolve(ReturnRequestsService::class)->queue(
-                        $saveItem->getAttribute('model_id'), (string) $location->getAttribute('code'),
-                        (string) $saveItem->getAttribute('item_type'), model: $saveItem
-                    );
-                    if (! $result['success']) {
-                        throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));
-                    }
-
-                    return $data->additional($result['data'])->response()->setStatusCode(202);
+                    return $data->additional($returnResult['data'])->response()->setStatusCode(201);
                 }
 
                 return $data;

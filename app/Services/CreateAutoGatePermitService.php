@@ -36,14 +36,25 @@ class CreateAutoGatePermitService
     {
         $batch = is_array($items) && $batch;
         $items = is_array($items) ? array_values(array_unique($items)) : [$items];
-
-        DB::transaction(function () use ($billOfLading, $items, $itemType, $batch) {
-            $type = $this->permitType($billOfLading);
-            if ($type === null || $items === []) {
-                return;
+        $type = $this->permitType($billOfLading);
+        if ($type === null || $items === []) {
+            return;
+        }
+        $actorId = Auth::id() ?? $billOfLading->getAttribute('user_id');
+        $returnResults = [];
+        if ($type === 'enter' && ! $batch) {
+            $destination = (string) Location::query()->findOrFail($billOfLading->location_destination_id)->code;
+            foreach ($items as $vin) {
+                if (GatePermit::query()->where('model_type', Vehicle::class)->where('model_id', $vin)->exists()) {
+                    continue;
+                }
+                $result = $this->returnRequests->sendOnce($vin, $destination, (string) $itemType, $actorId);
+                $this->jobId($result);
+                $returnResults[$vin] = $result;
             }
+        }
 
-            $actorId = Auth::id() ?? $billOfLading->getAttribute('user_id');
+        DB::transaction(function () use ($billOfLading, $items, $itemType, $batch, $type, $actorId, $returnResults) {
             $permits = [];
             foreach ($items as $vin) {
                 if (GatePermit::query()->where('model_type', Vehicle::class)->where('model_id', $vin)->exists()) {
@@ -64,7 +75,7 @@ class CreateAutoGatePermitService
                 $permits[] = $permit;
 
                 if (! $batch) {
-                    $this->queueSingle($billOfLading, $permit, $itemType, $actorId);
+                    $this->queueSingle($billOfLading, $permit, $itemType, $actorId, $returnResults[$vin] ?? null);
                 }
             }
 
@@ -94,12 +105,12 @@ class CreateAutoGatePermitService
             ->whereJsonContains('location_attributes.value', true))->exists();
     }
 
-    private function queueSingle(BillOfLading $billOfLading, GatePermit $permit, $itemType, int $actorId): void
+    private function queueSingle(BillOfLading $billOfLading, GatePermit $permit, $itemType, int $actorId, ?array $returnResult): void
     {
         $destination = (string) $permit->getAttribute('location')->code;
         $result = $permit->type === 'exit'
             ? $this->exitRequests->queue($permit->model_id, 2, $destination, (string) $itemType, model: $permit, userId: $actorId)
-            : $this->returnRequests->queue($permit->model_id, $destination, (string) $itemType, model: $permit, userId: $actorId);
+            : $returnResult;
 
         $jobId = $this->jobId($result);
         $this->recordRequest($billOfLading, $permit->type, $jobId, $actorId);
