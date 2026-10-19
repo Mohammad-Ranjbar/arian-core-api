@@ -98,8 +98,8 @@ class RestErpJobTest extends TestCase
         $this->assertSame('success', $job->status);
         $this->assertSame(42, $job->last_retry_user_id);
         $this->assertNotNull($job->last_retry_at);
-        $retries = $job->actionLogs()->where('action', 'rest_erp_retry_requested')->oldest('id')->get();
-        $this->assertSame(["\u{2067}خطای بیزینس سنترال :: \u{2066}First refusal. \u{2069}\u{2069}", "\u{2067}خطای بیزینس سنترال :: \u{2066}Second refusal. \u{2069}\u{2069}"], $retries->pluck('data.snapshot.description')->all());
+        $retries = $job->actionLogs()->whereIn('action', ['rest_erp_failed', 'rest_erp_success'])->oldest('id')->get();
+        $this->assertSame(["\u{2067}خطای بیزینس سنترال :: \u{2066}First refusal. \u{2069}\u{2069}", "\u{2067}خطای بیزینس سنترال :: \u{2066}Second refusal. \u{2069}\u{2069}"], $retries->where('action', 'rest_erp_failed')->pluck('data.snapshot.description')->values()->all());
         $this->assertSame(1, $job->actionLogs()->where('action', 'rest_erp_created')->count());
         Http::assertSentCount(3);
         Queue::assertNothingPushed();
@@ -186,8 +186,8 @@ class RestErpJobTest extends TestCase
         $this->assertSame(4, $job->tries);
         $this->assertSame(42, $job->user_id);
         $this->assertSame(43, $job->last_retry_user_id);
-        $history = $job->actionLogs()->where('action', 'rest_erp_retry_requested')->oldest('id')->get();
-        $this->assertSame(['84', '85', '24'], $history->pluck('data.snapshot.parameters.QCStatus')->all());
+        $history = $job->actionLogs()->whereIn('action', ['rest_erp_failed', 'rest_erp_success'])->oldest('id')->get();
+        $this->assertSame(['84', '85', '24', '25'], $history->pluck('data.snapshot.parameters.QCStatus')->all());
         $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}QC refused. \u{2069}\u{2069}", $history->first()->data['snapshot']['description']);
         Http::assertSentCount(4);
     }
@@ -238,7 +238,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame(2, $job->tries);
         $this->assertSame('success', $job->status);
         $this->assertSame('1', $job->parameters['ItemType']);
-        $this->assertSame('2', $job->actionLogs()->where('action', 'rest_erp_retry_requested')->sole()->data['snapshot']['parameters']['ItemType']);
+        $this->assertSame('2', $job->actionLogs()->where('action', 'rest_erp_failed')->sole()->data['snapshot']['parameters']['ItemType']);
         Queue::assertPushed(SendToRestErpJob::class, 2);
         Http::assertSentCount(2);
     }
@@ -308,7 +308,7 @@ class RestErpJobTest extends TestCase
         $this->assertFalse(Schema::hasColumn('erp_jobs', 'transport'));
         Queue::assertPushedOn('parallel', SendToRestErpJob::class, fn ($queued) => $queued->id === (string) $job->id && $queued->connection === 'redis' && $queued->tries === 1 && $queued->timeout === 30);
         Http::assertNothingSent();
-        $this->assertSame(['rest_erp_created', 'rest_erp_queued', 'rest_erp_dispatched'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
     }
 
     public function test_context_redacts_secrets_without_collecting_removed_client_metadata(): void
@@ -400,7 +400,7 @@ class RestErpJobTest extends TestCase
         $this->assertNotNull($job->started_at);
         $this->assertNotNull($job->completed_at);
         $this->assertGreaterThanOrEqual(0, $job->execute_time);
-        $this->assertSame(['rest_erp_created', 'rest_erp_queued', 'rest_erp_dispatched', 'rest_erp_started', 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertSentCount(1);
         Http::assertSent(fn (HttpRequest $request) => $request->url() === self::ERP_URL && $request->hasHeader('X-Request-ID', $job->uuid) && $request->data() === $job->parameters);
     }
@@ -428,7 +428,7 @@ class RestErpJobTest extends TestCase
         $service->execute($job->id);
         $this->assertNull($service->execute($job->id));
         Http::assertSentCount(1);
-        $this->assertSame(5, $job->actionLogs()->count());
+        $this->assertSame(2, $job->actionLogs()->count());
     }
 
     public function test_dispatch_waits_for_commit_and_rollback_removes_the_job_and_audits(): void
@@ -458,7 +458,7 @@ class RestErpJobTest extends TestCase
         $job = RestErpJob::query()->sole();
         $this->assertSame('rejected', $job->status);
         $this->assertSame([], $job->parameters);
-        $this->assertSame(['rest_erp_created', 'rest_erp_rejected'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Queue::assertNothingPushed();
         Http::assertNothingSent();
     }
@@ -505,9 +505,9 @@ class RestErpJobTest extends TestCase
         $this->assertSame('success', $job->status);
         $this->assertSame(2, $job->tries);
         $this->assertSame(43, $job->last_retry_user_id);
-        $retry = $job->actionLogs()->where('action', 'rest_erp_retry_requested')->sole();
-        $this->assertSame(43, $retry->user_id);
-        $this->assertSame('uncertain', $retry->data['snapshot']['status']);
+        $this->assertDatabaseHas('rest_erp_job_actors', ['rest_erp_job_id' => $job->id, 'user_id' => 43]);
+        $this->assertSame('uncertain', $job->actionLogs()->where('action', 'rest_erp_uncertain')->sole()->data['snapshot']['status']);
+        $this->assertSame(['rest_erp_created', 'rest_erp_uncertain', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         $this->assertStringNotContainsString('connection-secret', json_encode($job->actionLogs()->get()->toArray()));
     }
 
@@ -622,7 +622,7 @@ class RestErpJobTest extends TestCase
         $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk()->assertJsonPath('data.uuid', $job->uuid)
             ->assertJsonPath('data.parameters', $job->parameters)->assertJsonMissingPath('data.payload_hash');
         $this->getJson('/api/rest-erp-jobs')->assertOk()->assertJsonPath('data.0.parameters', $job->parameters);
-        $this->getJson('/api/rest-erp-jobs/'.$job->id.'/actions')->assertOk()->assertJsonCount(3, 'data');
+        $this->getJson('/api/rest-erp-jobs/'.$job->id.'/actions')->assertOk()->assertJsonCount(1, 'data');
         $this->getJson('/api/rest-erp-jobs?per_page=1000')->assertUnprocessable();
         $this->putJson('/api/rest-erp-jobs/'.$job->id.'/retry')->assertUnprocessable();
         $job->update(['status' => 'failed']);
@@ -637,7 +637,7 @@ class RestErpJobTest extends TestCase
         resolve(RestErpJobService::class)->ignore($job, 43);
         $this->assertSame('ignored', $job->fresh()->status);
         $this->assertNull(resolve(RestErpJobService::class)->execute($job->id));
-        $this->assertSame('rest_erp_ignored', $job->actionLogs()->latest('id')->first()->action);
+        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertNothingSent();
     }
 
@@ -734,12 +734,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame(2, $job->fresh()->tries);
         $this->assertSame('in-progress', $job->fresh()->status);
         $this->assertArrayNotHasKey('response', $job->fresh()->toArray());
-        $log = $job->actionLogs()->where('action', 'rest_erp_late_result')->sole();
-        $this->assertSame(1, $log->data['attempt']);
-        $this->assertSame('success', $log->data['outcome']['status']);
-        $this->assertSame(201, $log->data['outcome']['provider_http_status']);
-        $this->assertArrayNotHasKey('response', $log->data);
-        $this->assertArrayNotHasKey('response_context', $log->data);
+        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertSentCount(1);
     }
 
@@ -761,7 +756,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame(422, $result['http_status']);
         $job = RestErpJob::query()->sole();
         $this->assertSame('rejected', $job->status);
-        $this->assertSame(2, $job->actionLogs()->count());
+        $this->assertSame(1, $job->actionLogs()->count());
         $this->assertSame([], $job->parameters);
         Queue::assertNothingPushed();
         Http::assertNothingSent();

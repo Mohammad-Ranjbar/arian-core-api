@@ -149,20 +149,16 @@ readonly class RestErpJobService
                 ...$metadata,
             ];
             if ($job) {
-                // The UUID and original actor remain bound to the same job; archive the prior payload/result first.
+                // The UUID and original actor remain bound to the same job; prior ERP outcomes retain their snapshots.
                 unset($attributes['uuid'], $attributes['user_id'], $attributes['tries']);
                 $attributes['payload_hash'] = $this->payloadHash($job->uuid, $endpoint, (string) $job->user_id,
                     $job->model_type, (string) $job->model_id, $payload, $dependsOnId);
                 $this->prepareRetry($job, $userId, ! $queued, $attributes);
-                $this->audit($job, 'rest_erp_request_updated', [], $userId);
             } else {
                 $job = RestErpJob::query()->create($attributes);
                 $this->audit($job, 'rest_erp_created');
             }
-            if ($invalid) {
-                $this->audit($job, 'rest_erp_rejected', [], $userId);
-            } elseif ($queued) {
-                $this->audit($job, 'rest_erp_queued', [], $userId);
+            if ($queued && ! $invalid) {
                 $this->publishAfterCommit($job);
             }
 
@@ -208,7 +204,6 @@ readonly class RestErpJobService
                 Bus::dispatch((new SendToRestErpJob((string) $job->getKey()))
                     ->onConnection($job->connection)->onQueue($job->queue));
                 $job->update(['dispatched_at' => now()]);
-                $this->audit($job, 'rest_erp_dispatched');
 
                 return true;
             });
@@ -262,9 +257,6 @@ readonly class RestErpJobService
                 'completed_at' => null, 'failed_at' => null,
                 'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
             ]);
-            $this->audit($job, 'rest_erp_started', ['worker' => [
-                'hostname' => gethostname() ?: null, 'pid' => getmypid(), 'php_version' => PHP_VERSION,
-            ]]);
 
             return $job;
         });
@@ -307,17 +299,9 @@ readonly class RestErpJobService
             || (! $result['success'] && $code !== 'Application_DialogException' && $providerStatus !== null
                 && ($providerStatus >= 500 || ($providerStatus >= 200 && $providerStatus < 300)));
         $status = $result['success'] ? 'success' : ($uncertain ? 'uncertain' : 'failed');
-        DB::transaction(function () use ($job, $result, $providerStatus, $code, $status, $start) {
+        DB::transaction(function () use ($job, $result, $providerStatus, $code, $status, $start, $sent) {
             $current = RestErpJob::query()->lockForUpdate()->findOrFail($job->id);
             if ($current->tries !== $job->tries || ! in_array($current->status, ['in-progress', 'uncertain'], true)) {
-                $this->audit($current, 'rest_erp_late_result', [
-                    'attempt' => $job->tries,
-                    'outcome' => [
-                        'status' => $status, 'http_status' => $result['http_status'],
-                        'provider_http_status' => $providerStatus, 'error_code' => $code,
-                    ],
-                ]);
-
                 return;
             }
             $job->update([
@@ -327,7 +311,9 @@ readonly class RestErpJobService
                 'execute_time' => round(microtime(true) - $start, 4),
                 'completed_at' => now(), 'failed_at' => $result['success'] ? null : now(),
             ]);
-            $this->audit($job, 'rest_erp_'.$status);
+            if ($sent) {
+                $this->audit($job, 'rest_erp_'.$status);
+            }
         });
         if (! $result['success']) {
             $logMessage = $this->sanitizer->errorText($result['error']['message'] ?? 'REST ERP request did not succeed');
@@ -369,7 +355,6 @@ readonly class RestErpJobService
                 'http_status' => 503, 'failed_at' => now(), 'completed_at' => now(),
                 'execute_time' => $uncertain && $job->started_at ? round(max(0, microtime(true) - $job->started_at->getTimestamp()), 4) : 0,
             ]);
-            $this->audit($job, 'rest_erp_'.$job->status, ['exception_class' => $exception::class]);
             Log::warning($message, [
                 'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
                 'endpoint' => $job->endpoint, 'status' => $job->status, 'error_code' => $job->error_code,
@@ -392,7 +377,6 @@ readonly class RestErpJobService
             if ($sync) {
                 DB::afterCommit(fn () => $this->execute($job->getKey()));
             } else {
-                $this->audit($job, 'rest_erp_queued', [], $userId);
                 $this->publishAfterCommit($job);
             }
 
@@ -404,7 +388,7 @@ readonly class RestErpJobService
 
     private function prepareRetry(RestErpJob $job, int $userId, bool $sync, array $attributes = []): void
     {
-        $this->audit($job, 'rest_erp_retry_requested', ['actor_context' => $this->context->capture($userId)], $userId);
+        $this->recordActor($job, $userId);
         $job->update([
             'status' => 'pending', 'execution_mode' => $sync ? 'sync' : 'queue',
             'connection' => $sync ? null : config('rest_erp.connection', 'redis'),
@@ -424,16 +408,16 @@ readonly class RestErpJobService
                 throw ValidationException::withMessages(['status' => 'درخواست در این وضعیت قابل نادیده گرفتن نیست.']);
             }
             $job->update(['status' => 'ignored', 'ignored_at' => now()]);
-            $this->audit($job, 'rest_erp_ignored', ['actor_context' => $this->context->capture($userId)], $userId);
+            $this->recordActor($job, $userId);
 
             return $job;
         });
     }
 
-    private function audit(RestErpJob $job, string $action, array $extra = [], ?int $actorId = null): void
+    private function audit(RestErpJob $job, string $action): void
     {
-        $actorId ??= $job->user_id;
-        DB::table('rest_erp_job_actors')->insertOrIgnore(['rest_erp_job_id' => $job->getKey(), 'user_id' => $actorId]);
+        $actorId = $job->user_id;
+        $this->recordActor($job, $actorId);
         $snapshot = $job->attributesToArray();
         $parameters = $snapshot['parameters'] ?? null;
         unset($snapshot['parameters']);
@@ -444,7 +428,7 @@ readonly class RestErpJobService
                 'error_code' => $job->error_code, 'description' => $job->description,
                 'execute_time' => $job->execute_time,
             ],
-            ...$extra, 'snapshot' => $snapshot,
+            'snapshot' => $snapshot,
         ]);
         if (! is_array($data)) {
             $data = ['_truncated' => true];
@@ -458,6 +442,11 @@ readonly class RestErpJobService
         $job->actionLogs()->create([
             'user_id' => $actorId, 'action' => $action, 'data' => $data,
         ]);
+    }
+
+    private function recordActor(RestErpJob $job, int $actorId): void
+    {
+        DB::table('rest_erp_job_actors')->insertOrIgnore(['rest_erp_job_id' => $job->getKey(), 'user_id' => $actorId]);
     }
 
     private function dependencySucceeded(RestErpJob $job): bool

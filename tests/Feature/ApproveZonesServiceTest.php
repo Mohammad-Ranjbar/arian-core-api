@@ -74,7 +74,7 @@ class ApproveZonesServiceTest extends TestCase
         $this->assertNull($job->queue);
         $this->assertNull($job->connection);
         $this->assertNull($job->queued_at);
-        $this->assertSame(['rest_erp_created', 'rest_erp_started', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         foreach ($job->actionLogs()->get() as $log) {
             $this->assertSame($payload, $log->data['snapshot']['parameters']);
             foreach (['client_computer_name', 'request_headers', 'client_ip', 'peer_ip', 'user_agent', 'response', 'response_headers', 'response_context'] as $removed) {
@@ -122,7 +122,7 @@ class ApproveZonesServiceTest extends TestCase
         $this->assertSame(422, $result['http_status']);
         $job = RestErpJob::query()->sole();
         $this->assertSame('rejected', $job->status);
-        $this->assertSame(['rest_erp_created', 'rest_erp_rejected'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertNothingSent();
         Bus::assertNothingDispatched();
         Queue::assertNothingPushed();
@@ -170,7 +170,7 @@ class ApproveZonesServiceTest extends TestCase
         $this->assertSame($code, $job->error_code);
         $this->assertSame($httpStatus, $job->http_status);
         $this->assertSame($providerStatus ?: null, $job->provider_http_status);
-        $this->assertSame(['rest_erp_created', 'rest_erp_started', 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertSentCount($providerStatus === 0 ? 0 : 1);
         Bus::assertNothingDispatched();
         Queue::assertNothingPushed();

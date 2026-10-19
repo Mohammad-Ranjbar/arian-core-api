@@ -583,7 +583,7 @@ class ExitRequestsIntegrationTest extends TestCase
         $retryUrl = $this->permitRetryUrl($permit);
         $this->assertSame(route('rest-erp-jobs.retry', ['restErpJob' => $print->id]), $retryUrl);
         $this->putJson($retryUrl)->assertStatus(202)->assertJsonPath('data.status', 'pending');
-        $this->assertSame(1, $print->fresh()->actionLogs()->where('action', 'rest_erp_retry_requested')->count());
+        $this->assertSame(0, $print->fresh()->actionLogs()->where('action', 'rest_erp_retry_requested')->count());
         Http::assertNothingSent();
     }
 

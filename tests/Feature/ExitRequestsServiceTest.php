@@ -67,7 +67,7 @@ class ExitRequestsServiceTest extends TestCase
         $this->assertSame(ExitRequestsService::class, $job->service);
         $this->assertSame(self::PAYLOAD, $job->parameters);
         $this->assertSame(self::PAYLOAD, json_decode(DB::table('rest_erp_jobs')->value('parameters'), true));
-        $this->assertSame(['rest_erp_created', 'rest_erp_queued', 'rest_erp_dispatched'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         foreach ($job->actionLogs()->get() as $log) {
             $this->assertSame(self::PAYLOAD, $log->data['snapshot']['parameters']);
         }
@@ -99,7 +99,7 @@ class ExitRequestsServiceTest extends TestCase
         $this->assertSame('success', $job->status);
         $this->assertSame(1, $job->tries);
         $this->assertSame(201, $job->provider_http_status);
-        $this->assertSame(['rest_erp_created', 'rest_erp_queued', 'rest_erp_dispatched', 'rest_erp_started', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         $serialized = json_encode([$job->toArray(), $job->actionLogs()->get()->toArray()]);
         $this->assertStringNotContainsString('test-password', $serialized);
         $this->assertStringNotContainsString('test-user', $serialized);
@@ -288,7 +288,7 @@ class ExitRequestsServiceTest extends TestCase
         $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk()->assertJsonPath('data.description', "\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}");
         $this->getJson('/api/rest-erp-jobs')->assertOk()->assertJsonPath('data.0.description', "\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}");
         $actions = $this->getJson('/api/rest-erp-jobs/'.$job->id.'/actions')->assertOk();
-        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}", $actions->json('data.2.data.snapshot.description'));
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}", $actions->json('data.1.data.snapshot.description'));
         Queue::assertNothingPushed();
     }
 

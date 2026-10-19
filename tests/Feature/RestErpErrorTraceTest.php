@@ -62,6 +62,15 @@ class RestErpErrorTraceTest extends TestCase
         return $job;
     }
 
+    private function assertStoredErrorWithoutErpOutcome(string $message): RestErpJob
+    {
+        $job = RestErpJob::query()->sole();
+        $this->assertSame($message, $job->description);
+        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+
+        return $job;
+    }
+
     #[DataProvider('endpoints')]
     public function test_each_endpoint_preserves_erp_error_code_message_and_correlation_id(string $endpoint, array $payload): void
     {
@@ -113,7 +122,7 @@ class RestErpErrorTraceTest extends TestCase
         $result = resolve(RestErpJobService::class)->execute($job->id);
         $this->assertSame('ERP_JOB_ERROR', $result['error']['code']);
         $this->assertSame('InvalidArgumentException: REST ERP payload integrity check failed.', $result['error']['message']);
-        $this->assertAuditedMessage($result['error']['message']);
+        $this->assertStoredErrorWithoutErpOutcome($result['error']['message']);
         Http::assertNothingSent();
     }
 
@@ -126,7 +135,7 @@ class RestErpErrorTraceTest extends TestCase
         } catch (RestErpQueueException $exception) {
             $message = $exception->getResponse()->getData(true)['error']['message'];
             $this->assertSame('RuntimeException: Redis connection refused. password=[REDACTED]', $message);
-            $job = $this->assertAuditedMessage($message);
+            $job = $this->assertStoredErrorWithoutErpOutcome($message);
             $this->assertSame('ERP_QUEUE_ERROR', $job->error_code);
             $this->assertSame(503, $exception->getResponse()->getStatusCode());
         }
@@ -138,7 +147,7 @@ class RestErpErrorTraceTest extends TestCase
         $job = RestErpJob::query()->findOrFail($queued['data']['rest_erp_job_id']);
         $job->update(['status' => 'in-progress', 'tries' => 1, 'started_at' => now()]);
         (new SendToRestErpJob((string) $job->id))->failed(new RuntimeException('Worker terminated while reading the ERP response.'));
-        $this->assertAuditedMessage('RuntimeException: Worker terminated while reading the ERP response.');
+        $this->assertStoredErrorWithoutErpOutcome('RuntimeException: Worker terminated while reading the ERP response.');
         $this->assertSame('uncertain', $job->fresh()->status);
         $this->assertSame('ERP_EXECUTION_UNCERTAIN', $job->fresh()->error_code);
     }
