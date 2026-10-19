@@ -69,6 +69,7 @@ class RestErpErrorTraceTest extends TestCase
         Http::fake(['*' => Http::response(['error' => ['code' => 'BadRequest_InvalidParameter', 'message' => $message]], 400)]);
         Log::spy();
         $result = resolve(RestErpJobService::class)->send($endpoint, $payload);
+        $message = "\u{2067}خطای بیزینس سنترال :: \u{2066}{$message} \u{2069}\u{2069}";
         $this->assertSame(['code' => 'BadRequest_InvalidParameter', 'message' => $message], $result['error']);
         $job = $this->assertAuditedMessage($message);
         $this->assertSame('BadRequest_InvalidParameter', $job->error_code);
@@ -84,8 +85,8 @@ class RestErpErrorTraceTest extends TestCase
             'error' => ['code' => 'Internal_ServerError', 'message' => 'ERP processing failed.'],
         ])))));
         $result = resolve(RestErpJobService::class)->send($endpoint, $payload);
-        $this->assertSame(['code' => 'Internal_ServerError', 'message' => 'ERP processing failed.'], $result['error']);
-        $job = $this->assertAuditedMessage('ERP processing failed.');
+        $this->assertSame(['code' => 'Internal_ServerError', 'message' => "\u{2067}خطای بیزینس سنترال :: \u{2066}ERP processing failed. \u{2069}\u{2069}"], $result['error']);
+        $job = $this->assertAuditedMessage("\u{2067}خطای بیزینس سنترال :: \u{2066}ERP processing failed. \u{2069}\u{2069}");
         $this->assertSame(500, $job->provider_http_status);
         $this->assertSame('uncertain', $job->status);
     }
@@ -146,10 +147,10 @@ class RestErpErrorTraceTest extends TestCase
     {
         Http::fakeSequence()->push('<html><body>Upstream gateway failed.</body></html>', 502)->push('Access denied.', 403);
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
-        $this->assertSame('ERP HTTP 502: Upstream gateway failed.', $result['error']['message']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}ERP HTTP 502: Upstream gateway failed. \u{2069}\u{2069}", $result['error']['message']);
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-2', 'ItemType' => '2']);
         $this->assertSame('ERP_AUTH_ERROR', $result['error']['code']);
-        $this->assertSame('ERP HTTP 403: Access denied.', $result['error']['message']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}ERP HTTP 403: Access denied. \u{2069}\u{2069}", $result['error']['message']);
     }
 
     public function test_missing_configuration_is_named_without_disclosing_credential_values(): void
@@ -157,7 +158,7 @@ class RestErpErrorTraceTest extends TestCase
         config()->set('erp.auth', ['', '', 'ntlm']);
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
         $this->assertSame('ERP_CONFIGURATION_ERROR', $result['error']['code']);
-        $this->assertSame('Missing configuration: ERP username, ERP password', $result['error']['message']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}Missing configuration: ERP username, ERP password \u{2069}\u{2069}", $result['error']['message']);
         $this->assertAuditedMessage($result['error']['message']);
         Http::assertNothingSent();
     }

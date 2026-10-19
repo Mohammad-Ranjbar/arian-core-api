@@ -121,7 +121,7 @@ class CreateTransferZonesServiceTest extends TestCase
         $this->assertSame(422, $result['http_status']);
         $this->assertSame([
             'code' => 'Application_DialogException',
-            'message' => 'Insufficient inventory.',
+            'message' => "\u{2067}خطای بیزینس سنترال :: \u{2066}Insufficient inventory. \u{2069}\u{2069}",
         ], $result['error']);
     }
 

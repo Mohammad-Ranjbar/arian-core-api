@@ -186,13 +186,18 @@ class PreGoLiveServer
         int $httpStatus
     ): array {
         $sanitizer = resolve(RestErpLogSanitizer::class);
+        // Isolate the Persian label and LTR error detail without adding HTML to API messages.
+        $prefix = "\u{2067}خطای بیزینس سنترال :: \u{2066}";
+        // Keep a whitespace boundary so subsequent credential sanitization preserves the isolates.
+        $suffix = " \u{2069}\u{2069}";
+        $message = $prefix.$sanitizer->errorText($message, 4096 - strlen($prefix.$suffix)).$suffix;
 
         return [
             'success' => false,
             'data' => null,
             'error' => [
                 'code' => $sanitizer->errorText($code, 255),
-                'message' => $sanitizer->errorText($message),
+                'message' => $message,
             ],
             'http_status' => $httpStatus,
         ];

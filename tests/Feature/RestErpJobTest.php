@@ -99,7 +99,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame(42, $job->last_retry_user_id);
         $this->assertNotNull($job->last_retry_at);
         $retries = $job->actionLogs()->where('action', 'rest_erp_retry_requested')->oldest('id')->get();
-        $this->assertSame(['First refusal.', 'Second refusal.'], $retries->pluck('data.snapshot.description')->all());
+        $this->assertSame(["\u{2067}خطای بیزینس سنترال :: \u{2066}First refusal. \u{2069}\u{2069}", "\u{2067}خطای بیزینس سنترال :: \u{2066}Second refusal. \u{2069}\u{2069}"], $retries->pluck('data.snapshot.description')->all());
         $this->assertSame(1, $job->actionLogs()->where('action', 'rest_erp_created')->count());
         Http::assertSentCount(3);
         Queue::assertNothingPushed();
@@ -188,7 +188,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame(43, $job->last_retry_user_id);
         $history = $job->actionLogs()->where('action', 'rest_erp_retry_requested')->oldest('id')->get();
         $this->assertSame(['84', '85', '24'], $history->pluck('data.snapshot.parameters.QCStatus')->all());
-        $this->assertSame('QC refused.', $history->first()->data['snapshot']['description']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}QC refused. \u{2069}\u{2069}", $history->first()->data['snapshot']['description']);
         Http::assertSentCount(4);
     }
 

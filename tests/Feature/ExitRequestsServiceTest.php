@@ -235,6 +235,7 @@ class ExitRequestsServiceTest extends TestCase
         Http::fake([self::URL => Http::response($body, $providerStatus)]);
         Log::spy();
         $result = resolve(RestErpJobService::class)->execute($queued['data']['rest_erp_job_id']);
+        $message = "\u{2067}خطای بیزینس سنترال :: \u{2066}{$message} \u{2069}\u{2069}";
         $this->assertSame(['code' => $code, 'message' => $message], $result['error']);
         $this->assertSame($httpStatus, $result['http_status']);
         $job = RestErpJob::query()->sole();
@@ -268,12 +269,12 @@ class ExitRequestsServiceTest extends TestCase
             throw new GuzzleRequestException('password=exception-secret', new PsrRequest('POST', self::URL), $response);
         });
         $result = resolve(RestErpJobService::class)->execute($queued['data']['rest_erp_job_id']);
-        $this->assertSame(['code' => 'Application_DialogException', 'message' => self::LOCATION_ERROR], $result['error']);
+        $this->assertSame(['code' => 'Application_DialogException', 'message' => "\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}"], $result['error']);
         $this->assertSame(422, $result['http_status']);
         $job = RestErpJob::query()->sole();
         $this->assertSame('failed', $job->status);
         $this->assertSame(400, $job->provider_http_status);
-        $this->assertSame(self::LOCATION_ERROR, $job->description);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}", $job->description);
         $this->assertStringNotContainsString('exception-secret', json_encode([$job->toArray(), $job->actionLogs()->get()->toArray()]));
     }
 
@@ -282,23 +283,24 @@ class ExitRequestsServiceTest extends TestCase
         Auth::user()->givePermissionTo(Permission::create(['name' => 'erp-jobs', 'guard_name' => 'web']));
         Http::fake([self::URL => Http::response(['error' => ['code' => 'Application_DialogException', 'message' => self::LOCATION_ERROR]], 400)]);
         $result = resolve(ExitRequestsService::class)->send(self::PAYLOAD['VIN'], 1, 'CT004156', 2);
-        $this->assertSame(self::LOCATION_ERROR, $result['error']['message']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}", $result['error']['message']);
         $job = RestErpJob::query()->sole();
-        $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk()->assertJsonPath('data.description', self::LOCATION_ERROR);
-        $this->getJson('/api/rest-erp-jobs')->assertOk()->assertJsonPath('data.0.description', self::LOCATION_ERROR);
+        $this->getJson('/api/rest-erp-jobs/'.$job->id)->assertOk()->assertJsonPath('data.description', "\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}");
+        $this->getJson('/api/rest-erp-jobs')->assertOk()->assertJsonPath('data.0.description', "\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}");
         $actions = $this->getJson('/api/rest-erp-jobs/'.$job->id.'/actions')->assertOk();
-        $this->assertSame(self::LOCATION_ERROR, $actions->json('data.2.data.snapshot.description'));
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}".self::LOCATION_ERROR." \u{2069}\u{2069}", $actions->json('data.2.data.snapshot.description'));
         Queue::assertNothingPushed();
     }
 
     public function test_erp_credentials_are_redacted_consistently_in_the_result_and_logs(): void
     {
         Http::fake([self::URL => Http::response(['error' => [
-            'code' => 'Application_DialogException', 'message' => 'Please Check Location. password=log-secret test-password test-user',
+            'code' => 'Application_DialogException', 'message' => 'Please Check Location. test-password test-user password=log-secret',
         ]], 400)]);
         $result = resolve(ExitRequestsService::class)->send(self::PAYLOAD['VIN'], 1, 'CT004156', 2);
         $job = RestErpJob::query()->sole();
         $this->assertSame($result['error']['message'], $job->description);
+        $this->assertStringEndsWith(" \u{2069}\u{2069}", $job->description);
         $serialized = json_encode([$result, $job->toArray(), $job->actionLogs()->get()->toArray()]);
         foreach (['log-secret', 'test-password', 'test-user'] as $secret) {
             $this->assertStringNotContainsString($secret, $serialized);

@@ -162,7 +162,7 @@ class ApproveZonesServiceTest extends TestCase
         $this->assertSame($code, $result['error']['code']);
         $this->assertSame($httpStatus, $result['http_status']);
         if ($code === 'Application_DialogException') {
-            $this->assertSame('Approval refused.', $result['error']['message']);
+            $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}Approval refused. \u{2069}\u{2069}", $result['error']['message']);
         }
         $job = RestErpJob::query()->sole();
         $this->assertSame('sync', $job->execution_mode);
