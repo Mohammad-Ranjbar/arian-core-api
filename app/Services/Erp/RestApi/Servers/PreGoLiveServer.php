@@ -28,6 +28,7 @@ class PreGoLiveServer
         'ExitPrints' => 'ExitPrints',
         'productionBoardEntries' => 'productionBoardEntries',
         'VehicleTypeBlockings' => 'VehicleTypeBlockings',
+        'VehicleUnblocks' => 'VehicleUnblocks',
     ];
 
     public function urlFor(string $endpoint): string

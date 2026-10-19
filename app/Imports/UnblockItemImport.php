@@ -2,12 +2,11 @@
 
 namespace App\Imports;
 
-use App\Events\ErpJobEvent;
 use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\BlockItem;
-use App\Models\ErpJob;
 use App\Models\Job;
+use App\Services\Erp\RestApi\VehicleUnblocksService;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -50,30 +49,24 @@ class UnblockItemImport implements ToCollection, WithStartRow
                 $blockItem = BlockItem::query()->where('id', $row[0])->first();
                 if (!empty($blockItem) && $blockItem->getAttribute('unblocked_at') == null) {
 
+                    $count = BlockItem::query()
+                        ->where('vin', $blockItem->getAttribute('vin'))
+                        ->where('id', '!=', $blockItem->getKey())
+                        ->whereNull('unblocked_at')->count();
+
+                    if ($count === 0) {
+                        $result = resolve(VehicleUnblocksService::class)->send(
+                            $blockItem->getAttribute('vin'), $blockItem, (int) $this->data['user_id'],
+                        );
+                        if (! $result['success']) {
+                            throw new \RuntimeException($result['error']['message']);
+                        }
+                    }
+
                     $blockItem->update([
                         'unblocked_at' => now(),
                         'unblocked_by' => $this->data['user_id'],
                     ]);
-
-                    $count = BlockItem::query()
-                        ->where('vin', $blockItem->getAttribute('vin'))
-                        ->whereNull('unblocked_at')->count();
-
-                    if ($count === 0) {
-                        $parameters = ['barcodeInfoP' => $blockItem->getAttribute('vin')];
-                        $erpJob = ErpJob::query()->create([
-                            'model_id' => $blockItem->getAttribute('id'),
-                            'model_type' => BlockItem::class,
-                            'section' => 'unblock-vehicle',
-                            'user_id' => $this->data['user_id'],
-                            'method' => 'UnblockingVehicle',
-                            'url' => config('erp.block_unblock'),
-                            'parameters' => $parameters,
-                            'queue' => ErpJob::QUEUE_UNIQUE
-                        ]);
-                        ErpJobEvent::dispatch($erpJob);
-                    }
-
 
                     $this->data['success']++;
 

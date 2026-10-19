@@ -14,6 +14,7 @@ use App\Services\Erp\RestApi\SetQcStatusService;
 use App\Services\Erp\RestApi\TrackingsService;
 use App\Services\Erp\RestApi\TransferVehicleProdZonesService;
 use App\Services\Erp\RestApi\VehicleTypeBlockingsService;
+use App\Services\Erp\RestApi\VehicleUnblocksService;
 
 return [
     'base_url' => env('ERP_REST_BASE_URL', 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0'),
@@ -28,6 +29,13 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'VehicleUnblocks' => [
+            'service' => VehicleUnblocksService::class,
+            'retry_execution_mode' => 'sync',
+            'rules' => [
+                'BarcodeInfo' => ['required', 'string'],
+            ],
+        ],
         'VehicleTypeBlockings' => [
             'service' => VehicleTypeBlockingsService::class,
             'retry_execution_mode' => 'sync',

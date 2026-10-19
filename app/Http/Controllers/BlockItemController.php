@@ -17,8 +17,8 @@ use App\Models\Job;
 use App\Models\Vehicle;
 use App\Repositories\BlockItemRepository;
 use App\Repositories\BlockReasonRepository;
-use App\Services\Erp\ErpWsdlClient;
 use App\Services\Erp\RestApi\VehicleTypeBlockingsService;
+use App\Services\Erp\RestApi\VehicleUnblocksService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -115,46 +115,28 @@ class BlockItemController extends Controller
         try {
             $this->authorize('block-items.unblock');
 
-            $exists = $vehicle->blockItems()->whereNull('unblocked_at')->exists();
-            if ($exists) {
-
-                $parameters = [
-                    'barcodeInfoP' => $vehicle->getAttribute('vin'),
-                    'pDIResultP' => request()->filled('pdi_result') ? request()->get('pdi_result') : '',
-                    'pDIDescriptionP' => request()->filled('pdi_result_description') ? request()->get('pdi_result_description') : '',
-                    'pDISecondDescriptionP' => request()->filled('pdi_result_description2') ? request()->get('pdi_result_description2') : '',
-                ];
-//                $erpJob = ErpJob::query()->create([
-//                    'model_id' => $id,
-//                    'model_type' => BlockItem::class,
-//                    'section' => 'unblock-vehicle',
-//                    'user_id' => Auth::id(),
-//                    'method' => 'UnblockingVehicle',
-//                    'url' => config('erp.block_unblock'),
-//                    'parameters' => $parameters,
-//                    'queue' => ErpJob::QUEUE_UNIQUE
-//                ]);
-//                ErpJobEvent::dispatch($erpJob);
-
-                $response = ErpWsdlClient::run(config('erp.block_unblock'), 'UnblockingVehicle', $parameters);
-
-                if ($response['status'] !== 'ok') {
-                    return $this->responseError($response['message'], 400);
-                }
-
-                $data = [
-                    'unblocked_by' => Auth::id(),
-                    'unblocked_at' => Carbon::now(),
-                    'unblock_description' => $request['unblock_description']
-                ];
-                $item = $vehicle->blockItems()->where('block_items.id', $id)->whereNull('unblocked_at')->firstOrFail();
-
-                $item->update($data);
-                $item = $item->fresh();
-                return new BlockItemResource($item);
+            $item = $vehicle->blockItems()->where('block_items.id', $id)->first();
+            if (! $item) {
+                return $this->responseError('رکورد مسدودی مورد نظر برای این خودرو یافت نشد.', 404);
+            }
+            if ($item->getAttribute('unblocked_at') !== null) {
+                return $this->responseError('این رکورد قبلاً رفع مسدودی شده است.', 422);
             }
 
-            return $this->responseError('امکان انبلاک وجود ندارد');
+            $response = resolve(VehicleUnblocksService::class)->send($vehicle->getAttribute('vin'), $item);
+
+            if (! $response['success']) {
+                return $this->responseError($response['error']['message'], $response['http_status']);
+            }
+
+            $data = [
+                'unblocked_by' => Auth::id(),
+                'unblocked_at' => Carbon::now(),
+                'unblock_description' => $request['unblock_description']
+            ];
+            $item->update($data);
+            $item = $item->fresh();
+            return new BlockItemResource($item);
 
         } catch (Exception $exception) {
             return $this->responseError($exception->getMessage(), 500);
@@ -183,9 +165,6 @@ class BlockItemController extends Controller
      */
     public function importUnblockItems(JobRequest $request): JsonResponse
     {
-        if (!isset($this->repository)) {
-            return $this->responseError('repository not found', 400);
-        }
         $validatedData = $request->validated();
         $validatedData['user_id'] = Auth::id();
         $validatedData['type'] = 'import-un' . $this->repository->model->getTable();
