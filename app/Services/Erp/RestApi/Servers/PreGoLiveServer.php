@@ -26,6 +26,7 @@ class PreGoLiveServer
         'GroupReturns' => 'GroupReturns',
         'ReturnRequests' => 'ReturnRequests',
         'ExitPrints' => 'ExitPrints',
+        'productionBoardEntries' => 'productionBoardEntries',
     ];
 
     public function urlFor(string $endpoint): string
@@ -34,7 +35,7 @@ class PreGoLiveServer
             throw new InvalidArgumentException('Unsupported ERP endpoint.');
         }
 
-        $baseUrl = config('rest_erp.base_url');
+        $baseUrl = config($endpoint === 'productionBoardEntries' ? 'rest_erp.production_base_url' : 'rest_erp.base_url');
         $parts = is_string($baseUrl) ? parse_url($baseUrl) : false;
         if (! is_array($parts)
             || ! in_array($parts['scheme'] ?? null, ['http', 'https'], true)
@@ -48,6 +49,16 @@ class PreGoLiveServer
     }
 
     public function post(string $endpoint, array $data, ?callable $onResponse = null, ?string $requestId = null): array
+    {
+        return $this->request('POST', $endpoint, $data, $onResponse, $requestId);
+    }
+
+    public function get(string $endpoint, array $query = []): array
+    {
+        return $this->request('GET', $endpoint, $query);
+    }
+
+    private function request(string $method, string $endpoint, array $data, ?callable $onResponse = null, ?string $requestId = null): array
     {
         $url = $this->urlFor($endpoint);
 
@@ -78,9 +89,10 @@ class PreGoLiveServer
                 ->connectTimeout(5)
                 ->timeout(15)
                 ->withoutRedirecting()
-                ->post(
+                ->send(
+                    $method,
                     $url,
-                    $data
+                    [$method === 'GET' ? 'query' : 'json' => $data]
                 );
         } catch (ConnectionException $exception) {
             return $this->failure(

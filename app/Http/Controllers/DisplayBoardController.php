@@ -3,31 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\Salon;
-use App\Services\Erp\ErpDisplayBoard;
-use App\Services\Erp\ErpOdataClient;
+use App\Services\Erp\RestApi\ProductionBoardEntriesService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DisplayBoardController extends Controller
 {
-    public function __construct(private readonly ErpOdataClient $erpOdataClient)
+    public function __construct(private readonly ProductionBoardEntriesService $productionBoardEntriesService)
     {
 
     }
     public function __invoke(Request $request, Salon $salon): JsonResponse
     {
-        $data = ErpDisplayBoard::getData();
-        $url = config('erp.display_board');
-        $content = $this->erpOdataClient->get($url);
-        $data = collect($content->value);
+        $response = $this->productionBoardEntriesService->get();
+        if (! $response['success']) {
+            return $this->responseError($response['error']['message'], $response['http_status']);
+        }
+        $data = collect($response['data']);
 
         $lines = $salon->productionLines()->where('show_in_board',true)->get();
         $locations = $lines->pluck('location')->all();
         $shifts = $lines->pluck('shift')->all();
-        if (!isset($data)){
-            return $this->responseError('اطلاعات مورد نظر از نویژن موجود نمیباشد',400);
-        }
 
         $list = $data->whereIn('locationCode', $locations)->whereIn('workShiftCode', $shifts);
 
