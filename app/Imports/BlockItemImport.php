@@ -2,20 +2,20 @@
 
 namespace App\Imports;
 
-use App\Events\ErpJobEvent;
 use App\Events\JobProcessEvent;
 use App\Exports\ResultExport;
 use App\Models\BlockItem;
 use App\Models\BlockReason;
-use App\Models\ErpJob;
 use App\Models\Job;
 use App\Models\Vehicle;
+use App\Services\Erp\RestApi\VehicleTypeBlockingsService;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Facades\Excel;
+use RuntimeException;
 
 
 class BlockItemImport implements ToCollection, WithStartRow
@@ -40,9 +40,10 @@ class BlockItemImport implements ToCollection, WithStartRow
         return 2;
     }
 
+
     /**
-     * @param Collection $collection
-     * @return void
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function collection(Collection $collection): void
     {
@@ -53,33 +54,24 @@ class BlockItemImport implements ToCollection, WithStartRow
             try {
                 $vehicle = Vehicle::query()->where('vin', $row[0])->first();
                 if ($vehicle) {
-                    $record = BlockItem::query()->create([
+                    $blockReason = BlockReason::query()->findOrFail($this->blockReasonId);
+                    $result = resolve(VehicleTypeBlockingsService::class)->send(
+                        $vehicle->getAttribute('vin'),
+                        (string)$blockReason->getAttribute('block_type'),
+                        null,
+                        (int)$this->userId,
+                    );
+                    if (!$result['success']) {
+                        throw new RuntimeException($result['error']['message']);
+                    }
+
+                    BlockItem::query()->create([
                         'vin' => $vehicle->getAttribute('vin'),
                         'blocked_at' => now(),
                         'blocked_by' => $this->userId,
                         'description' => $this->description,
                         'block_reason_id' => $this->blockReasonId,
                     ]);
-
-                    $blockReason = BlockReason::query()->find($this->blockReasonId);
-
-                    $parameters = [
-                        'barcodeInfoP' => $record->getAttribute('vin'),
-                        'blockTypeP' => $blockReason->getAttribute('block_type'),
-                    ];
-                    $erpJob = ErpJob::query()->create(
-                        [
-                            'queue' => ErpJob::QUEUE_UNIQUE,
-                            'user_id' => $record->getAttribute('blocked_by'),
-                            'method' => 'BlockingVehicleByType',
-                            'url' => config('erp.block_unblock'),
-                            'parameters' => $parameters,
-                            'model_type' => BlockItem::class,
-                            'model_id' => $record->getAttribute('id'),
-                            'section' => 'block-vehicle',
-                        ]
-                    );
-                    ErpJobEvent::dispatch($erpJob);
 
                     $this->data['success']++;
 
