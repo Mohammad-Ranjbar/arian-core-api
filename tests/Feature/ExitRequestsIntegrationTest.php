@@ -159,7 +159,15 @@ class ExitRequestsIntegrationTest extends TestCase
         $response = $this->store();
         $this->assertSame(202, $response->getStatusCode(), json_encode($response->getData(true)));
         $permit = GatePermit::query()->sole();
-        $job = RestErpJob::query()->sole();
+        $job = RestErpJob::query()->where('endpoint', 'ExitRequests')->sole();
+        $print = RestErpJob::query()->where('endpoint', 'ExitPrints')->sole();
+        $this->assertSame($job->id, $print->depends_on_id);
+        $this->assertSame(['VIN' => self::VIN, 'ItemType' => '2'], $print->parameters);
+        $this->assertSame(GatePermit::class, $print->model_type);
+        $this->assertSame((string) $permit->id, $print->model_id);
+        $this->assertSame('pending', $print->status);
+        $this->assertNull($print->dispatched_at);
+        $this->assertDatabaseCount('rest_erp_jobs', 2);
         $body = $response->getData(true);
         $this->assertSame($permit->id, $body['data']['id']);
         $this->assertSame(self::VIN, $body['data']['model_id']);
@@ -186,8 +194,9 @@ class ExitRequestsIntegrationTest extends TestCase
         } catch (RestErpQueueException $exception) {
             $this->assertSame(503, $exception->getResponse()->getStatusCode());
             $this->assertDatabaseCount('gate_permits', 1);
-            $job = RestErpJob::query()->sole();
+            $job = RestErpJob::query()->where('endpoint', 'ExitRequests')->sole();
             $this->assertSame('failed', $job->status);
+            $this->assertDatabaseCount('rest_erp_jobs', 2);
             $this->assertSame($job->id, $exception->getResponse()->getData(true)['rest_erp_job_id']);
             $this->assertSame(0, DB::transactionLevel());
         }
@@ -323,11 +332,11 @@ class ExitRequestsIntegrationTest extends TestCase
         $this->store();
         $this->bill()->createAutoGatePermit([self::VIN, 'N5RT92CF6SP000482'], '0', false);
         $this->assertDatabaseCount('gate_permits', 2);
-        $this->assertDatabaseCount('rest_erp_jobs', 2);
+        $this->assertDatabaseCount('rest_erp_jobs', 3);
         $job = RestErpJob::query()->latest('id')->first();
         $this->assertSame(['VIN' => 'N5RT92CF6SP000482', 'TypeOfExit' => '2', 'Destination' => 'CT004156', 'ItemType' => '0'], $job->parameters);
         $this->bill()->createAutoGatePermit([self::VIN, 'N5RT92CF6SP000482'], '0', false);
-        $this->assertDatabaseCount('rest_erp_jobs', 2);
+        $this->assertDatabaseCount('rest_erp_jobs', 3);
         Queue::assertPushed(SendToRestErpJob::class, 2);
         $this->soap->shouldNotHaveReceived('run');
         Http::assertNothingSent();
@@ -635,13 +644,13 @@ class ExitRequestsIntegrationTest extends TestCase
     {
         Auth::user()->givePermissionTo(Permission::create(['name' => 'retry-erp-jobs', 'guard_name' => 'web']));
         $this->store();
-        $job = RestErpJob::query()->sole();
+        $job = RestErpJob::query()->where('endpoint', 'ExitRequests')->sole();
         $job->update(['status' => 'failed']);
         // Keep historical duplicates, as requested, while treating the newest record as canonical.
         $current = $job->replicate(['uuid']);
         $current->fill(['uuid' => (string) Str::uuid(), 'status' => 'success'])->save();
         $this->assertNull($this->permitRetryUrl(GatePermit::query()->sole()));
-        $this->assertDatabaseCount('rest_erp_jobs', 2);
+        $this->assertDatabaseCount('rest_erp_jobs', 3);
     }
 
     public function test_bill_resource_keeps_exact_request_ids_and_prints_without_vin_based_leakage(): void
@@ -714,41 +723,53 @@ class ExitRequestsIntegrationTest extends TestCase
     public function test_transfer_waits_for_successful_exit_request(string $status): void
     {
         $this->store();
-        $job = RestErpJob::query()->sole();
+        $job = RestErpJob::query()->where('endpoint', 'ExitRequests')->sole();
         $job->update(['status' => $status]);
         $permit = GatePermit::query()->sole();
         $response = resolve(GatePermitTransferController::class)($this->vehicle());
         $this->assertSame(409, $response->getStatusCode());
         $this->assertSame('ERP_EXIT_REQUEST_NOT_READY', $response->getData(true)['error']['code']);
-        $this->assertSame($job->id, $response->getData(true)['rest_erp_job_id']);
+        $print = RestErpJob::query()->where('endpoint', 'ExitPrints')->sole();
+        $this->assertSame($print->id, $response->getData(true)['rest_erp_job_id']);
+        $this->assertSame($job->id, $print->depends_on_id);
+        $this->assertNull($print->dispatched_at);
         $this->assertNotSoftDeleted($permit);
         $this->assertDatabaseCount('production_tracking', 0);
-        $this->assertDatabaseCount('rest_erp_jobs', 1);
+        $this->assertDatabaseCount('rest_erp_jobs', 2);
         Http::assertNothingSent();
     }
 
     public function test_worker_success_allows_transfer_but_worker_failure_does_not(): void
     {
         $this->store();
-        $job = RestErpJob::query()->sole();
+        $job = RestErpJob::query()->where('endpoint', 'ExitRequests')->sole();
         Http::fake(['*/ExitRequests' => Http::response(['error' => ['code' => 'Application_DialogException', 'message' => 'Request refused.']], 400)]);
         resolve(RestErpJobService::class)->execute($job->id);
         $response = resolve(GatePermitTransferController::class)($this->vehicle());
         $this->assertSame(409, $response->getStatusCode());
         $this->assertNotSoftDeleted(GatePermit::query()->sole());
         $this->assertDatabaseCount('production_tracking', 0);
+        $print = RestErpJob::query()->where('endpoint', 'ExitPrints')->sole();
+        $this->assertNull($print->dispatched_at);
+        resolve(RestErpJobService::class)->execute($print->id);
         Http::assertSentCount(1);
         // The shared retry mechanism uses the same audited request.
         Http::swap(new Factory);
         Http::preventStrayRequests();
-        Http::fake(['*/ExitRequests' => Http::response([], 200), '*/ApproveExitZones' => Http::response([], 200)]);
+        Http::fake(['*/ExitRequests' => Http::response([], 200), '*/ExitPrints' => Http::response([], 200), '*/ApproveExitZones' => Http::response([], 200)]);
         resolve(RestErpJobService::class)->retry($job->fresh(), 42);
         resolve(RestErpJobService::class)->execute($job->id);
+        $this->assertNotNull($print->fresh()->dispatched_at);
+        Queue::assertPushed(SendToRestErpJob::class, fn ($queued) => $queued->id === (string) $print->id);
+        $response = resolve(GatePermitTransferController::class)($this->vehicle());
+        $this->assertSame(409, $response->getStatusCode());
+        resolve(RestErpJobService::class)->execute($print->id);
+        $this->assertSame('success', $print->fresh()->status);
         $response = resolve(GatePermitTransferController::class)($this->vehicle());
         $this->assertSame(200, $response->getStatusCode());
         $this->assertDatabaseCount('production_tracking', 1);
         $this->assertSoftDeleted(GatePermit::withTrashed()->sole());
-        Http::assertSentCount(2);
+        Http::assertSentCount(3);
         $this->soap->shouldNotHaveReceived('run');
     }
 }

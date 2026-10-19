@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Vehicle;
 use App\Repositories\GatePermitRepository;
 // use App\Services\Erp\ErpReturnRequest;
+use App\Services\Erp\RestApi\ExitPrintsService;
 use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\ReturnRequestsService;
 use Exception;
@@ -88,6 +89,14 @@ class GatePermitController extends CrudController
                     );
                     if (! $result['success']) {
                         throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));
+                    }
+
+                    $printResult = resolve(ExitPrintsService::class)->queue(
+                        $saveItem->getAttribute('model_id'), (string) $saveItem->getAttribute('item_type'),
+                        model: $saveItem, dependsOnId: $result['data']['rest_erp_job_id']
+                    );
+                    if (! $printResult['success']) {
+                        throw new HttpResponseException(response()->json(['error' => $printResult['error']], $printResult['http_status']));
                     }
 
                     return $data->additional($result['data'])->response()->setStatusCode(202);
