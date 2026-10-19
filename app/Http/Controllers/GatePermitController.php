@@ -58,7 +58,7 @@ class GatePermitController extends CrudController
             $returnResult = null;
             if ($validatedData['type'] === 'enter') {
                 $location = Location::query()->findOrFail($validatedData['location_id']);
-                $returnResult = resolve(ReturnRequestsService::class)->sendOnce(
+                $returnResult = resolve(ReturnRequestsService::class)->sendOrRetry(
                     $validatedData['vin'], (string) $location->code, (string) $validatedData['item_type']
                 );
                 if (! $returnResult['success']) {

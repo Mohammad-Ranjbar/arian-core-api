@@ -48,7 +48,7 @@ class CreateAutoGatePermitService
                 if (GatePermit::query()->where('model_type', Vehicle::class)->where('model_id', $vin)->exists()) {
                     continue;
                 }
-                $result = $this->returnRequests->sendOnce($vin, $destination, (string) $itemType, $actorId);
+                $result = $this->returnRequests->sendOrRetry($vin, $destination, (string) $itemType, $actorId);
                 $this->jobId($result);
                 $returnResults[$vin] = $result;
             }

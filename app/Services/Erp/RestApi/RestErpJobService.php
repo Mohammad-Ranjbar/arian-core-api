@@ -26,9 +26,9 @@ readonly class RestErpJobService
         private RestErpRequestContext $context
     ) {}
 
-    public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, bool $reuseExistingResult = false): array
+    public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, bool $reuseExistingJob = false): array
     {
-        $job = $this->register($endpoint, $parameters, $model, $section, $userId, false, reuseExistingResult: $reuseExistingResult);
+        $job = $this->register($endpoint, $parameters, $model, $section, $userId, false, reuseExistingJob: $reuseExistingJob);
 
         if (is_array($job)) {
             return $job;
@@ -36,7 +36,7 @@ readonly class RestErpJobService
 
         $result = $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
 
-        return $reuseExistingResult ? $this->storedResult($job->refresh()) : $result;
+        return $reuseExistingJob ? $this->storedResult($job->refresh()) : $result;
     }
 
     public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, ?int $dependsOnId = null): array
@@ -63,7 +63,7 @@ readonly class RestErpJobService
         ];
     }
 
-    private function register(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued, ?int $dependsOnId = null, bool $reuseExistingResult = false): RestErpJob|array
+    private function register(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued, ?int $dependsOnId = null, bool $reuseExistingJob = false): RestErpJob|array
     {
         $definition = config('rest_erp.endpoints.'.$endpoint);
         if (! is_array($definition)) {
@@ -103,9 +103,9 @@ readonly class RestErpJobService
         $uuid = (string) Str::uuid();
         $metadata = $this->context->capture($userId);
 
-        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata, $dependsOnId, $reuseExistingResult) {
+        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata, $dependsOnId, $reuseExistingJob) {
             // Serialize registration even on the first request, before any job exists.
-            if ($reuseExistingResult) {
+            if ($reuseExistingJob) {
                 DB::table('users')->where('id', $userId)->lockForUpdate()->first();
                 $query = RestErpJob::query()->where('user_id', $userId)->where('endpoint', $endpoint);
                 $safeParameters = $this->sanitizer->sanitize($parameters);
@@ -119,6 +119,13 @@ readonly class RestErpJobService
                     ? $candidate->request_payload === $safeParameters
                     : $candidate->parameters === $payload);
                 if ($job) {
+                    if (! $invalid && in_array($job->status, ['failed', 'uncertain'], true)) {
+                        // An explicit resubmission retries the same operation synchronously.
+                        $this->prepareRetry($job, $userId, true);
+
+                        return $job;
+                    }
+
                     return $this->storedResult($job);
                 }
             } elseif ($model !== null) {

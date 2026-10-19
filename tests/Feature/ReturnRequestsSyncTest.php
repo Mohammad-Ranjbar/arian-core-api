@@ -38,7 +38,7 @@ class ReturnRequestsSyncTest extends TestCase
     }
 
     #[DataProvider('outcomes')]
-    public function test_duplicate_submissions_return_the_stored_result_without_retry_or_extra_history(mixed $body, int $status, string $jobStatus): void
+    public function test_resubmissions_retry_errors_on_the_same_job_and_reuse_successes(mixed $body, int $status, string $jobStatus): void
     {
         $attempts = 0;
         Http::fake(function () use ($body, $status, &$attempts) {
@@ -53,24 +53,28 @@ class ReturnRequestsSyncTest extends TestCase
             return Http::response($body, $status);
         });
         $service = resolve(ReturnRequestsService::class);
-        $first = $service->sendOnce('VIN-1', 'DESTINATION', 2);
+        $first = $service->sendOrRetry('VIN-1', 'DESTINATION', 2);
         $job = RestErpJob::query()->sole();
         $before = $job->getAttributes();
 
-        $this->assertSame($first, $service->sendOnce('VIN-1', 'DESTINATION', '2'));
-        $this->assertSame($before, $job->fresh()->getAttributes());
-        $this->assertSame(1, $attempts);
+        $this->assertSame($first, $service->sendOrRetry('VIN-1', 'DESTINATION', '2'));
+        $job->refresh();
+        $expectedAttempts = $jobStatus === 'success' ? 1 : 2;
+        $this->assertSame($before['id'], $job->id);
+        $this->assertSame($before['uuid'], $job->uuid);
+        $this->assertSame($expectedAttempts, $attempts);
+        $this->assertSame($expectedAttempts, $job->tries);
         $this->assertDatabaseCount('rest_erp_jobs', 1);
         $this->assertSame('sync', $job->execution_mode);
         $this->assertSame($jobStatus, $job->status);
-        $this->assertSame(['rest_erp_created', 'rest_erp_'.$jobStatus], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', ...array_fill(0, $expectedAttempts, 'rest_erp_'.$jobStatus)], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Queue::assertNothingPushed();
     }
 
     public function test_a_repeated_submission_during_the_http_call_does_not_execute_again(): void
     {
         Http::fake(function () {
-            $duplicate = resolve(ReturnRequestsService::class)->sendOnce('VIN-1', 'DESTINATION', 2);
+            $duplicate = resolve(ReturnRequestsService::class)->sendOrRetry('VIN-1', 'DESTINATION', 2);
             $this->assertFalse($duplicate['success']);
             $this->assertSame(409, $duplicate['http_status']);
             $this->assertSame('ERP_JOB_IN_PROGRESS', $duplicate['error']['code']);
@@ -78,7 +82,7 @@ class ReturnRequestsSyncTest extends TestCase
             return Http::response([], 200);
         });
 
-        $this->assertTrue(resolve(ReturnRequestsService::class)->sendOnce('VIN-1', 'DESTINATION', 2)['success']);
+        $this->assertTrue(resolve(ReturnRequestsService::class)->sendOrRetry('VIN-1', 'DESTINATION', 2)['success']);
         Http::assertSentCount(1);
         $this->assertDatabaseCount('rest_erp_jobs', 1);
     }
@@ -90,7 +94,7 @@ class ReturnRequestsSyncTest extends TestCase
         ], Auth::user());
         $before = RestErpJob::query()->sole()->getAttributes();
 
-        $result = resolve(ReturnRequestsService::class)->sendOnce('VIN-1', 'DESTINATION', 2);
+        $result = resolve(ReturnRequestsService::class)->sendOrRetry('VIN-1', 'DESTINATION', 2);
 
         $this->assertSame($queued['data']['rest_erp_job_id'], $result['rest_erp_job_id']);
         $this->assertSame(409, $result['http_status']);
@@ -103,11 +107,11 @@ class ReturnRequestsSyncTest extends TestCase
     {
         Http::fake(['*' => Http::response([], 200)]);
         $service = resolve(ReturnRequestsService::class);
-        $first = $service->sendOnce('VIN-1', 'DESTINATION-A', 2);
-        $second = $service->sendOnce('VIN-1', 'DESTINATION-B', 2);
+        $first = $service->sendOrRetry('VIN-1', 'DESTINATION-A', 2);
+        $second = $service->sendOrRetry('VIN-1', 'DESTINATION-B', 2);
 
         $this->assertNotSame($first['rest_erp_job_id'], $second['rest_erp_job_id']);
-        $this->assertSame($first, $service->sendOnce('VIN-1', 'DESTINATION-A', 2));
+        $this->assertSame($first, $service->sendOrRetry('VIN-1', 'DESTINATION-A', 2));
         $this->assertDatabaseCount('rest_erp_jobs', 2);
         Http::assertSentCount(2);
     }
@@ -115,12 +119,12 @@ class ReturnRequestsSyncTest extends TestCase
     public function test_an_ignored_validation_failure_does_not_create_another_job(): void
     {
         $service = resolve(ReturnRequestsService::class);
-        $first = $service->sendOnce('VIN-1', '', 2);
+        $first = $service->sendOrRetry('VIN-1', '', 2);
         $job = RestErpJob::query()->sole();
         $this->assertSame('rejected', $job->status);
         resolve(RestErpJobService::class)->ignore($job, 42);
 
-        $this->assertSame($first, $service->sendOnce('VIN-1', '', 2));
+        $this->assertSame($first, $service->sendOrRetry('VIN-1', '', 2));
         $this->assertSame('ignored', $job->fresh()->status);
         $this->assertDatabaseCount('rest_erp_jobs', 1);
         $this->assertSame(['rest_erp_created'], $job->actionLogs()->pluck('action')->all());

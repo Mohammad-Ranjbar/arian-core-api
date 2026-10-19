@@ -13,11 +13,11 @@ readonly class ReturnRequestsService
         return $this->jobs->send('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'درخواست بازگشت خودرو');
     }
 
-    public function sendOnce(string $vin, string $destination, string|int $itemType, ?int $userId = null): array
+    public function sendOrRetry(string $vin, string $destination, string|int $itemType, ?int $userId = null): array
     {
         return $this->jobs->send(
             'ReturnRequests', $this->payload($vin, $destination, $itemType),
-            section: 'درخواست بازگشت خودرو', userId: $userId, reuseExistingResult: true
+            section: 'درخواست بازگشت خودرو', userId: $userId, reuseExistingJob: true
         );
     }
 

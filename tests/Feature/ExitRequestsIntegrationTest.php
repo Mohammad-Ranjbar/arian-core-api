@@ -608,7 +608,7 @@ class ExitRequestsIntegrationTest extends TestCase
     }
 
     #[DataProvider('synchronousReturnFailures')]
-    public function test_manual_return_failure_preserves_one_job_and_never_saves_a_permit_or_retries(int $providerStatus, int $httpStatus, string $status): void
+    public function test_manual_return_resubmission_retries_the_same_job_without_saving_a_failed_permit(int $providerStatus, int $httpStatus, string $status): void
     {
         $calls = 0;
         Http::fake(function () use ($providerStatus, &$calls) {
@@ -635,13 +635,13 @@ class ExitRequestsIntegrationTest extends TestCase
         }
 
         $this->assertSame($responses[0], $responses[1]);
-        $this->assertSame(1, $calls);
+        $this->assertSame(2, $calls);
         $this->assertDatabaseCount('gate_permits', 0);
         $job = RestErpJob::query()->sole();
         $this->assertSame($status, $job->status);
-        $this->assertSame(1, $job->tries);
+        $this->assertSame(2, $job->tries);
         $this->assertSame($job->id, $responses[0]['rest_erp_job_id']);
-        $this->assertSame(['rest_erp_created', 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', 'rest_erp_'.$status, 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Queue::assertNothingPushed();
     }
 
@@ -670,7 +670,36 @@ class ExitRequestsIntegrationTest extends TestCase
         Queue::assertNothingPushed();
     }
 
-    public function test_auto_return_failure_keeps_the_job_without_saving_or_retrying_permits(): void
+    public function test_successful_manual_resubmission_increments_tries_and_saves_the_permit_using_the_same_job(): void
+    {
+        Http::fakeSequence()
+            ->push(['error' => ['code' => 'Application_DialogException', 'message' => 'Return refused.']], 400)
+            ->push([], 200);
+        try {
+            $this->store(['type' => 'enter', 'exit_type' => null]);
+            $this->fail('The first ERP call must reject the permit.');
+        } catch (HttpResponseException $exception) {
+            $this->assertSame(422, $exception->getResponse()->getStatusCode());
+        }
+        $job = RestErpJob::query()->sole();
+        $this->assertSame(1, $job->tries);
+        $this->assertDatabaseCount('gate_permits', 0);
+
+        $response = $this->store(['type' => 'enter', 'exit_type' => null]);
+
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame($job->id, $response->getData(true)['rest_erp_job_id']);
+        $this->assertSame($job->uuid, $response->getData(true)['request_id']);
+        $this->assertSame(2, $job->fresh()->tries);
+        $this->assertSame('success', $job->fresh()->status);
+        $this->assertDatabaseCount('rest_erp_jobs', 1);
+        $this->assertDatabaseCount('gate_permits', 1);
+        $this->assertSame(['rest_erp_created', 'rest_erp_failed', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        Http::assertSentCount(2);
+        Queue::assertNothingPushed();
+    }
+
+    public function test_auto_return_resubmission_retries_the_same_job_without_saving_failed_permits(): void
     {
         DB::table('location_attributes')->delete();
         DB::table('location_attributes')->insert(['location_id' => 2, 'attribute' => 'autoEnterPermit', 'value' => 'true']);
@@ -687,7 +716,8 @@ class ExitRequestsIntegrationTest extends TestCase
 
         $this->assertDatabaseCount('gate_permits', 0);
         $this->assertSame('failed', RestErpJob::query()->sole()->status);
-        Http::assertSentCount(1);
+        Http::assertSentCount(2);
+        $this->assertSame(2, RestErpJob::query()->sole()->tries);
         Queue::assertNothingPushed();
     }
 
