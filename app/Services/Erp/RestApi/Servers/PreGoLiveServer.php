@@ -27,6 +27,7 @@ class PreGoLiveServer
         'ReturnRequests' => 'ReturnRequests',
         'ExitPrints' => 'ExitPrints',
         'productionBoardEntries' => 'productionBoardEntries',
+        'VehicleTypeBlockings' => 'VehicleTypeBlockings',
     ];
 
     public function urlFor(string $endpoint): string
