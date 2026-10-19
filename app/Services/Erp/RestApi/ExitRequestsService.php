@@ -10,12 +10,12 @@ readonly class ExitRequestsService
 
     public function send(string $vin, string|int $typeOfExit, string $destination, string|int $itemType, ?Model $model = null): array
     {
-        return $this->jobs->send('ExitRequests', $this->payload($vin, $typeOfExit, $destination, $itemType), $model, 'gate-permit-exit-request');
+        return $this->jobs->send('ExitRequests', $this->payload($vin, $typeOfExit, $destination, $itemType), $model, 'درخواست خروج خودرو');
     }
 
     public function queue(string $vin, string|int $typeOfExit, string $destination, string|int $itemType, ?Model $model = null, ?int $userId = null): array
     {
-        return $this->jobs->enqueue('ExitRequests', $this->payload($vin, $typeOfExit, $destination, $itemType), $model, 'gate-permit-exit-request', $userId);
+        return $this->jobs->enqueue('ExitRequests', $this->payload($vin, $typeOfExit, $destination, $itemType), $model, 'درخواست خروج خودرو', $userId);
     }
 
     private function payload(string $vin, string|int $typeOfExit, string $destination, string|int $itemType): array

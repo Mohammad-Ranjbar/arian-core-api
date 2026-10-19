@@ -20,7 +20,7 @@ readonly class CreateTransferZonesService
         string|int $documentNo,
         ?Model $model = null
     ): array {
-        return $this->jobs->send('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'send-alternative');
+        return $this->jobs->send('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'ارسال حواله انتقال قطعات به تولید');
     }
 
     public function queue(
@@ -36,7 +36,7 @@ readonly class CreateTransferZonesService
         ?Model $model = null,
         ?int $userId = null
     ): array {
-        return $this->jobs->enqueue('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'send-alternative', $userId);
+        return $this->jobs->enqueue('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'ارسال حواله انتقال قطعات به تولید', $userId);
     }
 
     private function payload(

@@ -13,6 +13,6 @@ readonly class ApproveReturnZonesService
         return $this->jobs->send('ApproveReturnZones', [
             'VIN' => $vin,
             'ItemType' => (string) $itemType,
-        ], $model, 'gate-permit-enter');
+        ], $model, 'تأیید ورود خودرو');
     }
 }

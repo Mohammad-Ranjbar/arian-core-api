@@ -14,6 +14,6 @@ readonly class TrackingsService
             'VIN' => $vin,
             'BarCode' => $barcode,
             'ItemType' => (string) $itemType,
-        ], $model, 'serial-barcode');
+        ], $model, 'ثبت بارکد قطعات خودرو');
     }
 }

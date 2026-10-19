@@ -13,6 +13,6 @@ readonly class TransferVehicleProdZonesService
         return $this->jobs->send('TransferVehicleProdZones', [
             'VIN' => $vin,
             'ToLocationType' => $toLocationType,
-        ], $model, 'sale-location-transfer');
+        ], $model, 'انتقال خودرو به محل فروش');
     }
 }

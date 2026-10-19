@@ -10,12 +10,12 @@ readonly class VehicleTypeBlockingsService
 
     public function send(string $barcodeInfo, string $blockType, ?Model $model = null, ?int $userId = null): array
     {
-        return $this->jobs->send('VehicleTypeBlockings', $this->payload($barcodeInfo, $blockType), $model, 'block-vehicle', $userId);
+        return $this->jobs->send('VehicleTypeBlockings', $this->payload($barcodeInfo, $blockType), $model, 'مسدودسازی خودرو', $userId);
     }
 
     public function queue(string $barcodeInfo, string $blockType, ?Model $model = null, ?int $userId = null): array
     {
-        return $this->jobs->enqueue('VehicleTypeBlockings', $this->payload($barcodeInfo, $blockType), $model, 'block-vehicle', $userId);
+        return $this->jobs->enqueue('VehicleTypeBlockings', $this->payload($barcodeInfo, $blockType), $model, 'مسدودسازی خودرو', $userId);
     }
 
     private function payload(string $barcodeInfo, string $blockType): array

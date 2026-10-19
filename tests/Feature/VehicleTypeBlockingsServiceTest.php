@@ -78,7 +78,7 @@ class VehicleTypeBlockingsServiceTest extends TestCase
         $this->assertSame($payload, $job->parameters);
         $this->assertSame('VehicleTypeBlockings', $job->endpoint);
         $this->assertSame(VehicleTypeBlockingsService::class, $job->service);
-        $this->assertSame('block-vehicle', $job->section);
+        $this->assertSame('مسدودسازی خودرو', $job->section);
         $this->assertNull($job->model_type);
         $this->assertNull($job->model_id);
         $this->assertDatabaseHas('block_items', ['id' => $record->id, 'vin' => $payload['BarcodeInfo']]);

@@ -10,12 +10,12 @@ readonly class ExitPrintsService
 
     public function send(string $vin, string|int $itemType, ?Model $model = null): array
     {
-        return $this->jobs->send('ExitPrints', $this->payload($vin, $itemType), $model, 'gate-permit-exit-print');
+        return $this->jobs->send('ExitPrints', $this->payload($vin, $itemType), $model, 'چاپ مجوز خروج خودرو');
     }
 
     public function queue(string $vin, string|int $itemType, ?Model $model = null, ?int $userId = null, ?int $dependsOnId = null): array
     {
-        return $this->jobs->enqueue('ExitPrints', $this->payload($vin, $itemType), $model, 'gate-permit-exit-print', $userId, $dependsOnId);
+        return $this->jobs->enqueue('ExitPrints', $this->payload($vin, $itemType), $model, 'چاپ مجوز خروج خودرو', $userId, $dependsOnId);
     }
 
     private function payload(string $vin, string|int $itemType): array

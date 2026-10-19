@@ -10,12 +10,12 @@ readonly class ReturnRequestsService
 
     public function send(string $vin, string $destination, string|int $itemType, ?Model $model = null): array
     {
-        return $this->jobs->send('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'gate-permit-return-request');
+        return $this->jobs->send('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'درخواست بازگشت خودرو');
     }
 
     public function queue(string $vin, string $destination, string|int $itemType, ?Model $model = null, ?int $userId = null): array
     {
-        return $this->jobs->enqueue('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'gate-permit-return-request', $userId);
+        return $this->jobs->enqueue('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'درخواست بازگشت خودرو', $userId);
     }
 
     private function payload(string $vin, string $destination, string|int $itemType): array

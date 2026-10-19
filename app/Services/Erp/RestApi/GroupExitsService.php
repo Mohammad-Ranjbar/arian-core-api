@@ -10,12 +10,12 @@ readonly class GroupExitsService
 
     public function send(string $vinArray, string|int $typeOfExit, string $destination, string|int $numberVin, string|int $itemType, ?Model $model = null): array
     {
-        return $this->jobs->send('GroupExits', $this->payload($vinArray, $typeOfExit, $destination, $numberVin, $itemType), $model, 'gate-permit-group-exit-request');
+        return $this->jobs->send('GroupExits', $this->payload($vinArray, $typeOfExit, $destination, $numberVin, $itemType), $model, 'درخواست خروج گروهی خودروها');
     }
 
     public function queue(string $vinArray, string|int $typeOfExit, string $destination, string|int $numberVin, string|int $itemType, ?Model $model = null, ?int $userId = null): array
     {
-        return $this->jobs->enqueue('GroupExits', $this->payload($vinArray, $typeOfExit, $destination, $numberVin, $itemType), $model, 'gate-permit-group-exit-request', $userId);
+        return $this->jobs->enqueue('GroupExits', $this->payload($vinArray, $typeOfExit, $destination, $numberVin, $itemType), $model, 'درخواست خروج گروهی خودروها', $userId);
     }
 
     private function payload(string $vinArray, string|int $typeOfExit, string $destination, string|int $numberVin, string|int $itemType): array

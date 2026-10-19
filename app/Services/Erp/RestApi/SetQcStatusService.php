@@ -15,7 +15,7 @@ readonly class SetQcStatusService
         string|int $qcType,
         ?Model $model = null
     ): array {
-        return $this->jobs->send('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'qc-status');
+        return $this->jobs->send('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'ثبت وضعیت کنترل کیفیت خودرو');
     }
 
     public function queue(
@@ -26,7 +26,7 @@ readonly class SetQcStatusService
         ?Model $model = null,
         ?int $userId = null
     ): array {
-        return $this->jobs->enqueue('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'qc-status', $userId);
+        return $this->jobs->enqueue('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'ثبت وضعیت کنترل کیفیت خودرو', $userId);
     }
 
     private function payload(

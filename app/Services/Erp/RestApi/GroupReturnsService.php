@@ -10,12 +10,12 @@ readonly class GroupReturnsService
 
     public function send(string $vinArray, string $destination, string|int $numberVin, string|int $itemType, ?Model $model = null): array
     {
-        return $this->jobs->send('GroupReturns', $this->payload($vinArray, $destination, $numberVin, $itemType), $model, 'gate-permit-group-return-request');
+        return $this->jobs->send('GroupReturns', $this->payload($vinArray, $destination, $numberVin, $itemType), $model, 'درخواست بازگشت گروهی خودروها');
     }
 
     public function queue(string $vinArray, string $destination, string|int $numberVin, string|int $itemType, ?Model $model = null, ?int $userId = null): array
     {
-        return $this->jobs->enqueue('GroupReturns', $this->payload($vinArray, $destination, $numberVin, $itemType), $model, 'gate-permit-group-return-request', $userId);
+        return $this->jobs->enqueue('GroupReturns', $this->payload($vinArray, $destination, $numberVin, $itemType), $model, 'درخواست بازگشت گروهی خودروها', $userId);
     }
 
     private function payload(string $vinArray, string $destination, string|int $numberVin, string|int $itemType): array

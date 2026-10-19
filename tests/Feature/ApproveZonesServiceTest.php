@@ -31,8 +31,8 @@ class ApproveZonesServiceTest extends TestCase
     public static function operations(): array
     {
         return [
-            'exit' => [ApproveExitZonesService::class, 'ApproveExitZones', 'BarcodeInfo', 'N5RSU7SN5R2902014', 'gate-permit-exit'],
-            'return' => [ApproveReturnZonesService::class, 'ApproveReturnZones', 'VIN', 'N5RSU7SN5P2901594', 'gate-permit-enter'],
+            'exit' => [ApproveExitZonesService::class, 'ApproveExitZones', 'BarcodeInfo', 'N5RSU7SN5R2902014', 'تأیید خروج خودرو'],
+            'return' => [ApproveReturnZonesService::class, 'ApproveReturnZones', 'VIN', 'N5RSU7SN5P2901594', 'تأیید ورود خودرو'],
         ];
     }
 

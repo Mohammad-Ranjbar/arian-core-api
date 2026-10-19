@@ -18,6 +18,6 @@ readonly class ImportVehiclesService
             'EngineNo' => (string) ($data['engine_no'] ?? ''),
             'ModelYear' => (string) ($data['model_year'] ?? ''),
             'PoliceInspectionDate' => (string) ($data['police_inspection_date'] ?? ''),
-        ], $model, 'pdi', $userId);
+        ], $model, 'ثبت نتیجه بازرسی پیش از تحویل خودرو', $userId);
     }
 }

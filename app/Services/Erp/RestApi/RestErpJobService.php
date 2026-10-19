@@ -26,7 +26,7 @@ readonly class RestErpJobService
         private RestErpRequestContext $context
     ) {}
 
-    public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'rest-erp', ?int $userId = null): array
+    public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null): array
     {
         $job = $this->register($endpoint, $parameters, $model, $section, $userId, false);
 
@@ -37,7 +37,7 @@ readonly class RestErpJobService
         return $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
     }
 
-    public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'rest-erp', ?int $userId = null, ?int $dependsOnId = null): array
+    public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, ?int $dependsOnId = null): array
     {
         $job = $this->register($endpoint, $parameters, $model, $section, $userId, true, $dependsOnId);
         if (is_array($job)) {

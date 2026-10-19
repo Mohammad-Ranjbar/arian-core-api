@@ -15,7 +15,7 @@ readonly class ItemReclassJournalsService
         string $batchName,
         ?Model $model = null
     ): array {
-        return $this->jobs->send('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'send-basket');
+        return $this->jobs->send('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'ارسال سبد قطعات به ERP');
     }
 
     public function queue(
@@ -26,7 +26,7 @@ readonly class ItemReclassJournalsService
         ?Model $model = null,
         ?int $userId = null
     ): array {
-        return $this->jobs->enqueue('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'send-basket', $userId);
+        return $this->jobs->enqueue('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'ارسال سبد قطعات به ERP', $userId);
     }
 
     private function payload(

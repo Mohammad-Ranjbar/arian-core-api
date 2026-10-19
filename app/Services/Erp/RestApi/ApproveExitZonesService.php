@@ -13,6 +13,6 @@ readonly class ApproveExitZonesService
         return $this->jobs->send('ApproveExitZones', [
             'BarcodeInfo' => $barcodeInfo,
             'ItemType' => (string) $itemType,
-        ], $model, 'gate-permit-exit');
+        ], $model, 'تأیید خروج خودرو');
     }
 }
