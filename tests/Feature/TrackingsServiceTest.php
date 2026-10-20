@@ -74,7 +74,7 @@ class TrackingsServiceTest extends TestCase
     {
         Http::fake();
 
-        $result = resolve(TrackingsService::class)->send($vin, $barcode, $itemType);
+        $result = resolve(TrackingsService::class)->send($vin, $barcode, $itemType)->sync();
 
         $this->assertFalse($result['success']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
@@ -88,8 +88,8 @@ class TrackingsServiceTest extends TestCase
             'business error' => [[
                 'error' => ['code' => 'Application_DialogException', 'message' => 'Tracking rejected.'],
             ], 400, 'Tracking rejected.', 'failed'],
-            'authentication error' => [[], 401, 'ERP HTTP 401', 'failed'],
-            'server error' => [[], 500, 'ERP HTTP 500', 'uncertain'],
+            'authentication error' => [[], 401, 'کد وضعیت HTTP 401', 'failed'],
+            'server error' => [[], 500, 'کد وضعیت HTTP 500', 'uncertain'],
             'connection error' => [null, 0, 'Connection timed out.', 'uncertain'],
         ];
     }

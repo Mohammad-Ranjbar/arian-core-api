@@ -66,10 +66,10 @@ class GatePermitTransferController extends Controller
                     : match ($permit->getAttribute('type')) {
                         'exit' => resolve(ApproveExitZonesService::class)->send(
                             $permit->getAttribute('model_id'), (string) $permit->getAttribute('item_type'), model: $permit
-                        ),
+                        )->sync(),
                         'enter' => resolve(ApproveReturnZonesService::class)->send(
                             $permit->getAttribute('model_id'), (string) $permit->getAttribute('item_type'), model: $permit
-                        ),
+                        )->sync(),
                         default => null,
                     };
 

@@ -14,8 +14,19 @@ readonly class SetQcStatusService
         string|int $itemType,
         string|int $qcType,
         ?Model $model = null
-    ): array {
-        return $this->jobs->send('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'ثبت وضعیت کنترل کیفیت خودرو');
+    ): PendingRestErpRequest {
+        return $this->jobs->pending('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'ثبت وضعیت کنترل کیفیت خودرو');
+    }
+
+    public function dispatch(
+        string $vin,
+        string|int $qcStatus,
+        string|int $itemType,
+        string|int $qcType,
+        ?Model $model = null,
+        ?int $userId = null, ?RestErpExecutionMode $mode = null): array
+    {
+        return $this->jobs->dispatch('qcStatuses', $this->payload($vin, $qcStatus, $itemType, $qcType), $model, 'ثبت وضعیت کنترل کیفیت خودرو', $userId, mode: $mode);
     }
 
     public function queue(

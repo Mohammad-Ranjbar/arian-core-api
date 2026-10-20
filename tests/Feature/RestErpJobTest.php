@@ -99,7 +99,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame(42, $job->last_retry_user_id);
         $this->assertNotNull($job->last_retry_at);
         $retries = $job->actionLogs()->whereIn('action', ['rest_erp_failed', 'rest_erp_success'])->oldest('id')->get();
-        $this->assertSame(["\u{2067}خطای بیزینس سنترال :: \u{2066}First refusal. \u{2069}\u{2069}", "\u{2067}خطای بیزینس سنترال :: \u{2066}Second refusal. \u{2069}\u{2069}"], $retries->where('action', 'rest_erp_failed')->pluck('data.snapshot.description')->values()->all());
+        $this->assertSame(["\u{2067}خطای بیزینس سنترال :: \u{2068}First refusal. \u{2069}\u{2069}", "\u{2067}خطای بیزینس سنترال :: \u{2068}Second refusal. \u{2069}\u{2069}"], $retries->where('action', 'rest_erp_failed')->pluck('data.snapshot.description')->values()->all());
         $this->assertSame(1, $job->actionLogs()->where('action', 'rest_erp_created')->count());
         Http::assertSentCount(3);
         Queue::assertNothingPushed();
@@ -166,11 +166,11 @@ class RestErpJobTest extends TestCase
             ->push(['error' => ['code' => 'Application_DialogException', 'message' => 'QC refused.']], 400)
             ->push([], 200)->push([], 200)->push([], 200);
         $service = resolve(SetQcStatusService::class);
-        $this->assertFalse($service->send($vehicle->vin, 84, 2, 1, $vehicle)['success']);
+        $this->assertFalse($service->send($vehicle->vin, 84, 2, 1, $vehicle)->sync()['success']);
         $original = RestErpJob::query()->sole();
         $this->actingAs(User::query()->findOrFail(43));
-        $this->assertTrue($service->send($vehicle->vin, 85, 2, 1, $vehicle)['success']);
-        $this->assertTrue($service->send($vehicle->vin, 24, 1, 2, $vehicle)['success']);
+        $this->assertTrue($service->send($vehicle->vin, 85, 2, 1, $vehicle)->sync()['success']);
+        $this->assertTrue($service->send($vehicle->vin, 24, 1, 2, $vehicle)->sync()['success']);
         $queued = $service->queue($vehicle->vin, 25, 1, 2, $vehicle);
         $duplicate = $service->queue($vehicle->vin, 25, 1, 2, $vehicle);
         $this->assertSame($original->id, $queued['data']['rest_erp_job_id']);
@@ -188,7 +188,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame(43, $job->last_retry_user_id);
         $history = $job->actionLogs()->whereIn('action', ['rest_erp_failed', 'rest_erp_success'])->oldest('id')->get();
         $this->assertSame(['84', '85', '24', '25'], $history->pluck('data.snapshot.parameters.QCStatus')->all());
-        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}QC refused. \u{2069}\u{2069}", $history->first()->data['snapshot']['description']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}QC refused. \u{2069}\u{2069}", $history->first()->data['snapshot']['description']);
         Http::assertSentCount(4);
     }
 
@@ -368,7 +368,7 @@ class RestErpJobTest extends TestCase
     public function test_sync_qc_requests_are_also_audited_and_return_the_original_contract(): void
     {
         Http::fake(['*/qcStatuses' => Http::response(['VIN' => 'A1234567890123456', 'access_token' => 'response-secret'], 200, ['Set-Cookie' => 'private-cookie', 'X-Request-ID' => 'provider-1'])]);
-        $result = resolve(SetQcStatusService::class)->send('A1234567890123456', 84, 1, 1);
+        $result = resolve(SetQcStatusService::class)->send('A1234567890123456', 84, 1, 1)->sync();
         $job = RestErpJob::query()->sole();
         $this->assertTrue($result['success']);
         $this->assertSame(200, $result['http_status']);
@@ -465,7 +465,7 @@ class RestErpJobTest extends TestCase
 
     public function test_sync_invalid_input_preserves_the_error_contract_without_a_stored_response(): void
     {
-        $result = resolve(ItemReclassJournalsService::class)->send('', 'test', 0, 'LAMARI');
+        $result = resolve(ItemReclassJournalsService::class)->send('', 'test', 0, 'LAMARI')->sync();
         $this->assertFalse($result['success']);
         $this->assertNull($result['data']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
@@ -692,7 +692,7 @@ class RestErpJobTest extends TestCase
                 $service->enqueue('ItemReclassJournals', []);
                 $this->fail('Invalid destination configuration must be rejected.');
             } catch (\InvalidArgumentException $exception) {
-                $this->assertSame('Invalid ERP base URL configuration.', $exception->getMessage());
+                $this->assertSame('آدرس پایه بیزینس سنترال در تنظیمات معتبر نیست.', $exception->getMessage());
             }
         }
         config()->set('rest_erp.base_url', 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0');

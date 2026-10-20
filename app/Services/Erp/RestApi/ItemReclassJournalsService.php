@@ -14,8 +14,19 @@ readonly class ItemReclassJournalsService
         string|int $number,
         string $batchName,
         ?Model $model = null
-    ): array {
-        return $this->jobs->send('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'ارسال سبد قطعات به ERP');
+    ): PendingRestErpRequest {
+        return $this->jobs->pending('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'ارسال سبد قطعات به ERP');
+    }
+
+    public function dispatch(
+        string $arrayCrossReferenceNo,
+        string $batchNo,
+        string|int $number,
+        string $batchName,
+        ?Model $model = null,
+        ?int $userId = null, ?RestErpExecutionMode $mode = null): array
+    {
+        return $this->jobs->dispatch('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'ارسال سبد قطعات به ERP', $userId, mode: $mode);
     }
 
     public function queue(

@@ -5,17 +5,53 @@ namespace App\Http\Controllers;
 use App\Http\Resources\RestErpJobResource;
 use App\Models\RestErpJob;
 use App\Services\Erp\RestApi\RestErpJobService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class RestErpJobController extends Controller
 {
+    private const STATUS_LABELS = [
+        'pending' => 'در انتظار پردازش',
+        'in-progress' => 'در حال پردازش',
+        'success' => 'موفق',
+        'failed' => 'ناموفق',
+        'uncertain' => 'نتیجه نامشخص',
+        'rejected' => 'ردشده در اعتبارسنجی',
+        'ignored' => 'نادیده گرفته‌شده',
+    ];
+
+    private const QUEUE_LABELS = [
+        'sync' => 'اجرای فوری',
+        'parallel' => 'صف پردازش موازی',
+        'unique' => 'صف پردازش تک‌به‌تک',
+    ];
+
+    public function filters(): JsonResponse
+    {
+        $this->authorize('erp-jobs');
+        $sections = RestErpJob::query()->whereNotNull('section')->where('section', '!=', '')
+            ->distinct()->orderBy('section')->pluck('section');
+
+        return response()->json(['data' => [
+            'sections' => $sections->map(fn ($section) => ['value' => $section, 'label' => $section])->values(),
+            'services' => $this->serviceGroups()->keys()->sort()->values()
+                ->map(fn ($service) => ['value' => $service, 'label' => $service]),
+            'queues' => collect(self::QUEUE_LABELS)->map(fn ($label, $value) => compact('value', 'label'))->values(),
+            'statuses' => collect(self::STATUS_LABELS)->map(fn ($label, $value) => compact('value', 'label'))->values(),
+        ]]);
+    }
+
     public function index(Request $request)
     {
         $this->authorize('erp-jobs');
+        $services = $request->has('service') ? $this->serviceGroups() : collect();
         $filters = $request->validate([
-            'status' => ['sometimes', Rule::in(['pending', 'in-progress', 'success', 'failed', 'uncertain', 'rejected', 'ignored'])],
+            'status' => ['sometimes', Rule::in(array_keys(self::STATUS_LABELS))],
+            'service' => ['sometimes', 'string', Rule::in($services->keys()->all())],
+            'queue' => ['sometimes', Rule::in(array_keys(self::QUEUE_LABELS))],
             'endpoint' => ['sometimes', Rule::in(array_keys(config('rest_erp.endpoints', [])))],
             'user_id' => ['sometimes', 'integer', 'min:1'],
             'section' => ['sometimes', 'string', 'max:255'],
@@ -35,11 +71,27 @@ class RestErpJobController extends Controller
                 $query->where($key, $filters[$key]);
             }
         }
+        if (isset($filters['service'])) {
+            $query->whereIn('service', $services->get($filters['service'])->all());
+        }
+        if (isset($filters['queue'])) {
+            if ($filters['queue'] === 'sync') {
+                $query->where('execution_mode', 'sync');
+            } else {
+                $query->where('execution_mode', 'queue')->where('queue', $filters['queue']);
+            }
+        }
         if (isset($filters['request_id'])) {
             $query->where('uuid', $filters['request_id']);
         }
 
         return RestErpJobResource::collection($query->latest('id')->paginate($filters['per_page'] ?? 15));
+    }
+
+    private function serviceGroups(): Collection
+    {
+        return RestErpJob::query()->whereNotNull('service')->where('service', '!=', '')
+            ->distinct()->pluck('service')->groupBy(fn ($service) => class_basename($service));
     }
 
     public function show(RestErpJob $restErpJob): RestErpJobResource

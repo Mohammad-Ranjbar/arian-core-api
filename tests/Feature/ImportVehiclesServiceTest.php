@@ -91,7 +91,7 @@ class ImportVehiclesServiceTest extends TestCase
     {
         Http::fake();
 
-        $result = resolve(ImportVehiclesService::class)->send('', []);
+        $result = resolve(ImportVehiclesService::class)->send('', [])->sync();
 
         $this->assertFalse($result['success']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
@@ -105,7 +105,7 @@ class ImportVehiclesServiceTest extends TestCase
             'business error' => [[
                 'error' => ['code' => 'Application_DialogException', 'message' => 'PDI rejected.'],
             ], 400, 'PDI rejected.', 'failed'],
-            'authentication error' => [[], 401, 'ERP HTTP 401', 'failed'],
+            'authentication error' => [[], 401, 'کد وضعیت HTTP 401', 'failed'],
             'connection error' => [null, 0, 'Connection timed out.', 'uncertain'],
         ];
     }

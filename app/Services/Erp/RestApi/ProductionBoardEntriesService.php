@@ -24,7 +24,7 @@ readonly class ProductionBoardEntriesService
                 'data' => null,
                 'error' => [
                     'code' => 'ERP_INVALID_RESPONSE',
-                    'message' => 'ERP productionBoardEntries response must contain a value array of entries.',
+                    'message' => 'ساختار پاسخ تابلوی تولید بیزینس سنترال معتبر نیست؛ فیلد value باید فهرستی از رکوردها باشد.',
                 ],
                 'http_status' => 502,
             ];

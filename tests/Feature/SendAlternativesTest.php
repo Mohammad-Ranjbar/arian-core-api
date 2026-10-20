@@ -74,7 +74,7 @@ class SendAlternativesTest extends TestCase
         $response = $this->send($alternative);
 
         $this->assertSame(422, $response->getStatusCode());
-        $error['message'] = "\u{2067}خطای بیزینس سنترال :: \u{2066}".$error['message']." \u{2069}\u{2069}";
+        $error['message'] = "\u{2067}خطای بیزینس سنترال :: \u{2068}".$error['message']." \u{2069}\u{2069}";
         $this->assertSame(['message' => $error['message']], $response->getData(true));
         $this->assertSame('failed', $alternative->status);
         $this->assertSame($error, $alternative->data);

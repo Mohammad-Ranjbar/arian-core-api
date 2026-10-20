@@ -19,8 +19,24 @@ readonly class CreateTransferZonesService
         string $makeCode,
         string|int $documentNo,
         ?Model $model = null
-    ): array {
-        return $this->jobs->send('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'ارسال حواله انتقال قطعات به تولید');
+    ): PendingRestErpRequest {
+        return $this->jobs->pending('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'ارسال حواله انتقال قطعات به تولید');
+    }
+
+    public function dispatch(
+        string $itemNoArray,
+        string $itemQtyArray,
+        string|int $numberItems,
+        string $fromLocationType,
+        string $toLacationType,
+        string $variantArray,
+        string $crossRefArray,
+        string $makeCode,
+        string|int $documentNo,
+        ?Model $model = null,
+        ?int $userId = null, ?RestErpExecutionMode $mode = null): array
+    {
+        return $this->jobs->dispatch('CreateTransferZones', $this->payload($itemNoArray, $itemQtyArray, $numberItems, $fromLocationType, $toLacationType, $variantArray, $crossRefArray, $makeCode, $documentNo), $model, 'ارسال حواله انتقال قطعات به تولید', $userId, mode: $mode);
     }
 
     public function queue(

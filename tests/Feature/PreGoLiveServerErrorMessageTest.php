@@ -22,8 +22,8 @@ class PreGoLiveServerErrorMessageTest extends TestCase
         return [
             'business' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Location invalid.']], 400, 'Location invalid.'],
             'error in success response' => [['error' => 'Location invalid.'], 200, 'Location invalid.'],
-            'authentication' => ['Access denied.', 401, 'ERP HTTP 401: Access denied.'],
-            'invalid JSON' => ['<html>Failure.</html>', 200, 'ERP HTTP 200: Failure.'],
+            'authentication' => ['Access denied.', 401, 'پاسخ بیزینس سنترال با کد وضعیت HTTP 401 دریافت شد؛ جزئیات: Access denied.'],
+            'invalid JSON' => ['<html>Failure.</html>', 200, 'پاسخ بیزینس سنترال با کد وضعیت HTTP 200 دریافت شد؛ جزئیات: Failure.'],
             'connection' => [null, 0, ConnectionException::class.': Connection timed out.'],
         ];
     }
@@ -42,7 +42,7 @@ class PreGoLiveServerErrorMessageTest extends TestCase
         $server = resolve(PreGoLiveServer::class);
         foreach ([$server->get('productionBoardEntries'), $server->post('ExitPrints', [])] as $result) {
             $this->assertFalse($result['success']);
-            $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}{$detail} \u{2069}\u{2069}", $result['error']['message']);
+            $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}{$detail} \u{2069}\u{2069}", $result['error']['message']);
         }
     }
 
@@ -53,7 +53,7 @@ class PreGoLiveServerErrorMessageTest extends TestCase
         $message = resolve(PreGoLiveServer::class)->post('ExitPrints', [])['error']['message'];
 
         $this->assertLessThanOrEqual(4096, strlen($message));
-        $this->assertStringStartsWith("\u{2067}خطای بیزینس سنترال :: \u{2066}", $message);
+        $this->assertStringStartsWith("\u{2067}خطای بیزینس سنترال :: \u{2068}", $message);
         $this->assertStringEndsWith("[TRUNCATED] \u{2069}\u{2069}", $message);
     }
 

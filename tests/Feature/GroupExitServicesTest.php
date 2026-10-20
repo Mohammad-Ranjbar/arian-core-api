@@ -93,7 +93,7 @@ class GroupExitServicesTest extends TestCase
     public function test_send_is_audited_and_does_not_queue(string $service, string $endpoint, array $arguments): void
     {
         Http::fake(['*' => Http::response([], 200)]);
-        $result = resolve($service)->send(...$arguments);
+        $result = resolve($service)->send(...$arguments)->sync();
         $this->assertSame(['success' => true, 'data' => [], 'error' => null, 'http_status' => 200], $result);
         $this->assertSame('sync', RestErpJob::query()->sole()->execution_mode);
         Queue::assertNothingPushed();

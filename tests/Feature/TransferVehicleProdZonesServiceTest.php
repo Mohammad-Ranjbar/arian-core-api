@@ -73,7 +73,7 @@ class TransferVehicleProdZonesServiceTest extends TestCase
     {
         Http::fake();
 
-        $result = resolve(TransferVehicleProdZonesService::class)->send($vin, $destination);
+        $result = resolve(TransferVehicleProdZonesService::class)->send($vin, $destination)->sync();
 
         $this->assertFalse($result['success']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
@@ -87,8 +87,8 @@ class TransferVehicleProdZonesServiceTest extends TestCase
             'business error' => [[
                 'error' => ['code' => 'Application_DialogException', 'message' => 'Transfer rejected.'],
             ], 400, 'Transfer rejected.', 'failed'],
-            'authentication error' => [[], 401, 'ERP HTTP 401', 'failed'],
-            'server error' => [[], 500, 'ERP HTTP 500', 'uncertain'],
+            'authentication error' => [[], 401, 'کد وضعیت HTTP 401', 'failed'],
+            'server error' => [[], 500, 'کد وضعیت HTTP 500', 'uncertain'],
             'connection error' => [null, 0, 'Connection timed out.', 'uncertain'],
         ];
     }

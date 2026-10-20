@@ -125,7 +125,7 @@ class BasketController extends CrudController
         // ]);
         // ErpJobEvent::dispatch($erpJob);
 
-        $result = resolve(ItemReclassJournalsService::class)->queue(
+        $result = resolve(ItemReclassJournalsService::class)->dispatch(
             implode(',', $codes), 'Batch-' . $batch, count($codes), $batchName,
             Basket::query()->findOrFail($basketId), Auth::id()
         );
@@ -136,7 +136,7 @@ class BasketController extends CrudController
             ], $result['http_status']);
         }
 
-        return response()->json($result['data'], 202);
+        return response()->json($result['data'], $result['http_status'] === 202 ? 202 : 200);
     }
 
     /**

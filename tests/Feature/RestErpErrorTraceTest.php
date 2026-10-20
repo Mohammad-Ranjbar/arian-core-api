@@ -24,6 +24,31 @@ class RestErpErrorTraceTest extends TestCase
 {
     use CreatesRestErpTables;
 
+    public static function persianValidationCases(): array
+    {
+        return [
+            'required' => ['ExitPrints', ['VIN' => '', 'ItemType' => '2'], 'وارد کردن شماره شاسی الزامی است.'],
+            'string' => ['ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => 2], 'مقدار نوع کالا باید از نوع متن باشد.'],
+            'present' => ['ImportVehicles', ['VIN' => 'VIN-1'], 'فیلد نتیجه بازرسی پیش از تحویل باید در درخواست وجود داشته باشد.'],
+            'regex' => ['qcStatuses', ['VIN' => 'invalid', 'QCStatus' => '84', 'ItemType' => '2', 'QCType' => '1'], 'قالب مقدار شماره شاسی معتبر نیست.'],
+        ];
+    }
+
+    #[DataProvider('persianValidationCases')]
+    public function test_rest_validation_messages_are_persian_while_the_application_locale_remains_english(string $endpoint, array $payload, string $expected): void
+    {
+        app()->setLocale('en');
+
+        $result = resolve(RestErpJobService::class)->send($endpoint, $payload);
+
+        $this->assertSame('en', app()->getLocale());
+        $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
+        $this->assertSame(422, $result['http_status']);
+        $this->assertStringContainsString($expected, $result['error']['message']);
+        $this->assertSame($result['error']['message'], RestErpJob::query()->sole()->description);
+        Http::assertNothingSent();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -78,7 +103,7 @@ class RestErpErrorTraceTest extends TestCase
         Http::fake(['*' => Http::response(['error' => ['code' => 'BadRequest_InvalidParameter', 'message' => $message]], 400)]);
         Log::spy();
         $result = resolve(RestErpJobService::class)->send($endpoint, $payload);
-        $message = "\u{2067}خطای بیزینس سنترال :: \u{2066}{$message} \u{2069}\u{2069}";
+        $message = "\u{2067}خطای بیزینس سنترال :: \u{2068}{$message} \u{2069}\u{2069}";
         $this->assertSame(['code' => 'BadRequest_InvalidParameter', 'message' => $message], $result['error']);
         $job = $this->assertAuditedMessage($message);
         $this->assertSame('BadRequest_InvalidParameter', $job->error_code);
@@ -94,8 +119,8 @@ class RestErpErrorTraceTest extends TestCase
             'error' => ['code' => 'Internal_ServerError', 'message' => 'ERP processing failed.'],
         ])))));
         $result = resolve(RestErpJobService::class)->send($endpoint, $payload);
-        $this->assertSame(['code' => 'Internal_ServerError', 'message' => "\u{2067}خطای بیزینس سنترال :: \u{2066}ERP processing failed. \u{2069}\u{2069}"], $result['error']);
-        $job = $this->assertAuditedMessage("\u{2067}خطای بیزینس سنترال :: \u{2066}ERP processing failed. \u{2069}\u{2069}");
+        $this->assertSame(['code' => 'Internal_ServerError', 'message' => "\u{2067}خطای بیزینس سنترال :: \u{2068}ERP processing failed. \u{2069}\u{2069}"], $result['error']);
+        $job = $this->assertAuditedMessage("\u{2067}خطای بیزینس سنترال :: \u{2068}ERP processing failed. \u{2069}\u{2069}");
         $this->assertSame(500, $job->provider_http_status);
         $this->assertSame('uncertain', $job->status);
     }
@@ -121,7 +146,7 @@ class RestErpErrorTraceTest extends TestCase
         $job->update(['parameters' => ['VIN' => 'CHANGED', 'ItemType' => '2']]);
         $result = resolve(RestErpJobService::class)->execute($job->id);
         $this->assertSame('ERP_JOB_ERROR', $result['error']['code']);
-        $this->assertSame('InvalidArgumentException: REST ERP payload integrity check failed.', $result['error']['message']);
+        $this->assertSame('InvalidArgumentException: داده‌های درخواست بیزینس سنترال پس از ثبت تغییر کرده‌اند؛ ارسال درخواست متوقف شد.', $result['error']['message']);
         $this->assertStoredErrorWithoutErpOutcome($result['error']['message']);
         Http::assertNothingSent();
     }
@@ -156,10 +181,10 @@ class RestErpErrorTraceTest extends TestCase
     {
         Http::fakeSequence()->push('<html><body>Upstream gateway failed.</body></html>', 502)->push('Access denied.', 403);
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
-        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}ERP HTTP 502: Upstream gateway failed. \u{2069}\u{2069}", $result['error']['message']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}پاسخ بیزینس سنترال با کد وضعیت HTTP 502 دریافت شد؛ جزئیات: Upstream gateway failed. \u{2069}\u{2069}", $result['error']['message']);
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-2', 'ItemType' => '2']);
         $this->assertSame('ERP_AUTH_ERROR', $result['error']['code']);
-        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}ERP HTTP 403: Access denied. \u{2069}\u{2069}", $result['error']['message']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}پاسخ بیزینس سنترال با کد وضعیت HTTP 403 دریافت شد؛ جزئیات: Access denied. \u{2069}\u{2069}", $result['error']['message']);
     }
 
     public function test_missing_configuration_is_named_without_disclosing_credential_values(): void
@@ -167,7 +192,7 @@ class RestErpErrorTraceTest extends TestCase
         config()->set('erp.auth', ['', '', 'ntlm']);
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
         $this->assertSame('ERP_CONFIGURATION_ERROR', $result['error']['code']);
-        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}Missing configuration: ERP username, ERP password \u{2069}\u{2069}", $result['error']['message']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}تنظیمات لازم برای اتصال به بیزینس سنترال کامل نیست: نام کاربری بیزینس سنترال، رمز عبور بیزینس سنترال \u{2069}\u{2069}", $result['error']['message']);
         $this->assertAuditedMessage($result['error']['message']);
         Http::assertNothingSent();
     }
@@ -176,7 +201,7 @@ class RestErpErrorTraceTest extends TestCase
     {
         $result = resolve(RestErpJobService::class)->enqueue('ExitPrints', ['VIN' => "\xFF", 'ItemType' => '2']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
-        $this->assertStringContainsString('Malformed UTF-8', $result['error']['message']);
+        $this->assertStringContainsString('UTF-8', $result['error']['message']);
         $this->assertAuditedMessage($result['error']['message']);
         Queue::assertNothingPushed();
     }

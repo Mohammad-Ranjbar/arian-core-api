@@ -201,7 +201,7 @@ class VehicleController extends CrudController
             $result = resolve(SetQcStatusService::class)->send(
                 $vehicle->getAttribute('vin'), $validatedData['qc_status'], $validatedData['type'], $qcCode->getAttribute('type'),
                 model: $vehicle
-            );
+            )->sync();
 
             if (!$result['success']) {
                 return response()->json([

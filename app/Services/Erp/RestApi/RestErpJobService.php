@@ -20,11 +20,42 @@ use Throwable;
 
 readonly class RestErpJobService
 {
+    private const VALIDATION_MESSAGES = [
+        'required' => 'وارد کردن :attribute الزامی است.',
+        'present' => 'فیلد :attribute باید در درخواست وجود داشته باشد.',
+        'string' => 'مقدار :attribute باید از نوع متن باشد.',
+        'regex' => 'قالب مقدار :attribute معتبر نیست.',
+    ];
+
+    private const VALIDATION_ATTRIBUTES = [
+        'VIN' => 'شماره شاسی', 'VINArray' => 'فهرست شماره شاسی‌ها',
+        'BarcodeInfo' => 'بارکد خودرو', 'BarCode' => 'بارکد قطعه',
+        'Destination' => 'مقصد', 'ItemType' => 'نوع کالا', 'ItemTypeP' => 'نوع کالا',
+        'TypeOfExit' => 'نوع خروج', 'NumberVIN' => 'تعداد خودروها',
+        'PDIResult' => 'نتیجه بازرسی پیش از تحویل',
+        'PDIDescription' => 'توضیحات بازرسی پیش از تحویل',
+        'PDIResultDesc' => 'توضیحات تکمیلی بازرسی پیش از تحویل',
+        'EngineNo' => 'شماره موتور', 'ModelYear' => 'سال مدل خودرو',
+        'PoliceInspectionDate' => 'تاریخ بازدید پلیس',
+        'QCStatus' => 'وضعیت کنترل کیفیت', 'QCType' => 'نوع کنترل کیفیت',
+        'BlockType' => 'نوع مسدودی', 'ArrayCrossReferenceNo' => 'فهرست کدهای مرجع قطعات',
+        'BatchNo' => 'شماره دسته', 'BatchName' => 'نام دسته', 'Number' => 'تعداد اقلام',
+        'ItemNoArray' => 'فهرست کدهای قطعات', 'ItemQtyArray' => 'فهرست تعداد قطعات',
+        'NumberItems' => 'تعداد اقلام', 'FromLocationType' => 'نوع محل مبدأ',
+        'ToLacationType' => 'نوع محل مقصد', 'ToLocationType' => 'نوع محل مقصد', 'VariantArray' => 'فهرست گونه‌های قطعات',
+        'CrossRefArray' => 'فهرست کدهای مرجع', 'MakeCode' => 'کد سازنده', 'DocumentNo' => 'شماره سند',
+    ];
+
     public function __construct(
         private PreGoLiveServer $server,
         private RestErpLogSanitizer $sanitizer,
         private RestErpRequestContext $context
     ) {}
+
+    public function pending(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null): PendingRestErpRequest
+    {
+        return new PendingRestErpRequest($this, $endpoint, $parameters, $model, $section, $userId);
+    }
 
     public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, bool $reuseExistingJob = false): array
     {
@@ -54,6 +85,45 @@ readonly class RestErpJobService
         ];
     }
 
+    public function dispatch(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, ?int $dependsOnId = null, ?RestErpExecutionMode $mode = null): array
+    {
+        $mode ??= $this->configuredMode($endpoint);
+        if ($mode === RestErpExecutionMode::Sync && $dependsOnId !== null
+            && ! RestErpJob::query()->whereKey($dependsOnId)->where('status', 'success')->exists()) {
+            throw new InvalidArgumentException('برای اجرای فوری این درخواست، ابتدا باید درخواست پیش‌نیاز آن با موفقیت تکمیل شود.');
+        }
+        $job = $this->register($endpoint, $parameters, $model, $section, $userId,
+            $mode !== RestErpExecutionMode::Sync, $dependsOnId, queue: $mode === RestErpExecutionMode::Unique ? 'unique' : 'parallel');
+        if (is_array($job)) {
+            return $job;
+        }
+        if ($job->status === 'rejected') {
+            return $this->rejectedResult($job);
+        }
+        if ($mode === RestErpExecutionMode::Sync) {
+            $this->execute($job->getKey());
+
+            return $this->storedResult($job->refresh());
+        }
+
+        return [
+            'success' => true,
+            'data' => ['rest_erp_job_id' => $job->id, 'request_id' => $job->uuid],
+            'error' => null, 'http_status' => 202,
+        ];
+    }
+
+    private function configuredMode(string $endpoint): RestErpExecutionMode
+    {
+        $value = config('rest_erp.endpoints.'.$endpoint.'.mode', 'parallel');
+        $mode = is_string($value) ? RestErpExecutionMode::tryFrom($value) : null;
+        if ($mode === null) {
+            throw new InvalidArgumentException('حالت اجرای عملیات '.$endpoint.' معتبر نیست؛ یکی از حالت‌های sync، parallel یا unique را انتخاب کنید.');
+        }
+
+        return $mode;
+    }
+
     private function rejectedResult(RestErpJob $job): array
     {
         return [
@@ -63,24 +133,24 @@ readonly class RestErpJobService
         ];
     }
 
-    private function register(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued, ?int $dependsOnId = null, bool $reuseExistingJob = false): RestErpJob|array
+    private function register(string $endpoint, array $parameters, ?Model $model, string $section, ?int $userId, bool $queued, ?int $dependsOnId = null, bool $reuseExistingJob = false, string $queue = 'parallel'): RestErpJob|array
     {
         $definition = config('rest_erp.endpoints.'.$endpoint);
         if (! is_array($definition)) {
-            throw new InvalidArgumentException('Unsupported REST ERP endpoint.');
+            throw new InvalidArgumentException('عملیات درخواستی بیزینس سنترال پشتیبانی نمی‌شود.');
         }
         $url = $this->server->urlFor($endpoint);
         if ($model && (! $model->exists || $model->getKey() === null)) {
-            throw new InvalidArgumentException('The REST ERP job must reference a saved model.');
+            throw new InvalidArgumentException('رکورد مرتبط با درخواست بیزینس سنترال باید پیش از ارسال در سامانه ثبت شده باشد.');
         }
         $userId ??= Auth::id();
         if ($userId === null) {
-            throw new InvalidArgumentException('An authenticated actor is required for REST ERP requests.');
+            throw new InvalidArgumentException('برای ارسال درخواست به بیزینس سنترال، کاربر اقدام‌کننده باید مشخص و احراز هویت شده باشد.');
         }
         if ($dependsOnId !== null && ! RestErpJob::query()->whereKey($dependsOnId)->where('user_id', $userId)->exists()) {
-            throw new InvalidArgumentException('The REST ERP dependency must belong to the same actor.');
+            throw new InvalidArgumentException('درخواست پیش‌نیاز باید متعلق به همان کاربر ارسال‌کننده باشد.');
         }
-        $validator = Validator::make($parameters, $definition['rules']);
+        $validator = Validator::make($parameters, $definition['rules'], self::VALIDATION_MESSAGES, self::VALIDATION_ATTRIBUTES);
         $invalidEncoding = false;
         $encodingError = null;
         $tooLarge = false;
@@ -90,12 +160,12 @@ readonly class RestErpJobService
             $tooLarge = $payloadBytes > (int) config('rest_erp.max_payload_bytes', 262144);
         } catch (JsonException $exception) {
             $invalidEncoding = true;
-            $encodingError = $this->sanitizer->exceptionText($exception);
+            $encodingError = 'داده‌های درخواست قابل تبدیل به JSON نیستند؛ ساختار داده‌ها و کدگذاری UTF-8 را بررسی کنید.';
         }
         $invalid = $invalidEncoding || $tooLarge || $validator->fails();
         $error = $invalid ? [
             'success' => false, 'data' => null,
-            'error' => ['code' => 'VALIDATION_ERROR', 'message' => $this->sanitizer->errorText($invalidEncoding ? $encodingError : ($tooLarge ? 'ERP request size '.$payloadBytes.' bytes exceeds the '.config('rest_erp.max_payload_bytes', 262144).' byte limit.' : implode('; ', $validator->errors()->all())))],
+            'error' => ['code' => 'VALIDATION_ERROR', 'message' => $this->sanitizer->errorText($invalidEncoding ? $encodingError : ($tooLarge ? 'حجم داده‌های درخواست ('.$payloadBytes.' بایت) از حد مجاز '.config('rest_erp.max_payload_bytes', 262144).' بایت بیشتر است.' : implode('; ', $validator->errors()->all())))],
             'http_status' => 422,
         ] : null;
         // Only declared business fields are retained for replay.
@@ -103,7 +173,7 @@ readonly class RestErpJobService
         $uuid = (string) Str::uuid();
         $metadata = $this->context->capture($userId);
 
-        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata, $dependsOnId, $reuseExistingJob) {
+        return DB::transaction(function () use ($endpoint, $definition, $url, $model, $section, $userId, $queued, $invalid, $error, $payload, $parameters, $uuid, $metadata, $dependsOnId, $reuseExistingJob, $queue) {
             // Serialize registration even on the first request, before any job exists.
             if ($reuseExistingJob) {
                 DB::table('users')->where('id', $userId)->lockForUpdate()->first();
@@ -154,7 +224,7 @@ readonly class RestErpJobService
                 return $this->blockedResult($job);
             }
             if ($job && $dependsOnId === $job->getKey()) {
-                throw new InvalidArgumentException('A REST ERP job cannot depend on itself.');
+                throw new InvalidArgumentException('درخواست بیزینس سنترال نمی‌تواند پیش‌نیاز خودش باشد.');
             }
             $attributes = [
                 'uuid' => $uuid, 'model_type' => $model?->getMorphClass(), 'model_id' => $model?->getKey(),
@@ -164,7 +234,7 @@ readonly class RestErpJobService
                 'server' => 'pre_go_live', 'tries' => 0, 'execute_time' => 0,
                 'execution_mode' => $queued ? 'queue' : 'sync',
                 'connection' => $queued ? config('rest_erp.connection', 'redis') : null,
-                'queue' => $queued ? 'parallel' : null, 'status' => $invalid ? 'rejected' : 'pending',
+                'queue' => $queued ? $queue : null, 'status' => $invalid ? 'rejected' : 'pending',
                 'parameters' => $payload,
                 'payload_hash' => $this->payloadHash($uuid, $endpoint, (string) $userId, $model?->getMorphClass(), (string) $model?->getKey(), $payload, $dependsOnId),
                 'request_payload' => $this->sanitizer->sanitize($parameters),
@@ -201,7 +271,7 @@ readonly class RestErpJobService
             'data' => $success ? ['rest_erp_job_id' => $job->id, 'request_id' => $job->uuid] : null,
             'error' => $success ? null : [
                 'code' => $pending ? 'ERP_JOB_IN_PROGRESS' : ($job->error_code ?? 'ERP_JOB_NOT_SUCCESSFUL'),
-                'message' => $pending ? 'درخواست قبلی ERP هنوز در حال پردازش است.' : ($job->description ?? 'درخواست قبلی ERP موفق نبوده است.'),
+                'message' => $pending ? 'درخواست قبلی بیزینس سنترال هنوز در حال پردازش است.' : ($job->description ?? 'درخواست قبلی بیزینس سنترال موفق نبوده است.'),
             ],
             'http_status' => $pending ? 409 : ($job->http_status ?? 409),
             'rest_erp_job_id' => $job->id,
@@ -215,8 +285,8 @@ readonly class RestErpJobService
             'error' => [
                 'code' => $job->status === 'uncertain' ? 'ERP_EXECUTION_UNCERTAIN' : 'ERP_JOB_IN_PROGRESS',
                 'message' => $job->status === 'uncertain'
-                    ? 'نتیجه درخواست قبلی ERP نامشخص است؛ پس از بررسی نتیجه، همان جاب را با تأیید صریح retry کنید.'
-                    : 'درخواست قبلی ERP هنوز در حال پردازش است.',
+                    ? 'نتیجه درخواست قبلی بیزینس سنترال نامشخص است؛ ابتدا نتیجه عملیات را بررسی و سپس ارسال مجدد همان درخواست را تأیید کنید.'
+                    : 'درخواست قبلی بیزینس سنترال هنوز در حال پردازش است.',
             ],
             'rest_erp_job_id' => $job->getKey(), 'http_status' => 409,
         ];
@@ -241,7 +311,7 @@ readonly class RestErpJobService
                     return false;
                 }
                 if (config('queue.connections.'.$job->connection.'.driver') === 'sync') {
-                    throw new InvalidArgumentException('REST ERP queue execution requires an asynchronous connection.');
+                    throw new InvalidArgumentException('برای ارسال درخواست به صف، باید یک اتصال صف غیرهم‌زمان مانند Redis تنظیم شود.');
                 }
                 Bus::dispatch((new SendToRestErpJob((string) $job->getKey()))
                     ->onConnection($job->connection)->onQueue($job->queue));
@@ -277,7 +347,7 @@ readonly class RestErpJobService
                     DB::transaction(function () use ($job, &$counts, $cutoff) {
                         $fresh = RestErpJob::query()->lockForUpdate()->find($job->id);
                         if ($fresh && $fresh->status === 'in-progress' && $fresh->started_at && $fresh->started_at->lt($cutoff)) {
-                            $this->fail($fresh->id, new \RuntimeException('REST ERP worker stopped before recording a result.'));
+                            $this->fail($fresh->id, new \RuntimeException('پردازشگر صف پیش از ثبت نتیجه درخواست بیزینس سنترال متوقف شد؛ نتیجه عملیات باید بررسی شود.'));
                             $counts['uncertain']++;
                         }
                     });
@@ -314,11 +384,11 @@ readonly class RestErpJobService
             $definition = config('rest_erp.endpoints.'.$job->endpoint);
             if (! is_array($definition) || $job->method !== 'POST' || $job->server !== 'pre_go_live'
                 || $job->url !== $this->server->urlFor($job->endpoint)) {
-                throw new InvalidArgumentException('Unsupported REST ERP operation.');
+                throw new InvalidArgumentException('مشخصات عملیات بیزینس سنترال معتبر نیست یا این عملیات پشتیبانی نمی‌شود.');
             }
-            $validated = Validator::make($payload, $definition['rules'])->validate();
+            $validated = Validator::make($payload, $definition['rules'], self::VALIDATION_MESSAGES, self::VALIDATION_ATTRIBUTES)->validate();
             if (! hash_equals($job->payload_hash, $this->payloadHash($job->uuid, $job->endpoint, (string) $job->user_id, $job->model_type, (string) $job->model_id, $validated, $job->depends_on_id))) {
-                throw new InvalidArgumentException('REST ERP payload integrity check failed.');
+                throw new InvalidArgumentException('داده‌های درخواست بیزینس سنترال پس از ثبت تغییر کرده‌اند؛ ارسال درخواست متوقف شد.');
             }
             $sent = true;
             $result = $this->server->post($job->endpoint, $validated, function (array $metadata) use (&$providerStatus) {
@@ -358,7 +428,7 @@ readonly class RestErpJobService
             }
         });
         if (! $result['success']) {
-            $logMessage = $this->sanitizer->errorText($result['error']['message'] ?? 'REST ERP request did not succeed');
+            $logMessage = $this->sanitizer->errorText($result['error']['message'] ?? 'درخواست بیزینس سنترال با موفقیت انجام نشد.');
             Log::warning($logMessage, [
                 'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
                 'endpoint' => $job->endpoint, 'status' => $status, 'error_code' => $code,
@@ -373,7 +443,7 @@ readonly class RestErpJobService
                             $this->publish($dependent->id);
                         } catch (RestErpQueueException) {
                             // The child records its broker failure; the successful parent must not be replayed.
-                            Log::warning('Could not publish dependent REST ERP request', ['rest_erp_job_id' => $dependent->id]);
+                            Log::warning('ارسال درخواست وابسته بیزینس سنترال به صف ناموفق بود.', ['rest_erp_job_id' => $dependent->id]);
                         }
                     }
                 });
@@ -412,9 +482,9 @@ readonly class RestErpJobService
                 throw ValidationException::withMessages(['status' => 'فقط درخواست ناموفق یا با نتیجه نامشخص قابل ارسال مجدد است.']);
             }
             if ($job->status === 'uncertain' && ! $acknowledgeUncertain) {
-                throw ValidationException::withMessages(['acknowledge_uncertain_result' => 'ممکن است ERP درخواست را اجرا کرده باشد؛ قبل از ارسال مجدد نتیجه را بررسی و تأیید کنید.']);
+                throw ValidationException::withMessages(['acknowledge_uncertain_result' => 'ممکن است بیزینس سنترال درخواست را اجرا کرده باشد؛ پیش از ارسال مجدد، نتیجه عملیات را بررسی و تأیید کنید.']);
             }
-            $sync = $job->execution_mode === 'sync' || config('rest_erp.endpoints.'.$job->endpoint.'.retry_execution_mode') === 'sync';
+            $sync = $job->execution_mode === 'sync';
             $this->prepareRetry($job, $userId, $sync);
             if ($sync) {
                 DB::afterCommit(fn () => $this->execute($job->getKey()));
@@ -433,8 +503,8 @@ readonly class RestErpJobService
         $this->recordActor($job, $userId);
         $job->update([
             'status' => 'pending', 'execution_mode' => $sync ? 'sync' : 'queue',
-            'connection' => $sync ? null : config('rest_erp.connection', 'redis'),
-            'queue' => $sync ? null : 'parallel', 'queued_at' => $sync ? null : now(), 'last_retry_at' => now(), 'last_retry_user_id' => $userId,
+            'connection' => $sync ? null : ($job->connection ?? config('rest_erp.connection', 'redis')),
+            'queue' => $sync ? null : ($job->queue ?? 'parallel'), 'queued_at' => $sync ? null : now(), 'last_retry_at' => now(), 'last_retry_user_id' => $userId,
             'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
             'dispatched_at' => null, 'started_at' => null, 'completed_at' => null, 'failed_at' => null, 'execute_time' => 0,
             'ignored_at' => null,

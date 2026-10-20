@@ -34,7 +34,7 @@ class PreGoLiveServer
     public function urlFor(string $endpoint): string
     {
         if (! array_key_exists($endpoint, self::ENDPOINTS)) {
-            throw new InvalidArgumentException('Unsupported ERP endpoint.');
+            throw new InvalidArgumentException('عملیات درخواستی بیزینس سنترال پشتیبانی نمی‌شود.');
         }
 
         $baseUrl = config($endpoint === 'productionBoardEntries' ? 'rest_erp.production_base_url' : 'rest_erp.base_url');
@@ -44,7 +44,7 @@ class PreGoLiveServer
             || ! in_array($parts['host'] ?? null, config('rest_erp.allowed_hosts', []), true)
             || isset($parts['user']) || isset($parts['pass'])
             || isset($parts['query']) || isset($parts['fragment'])) {
-            throw new InvalidArgumentException('Invalid ERP base URL configuration.');
+            throw new InvalidArgumentException('آدرس پایه بیزینس سنترال در تنظیمات معتبر نیست.');
         }
 
         return rtrim($baseUrl, '/').'/'.self::ENDPOINTS[$endpoint];
@@ -69,16 +69,16 @@ class PreGoLiveServer
 
         $missing = [];
         if (! extension_loaded('curl')) {
-            $missing[] = 'PHP curl extension';
+            $missing[] = 'افزونه cURL در PHP';
         }
         if (! is_string($username) || $username === '') {
-            $missing[] = 'ERP username';
+            $missing[] = 'نام کاربری بیزینس سنترال';
         }
         if (! is_string($password) || $password === '') {
-            $missing[] = 'ERP password';
+            $missing[] = 'رمز عبور بیزینس سنترال';
         }
         if ($missing !== []) {
-            return $this->failure('ERP_CONFIGURATION_ERROR', 'Missing configuration: '.implode(', ', $missing), 503);
+            return $this->failure('ERP_CONFIGURATION_ERROR', 'تنظیمات لازم برای اتصال به بیزینس سنترال کامل نیست: '.implode('، ', $missing), 503);
         }
 
         try {
@@ -119,7 +119,7 @@ class PreGoLiveServer
 
         if (strlen($rawBody) > (int) config('rest_erp.max_response_bytes', 1048576)) {
             return $this->failure('ERP_RESPONSE_TOO_LARGE',
-                'ERP HTTP '.$response->status().': response size '.strlen($rawBody).' bytes exceeds the '.config('rest_erp.max_response_bytes', 1048576).' byte limit.', 502
+                'حجم پاسخ بیزینس سنترال ('.strlen($rawBody).' بایت) از حد مجاز '.config('rest_erp.max_response_bytes', 1048576).' بایت بیشتر است؛ کد وضعیت HTTP: '.$response->status().'.', 502
             );
         }
 
@@ -177,7 +177,7 @@ class PreGoLiveServer
             $detail = strip_tags($response->body());
         }
 
-        return 'ERP HTTP '.$response->status().': '.(trim($detail) !== '' ? $detail : 'Empty response body.');
+        return 'پاسخ بیزینس سنترال با کد وضعیت HTTP '.$response->status().' دریافت شد؛ جزئیات: '.(trim($detail) !== '' ? $detail : 'پاسخ بیزینس سنترال خالی است.');
     }
 
     private function failure(
@@ -186,8 +186,8 @@ class PreGoLiveServer
         int $httpStatus
     ): array {
         $sanitizer = resolve(RestErpLogSanitizer::class);
-        // Isolate the Persian label and LTR error detail without adding HTML to API messages.
-        $prefix = "\u{2067}خطای بیزینس سنترال :: \u{2066}";
+        // Isolate the Persian label and auto-detect the detail direction without adding HTML.
+        $prefix = "\u{2067}خطای بیزینس سنترال :: \u{2068}";
         // Keep a whitespace boundary so subsequent credential sanitization preserves the isolates.
         $suffix = " \u{2069}\u{2069}";
         $message = $prefix.$sanitizer->errorText($message, 4096 - strlen($prefix.$suffix)).$suffix;

@@ -130,7 +130,7 @@ class BarcodeController extends CrudController
         //     'itemTypeP' => $erpCode,
         // ]);
 
-        $result = resolve(TrackingsService::class)->send($vin, $barcode, $erpCode);
+        $result = resolve(TrackingsService::class)->send($vin, $barcode, $erpCode)->sync();
 
         return [
             'status' => $result['success'] ? 'ok' : 'error',

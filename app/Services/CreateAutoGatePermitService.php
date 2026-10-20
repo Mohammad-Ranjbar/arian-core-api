@@ -109,7 +109,7 @@ class CreateAutoGatePermitService
     {
         $destination = (string) $permit->getAttribute('location')->code;
         $result = $permit->type === 'exit'
-            ? $this->exitRequests->queue($permit->model_id, 2, $destination, (string) $itemType, model: $permit, userId: $actorId)
+            ? $this->exitRequests->dispatch($permit->model_id, 2, $destination, (string) $itemType, model: $permit, userId: $actorId)
             : $returnResult;
 
         $jobId = $this->jobId($result);
@@ -123,15 +123,15 @@ class CreateAutoGatePermitService
         $vins = implode(',', array_map(fn (GatePermit $gate) => $gate->model_id, $permits));
         $destination = (string) $permit->getAttribute('location')->code;
         $result = $permit->type === 'exit'
-            ? $this->groupExits->queue($vins, 2, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId)
-            : $this->groupReturns->queue($vins, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId);
+            ? $this->groupExits->dispatch($vins, 2, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId)
+            : $this->groupReturns->dispatch($vins, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId);
 
         $jobId = $this->jobId($result);
         $this->recordRequest($billOfLading, $permit->type, $jobId, $actorId);
 
         if ($permit->type === 'exit') {
             foreach ($permits as $gate) {
-                $this->jobId($this->exitPrints->queue(
+                $this->jobId($this->exitPrints->dispatch(
                     $gate->model_id, (string) $itemType, model: $gate,
                     userId: $actorId, dependsOnId: $jobId
                 ));

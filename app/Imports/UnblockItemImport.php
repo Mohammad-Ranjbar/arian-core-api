@@ -57,7 +57,7 @@ class UnblockItemImport implements ToCollection, WithStartRow
                     if ($count === 0) {
                         $result = resolve(VehicleUnblocksService::class)->send(
                             $blockItem->getAttribute('vin'), $blockItem, (int) $this->data['user_id'],
-                        );
+                        )->sync();
                         if (! $result['success']) {
                             throw new \RuntimeException($result['error']['message']);
                         }

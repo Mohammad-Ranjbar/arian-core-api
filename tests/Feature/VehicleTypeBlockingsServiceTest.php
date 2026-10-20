@@ -147,7 +147,7 @@ class VehicleTypeBlockingsServiceTest extends TestCase
     {
         Http::fake([self::ERP_URL => Http::response([], 200)]);
 
-        $result = resolve(VehicleTypeBlockingsService::class)->send('N5RL42DA5SP018986', 'cop');
+        $result = resolve(VehicleTypeBlockingsService::class)->send('N5RL42DA5SP018986', 'cop')->sync();
 
         $this->assertTrue($result['success']);
         $this->assertSame('sync', RestErpJob::query()->sole()->execution_mode);

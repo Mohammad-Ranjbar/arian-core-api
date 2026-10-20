@@ -97,7 +97,7 @@ class BlockItemController extends Controller
             $blockReason->getAttribute('block_type'),
             null,
             $validatedData['blocked_by'] ?? null,
-        );
+        )->sync();
         if (!$result['success']) {
             throw new RuntimeException($result['error']['message']);
         }
@@ -123,7 +123,7 @@ class BlockItemController extends Controller
                 return $this->responseError('این رکورد قبلاً رفع مسدودی شده است.', 422);
             }
 
-            $response = resolve(VehicleUnblocksService::class)->send($vehicle->getAttribute('vin'), $item);
+            $response = resolve(VehicleUnblocksService::class)->send($vehicle->getAttribute('vin'), $item)->sync();
 
             if (! $response['success']) {
                 return $this->responseError($response['error']['message'], $response['http_status']);

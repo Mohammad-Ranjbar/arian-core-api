@@ -183,6 +183,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::get('/erp-jobs', [ErpJobController::class, 'index'])->name('erp-jobs');
     Route::put('/erp-jobs/{erpJob}', [ErpJobController::class, 'retry'])->name('retry-erp-jobs');
     Route::get('/rest-erp-jobs', [RestErpJobController::class, 'index'])->name('rest-erp-jobs');
+    Route::get('/rest-erp-jobs/filters', [RestErpJobController::class, 'filters'])->name('rest-erp-jobs.filters');
     Route::get('/rest-erp-jobs/{restErpJob}', [RestErpJobController::class, 'show'])->name('rest-erp-jobs.show');
     Route::get('/rest-erp-jobs/{restErpJob}/actions', [RestErpJobController::class, 'actions'])->name('rest-erp-jobs.actions');
     Route::put('/rest-erp-jobs/{restErpJob}/retry', [RestErpJobController::class, 'retry'])->middleware('throttle:10,1')->name('rest-erp-jobs.retry');

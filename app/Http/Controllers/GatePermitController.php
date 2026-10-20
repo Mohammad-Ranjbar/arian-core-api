@@ -95,7 +95,7 @@ class GatePermitController extends CrudController
                 $data = new $this->resource($saveItem);
 
                 if ($validatedData['type'] == 'exit') {
-                    $result = resolve(ExitRequestsService::class)->queue(
+                    $result = resolve(ExitRequestsService::class)->dispatch(
                         $saveItem->getAttribute('model_id'), $saveItem->getAttribute('exit_type'),
                         (string) $location->getAttribute('code'), (string) $saveItem->getAttribute('item_type'),
                         model: $saveItem
@@ -104,7 +104,7 @@ class GatePermitController extends CrudController
                         throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));
                     }
 
-                    $printResult = resolve(ExitPrintsService::class)->queue(
+                    $printResult = resolve(ExitPrintsService::class)->dispatch(
                         $saveItem->getAttribute('model_id'), (string) $saveItem->getAttribute('item_type'),
                         model: $saveItem, dependsOnId: $result['data']['rest_erp_job_id']
                     );
@@ -112,7 +112,9 @@ class GatePermitController extends CrudController
                         throw new HttpResponseException(response()->json(['error' => $printResult['error']], $printResult['http_status']));
                     }
 
-                    return $data->additional($result['data'])->response()->setStatusCode(202);
+                    return $data->additional($result['data'])->response()->setStatusCode(
+                        $result['http_status'] === 202 || $printResult['http_status'] === 202 ? 202 : 201
+                    );
                 }
 
                 if ($validatedData['type'] == 'enter') {

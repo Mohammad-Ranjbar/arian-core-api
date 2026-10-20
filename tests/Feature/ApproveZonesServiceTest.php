@@ -49,7 +49,7 @@ class ApproveZonesServiceTest extends TestCase
             return Http::response($body, 201);
         });
 
-        $result = resolve($service)->send($identifier, 2);
+        $result = resolve($service)->send($identifier, 2)->sync();
 
         $this->assertSame(['success' => true, 'data' => $body, 'error' => null, 'http_status' => 201], $result);
         $payload = [$field => $identifier, 'ItemType' => '2'];
@@ -95,7 +95,7 @@ class ApproveZonesServiceTest extends TestCase
     public function test_validation_does_not_invent_identifier_formats_or_item_type_enums(string $service, string $endpoint, string $field): void
     {
         Http::fake(['*' => Http::response([], 200)]);
-        $result = resolve($service)->send('custom-identifier', 'custom-item-type');
+        $result = resolve($service)->send('custom-identifier', 'custom-item-type')->sync();
         $this->assertTrue($result['success']);
         Http::assertSent(fn (Request $request) => $request->data() === [$field => 'custom-identifier', 'ItemType' => 'custom-item-type']);
     }
@@ -115,7 +115,7 @@ class ApproveZonesServiceTest extends TestCase
     public function test_invalid_payload_is_rejected_and_audited_without_sending(string $service, string $identifier, string $itemType): void
     {
         Http::fake();
-        $result = resolve($service)->send($identifier, $itemType);
+        $result = resolve($service)->send($identifier, $itemType)->sync();
         $this->assertFalse($result['success']);
         $this->assertNull($result['data']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
@@ -156,13 +156,13 @@ class ApproveZonesServiceTest extends TestCase
 
             return Http::response($body, $providerStatus);
         });
-        $result = resolve($service)->send('N5RSU7SN5R2902014', 2);
+        $result = resolve($service)->send('N5RSU7SN5R2902014', 2)->sync();
         $this->assertFalse($result['success']);
         $this->assertNull($result['data']);
         $this->assertSame($code, $result['error']['code']);
         $this->assertSame($httpStatus, $result['http_status']);
         if ($code === 'Application_DialogException') {
-            $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}Approval refused. \u{2069}\u{2069}", $result['error']['message']);
+            $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}Approval refused. \u{2069}\u{2069}", $result['error']['message']);
         }
         $job = RestErpJob::query()->sole();
         $this->assertSame('sync', $job->execution_mode);

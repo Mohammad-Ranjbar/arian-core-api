@@ -145,7 +145,7 @@ class AlternativeController extends CrudController
                 makeCode: $parameters['makeCodeP'],
                 documentNo: $parameters['documentNo'],
                 model: $alternative,
-            );
+            )->sync();
             if (! $response['success']) {
                 $alternative->update([
                     'failed_at' => now(),

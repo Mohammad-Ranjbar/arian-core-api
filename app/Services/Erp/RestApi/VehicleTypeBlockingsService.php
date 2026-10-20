@@ -8,9 +8,14 @@ readonly class VehicleTypeBlockingsService
 {
     public function __construct(private RestErpJobService $jobs) {}
 
-    public function send(string $barcodeInfo, string $blockType, ?Model $model = null, ?int $userId = null): array
+    public function send(string $barcodeInfo, string $blockType, ?Model $model = null, ?int $userId = null): PendingRestErpRequest
     {
-        return $this->jobs->send('VehicleTypeBlockings', $this->payload($barcodeInfo, $blockType), $model, 'مسدودسازی خودرو', $userId);
+        return $this->jobs->pending('VehicleTypeBlockings', $this->payload($barcodeInfo, $blockType), $model, 'مسدودسازی خودرو', $userId);
+    }
+
+    public function dispatch(string $barcodeInfo, string $blockType, ?Model $model = null, ?int $userId = null, ?RestErpExecutionMode $mode = null): array
+    {
+        return $this->jobs->dispatch('VehicleTypeBlockings', $this->payload($barcodeInfo, $blockType), $model, 'مسدودسازی خودرو', $userId, mode: $mode);
     }
 
     public function queue(string $barcodeInfo, string $blockType, ?Model $model = null, ?int $userId = null): array

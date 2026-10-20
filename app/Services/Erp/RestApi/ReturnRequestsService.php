@@ -8,9 +8,9 @@ readonly class ReturnRequestsService
 {
     public function __construct(private RestErpJobService $jobs) {}
 
-    public function send(string $vin, string $destination, string|int $itemType, ?Model $model = null): array
+    public function send(string $vin, string $destination, string|int $itemType, ?Model $model = null): PendingRestErpRequest
     {
-        return $this->jobs->send('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'درخواست بازگشت خودرو');
+        return $this->jobs->pending('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'درخواست بازگشت خودرو');
     }
 
     public function sendOrRetry(string $vin, string $destination, string|int $itemType, ?int $userId = null): array
@@ -19,6 +19,11 @@ readonly class ReturnRequestsService
             'ReturnRequests', $this->payload($vin, $destination, $itemType),
             section: 'درخواست بازگشت خودرو', userId: $userId, reuseExistingJob: true
         );
+    }
+
+    public function dispatch(string $vin, string $destination, string|int $itemType, ?Model $model = null, ?int $userId = null, ?RestErpExecutionMode $mode = null): array
+    {
+        return $this->jobs->dispatch('ReturnRequests', $this->payload($vin, $destination, $itemType), $model, 'درخواست بازگشت خودرو', $userId, mode: $mode);
     }
 
     public function queue(string $vin, string $destination, string|int $itemType, ?Model $model = null, ?int $userId = null): array

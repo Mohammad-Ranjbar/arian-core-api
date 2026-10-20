@@ -11,7 +11,7 @@ class RestErpQueueException extends HttpResponseException
         parent::__construct(response()->json([
             'error' => [
                 'code' => 'ERP_QUEUE_ERROR',
-                'message' => $message ?? 'درخواست ثبت شد، اما تحویل آن به صف ERP ناموفق بود.',
+                'message' => $message ?? 'درخواست ثبت شد، اما ارسال آن به صف بیزینس سنترال ناموفق بود.',
             ],
             'rest_erp_job_id' => $jobId,
         ], 503));

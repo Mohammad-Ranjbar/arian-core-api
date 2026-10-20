@@ -60,7 +60,7 @@ class BlockItemImport implements ToCollection, WithStartRow
                         (string)$blockReason->getAttribute('block_type'),
                         null,
                         (int)$this->userId,
-                    );
+                    )->sync();
                     if (!$result['success']) {
                         throw new RuntimeException($result['error']['message']);
                     }

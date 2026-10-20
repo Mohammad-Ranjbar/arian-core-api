@@ -19,7 +19,7 @@ class ReadableRestErpParameters implements CastsAttributes
     public function set(Model $model, string $key, mixed $value, array $attributes): string
     {
         if (! is_array($value)) {
-            throw new InvalidArgumentException('REST ERP parameters must be an array.');
+            throw new InvalidArgumentException('پارامترهای درخواست بیزینس سنترال باید به‌صورت آرایه ارسال شوند.');
         }
 
         return json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

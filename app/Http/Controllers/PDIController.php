@@ -96,7 +96,7 @@ class PDIController extends Controller
         //         'policeInspectionDateP' => $data['police_inspection_date'] ?? '',
         //     ]);
 
-        $result = resolve(ImportVehiclesService::class)->send($vin, $data, userId: $data['user_id'] ?? null);
+        $result = resolve(ImportVehiclesService::class)->send($vin, $data, userId: $data['user_id'] ?? null)->sync();
 
         return [
             'status' => $result['success'] ? 'ok' : 'error',

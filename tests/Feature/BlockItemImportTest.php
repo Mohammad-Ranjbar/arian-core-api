@@ -70,8 +70,8 @@ class BlockItemImportTest extends TestCase
     {
         return [
             'business error' => [400, ['error' => ['code' => 'Application_DialogException', 'message' => 'Blocking rejected.']], 'failed', 'Blocking rejected.'],
-            'authentication' => [401, [], 'failed', 'ERP HTTP 401'],
-            'server error' => [500, [], 'uncertain', 'ERP HTTP 500'],
+            'authentication' => [401, [], 'failed', 'کد وضعیت HTTP 401'],
+            'server error' => [500, [], 'uncertain', 'کد وضعیت HTTP 500'],
             'timeout' => [0, [], 'uncertain', 'Connection timed out.'],
         ];
     }

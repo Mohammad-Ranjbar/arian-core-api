@@ -22,6 +22,7 @@ return [
     'allowed_hosts' => ['172.16.0.154'],
     'connection' => env('REST_ERP_QUEUE_CONNECTION', 'redis'),
     'queue' => 'parallel',
+    // sync: immediate response; parallel / unique: queues on the connection above.
     'max_payload_bytes' => 262144,
     'max_response_bytes' => 1048576,
     'log_string_limit' => 4096,
@@ -31,14 +32,14 @@ return [
     'endpoints' => [
         'VehicleUnblocks' => [
             'service' => VehicleUnblocksService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'BarcodeInfo' => ['required', 'string'],
             ],
         ],
         'VehicleTypeBlockings' => [
             'service' => VehicleTypeBlockingsService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'BarcodeInfo' => ['required', 'string'],
                 'BlockType' => ['required', 'string'],
@@ -46,7 +47,7 @@ return [
         ],
         'Trackings' => [
             'service' => TrackingsService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'BarCode' => ['required', 'string'],
@@ -55,7 +56,7 @@ return [
         ],
         'TransferVehicleProdZones' => [
             'service' => TransferVehicleProdZonesService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'ToLocationType' => ['required', 'string'],
@@ -63,7 +64,7 @@ return [
         ],
         'ImportVehicles' => [
             'service' => ImportVehiclesService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'PDIResult' => ['present', 'string'],
@@ -76,7 +77,7 @@ return [
         ],
         'ReturnRequests' => [
             'service' => ReturnRequestsService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'Destination' => ['required', 'string'],
@@ -85,6 +86,7 @@ return [
         ],
         'GroupReturns' => [
             'service' => GroupReturnsService::class,
+            'mode' => 'parallel',
             'rules' => [
                 'VINArray' => ['required', 'string'],
                 'Destination' => ['required', 'string'],
@@ -94,6 +96,7 @@ return [
         ],
         'GroupExits' => [
             'service' => GroupExitsService::class,
+            'mode' => 'parallel',
             'rules' => [
                 'VINArray' => ['required', 'string'],
                 'TypeOfExit' => ['required', 'string'],
@@ -104,6 +107,7 @@ return [
         ],
         'ExitPrints' => [
             'service' => ExitPrintsService::class,
+            'mode' => 'parallel',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'ItemType' => ['required', 'string'],
@@ -111,6 +115,7 @@ return [
         ],
         'ExitRequests' => [
             'service' => ExitRequestsService::class,
+            'mode' => 'parallel',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'TypeOfExit' => ['required', 'string'],
@@ -120,7 +125,7 @@ return [
         ],
         'ApproveExitZones' => [
             'service' => ApproveExitZonesService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'BarcodeInfo' => ['required', 'string'],
                 'ItemType' => ['required', 'string'],
@@ -128,7 +133,7 @@ return [
         ],
         'ApproveReturnZones' => [
             'service' => ApproveReturnZonesService::class,
-            'retry_execution_mode' => 'sync',
+            'mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string'],
                 'ItemType' => ['required', 'string'],
@@ -136,6 +141,7 @@ return [
         ],
         'ItemReclassJournals' => [
             'service' => ItemReclassJournalsService::class,
+            'mode' => 'parallel',
             'rules' => [
                 'ArrayCrossReferenceNo' => ['required', 'string'],
                 'BatchNo' => ['required', 'string'],
@@ -145,6 +151,7 @@ return [
         ],
         'qcStatuses' => [
             'service' => SetQcStatusService::class,
+            'mode' => 'sync',
             'rules' => [
                 'VIN' => ['required', 'string', 'regex:/^[A-HJ-NPR-Z0-9]{17}$/'],
                 'QCStatus' => ['required', 'string'],
@@ -154,6 +161,7 @@ return [
         ],
         'CreateTransferZones' => [
             'service' => CreateTransferZonesService::class,
+            'mode' => 'sync',
             'rules' => [
                 'ItemNoArray' => ['required', 'string'],
                 'ItemQtyArray' => ['required', 'string'],

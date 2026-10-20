@@ -121,7 +121,7 @@ class CreateTransferZonesServiceTest extends TestCase
         $this->assertSame(422, $result['http_status']);
         $this->assertSame([
             'code' => 'Application_DialogException',
-            'message' => "\u{2067}خطای بیزینس سنترال :: \u{2066}Insufficient inventory. \u{2069}\u{2069}",
+            'message' => "\u{2067}خطای بیزینس سنترال :: \u{2068}Insufficient inventory. \u{2069}\u{2069}",
         ], $result['error']);
     }
 
@@ -161,6 +161,6 @@ class CreateTransferZonesServiceTest extends TestCase
             'crossRefArray' => ',',
             'makeCode' => 'LAMARI',
             'documentNo' => '77',
-        ], $overrides));
+        ], $overrides))->sync();
     }
 }

@@ -155,6 +155,41 @@ class ExitRequestsIntegrationTest extends TestCase
         return Vehicle::without(['carModel', 'makeCode'])->findOrFail(self::VIN);
     }
 
+    public static function configurablePermitModes(): array
+    {
+        return ['sync' => ['sync', 201], 'parallel' => ['parallel', 202], 'unique' => ['unique', 202]];
+    }
+
+    #[DataProvider('configurablePermitModes')]
+    public function test_exit_permit_dispatch_respects_configuration_and_reports_actual_acceptance(string $mode, int $status): void
+    {
+        config()->set('rest_erp.endpoints.ExitRequests.mode', $mode);
+        config()->set('rest_erp.endpoints.ExitPrints.mode', $mode);
+        Http::fake(['*' => Http::response([], 200)]);
+
+        $response = $this->store();
+
+        $this->assertSame($status, $response->getStatusCode());
+        $this->assertDatabaseCount('gate_permits', 1);
+        $jobs = RestErpJob::query()->orderBy('id')->get();
+        $this->assertCount(2, $jobs);
+        $this->assertSame($jobs[0]->id, $jobs[1]->depends_on_id);
+        foreach ($jobs as $job) {
+            $this->assertSame($mode === 'sync' ? 'sync' : 'queue', $job->execution_mode);
+            $this->assertSame($mode === 'sync' ? null : $mode, $job->queue);
+        }
+        if ($mode === 'sync') {
+            $this->assertSame(['success', 'success'], $jobs->pluck('status')->all());
+            Http::assertSentCount(2);
+            Queue::assertNothingPushed();
+        } else {
+            Queue::assertPushedOn($mode, SendToRestErpJob::class);
+            Queue::assertPushed(SendToRestErpJob::class, 1);
+            $this->assertNull($jobs[1]->dispatched_at);
+            Http::assertNothingSent();
+        }
+    }
+
     public function test_manual_permit_returns_202_with_job_ids_and_preserves_the_resource(): void
     {
         $response = $this->store();

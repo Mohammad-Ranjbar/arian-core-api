@@ -164,7 +164,7 @@ class SaleLocationController extends CrudController
         // return ErpWsdlClient::run(config('erp.transfer_vehicle'), 'TransferVehicleCommercialProducts_Zone',
         //     ['vINP' => $vin, 'toLocationTypeP' => $saleLocationCode]);
 
-        $result = resolve(TransferVehicleProdZonesService::class)->send($vin, $saleLocationCode);
+        $result = resolve(TransferVehicleProdZonesService::class)->send($vin, $saleLocationCode)->sync();
 
         return [
             'status' => $result['success'] ? 'ok' : 'error',

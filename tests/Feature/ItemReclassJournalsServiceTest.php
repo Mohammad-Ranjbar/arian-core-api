@@ -94,7 +94,7 @@ class ItemReclassJournalsServiceTest extends TestCase
         $this->assertSame($expectedStatus, $result['http_status']);
         $this->assertSame($code, $result['error']['code']);
         if ($code === 'Application_DialogException') {
-            $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}Insufficient inventory. \u{2069}\u{2069}", $result['error']['message']);
+            $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}Insufficient inventory. \u{2069}\u{2069}", $result['error']['message']);
         }
         Http::assertSentCount(1);
     }
@@ -131,6 +131,6 @@ class ItemReclassJournalsServiceTest extends TestCase
             'batchNo' => 'test',
             'number' => 1,
             'batchName' => 'LAMARI',
-        ], $overrides));
+        ], $overrides))->sync();
     }
 }

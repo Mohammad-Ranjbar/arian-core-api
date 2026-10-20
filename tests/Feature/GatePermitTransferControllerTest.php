@@ -304,7 +304,7 @@ class GatePermitTransferControllerTest extends TestCase
         $this->assertSame('success', $job->status);
         $this->assertSoftDeleted($permit);
         $this->assertDatabaseCount('production_tracking', 1);
-        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2066}Approval refused. \u{2069}\u{2069}", $job->actionLogs()->where('action', 'rest_erp_failed')->sole()->data['snapshot']['description']);
+        $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}Approval refused. \u{2069}\u{2069}", $job->actionLogs()->where('action', 'rest_erp_failed')->sole()->data['snapshot']['description']);
         Http::assertSentCount(2);
         $this->assertNoQueuedOrLegacyDispatch();
     }
