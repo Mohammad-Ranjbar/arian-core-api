@@ -124,11 +124,7 @@ class ProductionPostingBINsServiceTest extends TestCase
 
         $this->assertSame(202, $result['http_status']);
         $job = RestErpJob::query()->sole();
-        $data = $record->fresh()->data;
-        $this->assertSame('queued', $data['stage']);
-        $this->assertSame('pending', $data['job_status']);
-        $this->assertArrayNotHasKey('history', $data);
-        $this->assertSame($job->id, $data['rest_erp_job_id']);
+        $this->assertNull($record->fresh()->data);
         $this->assertSame(Tracking::class, $job->model_type);
         $this->assertSame((string) $record->id, (string) $job->model_id);
         $this->assertSame('redis', $job->connection);
@@ -174,23 +170,23 @@ class ProductionPostingBINsServiceTest extends TestCase
     public static function outcomes(): array
     {
         return [
-            'success' => [[], 200, 'success', 'ok', ''],
-            'business failure' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Provider detail']], 400, 'failed', 'error', 'Provider detail'],
+            'success' => [['VIN' => self::VIN, 'posted' => true], 201, 'success'],
+            'empty JSON response' => [[], 200, 'success'],
+            'business failure' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Provider detail']], 400, 'failed'],
+            'server failure' => [['error' => ['code' => 'InternalError', 'message' => 'Provider failure']], 500, 'uncertain'],
         ];
     }
 
     #[DataProvider('outcomes')]
-    public function test_worker_updates_tracking_and_notifies_on_completion(array $body, int $httpStatus, string $status, string $legacyStatus, string $message): void
+    public function test_only_the_erp_response_is_saved_after_completion(array $body, int $httpStatus, string $status): void
     {
         $record = $this->tracking();
         $result = resolve(ProductionLineTrackingService::class)->sendToErp($record);
+        $this->assertNull($record->fresh()->data);
         Event::assertNotDispatched(TrackingEvent::class);
         Http::fake(function () use ($record, $body, $httpStatus) {
-            $data = $record->fresh()->data;
-            $this->assertSame('in-progress', $data['stage']);
-            $this->assertSame('in-progress', $data['job_status']);
-            $this->assertSame(1, $data['tries']);
-            $this->assertArrayNotHasKey('history', $data);
+            $this->assertNull($record->fresh()->data);
+            $this->assertSame('in-progress', RestErpJob::query()->sole()->status);
 
             return Http::response($body, $httpStatus);
         });
@@ -198,24 +194,19 @@ class ProductionPostingBINsServiceTest extends TestCase
         (new SendToRestErpJob((string) $result['data']['rest_erp_job_id']))->handle(resolve(RestErpJobService::class));
 
         $this->assertSame($status, RestErpJob::query()->sole()->status);
-        $data = $record->fresh()->data;
-        $this->assertArrayNotHasKey('history', $data);
-        $this->assertSame($status, $data['job_status']);
-        $this->assertSame($status === 'success', $data['result']['success']);
-        $this->assertSame($legacyStatus, $record->fresh()->data['status']);
-        $this->assertStringContainsString($message, $record->fresh()->data['message']);
+        $this->assertSame($body, $record->fresh()->data);
         Event::assertDispatched(TrackingEvent::class);
     }
 
-    public function test_queue_failure_updates_tracking(): void
+    public function test_queue_failure_does_not_write_a_response_to_tracking(): void
     {
         $record = $this->tracking();
         $result = resolve(ProductionLineTrackingService::class)->sendToErp($record);
         (new SendToRestErpJob((string) $result['data']['rest_erp_job_id']))->failed(new \RuntimeException('Worker stopped'));
 
         $this->assertSame('failed', RestErpJob::query()->sole()->status);
-        $this->assertSame('error', $record->fresh()->data['status']);
-        Event::assertDispatched(TrackingEvent::class);
+        $this->assertNull($record->fresh()->data);
+        Event::assertNotDispatched(TrackingEvent::class);
     }
 
     public function test_controller_returns_202_and_tracking_ids_and_blocks_duplicate_updates(): void
@@ -235,7 +226,7 @@ class ProductionPostingBINsServiceTest extends TestCase
         $body = $response->getData(true);
         $this->assertSame(RestErpJob::query()->sole()->id, $body['rest_erp_job_id']);
         $this->assertSame(RestErpJob::query()->sole()->uuid, $body['request_id']);
-        $this->assertSame('queued', $body['data']['stage']);
+        $this->assertNull($body['data']);
         $this->assertSame(422, $controller->update($record)->getStatusCode());
         Queue::assertPushed(SendToRestErpJob::class, 1);
     }
@@ -253,7 +244,7 @@ class ProductionPostingBINsServiceTest extends TestCase
         $second = $service->sendToErp($record);
 
         $this->assertSame($first['data'], $second['data']);
-        $this->assertArrayNotHasKey('history', $record->fresh()->data);
+        $this->assertNull($record->fresh()->data);
         $this->assertSame(202, $second['http_status']);
         $this->assertSame('pending', RestErpJob::query()->sole()->status);
         $this->assertSame('unique', RestErpJob::query()->sole()->queue);
@@ -280,53 +271,101 @@ class ProductionPostingBINsServiceTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_retry_and_ignore_replace_the_latest_tracking_status(): void
+    public function test_manual_retry_clears_the_previous_response_until_the_next_response_arrives(): void
     {
         $record = $this->tracking();
-        $record->update(['data' => ['history' => [['stage' => 'old']], 'old_result' => 'discard']]);
         resolve(ProductionLineTrackingService::class)->sendToErp($record);
-        $this->assertArrayNotHasKey('old_result', $record->fresh()->data);
         $jobs = resolve(RestErpJobService::class);
         $job = RestErpJob::query()->sole();
-        $jobs->fail($job->id, new \RuntimeException('Worker stopped'));
-        $jobs->retry($job->fresh(), Auth::id());
-        $this->assertSame('queued', $record->fresh()->data['stage']);
-        $this->assertNull($record->fresh()->data['result']);
-        $this->assertNull($record->fresh()->data['error_code']);
-        $this->assertArrayNotHasKey('history', $record->fresh()->data);
-        $jobs->fail($job->id, new \RuntimeException('Worker stopped again'));
-        $jobs->ignore($job->fresh(), Auth::id());
+        $errorBody = ['error' => ['code' => 'Application_DialogException', 'message' => 'Refused']];
+        $attempt = 0;
+        Http::fake(function () use ($record, $errorBody, &$attempt) {
+            $this->assertNull($record->fresh()->data);
+            $attempt++;
 
-        $data = $record->fresh()->data;
-        $this->assertSame('ignored', $data['stage']);
-        $this->assertSame('ignored', $data['job_status']);
-        $this->assertArrayNotHasKey('history', $data);
+            return $attempt === 1 ? Http::response($errorBody, 400) : Http::response(['posted' => true], 200);
+        });
+        $jobs->execute($job->id);
+        $this->assertSame($errorBody, $record->fresh()->data);
+
+        $jobs->retry($job->fresh(), Auth::id());
+
+        $this->assertNull($record->fresh()->data);
+        $this->assertSame('pending', $job->fresh()->status);
+        $jobs->execute($job->id);
+        $this->assertSame(['posted' => true], $record->fresh()->data);
     }
 
-    public function test_uncertain_worker_result_is_saved_as_latest_tracking_status(): void
+    public function test_sync_resubmission_clears_the_old_response_before_sending(): void
+    {
+        $record = $this->tracking();
+        $attempt = 0;
+        Http::fake(function () use ($record, &$attempt) {
+            $this->assertNull($record->fresh()->data);
+            $attempt++;
+
+            return $attempt === 1
+                ? Http::response(['error' => ['code' => 'Application_DialogException', 'message' => 'Refused']], 400)
+                : Http::response(['posted' => true], 200);
+        });
+        $service = resolve(ProductionPostingBINsService::class);
+        $service->send(self::VIN, '', 'false', 'true', 3, $record)->sync();
+        $this->assertNotNull($record->fresh()->data);
+        $service->send(self::VIN, '', 'false', 'true', 3, $record)->sync();
+
+        $this->assertSame(['posted' => true], $record->fresh()->data);
+        $this->assertDatabaseCount('rest_erp_jobs', 1);
+    }
+
+    public function test_preflight_failure_does_not_write_tracking_data(): void
+    {
+        $record = $this->tracking();
+        resolve(ProductionLineTrackingService::class)->sendToErp($record);
+        $job = RestErpJob::query()->sole();
+        $job->update(['payload_hash' => 'invalid']);
+        resolve(RestErpJobService::class)->execute($job->id);
+
+        $this->assertNull($record->fresh()->data);
+        $this->assertSame('failed', $job->fresh()->status);
+        Http::assertNothingSent();
+    }
+
+    public function test_ignore_keeps_the_last_erp_response(): void
+    {
+        $record = $this->tracking();
+        resolve(ProductionLineTrackingService::class)->sendToErp($record);
+        $jobs = resolve(RestErpJobService::class);
+        $body = ['error' => ['code' => 'Application_DialogException', 'message' => 'Refused']];
+        Http::fake([self::URL => Http::response($body, 400)]);
+        $job = RestErpJob::query()->sole();
+        $jobs->execute($job->id);
+        $jobs->ignore($job->fresh(), Auth::id());
+
+        $this->assertSame($body, $record->fresh()->data);
+    }
+
+    public function test_timeout_without_response_keeps_tracking_data_empty(): void
     {
         $record = $this->tracking();
         resolve(ProductionLineTrackingService::class)->sendToErp($record);
         Http::fake(function () use ($record) {
-            $this->assertSame('in-progress', $record->fresh()->data['stage']);
+            $this->assertNull($record->fresh()->data);
             throw new \Illuminate\Http\Client\ConnectionException('Connection timed out');
         });
         resolve(RestErpJobService::class)->execute(RestErpJob::query()->sole()->id);
 
-        $data = $record->fresh()->data;
-        $this->assertSame('uncertain', $data['job_status']);
-        $this->assertSame('error', $data['status']);
-        $this->assertSame('ERP_CONNECTION_ERROR', $data['error_code']);
-        $this->assertArrayNotHasKey('history', $data);
+        $this->assertNull($record->fresh()->data);
+        $this->assertSame('uncertain', RestErpJob::query()->sole()->status);
+        Event::assertNotDispatched(TrackingEvent::class);
     }
 
-    public function test_stage_updates_roll_back_with_the_job_transaction(): void
+    public function test_clearing_data_rolls_back_with_the_job_transaction(): void
     {
         $record = $this->tracking();
         $record->update(['data' => ['message' => 'Previous result']]);
         DB::beginTransaction();
         resolve(ProductionLineTrackingService::class)->sendToErp($record);
-        $this->assertSame('registered', $record->fresh()->data['stage']);
+        $this->assertNull($record->fresh()->data);
         DB::rollBack();
 
         $this->assertSame(['message' => 'Previous result'], $record->fresh()->data);
@@ -334,16 +373,13 @@ class ProductionPostingBINsServiceTest extends TestCase
         Queue::assertNothingPushed();
     }
 
-    public function test_rejected_job_is_recorded_in_tracking_data(): void
+    public function test_rejected_job_does_not_write_tracking_data(): void
     {
         $record = $this->tracking();
         $result = resolve(ProductionPostingBINsService::class)->send(self::VIN, '', 'invalid', 'false', 2, $record)->unique();
 
         $this->assertFalse($result['success']);
-        $data = $record->fresh()->data;
-        $this->assertSame('rejected', $data['stage']);
-        $this->assertSame('VALIDATION_ERROR', $data['error_code']);
-        $this->assertArrayNotHasKey('history', $data);
+        $this->assertNull($record->fresh()->data);
         Queue::assertNothingPushed();
         Http::assertNothingSent();
     }

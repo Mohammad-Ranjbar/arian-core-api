@@ -115,7 +115,12 @@ class PreGoLiveServer
 
         $rawBody = $response->body();
         if ($onResponse) {
-            $onResponse(['http_status' => $response->status()]);
+            $onResponse([
+                'http_status' => $response->status(),
+                'body' => strlen($rawBody) > (int) config('rest_erp.max_response_bytes', 1048576)
+                    ? '[TRUNCATED]'
+                    : resolve(RestErpLogSanitizer::class)->sanitize($response->json() ?? $rawBody),
+            ]);
         }
 
         if (strlen($rawBody) > (int) config('rest_erp.max_response_bytes', 1048576)) {

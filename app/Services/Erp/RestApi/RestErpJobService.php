@@ -256,7 +256,9 @@ readonly class RestErpJobService
             } else {
                 $job = RestErpJob::query()->create($attributes);
                 $this->audit($job, 'rest_erp_created');
-                $this->recordProductionTracking($job, stage: $invalid ? 'rejected' : 'registered');
+                if (! $invalid) {
+                    $this->recordProductionTracking($job);
+                }
             }
             if ($queued && ! $invalid) {
                 $this->publishAfterCommit($job);
@@ -321,7 +323,6 @@ readonly class RestErpJobService
                 Bus::dispatch((new SendToRestErpJob((string) $job->getKey()))
                     ->onConnection($job->connection)->onQueue($job->queue));
                 $job->update(['dispatched_at' => now()]);
-                $this->recordProductionTracking($job, stage: 'queued');
 
                 return true;
             });
@@ -375,7 +376,6 @@ readonly class RestErpJobService
                 'completed_at' => null, 'failed_at' => null,
                 'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
             ]);
-            $this->recordProductionTracking($job, stage: 'in-progress');
 
             return $job;
         });
@@ -384,6 +384,7 @@ readonly class RestErpJobService
         }
         $start = microtime(true);
         $providerStatus = null;
+        $providerBody = null;
         $sent = false;
         $exceptionContext = [];
         try {
@@ -398,8 +399,9 @@ readonly class RestErpJobService
                 throw new InvalidArgumentException('داده‌های درخواست بیزینس سنترال پس از ثبت تغییر کرده‌اند؛ ارسال درخواست متوقف شد.');
             }
             $sent = true;
-            $result = $this->server->post($job->endpoint, $validated, function (array $metadata) use (&$providerStatus) {
+            $result = $this->server->post($job->endpoint, $validated, function (array $metadata) use (&$providerStatus, &$providerBody) {
                 $providerStatus = $metadata['http_status'];
+                $providerBody = $metadata['body'];
             }, $job->uuid);
         } catch (Throwable $exception) {
             $exceptionContext = [
@@ -418,7 +420,7 @@ readonly class RestErpJobService
             || (! $result['success'] && $code !== 'Application_DialogException' && $providerStatus !== null
                 && ($providerStatus >= 500 || ($providerStatus >= 200 && $providerStatus < 300)));
         $status = $result['success'] ? 'success' : ($uncertain ? 'uncertain' : 'failed');
-        DB::transaction(function () use ($job, $result, $providerStatus, $code, $status, $start, $sent) {
+        DB::transaction(function () use ($job, $result, $providerStatus, $providerBody, $code, $status, $start, $sent) {
             $current = RestErpJob::query()->lockForUpdate()->findOrFail($job->id);
             if ($current->tries !== $job->tries || ! in_array($current->status, ['in-progress', 'uncertain'], true)) {
                 return;
@@ -433,7 +435,9 @@ readonly class RestErpJobService
             if ($sent) {
                 $this->audit($job, 'rest_erp_'.$status);
             }
-            $this->recordProductionTracking($job, $result, broadcast: true);
+            if ($providerStatus !== null) {
+                $this->recordProductionTracking($job, $providerBody, broadcast: true);
+            }
         });
         if (! $result['success']) {
             $logMessage = $this->sanitizer->errorText($result['error']['message'] ?? 'درخواست بیزینس سنترال با موفقیت انجام نشد.');
@@ -479,14 +483,10 @@ readonly class RestErpJobService
                 'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
                 'endpoint' => $job->endpoint, 'status' => $job->status, 'error_code' => $job->error_code,
             ]);
-            $this->recordProductionTracking($job, [
-                'success' => false, 'error' => ['code' => $job->error_code, 'message' => $message],
-                'data' => null, 'http_status' => $job->http_status,
-            ], broadcast: true);
         });
     }
 
-    private function recordProductionTracking(RestErpJob $job, ?array $result = null, ?string $stage = null, bool $broadcast = false): void
+    private function recordProductionTracking(RestErpJob $job, mixed $response = null, bool $broadcast = false): void
     {
         if ($job->endpoint !== 'ProductionPostingBINs' || $job->model_type !== (new Tracking)->getMorphClass()) {
             return;
@@ -495,33 +495,8 @@ readonly class RestErpJobService
         if (! $tracking) {
             return;
         }
-        $stage ??= $job->status;
-        $message = match ($stage) {
-            'registered' => 'درخواست عملیات تولید ثبت شد.',
-            'queued' => 'درخواست عملیات تولید به صف ارسال شد.',
-            'retry' => 'درخواست عملیات تولید برای تلاش مجدد آماده شد.',
-            'in-progress' => 'درخواست عملیات تولید در حال اجرا است.',
-            'success' => 'عملیات تولید با موفقیت انجام شد.',
-            'ignored' => 'درخواست عملیات تولید نادیده گرفته شد.',
-            default => $job->description ?? 'وضعیت درخواست عملیات تولید به‌روز شد.',
-        };
-        $entry = [
-            'stage' => $stage,
-            'job_status' => $job->status,
-            'status' => match ($job->status) {
-                'success' => 'ok',
-                'failed', 'uncertain', 'rejected' => 'error',
-                default => $job->status,
-            },
-            'message' => $message,
-            'rest_erp_job_id' => $job->id, 'request_id' => $job->uuid,
-            'queue' => $job->queue, 'tries' => $job->tries,
-            'http_status' => $job->http_status, 'provider_http_status' => $job->provider_http_status,
-            'error_code' => $job->error_code, 'execute_time' => $job->execute_time,
-            'recorded_at' => now()->toISOString(),
-            'result' => $result === null ? null : $this->sanitizer->sanitize($result),
-        ];
-        $tracking->update(['data' => $entry]);
+        // Keep this field empty until an actual ERP HTTP response is received.
+        $tracking->update(['data' => $response]);
 
         if ($broadcast) {
             DB::afterCommit(function () use ($tracking, $job) {
@@ -573,7 +548,7 @@ readonly class RestErpJobService
             'ignored_at' => null,
             ...$attributes,
         ]);
-        $this->recordProductionTracking($job, stage: $job->status === 'rejected' ? 'rejected' : 'retry');
+        $this->recordProductionTracking($job);
     }
 
     public function ignore(RestErpJob $job, int $userId): RestErpJob
@@ -584,7 +559,6 @@ readonly class RestErpJobService
                 throw ValidationException::withMessages(['status' => 'درخواست در این وضعیت قابل نادیده گرفتن نیست.']);
             }
             $job->update(['status' => 'ignored', 'ignored_at' => now()]);
-            $this->recordProductionTracking($job, stage: 'ignored');
             $this->recordActor($job, $userId);
 
             return $job;
