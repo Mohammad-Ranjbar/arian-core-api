@@ -16,7 +16,7 @@ class SendToRestErpJob implements ShouldQueue
 
     public int $tries = 1;
 
-    public int $timeout = 30;
+    public int $timeout = 330;
 
     public bool $failOnTimeout = true;
 

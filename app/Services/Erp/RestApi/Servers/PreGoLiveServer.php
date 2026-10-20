@@ -90,7 +90,7 @@ class PreGoLiveServer
                     'auth' => [$username, $password, 'ntlm'],
                 ])
                 ->connectTimeout(5)
-                ->timeout(15)
+                ->timeout(300)
                 ->withoutRedirecting()
                 ->send(
                     $method,

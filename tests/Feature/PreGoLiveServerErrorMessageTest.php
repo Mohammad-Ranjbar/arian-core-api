@@ -46,6 +46,24 @@ class PreGoLiveServerErrorMessageTest extends TestCase
         }
     }
 
+    public function test_get_and_post_requests_allow_five_minutes_with_queue_time_to_finish(): void
+    {
+        Http::fake(function ($request, array $options) {
+            $this->assertSame(300, $options['timeout']);
+            $this->assertSame(5, $options['connect_timeout']);
+
+            return Http::response([]);
+        });
+        $server = resolve(PreGoLiveServer::class);
+        $this->assertTrue($server->get('productionBoardEntries')['success']);
+        $this->assertTrue($server->post('ProductionPostingBINs', [])['success']);
+        $timeout = (new \App\Jobs\SendToRestErpJob('1'))->timeout;
+        $this->assertGreaterThan(300, $timeout);
+        foreach (['redis', 'database', 'beanstalkd'] as $connection) {
+            $this->assertGreaterThan($timeout, config('queue.connections.'.$connection.'.retry_after'));
+        }
+    }
+
     public function test_long_errors_remain_bounded_and_keep_the_closing_direction_isolates(): void
     {
         Http::fake(['*' => Http::response(['error' => ['message' => str_repeat('Failure. ', 1000)]], 400)]);

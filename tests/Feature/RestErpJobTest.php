@@ -306,7 +306,7 @@ class RestErpJobTest extends TestCase
         $this->assertSame('new', DB::table('baskets')->where('id', 3)->value('status'));
         $this->assertSame(0, DB::table('erp_jobs')->count());
         $this->assertFalse(Schema::hasColumn('erp_jobs', 'transport'));
-        Queue::assertPushedOn('parallel', SendToRestErpJob::class, fn ($queued) => $queued->id === (string) $job->id && $queued->connection === 'redis' && $queued->tries === 1 && $queued->timeout === 30);
+        Queue::assertPushedOn('parallel', SendToRestErpJob::class, fn ($queued) => $queued->id === (string) $job->id && $queued->connection === 'redis' && $queued->tries === 1 && $queued->timeout === 330);
         Http::assertNothingSent();
         $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
     }
@@ -648,7 +648,7 @@ class RestErpJobTest extends TestCase
         $backlog = $this->enqueue();
         $backlog->update(['queued_at' => now()->subHour()]);
         $stale = $this->enqueue();
-        $stale->update(['status' => 'in-progress', 'tries' => 1, 'started_at' => now()->subMinutes(6)]);
+        $stale->update(['status' => 'in-progress', 'tries' => 1, 'started_at' => now()->subMinutes(7)]);
         $active = $this->enqueue();
         $active->update(['status' => 'in-progress', 'tries' => 1, 'started_at' => now()]);
         Queue::fake();

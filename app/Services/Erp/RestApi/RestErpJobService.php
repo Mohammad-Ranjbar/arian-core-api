@@ -346,7 +346,7 @@ readonly class RestErpJobService
                     }
                 }
             });
-        $cutoff = now()->subMinutes(5);
+        $cutoff = now()->subMinutes(6);
         RestErpJob::query()->where('status', 'in-progress')->where('started_at', '<', $cutoff)
             ->chunkById(100, function ($jobs) use (&$counts, $cutoff) {
                 foreach ($jobs as $job) {
