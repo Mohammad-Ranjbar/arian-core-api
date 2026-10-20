@@ -13,6 +13,7 @@ use InvalidArgumentException;
 class PreGoLiveServer
 {
     private const array ENDPOINTS = [
+        'ProductionPostingBINs' => 'ProductionPostingBINs',
         'Trackings' => 'Trackings',
         'TransferVehicleProdZones' => 'TransferVehicleProdZones',
         'ImportVehicles' => 'ImportVehicles',

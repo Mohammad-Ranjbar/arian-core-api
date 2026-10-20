@@ -12,6 +12,7 @@ use App\Jobs\ExportJob;
 use App\Models\ErpJob;
 use App\Models\Job;
 use App\Models\ProductionLine;
+use App\Models\RestErpJob;
 use App\Models\SendErp;
 use App\Models\Tracking;
 use App\Models\Vehicle;
@@ -69,16 +70,27 @@ class ProductionTrackingController extends Controller
 
             $data = $modelTrackingService->{$validatedData['type']}($validatedData);
             if (!$data) {
+                DB::rollBack();
                 return $this->responseError('cant not exit or enter to this location', 400);
             }
             $record = $vehicle->tracking()->create($data);
+            $erpSubmission = null;
             if (method_exists($modelTrackingService, 'sendToErp')) {
                 if ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
-                    $modelTrackingService->sendToErp($record);
+                    $erpSubmission = $modelTrackingService->sendToErp($record);
+                    // This is local validation/queue acceptance; the ERP result arrives in the job.
+                    if (! $erpSubmission['success']) {
+                        DB::rollBack();
+                        return response()->json(['error' => $erpSubmission['error']], $erpSubmission['http_status']);
+                    }
                 }
             }
             DB::commit();
-            return new VehicleResource($vehicle);
+            $resource = new VehicleResource($vehicle);
+            if ($erpSubmission !== null) {
+                return $resource->additional($erpSubmission['data'])->response()->setStatusCode(202);
+            }
+            return $resource;
         } catch (Exception $exception) {
             DB::rollBack();
 
@@ -91,21 +103,29 @@ class ProductionTrackingController extends Controller
     public function update(Tracking $tracking): TrackingResource|JsonResponse
     {
         $check = ErpJob::query()->where('model_type', Tracking::class)->where('model_id', $tracking->getAttribute('id'))->where('status', '!=', 'failed')->exists();
-        if ($check) {
+        $restCheck = RestErpJob::query()->where('model_type', $tracking->getMorphClass())
+            ->where('model_id', $tracking->getKey())->where('endpoint', 'ProductionPostingBINs')
+            ->whereIn('status', ['pending', 'in-progress', 'uncertain', 'success'])->exists();
+        if ($check || $restCheck) {
             return $this->responseError('کاربر دیگری در جاب دیگر در حال بررسی این مورد است');
         }
         $modelTrackingService = TrackingServiceFactory::getInstance($tracking->getAttribute('model')->getTable());
         $type = $tracking->getAttribute('type') === 'enter' ? 'on_enter' : 'on_exit';
 
+        $erpSubmission = null;
         if (method_exists($modelTrackingService, 'sendToErp') &&
             SendErp::query()->where('model_type', $tracking->getAttribute('model_type'))
                 ->where($type, true)
                 ->where('model_id', $tracking->getAttribute('model_id'))
                 ->exists()) {
             DB::beginTransaction();
-            $tracking->update(['data' => null, 'user_id' => auth()->id()]);
+            $tracking->update(['user_id' => auth()->id()]);
             try {
-                $modelTrackingService->sendToErp($tracking);
+                $erpSubmission = $modelTrackingService->sendToErp($tracking);
+                if (! $erpSubmission['success']) {
+                    DB::rollBack();
+                    return response()->json(['error' => $erpSubmission['error']], $erpSubmission['http_status']);
+                }
                 DB::commit();
             } catch (Exception $exception) {
                 DB::rollBack();
@@ -115,7 +135,12 @@ class ProductionTrackingController extends Controller
         }
 
 
-        return new TrackingResource($tracking);
+        $tracking->data = $tracking->fresh()->data;
+        $resource = new TrackingResource($tracking);
+        if ($erpSubmission !== null) {
+            return $resource->additional($erpSubmission['data'])->response()->setStatusCode(202);
+        }
+        return $resource;
     }
 
     public function destroy(Tracking $tracking): JsonResponse

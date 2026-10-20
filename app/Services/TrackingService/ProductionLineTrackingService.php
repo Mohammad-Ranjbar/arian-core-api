@@ -2,26 +2,23 @@
 
 namespace App\Services\TrackingService;
 
-use App\Events\ErpJobEvent;
 use App\Jobs\PrintSynchronousJob;
 use App\Models\Alternative;
 use App\Models\AlternativeItem;
-use App\Models\ErpJob;
 use App\Models\NavColor;
 use App\Models\ProductionLine;
 use App\Models\RegisterShortage;
-use App\Models\ShortageItem;
 use App\Models\SpecificShortageItem;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Models\SynchronousType;
-use App\Models\Tracking;
 use App\Models\Vehicle;
 use App\Services\Erp\ErpGetBOMFromProductionOrderNumber;
+use App\Services\Erp\RestApi\ProductionPostingBINsService;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 
 class ProductionLineTrackingService extends BaseTrackingService
 {
@@ -240,9 +237,9 @@ class ProductionLineTrackingService extends BaseTrackingService
     {
         $shortages = RegisterShortage::query()
             ->where('vin', $vin)
-            ->where('type',RegisterShortage::TYPE_MAIN)
-            ->whereHas('mainItemShortage',function ($mainItemShortage){
-                $mainItemShortage->where('location_code','offline');
+            ->where('type', RegisterShortage::TYPE_MAIN)
+            ->whereHas('mainItemShortage', function ($mainItemShortage) {
+                $mainItemShortage->where('location_code', 'offline');
             })
             ->get();
         $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
@@ -255,47 +252,51 @@ class ProductionLineTrackingService extends BaseTrackingService
                 continue;
             }
             if ($shortage->getAttribute('status') == RegisterShortage::STATUS_HAS_SHORTAGE) {
-                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان خروج ندارد.'.' ::'.$shortage->getAttribute('item_no'));
+                throw new Exception('این شماره Vin دارای قطعه کسری میباشد و امکان خروج ندارد.' . ' ::' . $shortage->getAttribute('item_no'));
             }
         }
     }
 
-    public function sendToErp($record): void
+    /**
+     * @throws Throwable
+     */
+    public function sendToErp($record): array
     {
-        $type = $record->getAttribute('model')->item_type;
-
-        $params = [
-            'vINL' => $record->vin, 'wCGroup' => '', 'withTracking' => 'false', 'withOutput' => 'true',
-            'itemTypeP' => $type
-        ];
-
-        if ($record->type == 'exit') {
-            $params['withOutput'] = 'true';
-        }
-
-
-        $method = 'PostProduction_OnlyBIN';
-        $shortages = ShortageItem::query()->where('vin', $record->vin)->whereNull('shortage_item_id')->where('status',
-            'pending')->with('erpProductItem')->get();
-        if ($count = $shortages->count()) {
-            $method = 'PostProduction_OnlyBIN_Shortage';
-            $params['lackItemNo'] = $shortages->implode('erpProductItem.reference', ',');
-            $params['lackRoutingNo'] = $shortages->implode('routing_link_code', ',');
-            $params['numberFractionalItems'] = $count;
-            $params['itemTypeP'] = $type;
-        }
-
-        $data = [
-            'user_id' => Auth::id(), 'section' => 'production-line-tracking-' . $record->type,
-            'model_id' => $record->id, 'model_type' => Tracking::class, 'method' => $method,
-            'url' => config('erp.post_production'), 'parameters' => $params, 'queue' => ErpJob::QUEUE_UNIQUE
-        ];
-
-        $erpJob = ErpJob::query()->where(['model_id' => $record->id, 'model_type' => Tracking::class,])->first();
-        if (empty($erpJob)) {
-            $erpJob = ErpJob::query()->create($data);
-        }
-
-        ErpJobEvent::dispatch($erpJob);
+        return resolve(ProductionPostingBINsService::class)->send(
+            $record->vin, '', 'false', 'true', $record->model->item_type, model: $record
+        )->unique();
     }
+
+    // پیاده‌سازی قبلی SOAP:
+    // public function sendToErp($record): void
+    // {
+    //     $type = $record->getAttribute('model')->item_type;
+    //
+    //     $params = [
+    //         'vINL' => $record->vin, 'wCGroup' => '',
+    //         'withTracking' => 'false',
+    //         'withOutput' => 'true',
+    //         'itemTypeP' => $type
+    //     ];
+    //
+    //     if ($record->type == 'exit') {
+    //         $params['withOutput'] = 'true';
+    //     }
+    //
+    //
+    //     $method = 'PostProduction_OnlyBIN';
+    //
+    //     $data = [
+    //         'user_id' => Auth::id(), 'section' => 'production-line-tracking-' . $record->type,
+    //         'model_id' => $record->id, 'model_type' => Tracking::class, 'method' => $method,
+    //         'url' => config('erp.post_production'), 'parameters' => $params, 'queue' => ErpJob::QUEUE_UNIQUE
+    //     ];
+    //
+    //     $erpJob = ErpJob::query()->where(['model_id' => $record->id, 'model_type' => Tracking::class,])->first();
+    //     if (empty($erpJob)) {
+    //         $erpJob = ErpJob::query()->create($data);
+    //     }
+    //
+    //     ErpJobEvent::dispatch($erpJob);
+    // }
 }

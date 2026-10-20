@@ -2,9 +2,12 @@
 
 namespace App\Services\Erp\RestApi;
 
+use App\Events\TrackingEvent;
 use App\Exceptions\RestErpQueueException;
+use App\Http\Resources\TrackingResource;
 use App\Jobs\SendToRestErpJob;
 use App\Models\RestErpJob;
+use App\Models\Tracking;
 use App\Services\Erp\RestApi\Servers\PreGoLiveServer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +31,7 @@ readonly class RestErpJobService
     ];
 
     private const VALIDATION_ATTRIBUTES = [
+        'WCGroup' => 'گروه مرکز کاری', 'WithTracking' => 'ثبت رهگیری', 'WithOutput' => 'ثبت خروجی',
         'VIN' => 'شماره شاسی', 'VINArray' => 'فهرست شماره شاسی‌ها',
         'BarcodeInfo' => 'بارکد خودرو', 'BarCode' => 'بارکد قطعه',
         'Destination' => 'مقصد', 'ItemType' => 'نوع کالا', 'ItemTypeP' => 'نوع کالا',
@@ -252,6 +256,7 @@ readonly class RestErpJobService
             } else {
                 $job = RestErpJob::query()->create($attributes);
                 $this->audit($job, 'rest_erp_created');
+                $this->recordProductionTracking($job, stage: $invalid ? 'rejected' : 'registered');
             }
             if ($queued && ! $invalid) {
                 $this->publishAfterCommit($job);
@@ -316,6 +321,7 @@ readonly class RestErpJobService
                 Bus::dispatch((new SendToRestErpJob((string) $job->getKey()))
                     ->onConnection($job->connection)->onQueue($job->queue));
                 $job->update(['dispatched_at' => now()]);
+                $this->recordProductionTracking($job, stage: 'queued');
 
                 return true;
             });
@@ -369,6 +375,7 @@ readonly class RestErpJobService
                 'completed_at' => null, 'failed_at' => null,
                 'http_status' => null, 'provider_http_status' => null, 'error_code' => null, 'description' => null,
             ]);
+            $this->recordProductionTracking($job, stage: 'in-progress');
 
             return $job;
         });
@@ -426,6 +433,7 @@ readonly class RestErpJobService
             if ($sent) {
                 $this->audit($job, 'rest_erp_'.$status);
             }
+            $this->recordProductionTracking($job, $result, broadcast: true);
         });
         if (! $result['success']) {
             $logMessage = $this->sanitizer->errorText($result['error']['message'] ?? 'درخواست بیزینس سنترال با موفقیت انجام نشد.');
@@ -471,7 +479,62 @@ readonly class RestErpJobService
                 'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
                 'endpoint' => $job->endpoint, 'status' => $job->status, 'error_code' => $job->error_code,
             ]);
+            $this->recordProductionTracking($job, [
+                'success' => false, 'error' => ['code' => $job->error_code, 'message' => $message],
+                'data' => null, 'http_status' => $job->http_status,
+            ], broadcast: true);
         });
+    }
+
+    private function recordProductionTracking(RestErpJob $job, ?array $result = null, ?string $stage = null, bool $broadcast = false): void
+    {
+        if ($job->endpoint !== 'ProductionPostingBINs' || $job->model_type !== (new Tracking)->getMorphClass()) {
+            return;
+        }
+        $tracking = Tracking::query()->lockForUpdate()->find($job->model_id);
+        if (! $tracking) {
+            return;
+        }
+        $stage ??= $job->status;
+        $message = match ($stage) {
+            'registered' => 'درخواست عملیات تولید ثبت شد.',
+            'queued' => 'درخواست عملیات تولید به صف ارسال شد.',
+            'retry' => 'درخواست عملیات تولید برای تلاش مجدد آماده شد.',
+            'in-progress' => 'درخواست عملیات تولید در حال اجرا است.',
+            'success' => 'عملیات تولید با موفقیت انجام شد.',
+            'ignored' => 'درخواست عملیات تولید نادیده گرفته شد.',
+            default => $job->description ?? 'وضعیت درخواست عملیات تولید به‌روز شد.',
+        };
+        $entry = [
+            'stage' => $stage,
+            'job_status' => $job->status,
+            'status' => match ($job->status) {
+                'success' => 'ok',
+                'failed', 'uncertain', 'rejected' => 'error',
+                default => $job->status,
+            },
+            'message' => $message,
+            'rest_erp_job_id' => $job->id, 'request_id' => $job->uuid,
+            'queue' => $job->queue, 'tries' => $job->tries,
+            'http_status' => $job->http_status, 'provider_http_status' => $job->provider_http_status,
+            'error_code' => $job->error_code, 'execute_time' => $job->execute_time,
+            'recorded_at' => now()->toISOString(),
+            'result' => $result === null ? null : $this->sanitizer->sanitize($result),
+        ];
+        $tracking->update(['data' => $entry]);
+
+        if ($broadcast) {
+            DB::afterCommit(function () use ($tracking, $job) {
+                try {
+                    TrackingEvent::dispatch(new TrackingResource($tracking->fresh()));
+                } catch (Throwable $exception) {
+                    // A notification failure must never cause an ERP posting to be replayed.
+                    Log::warning('ارسال اعلان نتیجه رهگیری تولید ناموفق بود.', [
+                        'rest_erp_job_id' => $job->id, 'exception_class' => $exception::class,
+                    ]);
+                }
+            });
+        }
     }
 
     public function retry(RestErpJob $job, int $userId, bool $acknowledgeUncertain = false): RestErpJob
@@ -510,6 +573,7 @@ readonly class RestErpJobService
             'ignored_at' => null,
             ...$attributes,
         ]);
+        $this->recordProductionTracking($job, stage: $job->status === 'rejected' ? 'rejected' : 'retry');
     }
 
     public function ignore(RestErpJob $job, int $userId): RestErpJob
@@ -520,6 +584,7 @@ readonly class RestErpJobService
                 throw ValidationException::withMessages(['status' => 'درخواست در این وضعیت قابل نادیده گرفتن نیست.']);
             }
             $job->update(['status' => 'ignored', 'ignored_at' => now()]);
+            $this->recordProductionTracking($job, stage: 'ignored');
             $this->recordActor($job, $userId);
 
             return $job;

@@ -41,6 +41,7 @@ class RestErpExecutionModeTest extends TestCase
             ['ImportVehiclesService', 'ImportVehicles', [$vin, []]],
             ['ItemReclassJournalsService', 'ItemReclassJournals', ['REF-1', 'BATCH-1', 1, 'TEST']],
             ['SetQcStatusService', 'qcStatuses', [$vin, 84, 2, 1]],
+            ['ProductionPostingBINsService', 'ProductionPostingBINs', [$vin, '', 'false', 'false', 2]],
             ['TrackingsService', 'Trackings', [$vin, 'BARCODE-1', 2]],
             ['TransferVehicleProdZonesService', 'TransferVehicleProdZones', [$vin, 'LOCATION-1']],
             ['VehicleTypeBlockingsService', 'VehicleTypeBlockings', [$vin, 'cop']],

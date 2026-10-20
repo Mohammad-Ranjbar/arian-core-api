@@ -9,6 +9,7 @@ use App\Services\Erp\RestApi\GroupExitsService;
 use App\Services\Erp\RestApi\GroupReturnsService;
 use App\Services\Erp\RestApi\ImportVehiclesService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
+use App\Services\Erp\RestApi\ProductionPostingBINsService;
 use App\Services\Erp\RestApi\ReturnRequestsService;
 use App\Services\Erp\RestApi\SetQcStatusService;
 use App\Services\Erp\RestApi\TrackingsService;
@@ -30,6 +31,17 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'ProductionPostingBINs' => [
+            'service' => ProductionPostingBINsService::class,
+            'mode' => 'unique',
+            'rules' => [
+                'VIN' => ['required', 'string'],
+                'WCGroup' => ['present', 'string'],
+                'WithTracking' => ['required', 'string', 'regex:/^(true|false)$/'],
+                'WithOutput' => ['required', 'string', 'regex:/^(true|false)$/'],
+                'ItemType' => ['required', 'string'],
+            ],
+        ],
         'VehicleUnblocks' => [
             'service' => VehicleUnblocksService::class,
             'mode' => 'sync',
