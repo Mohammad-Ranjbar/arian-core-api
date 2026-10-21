@@ -166,7 +166,7 @@ class GatePermitTransferControllerTest extends TestCase
         $this->assertSame($code, $job->error_code);
         $this->assertSame($httpStatus, $job->http_status);
         $this->assertSame('sync', $job->execution_mode);
-        $this->assertSame(['rest_erp_created', 'rest_erp_'.$job->status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', ...($providerStatus === 0 ? [] : ['rest_erp_'.$job->status])], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertSentCount($providerStatus === 0 ? 0 : 1);
         $this->assertSame(0, DB::transactionLevel());
         $this->assertNoQueuedOrLegacyDispatch();

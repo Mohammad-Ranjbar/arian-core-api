@@ -170,7 +170,7 @@ class ApproveZonesServiceTest extends TestCase
         $this->assertSame($code, $job->error_code);
         $this->assertSame($httpStatus, $job->http_status);
         $this->assertSame($providerStatus ?: null, $job->provider_http_status);
-        $this->assertSame(['rest_erp_created', 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', ...($providerStatus === 0 ? [] : ['rest_erp_'.$status])], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertSentCount($providerStatus === 0 ? 0 : 1);
         Bus::assertNothingDispatched();
         Queue::assertNothingPushed();

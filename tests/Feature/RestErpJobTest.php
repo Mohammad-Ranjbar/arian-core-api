@@ -506,8 +506,8 @@ class RestErpJobTest extends TestCase
         $this->assertSame(2, $job->tries);
         $this->assertSame(43, $job->last_retry_user_id);
         $this->assertDatabaseHas('rest_erp_job_actors', ['rest_erp_job_id' => $job->id, 'user_id' => 43]);
-        $this->assertSame('uncertain', $job->actionLogs()->where('action', 'rest_erp_uncertain')->sole()->data['snapshot']['status']);
-        $this->assertSame(['rest_erp_created', 'rest_erp_uncertain', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(0, $job->actionLogs()->where('action', 'rest_erp_uncertain')->count());
+        $this->assertSame(['rest_erp_created', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         $this->assertStringNotContainsString('connection-secret', json_encode($job->actionLogs()->get()->toArray()));
     }
 

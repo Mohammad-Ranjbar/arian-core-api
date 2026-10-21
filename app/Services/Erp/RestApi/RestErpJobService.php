@@ -420,7 +420,7 @@ readonly class RestErpJobService
             || (! $result['success'] && $code !== 'Application_DialogException' && $providerStatus !== null
                 && ($providerStatus >= 500 || ($providerStatus >= 200 && $providerStatus < 300)));
         $status = $result['success'] ? 'success' : ($uncertain ? 'uncertain' : 'failed');
-        DB::transaction(function () use ($job, $result, $providerStatus, $providerBody, $code, $status, $start, $sent) {
+        DB::transaction(function () use ($job, $result, $providerStatus, $providerBody, $code, $status, $start) {
             $current = RestErpJob::query()->lockForUpdate()->findOrFail($job->id);
             if ($current->tries !== $job->tries || ! in_array($current->status, ['in-progress', 'uncertain'], true)) {
                 return;
@@ -432,7 +432,7 @@ readonly class RestErpJobService
                 'execute_time' => round(microtime(true) - $start, 4),
                 'completed_at' => now(), 'failed_at' => $result['success'] ? null : now(),
             ]);
-            if ($sent) {
+            if ($providerStatus !== null) {
                 $this->audit($job, 'rest_erp_'.$status);
             }
             if ($providerStatus !== null && $job->endpoint === 'ProductionPostingBINs') {
@@ -591,12 +591,6 @@ readonly class RestErpJobService
         $parameters = $snapshot['parameters'] ?? null;
         unset($snapshot['parameters']);
         $data = $this->sanitizer->sanitize([
-            'result' => [
-                'status' => $job->status, 'tries' => $job->tries,
-                'http_status' => $job->http_status, 'provider_http_status' => $job->provider_http_status,
-                'error_code' => $job->error_code, 'description' => $job->description,
-                'execute_time' => $job->execute_time,
-            ],
             'snapshot' => $snapshot,
         ]);
         if (! is_array($data)) {

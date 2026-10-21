@@ -124,7 +124,7 @@ class BarcodeStoreRestErpTest extends TestCase
         $job = RestErpJob::query()->sole();
         $this->assertSame($jobStatus, $job->status);
         $this->assertSame(['VIN' => self::VIN, 'BarCode' => '0001234567*890', 'ItemType' => '3'], $job->parameters);
-        $this->assertSame(['rest_erp_created', 'rest_erp_'.$jobStatus], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', ...($status === 0 ? [] : ['rest_erp_'.$jobStatus])], $job->actionLogs()->orderBy('id')->pluck('action')->all());
     }
 
     public function test_local_rollback_keeps_successful_erp_job(): void

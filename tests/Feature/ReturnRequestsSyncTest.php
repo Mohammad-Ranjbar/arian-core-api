@@ -67,7 +67,7 @@ class ReturnRequestsSyncTest extends TestCase
         $this->assertDatabaseCount('rest_erp_jobs', 1);
         $this->assertSame('sync', $job->execution_mode);
         $this->assertSame($jobStatus, $job->status);
-        $this->assertSame(['rest_erp_created', ...array_fill(0, $expectedAttempts, 'rest_erp_'.$jobStatus)], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', ...($status === 0 ? [] : array_fill(0, $expectedAttempts, 'rest_erp_'.$jobStatus))], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Queue::assertNothingPushed();
     }
 

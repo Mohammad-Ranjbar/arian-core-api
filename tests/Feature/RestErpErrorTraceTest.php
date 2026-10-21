@@ -82,7 +82,7 @@ class RestErpErrorTraceTest extends TestCase
         $this->assertSame($message, $job->description);
         $audit = $job->actionLogs()->latest('id')->first();
         $this->assertSame($message, $audit->data['snapshot']['description']);
-        $this->assertSame($message, $audit->data['result']['description']);
+        $this->assertArrayNotHasKey('result', $audit->data);
 
         return $job;
     }
@@ -134,7 +134,7 @@ class RestErpErrorTraceTest extends TestCase
         $this->assertStringContainsString('cURL error 28: request timed out.', $result['error']['message']);
         $this->assertStringContainsString('Socket timeout.', $result['error']['message']);
         $this->assertStringNotContainsString('wire-secret', $result['error']['message']);
-        $job = $this->assertAuditedMessage($result['error']['message']);
+        $job = $this->assertStoredErrorWithoutErpOutcome($result['error']['message']);
         $this->assertSame('uncertain', $job->status);
         $this->assertNull($job->provider_http_status);
     }
@@ -193,7 +193,7 @@ class RestErpErrorTraceTest extends TestCase
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
         $this->assertSame('ERP_CONFIGURATION_ERROR', $result['error']['code']);
         $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}تنظیمات لازم برای اتصال به بیزینس سنترال کامل نیست: نام کاربری بیزینس سنترال، رمز عبور بیزینس سنترال \u{2069}\u{2069}", $result['error']['message']);
-        $this->assertAuditedMessage($result['error']['message']);
+        $this->assertStoredErrorWithoutErpOutcome($result['error']['message']);
         Http::assertNothingSent();
     }
 

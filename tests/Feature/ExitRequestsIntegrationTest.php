@@ -670,7 +670,7 @@ class ExitRequestsIntegrationTest extends TestCase
         $this->assertSame($status, $job->status);
         $this->assertSame(2, $job->tries);
         $this->assertSame($job->id, $responses[0]['rest_erp_job_id']);
-        $this->assertSame(['rest_erp_created', 'rest_erp_'.$status, 'rest_erp_'.$status], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_created', ...($providerStatus === 0 ? [] : ['rest_erp_'.$status, 'rest_erp_'.$status])], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Queue::assertNothingPushed();
     }
 

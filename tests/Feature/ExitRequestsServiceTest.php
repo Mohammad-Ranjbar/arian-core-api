@@ -209,7 +209,7 @@ class ExitRequestsServiceTest extends TestCase
         $this->assertSame($httpStatus, $job->http_status);
         $this->assertSame($providerStatus ?: null, $job->provider_http_status);
         $this->assertSame(1, $job->tries);
-        $this->assertSame('rest_erp_'.$status, $job->actionLogs()->orderByDesc('id')->first()->action);
+        $this->assertSame($providerStatus === 0 ? 'rest_erp_created' : 'rest_erp_'.$status, $job->actionLogs()->orderByDesc('id')->first()->action);
     }
 
     private const LOCATION_ERROR = 'Please Check Location.  CorrelationId:  cc5fc117-ebd0-4e7b-a67c-109b95ab3619.';
@@ -245,7 +245,7 @@ class ExitRequestsServiceTest extends TestCase
         $this->assertSame($status, $job->status);
         $log = $job->actionLogs()->latest('id')->first();
         $this->assertSame($message, $log->data['snapshot']['description']);
-        $this->assertSame($message, $log->data['result']['description']);
+        $this->assertArrayNotHasKey('result', $log->data);
         Log::shouldHaveReceived('warning')->with($message, \Mockery::on(fn ($context) => $context['rest_erp_job_id'] === $job->id && $context['error_code'] === $code))->once();
         Http::assertSentCount(1);
     }
