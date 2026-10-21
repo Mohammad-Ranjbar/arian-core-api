@@ -174,7 +174,12 @@ class ProductionPostingBINsServiceTest extends TestCase
         return [
             'success value' => [['value' => 'Consumption of VIN '.self::VIN.' in WC  is posted.'], 201, 'success', 'Consumption of VIN '.self::VIN.' in WC  is posted.'],
             'success message' => [['message' => 'Posted.'], 200, 'success', 'Posted.'],
-            'success without message' => [['posted' => true], 201, 'success', '{"posted":true}'],
+            'success without message' => [['posted' => true], 201, 'success', ''],
+            'entity response without message' => [[
+                'VIN' => self::VIN, 'WCGroup' => '', 'entryNo' => 0, 'ItemType' => '2',
+                'WithOutput' => true, 'WithTracking' => false,
+                '@odata.etag' => 'entity-tag', '@odata.context' => 'provider-metadata',
+            ], 201, 'success', ''],
             'masked success message' => [['value' => 'Posted. password=private-secret'], 200, 'success', 'Posted. password=[REDACTED]'],
             'empty JSON response' => [[], 200, 'success', ''],
             'business failure' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Provider detail']], 400, 'failed', 'Provider detail'],
@@ -309,7 +314,7 @@ class ProductionPostingBINsServiceTest extends TestCase
         $this->assertNull($record->fresh()->data);
         $this->assertSame('pending', $job->fresh()->status);
         $jobs->execute($job->id);
-        $this->assertSame(['status' => 'ok', 'message' => '{"posted":true}'], $record->fresh()->data);
+        $this->assertSame(['status' => 'ok', 'message' => ''], $record->fresh()->data);
     }
 
     public function test_sync_resubmission_clears_the_old_response_before_sending(): void
@@ -329,7 +334,7 @@ class ProductionPostingBINsServiceTest extends TestCase
         $this->assertNotNull($record->fresh()->data);
         $service->send(self::VIN, '', 'false', 'true', 3, $record)->sync();
 
-        $this->assertSame(['status' => 'ok', 'message' => '{"posted":true}'], $record->fresh()->data);
+        $this->assertSame(['status' => 'ok', 'message' => ''], $record->fresh()->data);
         $this->assertDatabaseCount('rest_erp_jobs', 1);
     }
 

@@ -501,11 +501,7 @@ readonly class RestErpJobService
                 }
             }
         }
-        // Preserve an unfamiliar provider response instead of inventing a success message.
-        $message ??= $providerBody === [] || $providerBody === null ? ''
-            : json_encode($providerBody, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-
-        return ['status' => 'ok', 'message' => $this->sanitizer->errorText($message)];
+        return ['status' => 'ok', 'message' => $this->sanitizer->errorText($message ?? '')];
     }
 
     private function recordProductionTracking(RestErpJob $job, mixed $response = null, bool $broadcast = false): void
