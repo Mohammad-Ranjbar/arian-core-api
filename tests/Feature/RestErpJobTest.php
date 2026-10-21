@@ -678,11 +678,12 @@ class RestErpJobTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_endpoint_configuration_rejects_arbitrary_destinations_and_credentials_and_accepts_internal_http(): void
+    public function test_endpoint_configuration_rejects_invalid_urls_and_credentials_and_accepts_internal_http(): void
     {
         $service = resolve(RestErpJobService::class);
         foreach ([
-            'http://attacker.invalid/PreBC',
+            'ftp://erp.example.test/BC',
+            'http:/BC',
             'http://user:password@172.16.0.154:7048/PreBC',
             self::ERP_URL.'?token=secret',
             self::ERP_URL.'#fragment',
@@ -695,7 +696,7 @@ class RestErpJobTest extends TestCase
                 $this->assertSame('آدرس پایه بیزینس سنترال در تنظیمات معتبر نیست.', $exception->getMessage());
             }
         }
-        config()->set('rest_erp.base_url', 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0');
+        config()->set('rest_erp.base_url', 'http://172.16.0.154:7048/PreBC/api/arianCapital');
         $result = $service->enqueue('ItemReclassJournals', [
             'ArrayCrossReferenceNo' => 'BKJ1038538', 'BatchNo' => 'test', 'Number' => '1', 'BatchName' => 'LAMARI',
         ]);

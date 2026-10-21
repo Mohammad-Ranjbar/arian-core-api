@@ -31,7 +31,7 @@ class BlockItemImportTest extends TestCase
         parent::setUp();
         $this->createRestErpTables();
         Auth::forgetGuards();
-        config()->set('rest_erp.base_url', 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0');
+        config()->set('rest_erp.base_url', 'http://172.16.0.154:7048/PreBC/api/arianCapital');
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
         Queue::fake();
@@ -129,7 +129,7 @@ class BlockItemImportTest extends TestCase
         $this->assertSame(2, $attempts);
         Http::assertSentCount($status === 0 ? 1 : 2);
         Http::assertSent(fn (Request $request) => $request->method() === 'POST'
-            && $request->url() === config('rest_erp.base_url').'/VehicleTypeBlockings'
+            && $request->url() === config('rest_erp.base_url').'/product/v1.0/VehicleTypeBlockings'
             && $request->data() === ['BarcodeInfo' => 'VIN-OK', 'BlockType' => 'cop']);
         Queue::assertNothingPushed();
         Event::assertDispatchedTimes(JobProcessEvent::class, 4);

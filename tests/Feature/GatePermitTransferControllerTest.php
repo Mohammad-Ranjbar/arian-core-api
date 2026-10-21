@@ -109,7 +109,7 @@ class GatePermitTransferControllerTest extends TestCase
         $this->assertSame(['message' => 'تردد ثبت گردید'], $response->getData(true));
         Http::assertSentCount(1);
         $request = Http::recorded()->sole()[0];
-        $this->assertSame(config('rest_erp.base_url').'/'.$endpoint, $request->url());
+        $this->assertSame(config('rest_erp.base_url').'/product/v1.0/'.$endpoint, $request->url());
         $this->assertSame([$field => self::VIN, 'ItemType' => '2'], $request->data());
         $this->assertSoftDeleted($permit);
         foreach ([$older, $otherVin, $otherModel] as $remaining) {

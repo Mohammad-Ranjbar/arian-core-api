@@ -33,7 +33,7 @@ class VehicleUnblocksTest extends TestCase
     {
         parent::setUp();
         $this->createRestErpTables();
-        config()->set('rest_erp.base_url', 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0');
+        config()->set('rest_erp.base_url', 'http://172.16.0.154:7048/PreBC/api/arianCapital');
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
         Queue::fake();
@@ -79,7 +79,7 @@ class VehicleUnblocksTest extends TestCase
             $this->assertNull($block->fresh()->unblocked_at);
             $this->assertSame(['test-user', 'test-password', 'ntlm'], $options['auth']);
             $this->assertSame('POST', $request->method());
-            $this->assertSame(config('rest_erp.base_url').'/VehicleUnblocks', $request->url());
+            $this->assertSame(config('rest_erp.base_url').'/product/v1.0/VehicleUnblocks', $request->url());
             $this->assertSame(['BarcodeInfo' => $block->vin], $request->data());
             if ($status === 0) {
                 throw new ConnectionException('Connection timed out.');

@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Services\Erp\RestApi\Servers\PreGoLiveServer;
+use App\Jobs\SendToRestErpJob;
+use App\Services\Erp\RestApi\Servers\Server;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-class PreGoLiveServerErrorMessageTest extends TestCase
+class ServerErrorMessageTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -39,7 +40,7 @@ class PreGoLiveServerErrorMessageTest extends TestCase
             return Http::response($body, $status);
         });
 
-        $server = resolve(PreGoLiveServer::class);
+        $server = resolve(Server::class);
         foreach ([$server->get('productionBoardEntries'), $server->post('ExitPrints', [])] as $result) {
             $this->assertFalse($result['success']);
             $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}{$detail} \u{2069}\u{2069}", $result['error']['message']);
@@ -54,10 +55,10 @@ class PreGoLiveServerErrorMessageTest extends TestCase
 
             return Http::response([]);
         });
-        $server = resolve(PreGoLiveServer::class);
+        $server = resolve(Server::class);
         $this->assertTrue($server->get('productionBoardEntries')['success']);
         $this->assertTrue($server->post('ProductionPostingBINs', [])['success']);
-        $timeout = (new \App\Jobs\SendToRestErpJob('1'))->timeout;
+        $timeout = (new SendToRestErpJob('1'))->timeout;
         $this->assertGreaterThan(300, $timeout);
         foreach (['redis', 'database', 'beanstalkd'] as $connection) {
             $this->assertGreaterThan($timeout, config('queue.connections.'.$connection.'.retry_after'));
@@ -68,7 +69,7 @@ class PreGoLiveServerErrorMessageTest extends TestCase
     {
         Http::fake(['*' => Http::response(['error' => ['message' => str_repeat('Failure. ', 1000)]], 400)]);
 
-        $message = resolve(PreGoLiveServer::class)->post('ExitPrints', [])['error']['message'];
+        $message = resolve(Server::class)->post('ExitPrints', [])['error']['message'];
 
         $this->assertLessThanOrEqual(4096, strlen($message));
         $this->assertStringStartsWith("\u{2067}خطای بیزینس سنترال :: \u{2068}", $message);
@@ -81,6 +82,6 @@ class PreGoLiveServerErrorMessageTest extends TestCase
 
         $this->assertSame([
             'success' => true, 'data' => ['accepted' => true], 'error' => null, 'http_status' => 200,
-        ], resolve(PreGoLiveServer::class)->post('ExitPrints', []));
+        ], resolve(Server::class)->post('ExitPrints', []));
     }
 }

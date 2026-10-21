@@ -18,9 +18,7 @@ use App\Services\Erp\RestApi\VehicleTypeBlockingsService;
 use App\Services\Erp\RestApi\VehicleUnblocksService;
 
 return [
-    'base_url' => env('ERP_REST_BASE_URL', 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0'),
-    'production_base_url' => env('ERP_REST_PRODUCTION_BASE_URL', 'http://172.16.0.154:7048/PreBC/api/arianCapital/production/v1.0'),
-    'allowed_hosts' => ['172.16.0.154'],
+    'base_url' => env('ERP_REST_BASE_URL', 'http://172.16.0.154:7048/PreBC/api/arianCapital'),
     'connection' => env('REST_ERP_QUEUE_CONNECTION', 'redis'),
     'queue' => 'parallel',
     // sync: immediate response; parallel / unique: queues on the connection above.

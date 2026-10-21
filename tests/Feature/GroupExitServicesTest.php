@@ -63,14 +63,14 @@ class GroupExitServicesTest extends TestCase
             $this->assertSame(['test-user', 'test-password', 'ntlm'], $options['auth']);
             $this->assertFalse($options['allow_redirects']);
             $this->assertSame(5, $options['connect_timeout']);
-            $this->assertSame(15, $options['timeout']);
+            $this->assertSame(300, $options['timeout']);
 
             return Http::response(['accepted' => true], 201);
         });
         $outcome = resolve(RestErpJobService::class)->execute($job->id);
         $this->assertSame(['success' => true, 'data' => ['accepted' => true], 'error' => null, 'http_status' => 201], $outcome);
         Http::assertSentCount(1);
-        Http::assertSent(fn (Request $request) => $request->url() === config('rest_erp.base_url').'/'.$endpoint
+        Http::assertSent(fn (Request $request) => $request->url() === config('rest_erp.base_url').'/product/v1.0/'.$endpoint
             && $request->method() === 'POST' && $request->hasHeader('Content-Type', 'application/json')
             && $request->hasHeader('Accept', 'application/json') && $request->data() === $payload);
         $job->refresh();

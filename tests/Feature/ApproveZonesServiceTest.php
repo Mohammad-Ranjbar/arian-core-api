@@ -43,7 +43,7 @@ class ApproveZonesServiceTest extends TestCase
         Http::fake(function (Request $request, array $options) use ($body) {
             $this->assertSame(['test-user', 'test-password', 'ntlm'], $options['auth']);
             $this->assertSame(5, $options['connect_timeout']);
-            $this->assertSame(15, $options['timeout']);
+            $this->assertSame(300, $options['timeout']);
             $this->assertFalse($options['allow_redirects']);
 
             return Http::response($body, 201);
@@ -54,7 +54,7 @@ class ApproveZonesServiceTest extends TestCase
         $this->assertSame(['success' => true, 'data' => $body, 'error' => null, 'http_status' => 201], $result);
         $payload = [$field => $identifier, 'ItemType' => '2'];
         Http::assertSentCount(1);
-        Http::assertSent(fn (Request $request) => $request->url() === config('rest_erp.base_url').'/'.$endpoint
+        Http::assertSent(fn (Request $request) => $request->url() === config('rest_erp.base_url').'/product/v1.0/'.$endpoint
             && $request->method() === 'POST'
             && $request->hasHeader('Content-Type', 'application/json')
             && $request->hasHeader('Accept', 'application/json')

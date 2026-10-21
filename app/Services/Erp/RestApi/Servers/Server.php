@@ -10,7 +10,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 
-class PreGoLiveServer
+class Server
 {
     private const array ENDPOINTS = [
         'ProductionPostingBINs' => 'ProductionPostingBINs',
@@ -38,17 +38,17 @@ class PreGoLiveServer
             throw new InvalidArgumentException('عملیات درخواستی بیزینس سنترال پشتیبانی نمی‌شود.');
         }
 
-        $baseUrl = config($endpoint === 'productionBoardEntries' ? 'rest_erp.production_base_url' : 'rest_erp.base_url');
+        $baseUrl = config('rest_erp.base_url');
         $parts = is_string($baseUrl) ? parse_url($baseUrl) : false;
         if (! is_array($parts)
             || ! in_array($parts['scheme'] ?? null, ['http', 'https'], true)
-            || ! in_array($parts['host'] ?? null, config('rest_erp.allowed_hosts', []), true)
+            || empty($parts['host'])
             || isset($parts['user']) || isset($parts['pass'])
             || isset($parts['query']) || isset($parts['fragment'])) {
             throw new InvalidArgumentException('آدرس پایه بیزینس سنترال در تنظیمات معتبر نیست.');
         }
 
-        return rtrim($baseUrl, '/').'/'.self::ENDPOINTS[$endpoint];
+        return rtrim($baseUrl, '/').'/product/v1.0/'.self::ENDPOINTS[$endpoint];
     }
 
     public function post(string $endpoint, array $data, ?callable $onResponse = null, ?string $requestId = null): array

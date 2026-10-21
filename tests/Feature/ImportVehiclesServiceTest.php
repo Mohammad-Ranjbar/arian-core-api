@@ -23,7 +23,7 @@ class ImportVehiclesServiceTest extends TestCase
     {
         parent::setUp();
         $this->createRestErpTables();
-        config()->set('rest_erp.base_url', dirname(self::ERP_URL));
+        config()->set('rest_erp.base_url', dirname(self::ERP_URL, 3));
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
     }

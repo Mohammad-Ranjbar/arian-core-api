@@ -16,6 +16,7 @@ use App\Services\Erp\RestApi\RestErpJobService;
 use App\Services\TrackingService\ProductionLineTrackingService;
 use App\Services\TrackingService\StationTrackingService;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,13 +33,14 @@ class ProductionPostingBINsServiceTest extends TestCase
     use CreatesRestErpTables;
 
     private const URL = 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0/ProductionPostingBINs';
+
     private const VIN = 'N5RL40000S0002132';
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->createRestErpTables();
-        config()->set('rest_erp.base_url', dirname(self::URL));
+        config()->set('rest_erp.base_url', dirname(self::URL, 3));
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
         Queue::fake();
@@ -350,7 +352,7 @@ class ProductionPostingBINsServiceTest extends TestCase
         resolve(ProductionLineTrackingService::class)->sendToErp($record);
         Http::fake(function () use ($record) {
             $this->assertNull($record->fresh()->data);
-            throw new \Illuminate\Http\Client\ConnectionException('Connection timed out');
+            throw new ConnectionException('Connection timed out');
         });
         resolve(RestErpJobService::class)->execute(RestErpJob::query()->sole()->id);
 

@@ -8,7 +8,7 @@ use App\Http\Resources\TrackingResource;
 use App\Jobs\SendToRestErpJob;
 use App\Models\RestErpJob;
 use App\Models\Tracking;
-use App\Services\Erp\RestApi\Servers\PreGoLiveServer;
+use App\Services\Erp\RestApi\Servers\Server;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
@@ -51,7 +51,7 @@ readonly class RestErpJobService
     ];
 
     public function __construct(
-        private PreGoLiveServer $server,
+        private Server $server,
         private RestErpLogSanitizer $sanitizer,
         private RestErpRequestContext $context
     ) {}

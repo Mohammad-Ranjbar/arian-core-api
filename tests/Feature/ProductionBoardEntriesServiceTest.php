@@ -18,12 +18,12 @@ use Tests\TestCase;
 
 class ProductionBoardEntriesServiceTest extends TestCase
 {
-    private const ERP_URL = 'http://172.16.0.154:7048/PreBC/api/arianCapital/production/v1.0/productionBoardEntries';
+    private const ERP_URL = 'http://172.16.0.154:7048/PreBC/api/arianCapital/product/v1.0/productionBoardEntries';
 
     protected function setUp(): void
     {
         parent::setUp();
-        config()->set('rest_erp.production_base_url', dirname(self::ERP_URL));
+        config()->set('rest_erp.base_url', dirname(self::ERP_URL, 3));
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
     }

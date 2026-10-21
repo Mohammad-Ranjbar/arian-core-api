@@ -2,11 +2,11 @@
 
 namespace App\Services\Erp\RestApi;
 
-use App\Services\Erp\RestApi\Servers\PreGoLiveServer;
+use App\Services\Erp\RestApi\Servers\Server;
 
 readonly class ProductionBoardEntriesService
 {
-    public function __construct(private PreGoLiveServer $server) {}
+    public function __construct(private Server $server) {}
 
     public function get(): array
     {

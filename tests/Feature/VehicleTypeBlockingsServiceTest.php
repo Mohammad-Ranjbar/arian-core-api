@@ -38,7 +38,7 @@ class VehicleTypeBlockingsServiceTest extends TestCase
             $table->softDeletes();
             $table->timestamps();
         });
-        config()->set('rest_erp.base_url', dirname(self::ERP_URL));
+        config()->set('rest_erp.base_url', dirname(self::ERP_URL, 3));
         config()->set('erp.auth', ['test-user', 'test-password', 'ntlm']);
         Http::preventStrayRequests();
         Queue::fake();
