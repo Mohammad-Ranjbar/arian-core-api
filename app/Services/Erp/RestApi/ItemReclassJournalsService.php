@@ -13,9 +13,10 @@ readonly class ItemReclassJournalsService
         string $batchNo,
         string|int $number,
         string $batchName,
-        ?Model $model = null
+        ?Model $model = null,
+        ?int $userId = null
     ): PendingRestErpRequest {
-        return $this->jobs->pending('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'ارسال سبد قطعات به ERP');
+        return $this->jobs->pending('ItemReclassJournals', $this->payload($arrayCrossReferenceNo, $batchNo, $number, $batchName), $model, 'ارسال سبد قطعات به ERP', $userId);
     }
 
     public function dispatch(

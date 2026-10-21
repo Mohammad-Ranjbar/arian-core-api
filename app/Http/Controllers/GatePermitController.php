@@ -95,19 +95,19 @@ class GatePermitController extends CrudController
                 $data = new $this->resource($saveItem);
 
                 if ($validatedData['type'] == 'exit') {
-                    $result = resolve(ExitRequestsService::class)->dispatch(
+                    $result = resolve(ExitRequestsService::class)->send(
                         $saveItem->getAttribute('model_id'), $saveItem->getAttribute('exit_type'),
                         (string) $location->getAttribute('code'), (string) $saveItem->getAttribute('item_type'),
                         model: $saveItem
-                    );
+                    )->parallel();
                     if (! $result['success']) {
                         throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));
                     }
 
-                    $printResult = resolve(ExitPrintsService::class)->dispatch(
+                    $printResult = resolve(ExitPrintsService::class)->send(
                         $saveItem->getAttribute('model_id'), (string) $saveItem->getAttribute('item_type'),
                         model: $saveItem, dependsOnId: $result['data']['rest_erp_job_id']
-                    );
+                    )->parallel();
                     if (! $printResult['success']) {
                         throw new HttpResponseException(response()->json(['error' => $printResult['error']], $printResult['http_status']));
                     }

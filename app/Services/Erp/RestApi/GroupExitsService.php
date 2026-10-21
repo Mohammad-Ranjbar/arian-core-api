@@ -8,9 +8,9 @@ readonly class GroupExitsService
 {
     public function __construct(private RestErpJobService $jobs) {}
 
-    public function send(string $vinArray, string|int $typeOfExit, string $destination, string|int $numberVin, string|int $itemType, ?Model $model = null): PendingRestErpRequest
+    public function send(string $vinArray, string|int $typeOfExit, string $destination, string|int $numberVin, string|int $itemType, ?Model $model = null, ?int $userId = null): PendingRestErpRequest
     {
-        return $this->jobs->pending('GroupExits', $this->payload($vinArray, $typeOfExit, $destination, $numberVin, $itemType), $model, 'درخواست خروج گروهی خودروها');
+        return $this->jobs->pending('GroupExits', $this->payload($vinArray, $typeOfExit, $destination, $numberVin, $itemType), $model, 'درخواست خروج گروهی خودروها', $userId);
     }
 
     public function dispatch(string $vinArray, string|int $typeOfExit, string $destination, string|int $numberVin, string|int $itemType, ?Model $model = null, ?int $userId = null, ?RestErpExecutionMode $mode = null): array

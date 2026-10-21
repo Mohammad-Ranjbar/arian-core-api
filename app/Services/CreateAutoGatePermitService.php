@@ -109,7 +109,7 @@ class CreateAutoGatePermitService
     {
         $destination = (string) $permit->getAttribute('location')->code;
         $result = $permit->type === 'exit'
-            ? $this->exitRequests->dispatch($permit->model_id, 2, $destination, (string) $itemType, model: $permit, userId: $actorId)
+            ? $this->exitRequests->send($permit->model_id, 2, $destination, (string) $itemType, model: $permit, userId: $actorId)->parallel()
             : $returnResult;
 
         $jobId = $this->jobId($result);
@@ -123,18 +123,18 @@ class CreateAutoGatePermitService
         $vins = implode(',', array_map(fn (GatePermit $gate) => $gate->model_id, $permits));
         $destination = (string) $permit->getAttribute('location')->code;
         $result = $permit->type === 'exit'
-            ? $this->groupExits->dispatch($vins, 2, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId)
-            : $this->groupReturns->dispatch($vins, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId);
+            ? $this->groupExits->send($vins, 2, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId)->parallel()
+            : $this->groupReturns->send($vins, $destination, count($permits), (string) $itemType, model: $permit, userId: $actorId)->parallel();
 
         $jobId = $this->jobId($result);
         $this->recordRequest($billOfLading, $permit->type, $jobId, $actorId);
 
         if ($permit->type === 'exit') {
             foreach ($permits as $gate) {
-                $this->jobId($this->exitPrints->dispatch(
+                $this->jobId($this->exitPrints->send(
                     $gate->model_id, (string) $itemType, model: $gate,
                     userId: $actorId, dependsOnId: $jobId
-                ));
+                )->parallel());
             }
         }
     }

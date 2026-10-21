@@ -8,9 +8,9 @@ readonly class ExitRequestsService
 {
     public function __construct(private RestErpJobService $jobs) {}
 
-    public function send(string $vin, string|int $typeOfExit, string $destination, string|int $itemType, ?Model $model = null): PendingRestErpRequest
+    public function send(string $vin, string|int $typeOfExit, string $destination, string|int $itemType, ?Model $model = null, ?int $userId = null): PendingRestErpRequest
     {
-        return $this->jobs->pending('ExitRequests', $this->payload($vin, $typeOfExit, $destination, $itemType), $model, 'درخواست خروج خودرو');
+        return $this->jobs->pending('ExitRequests', $this->payload($vin, $typeOfExit, $destination, $itemType), $model, 'درخواست خروج خودرو', $userId);
     }
 
     public function dispatch(string $vin, string|int $typeOfExit, string $destination, string|int $itemType, ?Model $model = null, ?int $userId = null, ?RestErpExecutionMode $mode = null): array

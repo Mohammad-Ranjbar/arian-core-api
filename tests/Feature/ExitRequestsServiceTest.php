@@ -85,7 +85,7 @@ class ExitRequestsServiceTest extends TestCase
             $this->assertSame(['test-user', 'test-password', 'ntlm'], $options['auth']);
             $this->assertFalse($options['allow_redirects']);
             $this->assertSame(5, $options['connect_timeout']);
-            $this->assertSame(15, $options['timeout']);
+            $this->assertSame(300, $options['timeout']);
 
             return Http::response($body, 201);
         });

@@ -5,12 +5,16 @@ namespace Tests\Feature;
 use App\Exceptions\RestErpQueueException;
 use App\Jobs\SendToRestErpJob;
 use App\Models\RestErpJob;
+use App\Services\Erp\RestApi\ExitPrintsService;
+use App\Services\Erp\RestApi\ExitRequestsService;
 use App\Services\Erp\RestApi\RestErpExecutionMode;
+use App\Services\Erp\RestApi\RestErpJobService;
 use App\Services\Erp\RestApi\TrackingsService;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
@@ -73,6 +77,67 @@ class PendingRestErpRequestTest extends TestCase
         // Reusing the same prepared object must not repeat the external side effect.
         $this->assertSame($result, $request->$terminal());
         $this->assertDatabaseCount('rest_erp_jobs', 1);
+    }
+
+    public function test_fluent_print_preserves_actor_and_waits_for_parent_success(): void
+    {
+        $parent = resolve(ExitRequestsService::class)->send('VIN-1', 2, 'DESTINATION', 2, userId: 43)->parallel();
+        $print = resolve(ExitPrintsService::class)->send(
+            'VIN-1', 2, userId: 43, dependsOnId: $parent['data']['rest_erp_job_id']
+        )->unique();
+        $job = RestErpJob::query()->findOrFail($print['data']['rest_erp_job_id']);
+
+        $this->assertSame(43, $job->user_id);
+        $this->assertSame($parent['data']['rest_erp_job_id'], $job->depends_on_id);
+        $this->assertSame('unique', $job->queue);
+        $this->assertNull($job->dispatched_at);
+        Queue::assertPushed(SendToRestErpJob::class, 1);
+        Http::assertNothingSent();
+
+        Http::fake(['*' => Http::response([], 200)]);
+        resolve(RestErpJobService::class)->execute($job->depends_on_id);
+
+        Queue::assertPushedOn('unique', SendToRestErpJob::class);
+        $this->assertNotNull($job->fresh()->dispatched_at);
+    }
+
+    public function test_fluent_sync_print_rejects_an_unfinished_parent(): void
+    {
+        $parent = resolve(ExitRequestsService::class)->send('VIN-1', 2, 'DESTINATION', 2)->parallel();
+
+        try {
+            resolve(ExitPrintsService::class)->send('VIN-1', 2, dependsOnId: $parent['data']['rest_erp_job_id'])->sync();
+            $this->fail('A synchronous child must wait for successful completion of its parent.');
+        } catch (InvalidArgumentException $exception) {
+            $this->assertStringContainsString('پیش‌نیاز', $exception->getMessage());
+        }
+
+        $this->assertDatabaseCount('rest_erp_jobs', 1);
+        Http::assertNothingSent();
+    }
+
+    public function test_fluent_sync_print_preserves_a_successful_parent_dependency(): void
+    {
+        $parent = resolve(ExitRequestsService::class)->send('VIN-1', 2, 'DESTINATION', 2)->parallel();
+        Http::fake(['*' => Http::response([], 200)]);
+        resolve(RestErpJobService::class)->execute($parent['data']['rest_erp_job_id']);
+
+        $result = resolve(ExitPrintsService::class)->send('VIN-1', 2, dependsOnId: $parent['data']['rest_erp_job_id'])->sync();
+        $job = RestErpJob::query()->where('endpoint', 'ExitPrints')->sole();
+
+        $this->assertTrue($result['success']);
+        $this->assertSame($parent['data']['rest_erp_job_id'], $job->depends_on_id);
+        $this->assertSame('sync', $job->execution_mode);
+        $this->assertSame('success', $job->status);
+        Http::assertSentCount(2);
+    }
+
+    public function test_fluent_print_rejects_a_dependency_owned_by_another_actor(): void
+    {
+        $parent = resolve(ExitRequestsService::class)->send('VIN-1', 2, 'DESTINATION', 2, userId: 43)->parallel();
+
+        $this->expectException(InvalidArgumentException::class);
+        resolve(ExitPrintsService::class)->send('VIN-1', 2, userId: 42, dependsOnId: $parent['data']['rest_erp_job_id'])->parallel();
     }
 
     public function test_an_executed_request_cannot_be_sent_in_another_mode(): void

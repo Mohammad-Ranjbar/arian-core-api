@@ -21,6 +21,7 @@ final class PendingRestErpRequest
         private readonly ?Model $model,
         private readonly string $section,
         private readonly ?int $userId,
+        private readonly ?int $dependsOnId = null,
     ) {}
 
     /**
@@ -65,9 +66,9 @@ final class PendingRestErpRequest
         $this->executedMode = $mode;
 
         try {
-            return $this->result = $mode === RestErpExecutionMode::Sync
+            return $this->result = $mode === RestErpExecutionMode::Sync && $this->dependsOnId === null
                 ? $this->jobs->send($this->endpoint, $this->parameters, $this->model, $this->section, $this->userId)
-                : $this->jobs->dispatch($this->endpoint, $this->parameters, $this->model, $this->section, $this->userId, mode: $mode);
+                : $this->jobs->dispatch($this->endpoint, $this->parameters, $this->model, $this->section, $this->userId, $this->dependsOnId, mode: $mode);
         } catch (Throwable $exception) {
             // A failed dispatch can already have a persisted job; do not dispatch it twice.
             $this->failure = $exception;

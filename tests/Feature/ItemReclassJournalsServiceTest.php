@@ -31,7 +31,7 @@ class ItemReclassJournalsServiceTest extends TestCase
         Http::fake(function (Request $request, array $options) use ($body) {
             $this->assertSame(['test-user', 'test-password', 'ntlm'], $options['auth']);
             $this->assertSame(5, $options['connect_timeout']);
-            $this->assertSame(15, $options['timeout']);
+            $this->assertSame(300, $options['timeout']);
             $this->assertFalse($options['allow_redirects']);
 
             return Http::response($body, 201);

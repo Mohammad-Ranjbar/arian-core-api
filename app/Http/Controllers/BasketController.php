@@ -125,10 +125,10 @@ class BasketController extends CrudController
         // ]);
         // ErpJobEvent::dispatch($erpJob);
 
-        $result = resolve(ItemReclassJournalsService::class)->dispatch(
+        $result = resolve(ItemReclassJournalsService::class)->send(
             implode(',', $codes), 'Batch-' . $batch, count($codes), $batchName,
             Basket::query()->findOrFail($basketId), Auth::id()
-        );
+        )->parallel();
 
         if (!$result['success']) {
             return response()->json([

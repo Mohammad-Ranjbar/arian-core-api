@@ -56,9 +56,9 @@ readonly class RestErpJobService
         private RestErpRequestContext $context
     ) {}
 
-    public function pending(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null): PendingRestErpRequest
+    public function pending(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, ?int $dependsOnId = null): PendingRestErpRequest
     {
-        return new PendingRestErpRequest($this, $endpoint, $parameters, $model, $section, $userId);
+        return new PendingRestErpRequest($this, $endpoint, $parameters, $model, $section, $userId, $dependsOnId);
     }
 
     public function send(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, bool $reuseExistingJob = false): array
