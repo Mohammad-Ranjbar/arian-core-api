@@ -435,8 +435,8 @@ readonly class RestErpJobService
             if ($sent) {
                 $this->audit($job, 'rest_erp_'.$status);
             }
-            if ($providerStatus !== null) {
-                $this->recordProductionTracking($job, $providerBody, broadcast: true);
+            if ($providerStatus !== null && $job->endpoint === 'ProductionPostingBINs') {
+                $this->recordProductionTracking($job, $this->productionTrackingResponse($result, $providerBody), broadcast: true);
             }
         });
         if (! $result['success']) {
@@ -484,6 +484,28 @@ readonly class RestErpJobService
                 'endpoint' => $job->endpoint, 'status' => $job->status, 'error_code' => $job->error_code,
             ]);
         });
+    }
+
+    private function productionTrackingResponse(array $result, mixed $providerBody): array
+    {
+        if (! $result['success']) {
+            return ['status' => 'error', 'message' => $this->sanitizer->errorText($result['error']['message'])];
+        }
+
+        $message = is_string($providerBody) ? $providerBody : null;
+        if (is_array($providerBody)) {
+            foreach (['message', 'value'] as $key) {
+                if (isset($providerBody[$key]) && is_string($providerBody[$key])) {
+                    $message = $providerBody[$key];
+                    break;
+                }
+            }
+        }
+        // Preserve an unfamiliar provider response instead of inventing a success message.
+        $message ??= $providerBody === [] || $providerBody === null ? ''
+            : json_encode($providerBody, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+
+        return ['status' => 'ok', 'message' => $this->sanitizer->errorText($message)];
     }
 
     private function recordProductionTracking(RestErpJob $job, mixed $response = null, bool $broadcast = false): void

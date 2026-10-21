@@ -172,15 +172,20 @@ class ProductionPostingBINsServiceTest extends TestCase
     public static function outcomes(): array
     {
         return [
-            'success' => [['VIN' => self::VIN, 'posted' => true], 201, 'success'],
-            'empty JSON response' => [[], 200, 'success'],
-            'business failure' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Provider detail']], 400, 'failed'],
-            'server failure' => [['error' => ['code' => 'InternalError', 'message' => 'Provider failure']], 500, 'uncertain'],
+            'success value' => [['value' => 'Consumption of VIN '.self::VIN.' in WC  is posted.'], 201, 'success', 'Consumption of VIN '.self::VIN.' in WC  is posted.'],
+            'success message' => [['message' => 'Posted.'], 200, 'success', 'Posted.'],
+            'success without message' => [['posted' => true], 201, 'success', '{"posted":true}'],
+            'masked success message' => [['value' => 'Posted. password=private-secret'], 200, 'success', 'Posted. password=[REDACTED]'],
+            'empty JSON response' => [[], 200, 'success', ''],
+            'business failure' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Provider detail']], 400, 'failed', 'Provider detail'],
+            'nested provider message' => [['error' => ['code' => 'Application_DialogException', 'message' => ['value' => 'ERP:ERROR Engine is empty on prod. order component.']]], 400, 'failed', 'ERP:ERROR Engine is empty on prod. order component.'],
+            'masked provider error' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Refused password=private-secret']], 400, 'failed', 'Refused password=[REDACTED]'],
+            'server failure' => [['error' => ['code' => 'InternalError', 'message' => 'Provider failure']], 500, 'uncertain', 'Provider failure'],
         ];
     }
 
     #[DataProvider('outcomes')]
-    public function test_only_the_erp_response_is_saved_after_completion(array $body, int $httpStatus, string $status): void
+    public function test_normalized_erp_status_and_message_are_saved_after_completion(array $body, int $httpStatus, string $status, string $message): void
     {
         $record = $this->tracking();
         $result = resolve(ProductionLineTrackingService::class)->sendToErp($record);
@@ -196,7 +201,15 @@ class ProductionPostingBINsServiceTest extends TestCase
         (new SendToRestErpJob((string) $result['data']['rest_erp_job_id']))->handle(resolve(RestErpJobService::class));
 
         $this->assertSame($status, RestErpJob::query()->sole()->status);
-        $this->assertSame($body, $record->fresh()->data);
+        $data = $record->fresh()->data;
+        $this->assertSame(['status', 'message'], array_keys($data));
+        $this->assertSame($status === 'success' ? 'ok' : 'error', $data['status']);
+        if ($status === 'success') {
+            $this->assertSame($message, $data['message']);
+        } else {
+            $this->assertStringContainsString($message, $data['message']);
+            $this->assertStringContainsString('خطای بیزینس سنترال', $data['message']);
+        }
         Event::assertDispatched(TrackingEvent::class);
     }
 
@@ -288,14 +301,15 @@ class ProductionPostingBINsServiceTest extends TestCase
             return $attempt === 1 ? Http::response($errorBody, 400) : Http::response(['posted' => true], 200);
         });
         $jobs->execute($job->id);
-        $this->assertSame($errorBody, $record->fresh()->data);
+        $this->assertSame('error', $record->fresh()->data['status']);
+        $this->assertStringContainsString('Refused', $record->fresh()->data['message']);
 
         $jobs->retry($job->fresh(), Auth::id());
 
         $this->assertNull($record->fresh()->data);
         $this->assertSame('pending', $job->fresh()->status);
         $jobs->execute($job->id);
-        $this->assertSame(['posted' => true], $record->fresh()->data);
+        $this->assertSame(['status' => 'ok', 'message' => '{"posted":true}'], $record->fresh()->data);
     }
 
     public function test_sync_resubmission_clears_the_old_response_before_sending(): void
@@ -315,7 +329,7 @@ class ProductionPostingBINsServiceTest extends TestCase
         $this->assertNotNull($record->fresh()->data);
         $service->send(self::VIN, '', 'false', 'true', 3, $record)->sync();
 
-        $this->assertSame(['posted' => true], $record->fresh()->data);
+        $this->assertSame(['status' => 'ok', 'message' => '{"posted":true}'], $record->fresh()->data);
         $this->assertDatabaseCount('rest_erp_jobs', 1);
     }
 
@@ -343,7 +357,8 @@ class ProductionPostingBINsServiceTest extends TestCase
         $jobs->execute($job->id);
         $jobs->ignore($job->fresh(), Auth::id());
 
-        $this->assertSame($body, $record->fresh()->data);
+        $this->assertSame('error', $record->fresh()->data['status']);
+        $this->assertStringContainsString('Refused', $record->fresh()->data['message']);
     }
 
     public function test_timeout_without_response_keeps_tracking_data_empty(): void
