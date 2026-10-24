@@ -35,7 +35,7 @@ class SyncInvitationsCommand extends Command
                     $this->syncInvitation($company);
                 }
                 if (!empty($company->getAttribute('contract'))) {
-                    $this->syncContract($company);
+                   // $this->syncContract($company);
                 }
             }
         } catch (Exception $exception) {
