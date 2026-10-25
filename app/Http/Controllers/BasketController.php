@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Psr\SimpleCache\InvalidArgumentException;
+use Throwable;
 
 class BasketController extends CrudController
 {
@@ -30,6 +32,9 @@ class BasketController extends CrudController
     }
 
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function store(Request $request)
     {
         $newItemCount = Basket::query()->where('user_id', Auth::id())->where('status', 'new')->count();
@@ -74,6 +79,9 @@ class BasketController extends CrudController
         ]);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function batchUpdate(UpdateBasketBatchRequest $request)
     {
         $validatedData = $request->validated();
@@ -99,12 +107,15 @@ class BasketController extends CrudController
             } finally {
                 $lock->release();
             }
-        }else {
-            return response()->json('Server busy',500);
+        } else {
+            return response()->json('Server busy', 500);
         }
 
     }
 
+    /**
+     * @throws Throwable
+     */
     public function sendBasketBatchBarcode(array $codes, $batch, $basketId, $batchName): JsonResponse
     {
         // $parameters = [
@@ -128,7 +139,7 @@ class BasketController extends CrudController
         $result = resolve(ItemReclassJournalsService::class)->send(
             implode(',', $codes), 'Batch-' . $batch, count($codes), $batchName,
             Basket::query()->findOrFail($basketId), Auth::id()
-        )->parallel();
+        )->sync();
 
         if (!$result['success']) {
             return response()->json([
