@@ -97,8 +97,8 @@ class BasketController extends CrudController
                     }
                     $response = $this->sendBasketBatchBarcode($baskets->pluck('code')->toArray(), $validatedData['batch'],
                         $baskets->first()->id, $validatedData['batch_name']);
-                    if ($response->getStatusCode() !== 202) {
-                        return $response;
+                    if ($response->getStatusCode() !== 201) {
+                        return response()->json($response,400);
                     }
                     Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
 
