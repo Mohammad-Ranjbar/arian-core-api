@@ -99,7 +99,7 @@ class BasketController extends CrudController
                         $baskets->first()->id, $validatedData['batch_name']);
                     if ($response->getStatusCode() > 300) {
 
-                        return $this->responseError($response->original ?? 'خطا در ارسال به BC',400);
+                        return response()->json($response->original ?? 'خطا در ارسال به BC',400);
                     }
                     Basket::query()->whereIn('id', $baskets->pluck('id')->toArray())->update(['status' => 'submitted']);
 
