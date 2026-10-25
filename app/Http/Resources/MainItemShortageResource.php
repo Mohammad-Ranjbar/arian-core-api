@@ -7,11 +7,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class MainItemShortageResource extends JsonResource
 {
+    private const array LOCATION_LABELS = [
+        'delivery' => 'تحویل خودرو',
+    ];
+
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->resource->id,
-            'location_code' => $this->resource->location_code,
+            'location_code' => self::LOCATION_LABELS[$this->resource->location_code] ?? $this->resource->location_code,
             'car_model_id' => $this->resource->car_model_id,
             'car_model_reference' => $this->resource->car_model_reference,
             'item_no' => $this->resource->item_no,
