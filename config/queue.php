@@ -36,7 +36,7 @@ return [
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',
-            'retry_after' => 90,
+            'retry_after' => 1860,
             'after_commit' => false,
         ],
 
@@ -44,7 +44,7 @@ return [
             'driver' => 'beanstalkd',
             'host' => 'localhost',
             'queue' => 'default',
-            'retry_after' => 90,
+            'retry_after' => 1860,
             'block_for' => 0,
             'after_commit' => false,
         ],
@@ -64,10 +64,10 @@ return [
             'driver' => 'redis',
             'connection' => 'default',
             'queue' => env('REDIS_QUEUE', 'default'),
-            'retry_after' => 90,
-            'block_for' => null,
+            // Must exceed the longest job (1800s) and Horizon timeout (1830s).
+            'retry_after' => 1860,
+            'block_for' => 5,
             'after_commit' => false,
-            'num_workers' => 9,
         ],
 
     ],

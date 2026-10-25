@@ -18,7 +18,13 @@ return [
     'middleware' => ['web'],
 
     'waits' => [
-        'redis:default' => 60000,
+        'redis:default' => 60,
+        'redis:sms' => 10,
+        'redis:printing' => 30,
+        'redis:exports' => 120,
+        'redis:imports' => 120,
+        'redis:unique' => 60,
+        'redis:parallel' => 60,
     ],
 
     'trim' => [
@@ -43,52 +49,113 @@ return [
 
     'fast_termination' => false,
 
-    'memory_limit' => 16000,
+    'memory_limit' => 128,
 
     'defaults' => [
         'supervisor-default' => [
             'connection' => 'redis',
             'queue' => ['default'],
-            'balance' => 'smart',
-            'processes' => 10,
+            'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 10,
-            'minProcesses' => 5,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 16000,
-            'tries' => 0,
-            'timeout' => 10000000,
+            'maxProcesses' => 1,
+            'minProcesses' => 1,
+            'maxTime' => 3600,
+            'maxJobs' => 500,
+            'memory' => 512,
+            'tries' => 1,
+            // Also accommodates long jobs already queued on default before deployment.
+            'timeout' => 1830,
+            'sleep' => 1,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
             'nice' => 0,
+        ],
+        'supervisor-sms' => [
+            'connection' => 'redis',
+            'queue' => ['sms'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
+            'minProcesses' => 1,
+            'maxTime' => 3600,
+            'maxJobs' => 500,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 60,
+            'sleep' => 1,
+            'nice' => 0,
+        ],
+        'supervisor-printing' => [
+            'connection' => 'redis',
+            'queue' => ['printing'],
+            // Preserve print order and avoid simultaneous writes to the printers.
+            'balance' => 'simple',
+            'maxProcesses' => 1,
+            'minProcesses' => 1,
+            'maxTime' => 3600,
+            'maxJobs' => 100,
+            'memory' => 256,
+            'tries' => 1,
+            'timeout' => 120,
+            'sleep' => 1,
+            'nice' => 0,
+        ],
+        'supervisor-exports' => [
+            'connection' => 'redis',
+            'queue' => ['exports'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'minProcesses' => 1,
+            'maxTime' => 3600,
+            'maxJobs' => 25,
+            'memory' => 1024,
+            'tries' => 1,
+            'timeout' => 1830,
+            'sleep' => 1,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
+            'nice' => 5,
+        ],
+        'supervisor-imports' => [
+            'connection' => 'redis',
+            'queue' => ['imports'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
+            'minProcesses' => 1,
+            'maxTime' => 3600,
+            'maxJobs' => 25,
+            'memory' => 1024,
+            'tries' => 1,
+            'timeout' => 1830,
+            'sleep' => 1,
+            'nice' => 5,
         ],
         'supervisor-unique' => [
             'connection' => 'redis',
-            'queue' => ['unique'], // Only unique queue
-            'balance' => 'simple', // FIFO processing
-            'processes' => 1, // Single process
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1, // Must be 1
+            'queue' => ['unique'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
             'minProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 16000,
+            'maxTime' => 3600,
+            'maxJobs' => 500,
+            'memory' => 256,
             'tries' => 1,
-            'timeout' => 10000000,
+            'timeout' => 330,
+            'sleep' => 1,
             'nice' => 0,
         ],
         'supervisor-parallel' => [
             'connection' => 'redis',
-            'queue' => ['parallel'], // Only parallel queue
-            'balance' => 'simple', // FIFO processing
-            'processes' => 1, // Single process
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1, // Must be 1
+            'queue' => ['parallel'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
             'minProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 16000,
+            'maxTime' => 3600,
+            'maxJobs' => 500,
+            'memory' => 256,
             'tries' => 1,
-            'timeout' => 10000000,
+            'timeout' => 330,
+            'sleep' => 1,
             'nice' => 0,
         ],
     ],
@@ -96,68 +163,19 @@ return [
     'environments' => [
         'production' => [
             'supervisor-default' => [
-                'maxProcesses' => 1,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 1,
-                'processes' => 1,
+                'minProcesses' => 2,
+                'maxProcesses' => max(2, (int) env('HORIZON_DEFAULT_MAX_PROCESSES', 4)),
             ],
-            'supervisor-unique' => [
-                'maxProcesses' => 1,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 1,
-                'processes' => 1,
+            'supervisor-sms' => [
+                'maxProcesses' => max(1, (int) env('HORIZON_SMS_PROCESSES', 2)),
             ],
-            'supervisor-parallel' => [
-                'maxProcesses' => 1,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 1,
-                'processes' => 1,
+            'supervisor-exports' => [
+                'maxProcesses' => max(1, (int) env('HORIZON_EXPORT_MAX_PROCESSES', 2)),
             ],
         ],
-
-        'local' => [
-            'supervisor-default' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-            'supervisor-unique' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-            'supervisor-parallel' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-        ],
-
-        'staging' => [
-            'supervisor-default' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-            'supervisor-unique' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-            'supervisor-parallel' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-        ],
-
-        'testing' => [
-            'supervisor-default' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-            'supervisor-unique' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-            'supervisor-parallel' => [
-                'maxProcesses' => 1,
-                'processes' => 1,
-            ],
-        ],
+        'local' => [],
+        'staging' => [],
+        'testing' => [],
+        '*' => [],
     ],
 ];

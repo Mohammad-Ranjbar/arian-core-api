@@ -19,14 +19,14 @@ class SmsService
     public static function jsonSend($to, $text): bool
     {
 
-//        return Http::withHeaders([
-//            'Content-Type' => 'application/json',
-//            'Accept' => 'application/json',
-//            'Authorization' => 'Bearer ' . config('sms.token')
-//        ])->withoutVerifying()->post('https://sms.arian-dev.ir/api/service/sms', [
-//            'to' => $to,
-//            'message' => $text,
-//        ]);
+        //        return Http::withHeaders([
+        //            'Content-Type' => 'application/json',
+        //            'Accept' => 'application/json',
+        //            'Authorization' => 'Bearer ' . config('sms.token')
+        //        ])->withoutVerifying()->post('https://sms.arian-dev.ir/api/service/sms', [
+        //            'to' => $to,
+        //            'message' => $text,
+        //        ]);
         $username = config('sms.tsms.username');
         $password = config('sms.tsms.password');
 
@@ -34,14 +34,14 @@ class SmsService
         $msgArray = [trim($text)];
         $smsNumberArray = [config('sms.tsms.from')];
 
-        Http::post(config('sms.tsms.json_url'), [
+        Http::connectTimeout(5)->timeout(20)->post(config('sms.tsms.json_url'), [
             'method' => 'sendSms',
             'username' => $username,
             'password' => $password,
             'sms_number' => $smsNumberArray,
             'mobile' => $mobileArray,
-            'msg' => $msgArray
-        ])->status();
+            'msg' => $msgArray,
+        ])->throw();
 
         return true;
     }
@@ -50,8 +50,7 @@ class SmsService
         $number,
         $template,
         $params = []
-    ): bool
-    {
+    ): bool {
         $template = $this->repository->findBy($template, 'type');
         $content = Blade::render(trim($template->getAttribute('text')), $params);
         if (app()->environment() == 'production') {
@@ -59,9 +58,8 @@ class SmsService
             dispatch(new SmsJob($number, $content));
 
         }
+
         return true;
 
     }
-
-
 }

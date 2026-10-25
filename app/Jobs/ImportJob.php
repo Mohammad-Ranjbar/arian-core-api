@@ -10,29 +10,31 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Throwable;
 
 class ImportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $timeout = 1800;
 
-    /**
-     * @param  string  $uuid
-     */
+    public int $tries = 1;
+
+    public bool $failOnTimeout = true;
+
     public function __construct(public readonly string $uuid)
     {
-
+        $this->onQueue('imports');
     }
-
 
     public function handle(): void
     {
         /** @var Job $job */
-        $job = Job::query()->find($this->uuid);
+        $job = Job::query()->findOrFail($this->uuid);
 
-//        if ($job->getAttribute('status') !== 'pending') {
-//            return;
-//        }
+        if ($job->getAttribute('status') === 'finished') {
+            return;
+        }
 
         $job->start();
 
@@ -44,5 +46,17 @@ class ImportJob implements ShouldQueue
         $service->import($job->getAttribute('uuid'), $file);
 
         $job->finish();
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        $job = Job::query()->find($this->uuid);
+
+        if ($job && $job->getAttribute('status') !== 'finished') {
+            $job->update([
+                'status' => 'failed',
+                'result' => ['message' => 'ورود اطلاعات ناموفق بود یا زمان مجاز آن به پایان رسید؛ پیش از تکرار، ردیف‌های پردازش‌شده را بررسی کنید.'],
+            ]);
+        }
     }
 }

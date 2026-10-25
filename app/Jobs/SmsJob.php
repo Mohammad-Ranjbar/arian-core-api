@@ -13,20 +13,17 @@ class SmsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $timeout = 30;
 
-    /**
-     * @param  string  $number
-     * @param  string  $content
-     */
+    public int $tries = 1;
+
+    public bool $failOnTimeout = true;
+
     public function __construct(private readonly string $number, private readonly string $content)
     {
-        //
+        $this->onQueue('sms');
     }
 
-
-    /**
-     * @return void
-     */
     public function handle(): void
     {
         SmsService::jsonSend($this->number, $this->content);
