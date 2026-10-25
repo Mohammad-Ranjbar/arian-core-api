@@ -3,13 +3,14 @@
 namespace App\Jobs;
 
 use App\Models\Synchronous;
+use App\Services\RawPrinterService;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 use Picqer\Barcode\BarcodeGeneratorPNG;
@@ -19,12 +20,18 @@ class PrintSynchronousJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $timeout = 90;
+
+    public int $tries = 1;
+
+    public bool $failOnTimeout = true;
+
     /**
      * Create a new job instance.
      */
     public function __construct(private readonly int $id)
     {
-        //
+        $this->onQueue('printing');
     }
 
     /**
@@ -38,8 +45,7 @@ class PrintSynchronousJob implements ShouldQueue
         $ip = $synchronous->getAttribute('synchronousType')->printer_ip;
         $type = $synchronous->getAttribute('synchronousType')->type;
 
-
-        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        if (! filter_var($ip, FILTER_VALIDATE_IP)) {
             return;
         }
         if ($synchronous->getAttribute('capacity') !== 0) {
@@ -74,38 +80,24 @@ class PrintSynchronousJob implements ShouldQueue
             'margin_header' => 0,
             'margin_footer' => 0,
         ]);
-        $generator = new BarcodeGeneratorPNG();
+        $generator = new BarcodeGeneratorPNG;
         $item = $synchronous->SynchronousItems()->first();
         $barcode = $generator->getBarcode($item->vehicle->vin, $generator::TYPE_CODE_128, 1.6, 20);
         $barcodeImage = base64_encode($barcode);
-        $barcodeSrc = 'data:image/png;base64,' . $barcodeImage;
+        $barcodeSrc = 'data:image/png;base64,'.$barcodeImage;
         $content = view('pdf.synchronous-engine', [
             'barcode' => $barcodeSrc,
             'vin' => $item->vehicle->vin,
             'carModel' => $item->vehicle->carModel->title,
-            'productItem' => $item->erpProductItem ? $item->erpProductItem->title . ' ' . $item->erpProductItem->reference : "---",
+            'productItem' => $item->erpProductItem ? $item->erpProductItem->title.' '.$item->erpProductItem->reference : '---',
             'date' => jdate()->format('Y/m/d'),
             'time' => Carbon::now()->format('H:i'),
-            'number' => $synchronous->getAttribute('number')
+            'number' => $synchronous->getAttribute('number'),
         ])->render();
         $mpdf->WriteHTML($content);
-        $path = storage_path('synchronous-' . $synchronous->getAttribute('id') . '.pdf');
+        $path = storage_path('synchronous-'.$synchronous->getAttribute('id').'-'.Str::uuid().'.pdf');
         $mpdf->Output($path, 'F');
-        $socket = @fsockopen($ip, 9100, $errno, $errstr, 5);
-        if (!$socket) {
-            Log::error("Printer connection failed to $ip:9100 - $errstr ($errno)");
-            return;
-        }
-        $pdf = file_get_contents($path);
-        if ($pdf === false) {
-            Log::error("Failed to read PDF file: $path");
-            fclose($socket);
-            return;
-        }
-        fwrite($socket, $pdf);
-        fclose($socket);
-        unlink($path);
-        Log::info("Successfully printed to $ip:9100");
+        $this->sendToPrinter($ip, $path);
     }
 
     /**
@@ -119,12 +111,12 @@ class PrintSynchronousJob implements ShouldQueue
             'format' => 'A4',
             'tempDir' => storage_path('app/mpdf_temp'),
             'default_font' => 'xbriyaz',
-            'orientation' => 'L'
+            'orientation' => 'L',
         ]);
-        $generator = new BarcodeGeneratorPNG();
+        $generator = new BarcodeGeneratorPNG;
         $barcode = $generator->getBarcode($synchronous->getAttribute('id'), $generator::TYPE_CODE_128);
         $barcodeImage = base64_encode($barcode);
-        $barcodeSrc = 'data:image/png;base64,' . $barcodeImage;
+        $barcodeSrc = 'data:image/png;base64,'.$barcodeImage;
         $content = view('pdf.synchronous-other', [
             'barcode' => $barcodeSrc,
             'number' => $synchronous->getAttribute('number'),
@@ -136,33 +128,28 @@ class PrintSynchronousJob implements ShouldQueue
                     $item->vehicle->carModel->title,
                     $item->erpProductItem?->title,
                     $item->vehicle->makeCode->title,
-                    $item->vehicle->data['VariantCode']?? '',
+                    $item->vehicle->data['VariantCode'] ?? '',
                     $item->vehicle->grade ?? '-',
                     jdate($item->created_at)->toDateString(),
-                    jdate($item->created_at)->toTimeString()
+                    jdate($item->created_at)->toTimeString(),
                 ];
-            })->all()
+            })->all(),
         ])->render();
         $mpdf->SetDirectionality('rtl');
         $mpdf->WriteHTML($content);
-        $path = storage_path('synchronous-' . $synchronous->getAttribute('id') . '.pdf');
+        $path = storage_path('synchronous-'.$synchronous->getAttribute('id').'-'.Str::uuid().'.pdf');
         $mpdf->Output($path, 'F');
-
-        $socket = @fsockopen($ip, 9100, $errno, $errstr, 5);
-        if (!$socket) {
-            Log::error("Printer connection failed to $ip:9100 - $errstr ($errno)");
-            return;
-        }
-        $pdf = file_get_contents($path);
-        if ($pdf === false) {
-            Log::error("Failed to read PDF file: $path");
-            fclose($socket);
-            return;
-        }
-
-        fwrite($socket, $pdf);
-        fclose($socket);
-        unlink($path);
+        $this->sendToPrinter($ip, $path);
     }
 
+    private function sendToPrinter(string $ip, string $path): void
+    {
+        try {
+            app(RawPrinterService::class)->sendFile($ip, $path);
+        } finally {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+    }
 }

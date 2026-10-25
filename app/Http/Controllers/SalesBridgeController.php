@@ -23,10 +23,11 @@ class SalesBridgeController extends Controller
 
         $link2 = 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AM';
         $link3 = 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-PARS_AD';
+        $link4 = 'https://sales-portal.arian-capital.ir/api/integrations/companies/2/orders';
 
 
         $urls = [
-            'l'    => $link3,
+            'l'    => $link1,
             'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
             'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-POOYA_AM',
             'a'    => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D-KIA_AD',
@@ -65,6 +66,11 @@ class SalesBridgeController extends Controller
                     $payment['bank_data']['date']['full'] = $date->format('Y-m-d H:i:s');
                     $payment['bank_data']['date']['date'] = $date->format('Y-m-d');
                 }
+            } else {
+                $payment['bank_data']['date'] = [
+                    'full' => $date->format('Y-m-d H:i:s'),
+                    'date' => $date->format('Y-m-d')
+                ];
             }
         }
 
@@ -92,11 +98,12 @@ class SalesBridgeController extends Controller
     public function getUrl($prefix)
     {
         $urls = [
-            'l'    => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
-            'd'    => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
-            'p'    => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'a'    => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
-            'test' => 'https://sales.lamari.ir/api/check-test-orders',
+            'l'      => 'https://sales.lamari.ir/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'd'      => 'https://sales.arian-diesel.com/api/report-orders-sec-by-3f88895bdffcca0a01ef6c722a35b591D',
+            'p'      => 'https://sales.arian-motor.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'a'      => 'https://sales.arinadrive.com/api/report-orders-sec-by-13f88895bdffcca0a01ef6c722a35b591D',
+            'portal' => 'https://sales-portal.arian-capital.ir/api/integrations',
+            'test'   => 'https://sales.lamari.ir/api/check-test-orders',
         ];
 
         return $urls[$prefix];
@@ -134,6 +141,29 @@ class SalesBridgeController extends Controller
     public function getMember($prefix, $nationalCode)
     {
         return Http::withoutVerifying()->get($this->getUrl($prefix).'/import/users/'.$nationalCode)->json();
+    }
+
+    public function getPayments($prefix)
+    {
+        $url = $this->getUrl($prefix);
+
+        if ($prefix == 'portal') {
+            $url .= '/payments';
+        }else{
+            $url .= '/payments/get-latest';
+        }
+        return Http::withoutVerifying()->get($url, request()->toArray())->json();
+    }
+    public function getOrders($prefix)
+    {
+        $url = $this->getUrl($prefix);
+
+        if ($prefix == 'portal') {
+            $url .= '/orders';
+        }else{
+            $url .= '/orders/get-report';
+        }
+        return Http::withoutVerifying()->get($url, request()->toArray())->json();
     }
 
 }

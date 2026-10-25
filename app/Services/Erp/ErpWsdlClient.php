@@ -4,39 +4,35 @@ namespace App\Services\Erp;
 
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 
 class ErpWsdlClient
 {
-
-    /**
-     * @param $url
-     * @param $method
-     * @param array $params
-     * @return array
-     */
     public static function run($url, $method, array $params = []): array
     {
         $api = array_reverse(explode('/', parse_url($url)['path']))[0];
 
-        $client = new Client();
+        $client = new Client;
         try {
 
             $request = new Request('POST', $url, [
                 'Content-Type' => 'application/xml',
-                "soapaction" => "\"urn:microsoft-dynamics-schemas/codeunit/$api:$method\""
+                'soapaction' => "\"urn:microsoft-dynamics-schemas/codeunit/$api:$method\"",
             ], self::getBodyXML($api, $method, $params));
 
             $response = $client->sendAsync($request, [
-                'auth' => config('erp.auth')
+                'auth' => config('erp.auth'),
+                'connect_timeout' => 5,
+                'timeout' => 300,
             ])->wait();
 
-            $list = (array)json_decode(trim(strip_tags($response->getBody()->getContents())));
+            $list = (array) json_decode(trim(strip_tags($response->getBody()->getContents())));
 
             if (empty($list)) {
                 return [
                     'status' => 'error',
-                    'message' => 'هیچ پاسخی از نویژن دریافت نشد'
+                    'message' => 'هیچ پاسخی از نویژن دریافت نشد',
                 ];
             }
 
@@ -45,11 +41,11 @@ class ErpWsdlClient
                 $output[strtolower($key)] = $value;
             }
             if (isset($output['status']) and in_array(strtolower($output['status']),
-                    ['ok', 'done', 'success', '1', 'true'])) {
+                ['ok', 'done', 'success', '1', 'true'])) {
                 $output['status'] = 'ok';
             }
             if (isset($output['status']) and in_array(strtolower($output['status']),
-                    ['error', 'fail', '0', 'false', 'not'])) {
+                ['error', 'fail', '0', 'false', 'not'])) {
                 $output['status'] = 'error';
                 $output['message'] = 'خطای بیزینس سنترال ERP:'.implode(' ', $list);
 
@@ -58,22 +54,23 @@ class ErpWsdlClient
             return $output;
 
         } catch (Exception $exception) {
+            if (! $exception instanceof RequestException || ! $exception->hasResponse()) {
+                return [
+                    'status' => 'error',
+                    'message' => 'خطای بیزینس سنترال ERP: پاسخی دریافت نشد؛ پیش از ارسال مجدد وضعیت عملیات را بررسی کنید.',
+                ];
+            }
+
             return [
                 'status' => 'error',
 
-                'message' => 'خطای بیزینس سنترال ERP:'.strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3",
+                'message' => 'خطای بیزینس سنترال ERP:'.strip_tags(preg_replace("/(<\/?)(\w+):([^>]*>)/", '$1$2$3',
 
-                    $exception->getResponse()->getBody()->getContents()))
+                    $exception->getResponse()->getBody()->getContents())),
             ];
         }
     }
 
-    /**
-     * @param $api
-     * @param $method
-     * @param $params
-     * @return string
-     */
     private static function getBodyXML($api, $method, $params): string
     {
         $string = '';
@@ -84,9 +81,9 @@ class ErpWsdlClient
         return
             '<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
     <Body>
-        <' . $method . ' xmlns="urn:microsoft-dynamics-schemas/codeunit/' . $api . '">
-            ' . $string . '
-        </' . $method . '>
+        <'.$method.' xmlns="urn:microsoft-dynamics-schemas/codeunit/'.$api.'">
+            '.$string.'
+        </'.$method.'>
     </Body>
 </Envelope>';
     }

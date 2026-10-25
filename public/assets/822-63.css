@@ -1,0 +1,168 @@
+@font-face {
+    font-family: Certificate;
+    src: url("../assets/fonts/xb-riyaz.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+}
+
+@font-face {
+    font-family: Certificate;
+    src: url("../assets/fonts/xb-riyaz-bold.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 700;
+    font-display: block;
+}
+
+@page {
+    size: A4 portrait;
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 8mm;
+    background: #e7e7e7;
+    color: #111;
+    font-family: Certificate, "Times New Roman", serif;
+    font-size: 10.5pt;
+}
+
+.page {
+    position: relative;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: #fff;
+    box-shadow: 0 1mm 5mm #0002;
+}
+
+.letterhead {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 182.2mm;
+    height: auto;
+}
+
+.date {
+    position: absolute;
+    top: 9mm;
+    left: 14mm;
+    margin: 0;
+    font-size: 10.8pt;
+    line-height: 1.8;
+}
+
+.content {
+    position: relative;
+    padding: 25.6mm 15.5mm 35mm 12.4mm;
+}
+
+h1 {
+    margin: 0 0 6mm;
+    text-align: center;
+    font-size: 15.5pt;
+    line-height: 1.7;
+}
+
+.intro {
+    margin: 0 0 4mm;
+    font-size: 11.7pt;
+    line-height: 1.9;
+    text-align: justify;
+}
+
+.latin {
+    display: inline-block;
+    direction: ltr;
+    font-family: Arial, sans-serif;
+    font-size: 90%;
+}
+
+sup {
+    font-size: 65%;
+    line-height: 0;
+}
+
+.specifications {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.number-column {
+    width: 6.7%;
+}
+
+.label-column {
+    width: 38.3%;
+}
+
+.value-column {
+    width: 55%;
+}
+
+.specifications tr {
+    break-inside: avoid;
+}
+
+.specifications td,
+.specifications th {
+    height: 8.8mm;
+    padding: 0 1.8mm;
+    border: 0.2mm solid #d3d3d3;
+    text-align: right;
+    vertical-align: middle;
+    font-weight: 400;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.specifications .number {
+    padding: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.specifications .double-row td,
+.specifications .double-row th {
+    height: 13.3mm;
+}
+
+.letterfoot {
+    position: absolute;
+    bottom: 1mm;
+    left: 13mm;
+    width: 182.2mm;
+}
+
+.letterfoot img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@media print {
+    html,
+    body {
+        width: 210mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
+
+    .page {
+        margin: 0;
+        box-shadow: none;
+    }
+
+    * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

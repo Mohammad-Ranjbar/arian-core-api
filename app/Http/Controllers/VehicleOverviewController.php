@@ -423,9 +423,9 @@ class VehicleOverviewController extends Controller
                             $record->type,
                             $record->method,
                             $record->intensity,
-                            $record->user->name,
-                            $record->element->title . ' (' . $record->element->code . ')',
-                            $record->incident->title . ' (' . $record->element->code . ')'
+                            $record?->user?->name ?? '-',
+                            $record?->element?->title . ' (' . $record?->element?->code . ')',
+                            $record?->incident?->title . ' (' . $record?->element?->code . ')'
                         ];
                     })->all()
                 ],
@@ -469,7 +469,7 @@ class VehicleOverviewController extends Controller
                         }
 
                         return [
-                            $record->user->name,
+                            $record->user?->name ?? '-',
                             $record->created_at ?
                                 jdate($record->created_at)->toDateTimeString()
                                 : '-'

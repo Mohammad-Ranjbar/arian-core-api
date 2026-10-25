@@ -26,10 +26,9 @@ class UpdateOnlineOrdersCommand extends Command
                         'Content-Type' => 'application/json',
                         'Accept'       => 'application/json'
                     ])->withOptions([
-                        'auth'    => config('erp.auth'),
+                        'auth' => config('erp.auth'),
                     ])->get($url)->json();
-                }
-                catch (Exception $exception) {
+                } catch (Exception $exception) {
                     $this->warn($exception->getMessage());
                     $this->warn($url);
                 }
@@ -40,22 +39,26 @@ class UpdateOnlineOrdersCommand extends Command
                     $list = [];
                     $parsList = [];
                     $arinaList = [];
+                    $portalList = [];
                     foreach ($content['value'] as $item) {
                         $row = (object) $item;
                         if ($row->Online_Contract_ID) {
                             $z = [
-                                'erp_reference' => $row->No,
-                                'erp_status'    => $row->Status_Code,
-                                'order_id'      => $row->Online_Contract_ID
+                                'erp_reference'   => $row->No,
+                                'erp_status'      => $row->Status_Code,
+                                'order_id'        => $row->Online_Contract_ID,
+                                'sales_reference' => $row->Online_Contract_ID
                             ];
                             if (isset($row->VIN)) {
                                 $z['vin'] = $row->VIN;
                             }
-                            if (Str::contains($row->Online_Contract_ID,'PARS_AM')) {
+                            if (Str::contains($row->Online_Contract_ID, 'PARS_AM')) {
                                 $parsList[] = $z;
-                            }elseif (Str::contains($row->Online_Contract_ID,'PARS_AD')) {
+                            } elseif (Str::contains($row->Online_Contract_ID, 'PARS_AD')) {
                                 $arinaList[] = $z;
-                            }else{
+                            } elseif (Str::contains($row->Online_Contract_ID, 'portal')) {
+                                $portalList[] = $z;
+                            } else {
                                 $list[] = $z;
                             }
                         }
@@ -69,20 +72,27 @@ class UpdateOnlineOrdersCommand extends Command
                             ]);
                         }
                         if (count($parsList)) {
-                            $parsUrl = 'https://sales.arian-motor.com/api/sync-orders-erp' ;
+                            $parsUrl = 'https://sales.arian-motor.com/api/sync-orders-erp';
                             Http::withoutVerifying()->post($parsUrl, [
                                 'items'  => $parsList,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
                         }
                         if (count($arinaList)) {
-                            $parsUrl = 'https://sales.arinadrive.com/api/sync-orders-erp' ;
+                            $parsUrl = 'https://sales.arinadrive.com/api/sync-orders-erp';
                             Http::withoutVerifying()->post($parsUrl, [
                                 'items'  => $arinaList,
                                 'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
                             ]);
                         }
-                    }catch (Exception $exception) {
+                        if (count($portalList)) {
+                            $portalUrl = 'https://sales-portal.arian-capital.ir/api/integrations/update-orders';
+                            Http::withoutVerifying()->post($portalUrl, [
+                                'items'  => $portalList,
+                                'secret' => md5('A@rX4898989jsdkjsdhfxyz'),
+                            ]);
+                        }
+                    } catch (Exception $exception) {
                         $this->error($exception->getMessage());
                     }
 

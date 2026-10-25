@@ -14,17 +14,15 @@ use Mpdf\Output\Destination;
 
 class ComplianceController extends Controller
 {
-    /**
-     * @throws MpdfException
-     * @throws Exception
-     */
-    public function generate(string $vin): string
+
+    public function generate(string $vin)
     {
         $vehicle = Vehicle::query()->where('vin', $vin)->firstOrFail();
         $vin = $vehicle->getAttribute('vin');
-
-        $bladeName =  match ( $vehicle->carModel->reference) {
+        $carModelReference = $vehicle->carModel->reference;
+        $bladeName =  match ( $carModelReference) {
             'DSPCO010DP' =>'SX5G',
+            'XSHEX013MD','XSHEX023MD' =>'XGMA',
             'KSPCO010CP' =>'1AA',
             'ESPSE010DP' =>'AP00F',
             'TN721-N60', 'TN721-N85', 'TN721-N90', 'TN721-N120','JSCLT07LAD' =>'N721',
@@ -35,24 +33,26 @@ class ComplianceController extends Controller
         };
 
         if (!$bladeName){
-            $carModelTitle = $vehicle->carModel->reference;
-            return response()->json("cant find ane view for car model $carModelTitle");
+            return response()->json("cant find ane view for car model $carModelReference");
         }
-        $bladeName = $vehicle->carModel->reference;
-        if (in_array($vehicle->carModel->reference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
+        $bladeName = $carModelReference;
+        if (in_array($carModelReference, ['SHACMAN-X5000-1402','SSCTR01TAD','SHACMAN-X5000-1403','SSCHT012AD','SSCTR02TAD','SSCHT042MD'])){
             $bladeName = 'X5000';
         }
 
-        if (in_array($vehicle->carModel->reference, ['JSCLT07LAD'])){
+        if (in_array($carModelReference, ['JSCLT07LAD'])){
             $bladeName = 'TN721-N120';
         }
 
-        if (in_array($vehicle->carModel->reference, ['JSCLT07LAD'])){
+        if (in_array($carModelReference, ['JSCLT07LAD'])){
             $bladeName = 'TN721-N120';
         }
 
+        if (in_array($carModelReference, ['XSHEX013MD','XSHEX023MD'])){
+            return view('pdf.compliance.XGMA', compact('vin','carModelReference'));
+        }
 
-        $html = view('pdf.compliance.'.$bladeName, compact('vin'))->render();
+        $html = view('pdf.compliance.'.$bladeName, compact('vin','carModelReference'))->render();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
