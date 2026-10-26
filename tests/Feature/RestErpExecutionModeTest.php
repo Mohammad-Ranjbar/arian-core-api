@@ -73,6 +73,7 @@ class RestErpExecutionModeTest extends TestCase
         $this->assertSame($endpoint, $job->endpoint);
         $this->assertSame($job->id, $result['data']['rest_erp_job_id']);
         $this->assertSame($job->uuid, $result['data']['request_id']);
+        $this->assertSame($mode === RestErpExecutionMode::Sync ? ['rest_erp_success'] : [], $job->actionLogs()->pluck('action')->all());
         $this->assertMatchesRegularExpression('/[\x{0600}-\x{06FF}]/u', $job->section);
         if ($mode === RestErpExecutionMode::Sync) {
             $this->assertSame('sync', $job->execution_mode);

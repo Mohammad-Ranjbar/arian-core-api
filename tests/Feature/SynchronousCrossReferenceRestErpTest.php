@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -97,6 +98,63 @@ class SynchronousCrossReferenceRestErpTest extends TestCase
         Queue::assertPushedOn('unique', SendToRestErpJob::class);
     }
 
+    #[DataProvider('modes')]
+    public function test_a_stale_route_bound_item_cannot_dispatch_the_completed_group_again(string $mode): void
+    {
+        config()->set('rest_erp.endpoints.CreateSynchroens.mode', $mode);
+        Http::fake(['*' => Http::response([], 200)]);
+        $staleItem = SynchronousItem::query()->findOrFail(2);
+
+        $this->putJson('/api/synchronous-items/2', ['cross_reference' => 'SX5G-2804-0056'])
+            ->assertStatus($mode === 'sync' ? 200 : 202);
+        // A concurrent request may have resolved its route model before the first request committed.
+        Route::bind('synchronousItem', fn () => $staleItem);
+        $this->putJson('/api/synchronous-items/2', ['cross_reference' => 'SX5G-2804-0056'])
+            ->assertUnprocessable()->assertJsonPath('message', 'سنکرون قبلا ارسال شده است');
+
+        $this->assertDatabaseCount('rest_erp_jobs', 1);
+        $this->assertSame($mode === 'sync' ? 1 : 0, RestErpJob::query()->sole()->tries);
+        if ($mode === 'sync') {
+            Http::assertSentCount(1);
+            Queue::assertNothingPushed();
+        } else {
+            Http::assertNothingSent();
+            Queue::assertPushed(SendToRestErpJob::class, 1);
+        }
+    }
+
+    #[DataProvider('modes')]
+    public function test_confirming_two_remaining_items_registers_only_one_group_request(string $mode): void
+    {
+        config()->set('rest_erp.endpoints.CreateSynchroens.mode', $mode);
+        DB::table('synchronous_items')->where('id', 1)->update(['checked' => false]);
+        $staleItems = SynchronousItem::query()->where('synchronous_id', 1)->get()->keyBy('id');
+        Route::bind('synchronousItem', fn ($id) => $staleItems->get($id));
+        Http::fake(['*' => Http::response([], 200)]);
+
+        $this->putJson('/api/synchronous-items/1', ['cross_reference' => 'SX5G-2804-0056'])
+            ->assertOk()->assertContent('1');
+        $this->assertDatabaseCount('rest_erp_jobs', 0);
+        $this->putJson('/api/synchronous-items/2', ['cross_reference' => 'SX5G-2804-0056'])
+            ->assertStatus($mode === 'sync' ? 200 : 202);
+        foreach ([1, 2] as $id) {
+            $this->putJson('/api/synchronous-items/'.$id, ['cross_reference' => 'SX5G-2804-0056'])
+                ->assertUnprocessable();
+        }
+
+        $job = RestErpJob::query()->sole();
+        $this->assertSame('2', $job->parameters['Number']);
+        $this->assertSame('SX5G-2804-0056,SX5G-2804-0056', $job->parameters['CrossReference']);
+        $this->assertSame('213,214', $job->parameters['VariantCode']);
+        if ($mode === 'sync') {
+            Http::assertSentCount(1);
+            Queue::assertNothingPushed();
+        } else {
+            Http::assertNothingSent();
+            Queue::assertPushed(SendToRestErpJob::class, 1);
+        }
+    }
+
     public function test_an_incomplete_group_does_not_register_a_job(): void
     {
         DB::table('synchronous_items')->where('id', 1)->update(['checked' => false]);
@@ -155,6 +213,11 @@ class SynchronousCrossReferenceRestErpTest extends TestCase
         $this->assertSame('failed', $job->status);
         $this->assertStringContainsString('Insufficient inventory.', $job->description);
         $this->assertDatabaseHas('synchronous_items', ['id' => 2, 'checked' => true]);
+        Http::assertSentCount(1);
+
+        $this->putJson('/api/synchronous-items/2', ['cross_reference' => 'SX5G-2804-0056'])->assertUnprocessable();
+        $this->assertDatabaseCount('rest_erp_jobs', 1);
+        $this->assertSame(1, $job->fresh()->tries);
         Http::assertSentCount(1);
     }
 

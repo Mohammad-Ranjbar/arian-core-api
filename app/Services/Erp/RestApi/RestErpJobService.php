@@ -257,7 +257,7 @@ readonly class RestErpJobService
                 $this->prepareRetry($job, $userId, ! $queued, $attributes);
             } else {
                 $job = RestErpJob::query()->create($attributes);
-                $this->audit($job, 'rest_erp_created');
+                $this->recordActor($job, $userId);
                 if (! $invalid) {
                     $this->recordProductionTracking($job);
                 }
@@ -435,7 +435,7 @@ readonly class RestErpJobService
                 'completed_at' => now(), 'failed_at' => $result['success'] ? null : now(),
             ]);
             if ($providerStatus !== null) {
-                $this->audit($job, 'rest_erp_'.$status);
+                $this->audit($job);
             }
             if ($providerStatus !== null && $job->endpoint === 'ProductionPostingBINs') {
                 $this->recordProductionTracking($job, $this->productionTrackingResponse($result, $providerBody), broadcast: true);
@@ -585,8 +585,12 @@ readonly class RestErpJobService
         });
     }
 
-    private function audit(RestErpJob $job, string $action): void
+    private function audit(RestErpJob $job): void
     {
+        if (! in_array($job->status, ['success', 'failed'], true)) {
+            return;
+        }
+
         $actorId = $job->user_id;
         $this->recordActor($job, $actorId);
         $snapshot = $job->attributesToArray();
@@ -605,7 +609,7 @@ readonly class RestErpJobService
         // Authentication headers/credentials are never part of these endpoint payloads.
         $data['snapshot']['parameters'] = $parameters;
         $job->actionLogs()->create([
-            'user_id' => $actorId, 'action' => $action, 'data' => $data,
+            'user_id' => $actorId, 'action' => 'rest_erp_'.$job->status, 'data' => $data,
         ]);
     }
 

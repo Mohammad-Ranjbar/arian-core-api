@@ -18,6 +18,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
 
 class SynchronousController extends Controller
@@ -126,6 +127,9 @@ class SynchronousController extends Controller
         return new SynchronousResource($synchronous);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function updateCrossReference(
         UpdateCrossReferenceRequest $request,
         SynchronousItem $synchronousItem
@@ -145,21 +149,33 @@ class SynchronousController extends Controller
                 'message' => 'کراس رفرنس وارد شده نامعتبر است'
             ], 422);
         }
-        $synchronousItem->update([
-            'cross_reference' => $validatedData['cross_reference'],
-            'checked'         => true
-        ]);
-
-        $count = SynchronousItem::query()
-            ->where('synchronous_id', $synchronousItem->getAttribute('synchronous_id'))
-            ->where('checked', false)->count();
-        if ($count == 0) {
+        return DB::transaction(function () use ($synchronousItem, $validatedData): JsonResponse|bool {
+            // Serialize all item confirmations for this synchronous group, including the final ERP dispatch.
+            $synchronous = Synchronous::query()
+                ->whereKey($synchronousItem->getAttribute('synchronous_id'))
+                ->lockForUpdate()->firstOrFail();
             $items = SynchronousItem::query()
-                ->where('synchronous_id', $synchronousItem->getAttribute('synchronous_id'))->get();
+                ->where('synchronous_id', $synchronous->getKey())
+                ->orderBy('id')->lockForUpdate()->get();
+            // Route-bound models can be stale after waiting for another request's transaction.
+            $currentItem = $items->firstWhere('id', $synchronousItem->getKey());
+            abort_unless($currentItem, 404, 'قلم سنکرون پیدا نشد.');
+            if ($currentItem->getAttribute('checked')) {
+                abort(422, 'سنکرون قبلا ارسال شده است');
+            }
+            $currentItem->update([
+                'cross_reference' => $validatedData['cross_reference'],
+                'checked' => true,
+            ]);
+
+            if ($items->contains(fn (SynchronousItem $item) => !$item->getAttribute('checked'))) {
+                return true;
+            }
+
             $crossReferences = $items->pluck('cross_reference')->implode(',');
-            $docP = $synchronousItem->synchronous->number;
-            $locationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->central_location;
-            $newLocationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->location;
+            $docP = $synchronous->number;
+            $locationCodeP = $synchronous->synchronousType->productionLine->central_location;
+            $newLocationCodeP = $synchronous->synchronousType->productionLine->location;
 
             $variantCodeP = $items->map(function ($item) {
 
@@ -180,7 +196,7 @@ class SynchronousController extends Controller
             $result = $this->createSynchroens->dispatch(
                 $crossReferences, $docP, $locationCodeP, $newLocationCodeP,
                 $variantCodeP, $numberP, $batchNoP,
-                model: $synchronousItem, userId: Auth::id()
+                model: $currentItem, userId: Auth::id()
             );
 
             if (!$result['success']) {
@@ -191,8 +207,6 @@ class SynchronousController extends Controller
             }
 
             return response()->json($result['data'], $result['http_status'] === 202 ? 202 : 200);
-        }
-
-        return true;
+        });
     }
 }

@@ -120,7 +120,7 @@ class VehicleTypeBlockingsServiceTest extends TestCase
     }
 
     #[DataProvider('failures')]
-    public function test_provider_failure_keeps_job_and_logs_without_creating_block(?array $body, int $status, string $jobStatus): void
+    public function test_provider_failure_keeps_job_and_audits_only_failed_status_without_creating_block(?array $body, int $status, string $jobStatus): void
     {
         Http::fake(function () use ($body, $status) {
             if ($status === 0) {
@@ -140,7 +140,7 @@ class VehicleTypeBlockingsServiceTest extends TestCase
         $job = RestErpJob::query()->sole();
         $this->assertSame($jobStatus, $job->refresh()->status);
         $this->assertNotEmpty($job->description);
-        $this->assertTrue($job->actionLogs()->where('action', 'rest_erp_'.$jobStatus)->exists());
+        $this->assertSame($jobStatus === 'failed' ? ['rest_erp_failed'] : [], $job->actionLogs()->pluck('action')->all());
     }
 
     public function test_send_supports_synchronous_execution(): void

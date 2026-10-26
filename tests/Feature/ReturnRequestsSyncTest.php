@@ -67,7 +67,7 @@ class ReturnRequestsSyncTest extends TestCase
         $this->assertDatabaseCount('rest_erp_jobs', 1);
         $this->assertSame('sync', $job->execution_mode);
         $this->assertSame($jobStatus, $job->status);
-        $this->assertSame(['rest_erp_created', ...($status === 0 ? [] : array_fill(0, $expectedAttempts, 'rest_erp_'.$jobStatus))], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(in_array($jobStatus, ['success', 'failed'], true) ? array_fill(0, $expectedAttempts, 'rest_erp_'.$jobStatus) : [], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Queue::assertNothingPushed();
     }
 
@@ -127,7 +127,7 @@ class ReturnRequestsSyncTest extends TestCase
         $this->assertSame($first, $service->sendOrRetry('VIN-1', '', 2));
         $this->assertSame('ignored', $job->fresh()->status);
         $this->assertDatabaseCount('rest_erp_jobs', 1);
-        $this->assertSame(['rest_erp_created'], $job->actionLogs()->pluck('action')->all());
+        $this->assertSame([], $job->actionLogs()->pluck('action')->all());
         Http::assertNothingSent();
         Queue::assertNothingPushed();
     }
