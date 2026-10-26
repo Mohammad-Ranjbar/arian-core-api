@@ -48,6 +48,8 @@ readonly class RestErpJobService
         'NumberItems' => 'تعداد اقلام', 'FromLocationType' => 'نوع محل مبدأ',
         'ToLacationType' => 'نوع محل مقصد', 'ToLocationType' => 'نوع محل مقصد', 'VariantArray' => 'فهرست گونه‌های قطعات',
         'CrossRefArray' => 'فهرست کدهای مرجع', 'MakeCode' => 'کد سازنده', 'DocumentNo' => 'شماره سند',
+        'CrossReference' => 'کراس رفرنس قطعات', 'Doc' => 'شماره سند',
+        'LocationCode' => 'کد محل مبدأ', 'NewLocationCode' => 'کد محل مقصد', 'VariantCode' => 'کد رنگ قطعات',
     ];
 
     public function __construct(

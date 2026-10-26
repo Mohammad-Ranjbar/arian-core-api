@@ -2,6 +2,7 @@
 
 use App\Services\Erp\RestApi\ApproveExitZonesService;
 use App\Services\Erp\RestApi\ApproveReturnZonesService;
+use App\Services\Erp\RestApi\CreateSynchroensService;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
 use App\Services\Erp\RestApi\ExitPrintsService;
 use App\Services\Erp\RestApi\ExitRequestsService;
@@ -29,6 +30,19 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'CreateSynchroens' => [
+            'service' => CreateSynchroensService::class,
+            'mode' => 'unique',
+            'rules' => [
+                'CrossReference' => ['required', 'string'],
+                'Doc' => ['required', 'string'],
+                'LocationCode' => ['required', 'string'],
+                'NewLocationCode' => ['required', 'string'],
+                'VariantCode' => ['present', 'string'],
+                'Number' => ['required', 'string', 'regex:/^[1-9][0-9]*$/'],
+                'BatchNo' => ['required', 'string'],
+            ],
+        ],
         'ProductionPostingBINs' => [
             'service' => ProductionPostingBINsService::class,
             'mode' => 'unique',

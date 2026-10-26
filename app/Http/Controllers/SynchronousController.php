@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ErpJobEvent;
 use App\Filters\SynchronousProductionLineIdFilter;
 use App\Filters\SynchronousTitleFilter;
 use App\Http\Requests\UpdateCrossReferenceRequest;
 use App\Http\Resources\SynchronousResource;
 use App\Jobs\ExportJob;
-use App\Models\ColorMap;
-use App\Models\ErpJob;
 use App\Models\Job;
 use App\Models\NavColor;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Services\Erp\ErpCrossReference;
+use App\Services\Erp\RestApi\CreateSynchroensService;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -25,9 +23,10 @@ use Illuminate\Support\Facades\Pipeline;
 class SynchronousController extends Controller
 {
 
-    public function __construct(private readonly ErpCrossReference $erpCrossReference)
-    {
-    }
+    public function __construct(
+        private readonly ErpCrossReference $erpCrossReference,
+        private readonly CreateSynchroensService $createSynchroens
+    ) {}
 
     /**
      * @throws AuthorizationException
@@ -178,29 +177,20 @@ class SynchronousController extends Controller
             $numberP = $items->count();
             $batchNoP = Carbon::now()->toDateTimeString();
 
-            $parameters = [
-                'crossReferenceP'  => $crossReferences,
-                'docP'             => $docP,
-                'locationCodeP'    => $locationCodeP,
-                'newLocationCodeP' => $newLocationCodeP,
-                'variantCodeP'     => $variantCodeP,
-                'numberP'          => $numberP,
-                'batchNoP'         => $batchNoP,
-            ];
-            // TODO check submitted by user ? user_id = Auth::id()
-            $insert = [
-                'model_id'   => $synchronousItem->getAttribute('id'),
-                'model_type' => SynchronousItem::class,
-                'section'    => 'synchronous',
-                'user_id'    => 1,
-                'method'     => 'CreateSynchroen',
-                'url'        => config('erp.synchronous_v2'),
-                'parameters' => $parameters,
-                'queue'      => ErpJob::QUEUE_UNIQUE
-            ];
-            $erpJob = ErpJob::query()->create($insert);
+            $result = $this->createSynchroens->dispatch(
+                $crossReferences, $docP, $locationCodeP, $newLocationCodeP,
+                $variantCodeP, $numberP, $batchNoP,
+                model: $synchronousItem, userId: Auth::id()
+            );
 
-            ErpJobEvent::dispatch($erpJob);
+            if (!$result['success']) {
+                return response()->json([
+                    'error' => $result['error'],
+                    'rest_erp_job_id' => $result['rest_erp_job_id'] ?? null,
+                ], $result['http_status']);
+            }
+
+            return response()->json($result['data'], $result['http_status'] === 202 ? 202 : 200);
         }
 
         return true;

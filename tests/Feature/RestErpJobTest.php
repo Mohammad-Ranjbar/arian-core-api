@@ -282,21 +282,30 @@ class RestErpJobTest extends TestCase
         Http::assertSentCount(3);
     }
 
-    public function test_baskets_are_registered_in_an_independent_parallel_job_without_http(): void
+    public function test_baskets_are_sent_synchronously_and_submitted_only_after_erp_success(): void
     {
+        config()->set('rest_erp.endpoints.ItemReclassJournals.mode', 'unique');
         DB::table('baskets')->insert([
             ['id' => 1, 'code' => 'BKJ1038538', 'user_id' => 42, 'status' => 'new'],
             ['id' => 2, 'code' => 'BKJ1038539', 'user_id' => 42, 'status' => 'new'],
             ['id' => 3, 'code' => 'OTHER', 'user_id' => 43, 'status' => 'new'],
         ]);
+        Http::fake(function (HttpRequest $request) {
+            $this->assertSame(['new', 'new'], DB::table('baskets')->where('user_id', 42)->orderBy('id')->pluck('status')->all());
+
+            return Http::response(['Number' => '2'], 201);
+        });
         $request = Mockery::mock(UpdateBasketBatchRequest::class);
         $request->shouldReceive('validated')->once()->andReturn(['batch' => 'test', 'batch_name' => 'LAMARI']);
         $response = resolve(BasketController::class)->batchUpdate($request);
-        $this->assertSame(202, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame(['Number' => '2'], $response->getData(true));
         $job = RestErpJob::query()->sole();
-        $this->assertSame($job->id, $response->getData(true)['rest_erp_job_id']);
-        $this->assertSame('pending', $job->status);
-        $this->assertSame(0, $job->tries);
+        $this->assertSame('sync', $job->execution_mode);
+        $this->assertSame('success', $job->status);
+        $this->assertSame(1, $job->tries);
+        $this->assertNull($job->queue);
+        $this->assertNull($job->connection);
         $this->assertSame(Basket::class, $job->model_type);
         $this->assertSame('1', $job->model_id);
         $this->assertSame(42, $job->user_id);
@@ -306,9 +315,11 @@ class RestErpJobTest extends TestCase
         $this->assertSame('new', DB::table('baskets')->where('id', 3)->value('status'));
         $this->assertSame(0, DB::table('erp_jobs')->count());
         $this->assertFalse(Schema::hasColumn('erp_jobs', 'transport'));
-        Queue::assertPushedOn('parallel', SendToRestErpJob::class, fn ($queued) => $queued->id === (string) $job->id && $queued->connection === 'redis' && $queued->tries === 1 && $queued->timeout === 330);
-        Http::assertNothingSent();
-        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        Queue::assertNothingPushed();
+        Http::assertSentCount(1);
+        Http::assertSent(fn (HttpRequest $request) => $request->url() === self::ERP_URL
+            && $request->method() === 'POST' && $request->data() === $job->parameters);
+        $this->assertSame(['rest_erp_created', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
     }
 
     public function test_context_redacts_secrets_without_collecting_removed_client_metadata(): void
@@ -763,20 +774,54 @@ class RestErpJobTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_http_publication_failure_returns_a_safe_error_and_a_trackable_request_id(): void
+    public static function basketSyncFailures(): array
     {
+        return [
+            'business error' => [['error' => ['code' => 'Application_DialogException', 'message' => 'Insufficient inventory. password=erp-secret']], 400, 'Application_DialogException', 422, 'failed'],
+            'authentication error' => [[], 401, 'ERP_AUTH_ERROR', 502, 'failed'],
+            'server error' => [[], 500, 'ERP_ERROR', 502, 'uncertain'],
+            'connection timeout' => [null, 0, 'ERP_CONNECTION_ERROR', 503, 'uncertain'],
+        ];
+    }
+
+    #[DataProvider('basketSyncFailures')]
+    public function test_basket_sync_failures_return_safe_errors_without_submitting_baskets(
+        ?array $body, int $providerStatus, string $errorCode, int $httpStatus, string $jobStatus
+    ): void
+    {
+        config()->set('rest_erp.endpoints.ItemReclassJournals.mode', 'parallel');
         Auth::user()->givePermissionTo(Permission::create(['name' => 'basket-batch-update', 'guard_name' => 'web']));
-        DB::table('baskets')->insert(['id' => 1, 'code' => 'BKJ1038538', 'user_id' => 42, 'status' => 'new']);
-        Bus::shouldReceive('dispatch')->once()->andThrow(new RuntimeException('password=broker-secret'));
+        DB::table('baskets')->insert([
+            ['id' => 1, 'code' => 'BKJ1038538', 'user_id' => 42, 'status' => 'new'],
+            ['id' => 2, 'code' => 'BKJ1038539', 'user_id' => 42, 'status' => 'new'],
+        ]);
+        Http::fake(function () use ($body, $providerStatus) {
+            if ($body === null) {
+                throw new ConnectionException('Connection timed out. password=erp-secret');
+            }
+
+            return Http::response($body, $providerStatus);
+        });
 
         $response = $this->postJson('/api/basket-batch-update', ['batch' => 'test', 'batch_name' => 'LAMARI']);
 
-        $response->assertStatus(503)->assertJsonPath('error.code', 'ERP_QUEUE_ERROR');
+        $response->assertStatus($httpStatus)->assertJsonPath('error.code', $errorCode);
         $job = RestErpJob::query()->sole();
-        $response->assertJsonPath('rest_erp_job_id', $job->id);
-        $this->assertSame('failed', $job->status);
-        $this->assertStringNotContainsString('broker-secret', $response->getContent());
-        Http::assertNothingSent();
+        $this->assertSame('sync', $job->execution_mode);
+        $this->assertSame($jobStatus, $job->status);
+        $this->assertSame($errorCode, $job->error_code);
+        $this->assertSame(1, $job->tries);
+        $this->assertNull($job->queue);
+        $this->assertNull($job->connection);
+        $this->assertSame(['new', 'new'], DB::table('baskets')->orderBy('id')->pluck('status')->all());
+        $this->assertStringNotContainsString('erp-secret', $response->getContent());
+        $this->assertStringNotContainsString('erp-secret', $job->description);
+        $this->assertSame($body === null ? ['rest_erp_created'] : ['rest_erp_created', 'rest_erp_'.$jobStatus],
+            $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        Queue::assertNothingPushed();
+        if ($body !== null) {
+            Http::assertSentCount(1);
+        }
     }
 
     public function test_sent_parameters_are_complete_in_storage_api_and_action_logs_without_truncation(): void
