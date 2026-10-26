@@ -87,7 +87,6 @@ class BasketController extends CrudController
         if (!$result['success']) {
             return ['status' => 'error', 'message' => $result['error']['message']];
         }
-
         return ['status' => 'ok', 'data' => $result['data']];
     }
 
