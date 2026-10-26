@@ -15,7 +15,7 @@ use App\Models\Tracking;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\VinEngine;
-use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\VINChangesService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +23,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
+use Throwable;
 
 
 class ChangeVinController extends Controller
@@ -54,55 +55,65 @@ class ChangeVinController extends Controller
     {
         try {
 
-            DB::beginTransaction();
-
             $data = $request->validated();
             /** @var Vehicle $vehicle */
             $vehicle = Vehicle::query()->where('production_order_number', $data['production_order_number'])->first();
+            if (!$vehicle) {
+                return $this->responseError('خودرویی برای شماره سفارش تولید واردشده پیدا نشد.');
+            }
             $tracking = $vehicle->tracking()->where('type', 'enter')->where('model_type', ProductionLine::class)->first();
             if (empty($tracking)) {
                 return $this->responseError('شماره وارد شده ورود به خط ندارد');
             }
 
-            $response = $this->sendErp($data);
+            $response = $this->sendErp($data, $vehicle);
             if ($response['status'] !== 'ok') {
                 return $this->responseError($response['message'], 400);
             }
 
-            $this->vehicleController->getData($data['vin']);
+            return DB::transaction(function () use ($data, $tracking) {
+                $this->vehicleController->getData($data['vin']);
 
-            Tracking::query()->create([
-                'type' => 'enter',
-                'vin' => $data['vin'],
-                'model_type' => ProductionLine::class,
-                'model_id' => $tracking->model_id,
-                'user_id' => Auth::id(),
-                'is_systemic' => true,
-            ]);
-            $changeVin = ChangeVin::query()->create($data);
-            VinEngine::query()
-                ->where('vin', $data['vin'])
-                ->update([
-                    'production_order_number' => $data['production_order_number'],
+                Tracking::query()->create([
+                    'type' => 'enter',
+                    'vin' => $data['vin'],
+                    'model_type' => ProductionLine::class,
+                    'model_id' => $tracking->model_id,
+                    'user_id' => Auth::id(),
+                    'is_systemic' => true,
                 ]);
-            DB::commit();
-            return ChangeVinResource::make($changeVin);
+                $changeVin = ChangeVin::query()->create($data);
+                VinEngine::query()
+                    ->where('vin', $data['vin'])
+                    ->update([
+                        'production_order_number' => $data['production_order_number'],
+                    ]);
 
-        } catch (Exception $exception) {
-            DB::rollBack();
+                return ChangeVinResource::make($changeVin);
+            });
+
+        } catch (Throwable $exception) {
             return response()->json([
                 'message' => $exception->getMessage()
             ], 500);
         }
     }
 
-    public function sendErp($data): array
+    /**
+     * @throws Throwable
+     */
+    public function sendErp($data, ?Vehicle $vehicle = null): array
     {
-        return ErpWsdlClient::run(config('erp.vehicle_change'), 'VINRegistrationChanges', [
-            'productionNoP' => $data['production_order_number'],
-            'tempVINP' => $data['old_vin'],
-            'vINP' => $data['vin'],
-        ]);
+        $result = resolve(VINChangesService::class)->send(
+            $data['production_order_number'], $data['old_vin'] ?? '', $data['vin'],
+            model: $vehicle, userId: Auth::id()
+        )->sync();
+
+        if (!$result['success']) {
+            return ['status' => 'error', 'message' => $result['error']['message']];
+        }
+
+        return ['status' => 'ok', 'data' => $result['data']];
     }
 
 

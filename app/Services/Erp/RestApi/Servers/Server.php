@@ -13,6 +13,7 @@ use InvalidArgumentException;
 class Server
 {
     private const array ENDPOINTS = [
+        'VINChanges' => 'VINChanges',
         'Baskets' => 'Baskets',
         'CreateSynchroens' => 'CreateSynchroens',
         'ProductionPostingBINs' => 'ProductionPostingBINs',

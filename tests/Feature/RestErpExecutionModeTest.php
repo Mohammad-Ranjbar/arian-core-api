@@ -34,6 +34,7 @@ class RestErpExecutionModeTest extends TestCase
         $vin = 'N5RT92CF6SP000481';
         $operations = GroupExitServicesTest::operations();
         foreach ([
+            ['VINChangesService', 'VINChanges', ['05PRO0099915', 'N5RL40000S0002064', 'N5RL40000S0003333']],
             ['CreateSynchroensService', 'CreateSynchroens', ['SX5G-2804-0056', 'P-10-00932', 'LMRLP0100', 'LMRIL0011', '213', 1, '123']],
             ['ExitRequestsService', 'ExitRequests', [$vin, 1, 'DESTINATION', 2]],
             ['ApproveExitZonesService', 'ApproveExitZones', [$vin, 2]],

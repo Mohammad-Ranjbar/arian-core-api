@@ -31,6 +31,7 @@ readonly class RestErpJobService
     ];
 
     private const VALIDATION_ATTRIBUTES = [
+        'ProductionNo' => 'شماره سفارش تولید', 'TempVIN' => 'شماره شاسی موقت',
         'WCGroup' => 'گروه مرکز کاری', 'WithTracking' => 'ثبت رهگیری', 'WithOutput' => 'ثبت خروجی',
         'VIN' => 'شماره شاسی', 'VINArray' => 'فهرست شماره شاسی‌ها',
         'BarcodeInfo' => 'بارکد خودرو', 'BarCode' => 'بارکد قطعه',
