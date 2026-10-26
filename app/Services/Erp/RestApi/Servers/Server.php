@@ -13,6 +13,7 @@ use InvalidArgumentException;
 class Server
 {
     private const array ENDPOINTS = [
+        'Baskets' => 'Baskets',
         'CreateSynchroens' => 'CreateSynchroens',
         'ProductionPostingBINs' => 'ProductionPostingBINs',
         'Trackings' => 'Trackings',
@@ -57,12 +58,12 @@ class Server
         return $this->request('POST', $endpoint, $data, $onResponse, $requestId);
     }
 
-    public function get(string $endpoint, array $query = []): array
+    public function get(string $endpoint, array $query = [], ?array $body = null): array
     {
-        return $this->request('GET', $endpoint, $query);
+        return $this->request('GET', $endpoint, $query, jsonBody: $body);
     }
 
-    private function request(string $method, string $endpoint, array $data, ?callable $onResponse = null, ?string $requestId = null): array
+    private function request(string $method, string $endpoint, array $data, ?callable $onResponse = null, ?string $requestId = null, ?array $jsonBody = null): array
     {
         $url = $this->urlFor($endpoint);
 
@@ -83,6 +84,11 @@ class Server
             return $this->failure('ERP_CONFIGURATION_ERROR', 'تنظیمات لازم برای اتصال به بیزینس سنترال کامل نیست: '.implode('، ', $missing), 503);
         }
 
+        $options = $method === 'GET' ? ['query' => $data] : ['json' => $data];
+        if ($jsonBody !== null) {
+            $options['json'] = $jsonBody;
+        }
+
         try {
             $response = Http::acceptJson()
                 ->asJson()
@@ -96,7 +102,7 @@ class Server
                 ->send(
                     $method,
                     $url,
-                    [$method === 'GET' ? 'query' : 'json' => $data]
+                    $options
                 );
         } catch (ConnectionException $exception) {
             return $this->failure(
