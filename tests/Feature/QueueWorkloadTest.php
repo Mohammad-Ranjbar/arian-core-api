@@ -58,6 +58,20 @@ class QueueWorkloadTest extends TestCase
 
         $this->assertGreaterThan(1, $plan->optionsFor('production', 'supervisor-default')->maxProcesses);
         $this->assertGreaterThan(1, $plan->optionsFor('production', 'supervisor-sms')->maxProcesses);
+        $this->assertGreaterThan(1, $plan->optionsFor('production', 'supervisor-imports')->maxProcesses);
+        $this->assertGreaterThan(1, $plan->optionsFor('production', 'supervisor-exports')->maxProcesses);
+        $this->assertGreaterThan(1, $plan->optionsFor('production', 'supervisor-parallel')->maxProcesses);
+        $this->assertSame('auto', $plan->optionsFor('production', 'supervisor-imports')->balance);
+        $this->assertGreaterThanOrEqual(2, $plan->optionsFor('production', 'supervisor-imports')->minProcesses);
+        $this->assertGreaterThanOrEqual(2, $plan->optionsFor('production', 'supervisor-exports')->minProcesses);
+        $this->assertGreaterThanOrEqual(4, $plan->optionsFor('production', 'supervisor-default')->minProcesses);
+
+        foreach ([new ImportJob('import-id'), new ExportJob('export-id')] as $job) {
+            $this->assertSame(600, $job->timeout);
+            $supervisor = $plan->optionsFor('production', 'supervisor-'.$job->queue);
+            $this->assertGreaterThan($job->timeout, $supervisor->timeout);
+        }
+        $this->assertSame(600, $plan->optionsFor('production', 'supervisor-default')->timeout);
     }
 
     public function test_jobs_route_through_the_bus_without_changing_call_sites(): void

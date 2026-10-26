@@ -85,7 +85,7 @@ class HorizonRedisTest extends TestCase
         $this->assertNotNull($export);
 
         $expiry = Redis::zscore('queues:exports:reserved', $export->getReservedJob());
-        $this->assertEqualsWithDelta(time() + 1860, (float) $expiry, 2);
+        $this->assertEqualsWithDelta(time() + config('queue.connections.redis.retry_after'), (float) $expiry, 2);
 
         dispatch(new SmsJob('09120000000', 'test'));
         $this->app['queue.worker']->runNextJob('redis', 'sms', new WorkerOptions);
@@ -111,6 +111,32 @@ class HorizonRedisTest extends TestCase
         $this->horizon->signal(SIGINT);
         $this->assertSame(0, $this->horizon->wait(), $this->horizon->getErrorOutput());
         $this->assertSame('1', Redis::get('long:finished'));
+    }
+
+    public function test_production_horizon_runs_two_imports_concurrently(): void
+    {
+        $this->horizon = new Process(
+            [PHP_BINARY, base_path('artisan'), 'horizon', '--environment=production'],
+            base_path(),
+            $this->childEnvironment()
+        );
+        $this->horizon->setTimeout(30);
+        $this->horizon->start();
+
+        dispatch((new QueueProbeJob('import-first', 10))->onQueue('imports'));
+        dispatch((new QueueProbeJob('import-second', 10))->onQueue('imports'));
+        $this->await(fn () => Redis::get('import-first:started') === '1'
+            && Redis::get('import-second:started') === '1');
+        $this->assertNull(Redis::get('import-first:finished'));
+        $this->assertNull(Redis::get('import-second:finished'));
+
+        dispatch((new QueueProbeJob('parallel-fast'))->onQueue('parallel'));
+        $this->await(fn () => Redis::get('parallel-fast:finished') === '1');
+
+        $this->horizon->signal(SIGINT);
+        $this->assertSame(0, $this->horizon->wait(), $this->horizon->getErrorOutput());
+        $this->assertSame('1', Redis::get('import-first:finished'));
+        $this->assertSame('1', Redis::get('import-second:finished'));
     }
 
     public function test_worker_timeout_marks_custom_job_failed_and_removes_the_reservation(): void
