@@ -81,7 +81,7 @@ class SyncPDIBlockCommand extends Command
                     {
                         continue;
                     }
-                    if ($row->VIN == "N5RSA8SA4S2902856"){
+                    if ($row->VIN !== "N5RSA8SA4S2902856"){
                         dd($row);
                     }
                     if (!empty($row->LastPDIDate)) {
