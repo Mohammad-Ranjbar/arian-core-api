@@ -72,7 +72,7 @@ class RelatedItemShortageRepository extends BaseRepository
                 $main->update(['location_code' => $data['location_code']]);
                 $main->refresh();
             }
-            if (! $main->isDraft()) {
+            if (! $main->isDraft() && !empty($data['item_no'])) {
                 $main = $main->forkVersion($main->getAttribute('location_code'));
             }
             if (filled($data['item_no'] ?? null) && filled($data['description'] ?? null)) {
