@@ -81,9 +81,6 @@ class SyncPDIBlockCommand extends Command
                     {
                         continue;
                     }
-                    if ($row->VIN === "N5RSU7SN5T2903356"){
-                        dd($row);
-                    }
                     if (!empty($row->LastPDIDate)) {
 
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
