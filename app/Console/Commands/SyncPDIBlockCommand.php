@@ -11,12 +11,14 @@ use App\Services\Erp\ErpOdataClient;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class SyncPDIBlockCommand extends Command
 {
 
     protected $signature = 'app:sync-pdi-block-command';
 
+    protected $description = 'همگام‌سازی بلاک خودروها بر اساس وضعیت PDI در ERP';
 
     public function __construct(private readonly ErpOdataClient $erpOdataClient, public BlockItemController $blockItemController)
     {
@@ -26,6 +28,16 @@ class SyncPDIBlockCommand extends Command
 
     public function handle(): void
     {
+        $startedAt = microtime(true);
+        $page = 0;
+        $totalRows = 0;
+        $totalBlocked = 0;
+        $totalErrors = 0;
+
+        $this->newLine();
+        $this->components->info('همگام‌سازی بلاک PDI');
+        $this->line('  دریافت اطلاعات از ERP و بررسی وضعیت بلاک خودروها');
+        $this->newLine();
 
         $reasonId = BlockReason::query()->where('id', config('erp.pdi_block_reason_id'))->firstOrCreate([
             'title' => 'PDI BLOCK',
@@ -36,15 +48,29 @@ class SyncPDIBlockCommand extends Command
 
         while ($url) {
 
-            $this->info($url);
+            $page++;
+            $this->components->twoColumnDetail('صفحه', (string) $page);
+            $this->line('  <fg=gray>'.OutputFormatter::escape($url).'</>');
+            $this->newLine();
 
             $content = $this->erpOdataClient->get($url);
 
             if (isset($content->value)) {
-                $bar = $this->output->createProgressBar(count($content->value));
+                $rowCount = count($content->value);
+                $totalRows += $rowCount;
+                $this->components->twoColumnDetail('تعداد ردیف‌های دریافتی', (string) $rowCount);
+                $bar = $this->output->createProgressBar($rowCount);
+                $bar->setFormat($rowCount > 0
+                    ? '  %current%/%max% [%bar%] %percent:3s%% | %elapsed:6s%'
+                    : '  ردیفی برای بررسی وجود ندارد.');
+                $bar->setBarCharacter('<fg=green>=</>');
+                $bar->setProgressCharacter('<fg=green>></>');
+                $bar->setEmptyBarCharacter('<fg=gray>·</>');
+                $bar->setBarWidth(30);
                 $bar->start();
                 $count = 0;
                 foreach ($content->value as $row) {
+                    $bar->advance();
 
                     if ($row->PDI_Result == '' || $row->LastPDIDate == '0001-01-01' || $row->Blocked) {
                         continue;
@@ -93,23 +119,40 @@ class SyncPDIBlockCommand extends Command
                                 $this->blockItemController->createBlock($data);
                                 $count++;
                             } catch (Exception $exception) {
+                                $totalErrors++;
                                 logger()->error($exception->getMessage());
                             }
                         }
-
-                        $bar->advance();
                     }
                 }
 
                 $bar->finish();
-                $this->output->writeln('');
+                $this->newLine(2);
+                $totalBlocked += $count;
+                $this->components->twoColumnDetail('بلاک‌های ثبت‌شده در این صفحه', (string) $count);
+            } else {
+                $this->components->warn('پاسخ این صفحه فاقد فهرست ردیف‌ها است.');
             }
-            $this->output->writeln($count);
+            $this->newLine();
             $url = null;
             if (isset($content->{'@odata.nextLink'})) {
                 $url = $content->{'@odata.nextLink'};
             }
 
+        }
+
+        $this->table(['شاخص', 'نتیجه'], [
+            ['صفحه‌های دریافت‌شده', $page],
+            ['ردیف‌های بررسی‌شده', $totalRows],
+            ['بلاک‌های ثبت‌شده', $totalBlocked],
+            ['خطاهای ثبت بلاک', $totalErrors],
+            ['مدت اجرا (ثانیه)', number_format(microtime(true) - $startedAt, 1)],
+        ]);
+
+        if ($totalErrors > 0) {
+            $this->components->warn('بررسی پایان یافت؛ جزئیات خطاهای ثبت بلاک در لاگ برنامه ثبت شده است.');
+        } else {
+            $this->components->info('بررسی بلاک PDI پایان یافت.');
         }
 
     }
