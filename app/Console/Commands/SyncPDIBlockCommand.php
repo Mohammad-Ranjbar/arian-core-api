@@ -18,7 +18,7 @@ class SyncPDIBlockCommand extends Command
 
     protected $signature = 'app:sync-pdi-block-command';
 
-    protected $description = 'همگام‌سازی بلاک خودروها بر اساس وضعیت PDI در ERP';
+    protected $description = 'Synchronize vehicle blocks based on PDI status in ERP';
 
     public function __construct(private readonly ErpOdataClient $erpOdataClient, public BlockItemController $blockItemController)
     {
@@ -36,8 +36,8 @@ class SyncPDIBlockCommand extends Command
         $blockedVins = [];
 
         $this->newLine();
-        $this->components->info('همگام‌سازی بلاک PDI');
-        $this->line('  دریافت اطلاعات از ERP و بررسی وضعیت بلاک خودروها');
+        $this->components->info('PDI Block Synchronization');
+        $this->line('  Fetching ERP data and checking vehicle block status');
         $this->newLine();
 
         $reasonId = BlockReason::query()->where('id', config('erp.pdi_block_reason_id'))->firstOrCreate([
@@ -50,7 +50,7 @@ class SyncPDIBlockCommand extends Command
         while ($url) {
 
             $page++;
-            $this->components->twoColumnDetail('صفحه', (string) $page);
+            $this->components->twoColumnDetail('Page', (string) $page);
             $this->line('  <fg=gray>'.OutputFormatter::escape($url).'</>');
             $this->newLine();
 
@@ -59,11 +59,11 @@ class SyncPDIBlockCommand extends Command
             if (isset($content->value)) {
                 $rowCount = count($content->value);
                 $totalRows += $rowCount;
-                $this->components->twoColumnDetail('تعداد ردیف‌های دریافتی', (string) $rowCount);
+                $this->components->twoColumnDetail('Rows received', (string) $rowCount);
                 $bar = $this->output->createProgressBar($rowCount);
                 $bar->setFormat($rowCount > 0
                     ? '  %current%/%max% [%bar%] %percent:3s%% | %elapsed:6s%'
-                    : '  ردیفی برای بررسی وجود ندارد.');
+                    : '  No rows to process.');
                 $bar->setBarCharacter('<fg=green>=</>');
                 $bar->setProgressCharacter('<fg=green>></>');
                 $bar->setEmptyBarCharacter('<fg=gray>·</>');
@@ -72,8 +72,10 @@ class SyncPDIBlockCommand extends Command
                 $count = 0;
                 foreach ($content->value as $row) {
                     $bar->advance();
-                    if ($row->VIN == "N5RSA8SA4S2902856"){}
-                    dd($row);
+                    if ($row->VIN == "N5RSA8SA4S2902856"){
+                        dd($row);
+                    }
+
                     if ($row->PDI_Result == '' || $row->LastPDIDate == '0001-01-01' || $row->Blocked) {
                         continue;
                     }
@@ -132,9 +134,9 @@ class SyncPDIBlockCommand extends Command
                 $bar->finish();
                 $this->newLine(2);
                 $totalBlocked += $count;
-                $this->components->twoColumnDetail('بلاک‌های ثبت‌شده در این صفحه', (string) $count);
+                $this->components->twoColumnDetail('Blocks created on this page', (string) $count);
             } else {
-                $this->components->warn('پاسخ این صفحه فاقد فهرست ردیف‌ها است.');
+                $this->components->warn('The response for this page contains no row list.');
             }
             $this->newLine();
             $url = null;
@@ -144,25 +146,25 @@ class SyncPDIBlockCommand extends Command
 
         }
 
-        $this->table(['شاخص', 'نتیجه'], [
-            ['صفحه‌های دریافت‌شده', $page],
-            ['ردیف‌های بررسی‌شده', $totalRows],
-            ['بلاک‌های ثبت‌شده', $totalBlocked],
-            ['خطاهای ثبت بلاک', $totalErrors],
-            ['مدت اجرا (ثانیه)', number_format(microtime(true) - $startedAt, 1)],
+        $this->table(['Metric', 'Result'], [
+            ['Pages fetched', $page],
+            ['Rows checked', $totalRows],
+            ['Blocks created', $totalBlocked],
+            ['Block creation errors', $totalErrors],
+            ['Duration (seconds)', number_format(microtime(true) - $startedAt, 1)],
         ]);
 
         if ($totalErrors > 0) {
-            $this->components->warn('بررسی پایان یافت؛ جزئیات خطاهای ثبت بلاک در لاگ برنامه ثبت شده است.');
+            $this->components->warn('بررسی پایان یافت؛ جزئیات Block creation errors در لاگ برنامه ثبت شده است.');
         } else {
-            $this->components->info('بررسی بلاک PDI پایان یافت.');
+            $this->components->info('PDI block processing completed.');
         }
 
         $this->newLine();
-        $this->components->info('VIN خودروهای بلاک‌شده');
+        $this->components->info('Blocked Vehicle VINs');
 
         if ($blockedVins === []) {
-            $this->line('  خودرویی بلاک نشد.');
+            $this->line('  No vehicles were blocked.');
         } else {
             foreach ($blockedVins as $vin) {
                 $this->line('  '.OutputFormatter::escape($vin));
