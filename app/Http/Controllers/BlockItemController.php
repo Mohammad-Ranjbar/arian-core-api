@@ -37,6 +37,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class BlockItemController extends Controller
 {
@@ -77,8 +78,12 @@ class BlockItemController extends Controller
     }
 
 
+    /**
+     * @throws Throwable
+     */
     public function store(BlockItemStoreRequest $request, Vehicle $vehicle): JsonResponse|BlockItemResource
     {
+        unset($vehicle);
         try {
             $validatedData = $request->validated();
             $record = $this->createBlock($validatedData);
@@ -88,6 +93,9 @@ class BlockItemController extends Controller
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function createBlock(array $validatedData): Model|Application|\Illuminate\Http\Response|Builder|\Illuminate\Contracts\Foundation\Application|ResponseFactory
     {
         $blockReason = $this->reasonRepository->findBy($validatedData['block_reason_id'], 'id');
@@ -107,8 +115,7 @@ class BlockItemController extends Controller
 
 
     /**
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
+     * @throws Throwable
      */
     public function unblock(Vehicle $vehicle, $id, UnblockItemRequest $request): BlockItemResource|JsonResponse
     {
@@ -116,16 +123,16 @@ class BlockItemController extends Controller
             $this->authorize('block-items.unblock');
 
             $item = $vehicle->blockItems()->where('block_items.id', $id)->first();
-            if (! $item) {
+            if (!$item) {
                 return $this->responseError('رکورد مسدودی مورد نظر برای این خودرو یافت نشد.', 404);
             }
             if ($item->getAttribute('unblocked_at') !== null) {
-                return $this->responseError('این رکورد قبلاً رفع مسدودی شده است.', 422);
+                return $this->responseError('این رکورد قبلاً رفع مسدودی شده است.');
             }
 
             $response = resolve(VehicleUnblocksService::class)->send($vehicle->getAttribute('vin'), $item)->sync();
 
-            if (! $response['success']) {
+            if (!$response['success']) {
                 return $this->responseError($response['error']['message'], $response['http_status']);
             }
 
