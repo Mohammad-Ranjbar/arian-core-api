@@ -79,7 +79,6 @@ class SyncPDIBlockCommand extends Command
                     if (BlockItem::query()->where('vin', $row->VIN)
                         ->where('unblocked_at','<=',now()->subDays(45))->exists())
                     {
-                        dd($row->VIN == "N5RSA8SA4S2902856");
                         continue;
                     }
                     if ($row->VIN == "N5RSA8SA4S2902856"){
