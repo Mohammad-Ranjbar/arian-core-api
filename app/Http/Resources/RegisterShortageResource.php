@@ -56,6 +56,7 @@ class RegisterShortageResource extends JsonResource
             'is_certified' => $this->resource->is_certified,
             'resolved_at' => $this->resource->resolved_at,
             'resolvedBy' => UserShortResource::make($this->resource->resolvedBy),
+            'is_84' => $this->resource->is84,
             'created_at' => $this->resource->created_at,
             'updated_at' => $this->resource->updated_at,
         ];
