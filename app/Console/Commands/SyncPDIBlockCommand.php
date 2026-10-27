@@ -45,11 +45,15 @@ class SyncPDIBlockCommand extends Command
                 $bar->start();
                 $count = 0;
                 foreach ($content->value as $row) {
-                    dd($row);
+
                     if ($row->PDI_Result == '' || $row->LastPDIDate == '0001-01-01' || $row->Blocked) {
                         continue;
                     }
-
+                    if (BlockItem::query()->where('vin', $row->VIN)
+                        ->where('unblocked_at','<=',now()->subDays(45))->exists())
+                    {
+                        continue;
+                    }
                     if (!empty($row->LastPDIDate)) {
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
                             CheckVehicleJob::dispatch($row->VIN);
