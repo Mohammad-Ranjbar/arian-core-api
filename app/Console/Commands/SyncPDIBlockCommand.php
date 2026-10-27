@@ -57,6 +57,7 @@ class SyncPDIBlockCommand extends Command
             $content = $this->erpOdataClient->get($url);
 
             if (isset($content->value)) {
+                dd($content->value);
                 $rowCount = count($content->value);
                 $totalRows += $rowCount;
                 $this->components->twoColumnDetail('Rows received', (string) $rowCount);
@@ -81,9 +82,7 @@ class SyncPDIBlockCommand extends Command
                     {
                         continue;
                     }
-                    if ($row->VIN === "LS5A3DKE0TA992521"){
-                        dd($row);
-                    }
+
                     if (!empty($row->LastPDIDate)) {
 
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
