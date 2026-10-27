@@ -79,8 +79,9 @@ class SyncPDIBlockCommand extends Command
                     if (BlockItem::query()->where('vin', $row->VIN)
                         ->where('unblocked_at','<=',now()->subDays(45))->exists())
                     {
-                        continue;
                         dd($row);
+                        continue;
+
                     }
                     if (!empty($row->LastPDIDate)) {
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
