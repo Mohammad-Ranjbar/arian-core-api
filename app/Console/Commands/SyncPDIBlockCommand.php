@@ -72,9 +72,6 @@ class SyncPDIBlockCommand extends Command
                 $count = 0;
                 foreach ($content->value as $row) {
                     $bar->advance();
-                    if ($row->VIN == "N5RSA8SA4S2902856"){
-                        dd($row);
-                    }
 
                     if ($row->PDI_Result == '' || $row->LastPDIDate == '0001-01-01' || $row->Blocked) {
                         continue;
@@ -94,12 +91,12 @@ class SyncPDIBlockCommand extends Command
                         $dateString = $row->LastPDIDate;
 
                         $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
-                        $blockItem = BlockItem::query()->where('vin', $row->VIN)->where('type', 'system')->latest()->first();
+                        $blockItem = BlockItem::query()->where('vin', $row->VIN)->latest()->first();
 
                         $isExpired = false;
 
                         if ($blockItem) {
-                            $referenceDate = $blockItem->unblock_at ?? $blockItem->created_at;
+                            $referenceDate = $blockItem->unblock_at;
 
                             $isExpired = $referenceDate->lt(
                                 Carbon::now()->subDays(45)
