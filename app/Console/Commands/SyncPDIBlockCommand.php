@@ -79,9 +79,7 @@ class SyncPDIBlockCommand extends Command
                     if (BlockItem::query()->where('vin', $row->VIN)
                         ->where('unblocked_at','<=',now()->subDays(45))->exists())
                     {
-                        dd($row);
                         continue;
-
                     }
                     if (!empty($row->LastPDIDate)) {
                         if (!Vehicle::query()->where('vin', $row->VIN)->exists()) {
@@ -89,7 +87,9 @@ class SyncPDIBlockCommand extends Command
                             continue;
 
                         }
-
+                        if ($row->VIN == "N5RSA8SA4S2902856"){
+                            dd($row);
+                        }
                         $dateString = $row->LastPDIDate;
 
                         $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
