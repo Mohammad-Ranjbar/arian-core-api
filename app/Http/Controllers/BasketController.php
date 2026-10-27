@@ -88,7 +88,7 @@ class BasketController extends CrudController
             return ['status' => 'error', 'message' => $result['error']['message']];
         }
         $data = json_decode($result['data']['Result'],true);
-        dd($data['Data']);
+
         return ['status' => 'ok', 'data' => $data['Data']];
     }
 
