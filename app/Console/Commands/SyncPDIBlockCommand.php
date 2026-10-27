@@ -91,19 +91,19 @@ class SyncPDIBlockCommand extends Command
                         $dateString = $row->LastPDIDate;
 
                         $checkDate = Carbon::parse($dateString)->diffInDays(Carbon::now()) >= 45;
-                        $blockItem = BlockItem::query()->where('vin', $row->VIN)->latest()->first();
+//                        $blockItem = BlockItem::query()->where('vin', $row->VIN)->latest()->first();
 
-                        $isExpired = false;
+//                        $isExpired = false;
 
-                        if ($blockItem) {
-                            $referenceDate = $blockItem->unblock_at;
+//                        if ($blockItem) {
+//                            $referenceDate = $blockItem->unblock_at;
+//
+//                            $isExpired = $referenceDate->lt(
+//                                Carbon::now()->subDays(45)
+//                            );
+//                        }
 
-                            $isExpired = $referenceDate->lt(
-                                Carbon::now()->subDays(45)
-                            );
-                        }
-
-                        if (($checkDate && empty($blockItem)) ||  $isExpired) {
+                        if (($checkDate && empty($blockItem))) {
                             if ($row->AllocationDate !== "0001-01-01" || $row->PlattingDate !== "0001-01-01" || $row->LicenseNo !== "" ) {
                                 continue;
                             }
