@@ -57,7 +57,6 @@ class SyncPDIBlockCommand extends Command
             $content = $this->erpOdataClient->get($url);
 
             if (isset($content->value)) {
-                dd($content->value);
                 $rowCount = count($content->value);
                 $totalRows += $rowCount;
                 $this->components->twoColumnDetail('Rows received', (string) $rowCount);
