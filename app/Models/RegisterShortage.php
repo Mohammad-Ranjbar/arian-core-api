@@ -132,7 +132,11 @@ class RegisterShortage extends Model
     public function is84(): Attribute
     {
         return Attribute::get(function (){
-           return SpecificShortageItem::query()->where('is_active',1)->where('item_no',$this->getAttribute('item_no'))->exists();
+           return SpecificShortageItem::query()
+               ->where('car_model_id',$this->getAttribute('car_model_id'))
+               ->where('is_active',1)
+               ->where('item_no',$this->getAttribute('item_no'))
+               ->exists();
         });
     }
 }
