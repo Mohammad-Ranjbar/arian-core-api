@@ -33,6 +33,7 @@ class SyncPDIBlockCommand extends Command
         $totalRows = 0;
         $totalBlocked = 0;
         $totalErrors = 0;
+        $blockedVins = [];
 
         $this->newLine();
         $this->components->info('همگام‌سازی بلاک PDI');
@@ -118,6 +119,7 @@ class SyncPDIBlockCommand extends Command
                             try {
                                 $this->blockItemController->createBlock($data);
                                 $count++;
+                                $blockedVins[] = $row->VIN;
                             } catch (Exception $exception) {
                                 $totalErrors++;
                                 logger()->error($exception->getMessage());
@@ -153,6 +155,17 @@ class SyncPDIBlockCommand extends Command
             $this->components->warn('بررسی پایان یافت؛ جزئیات خطاهای ثبت بلاک در لاگ برنامه ثبت شده است.');
         } else {
             $this->components->info('بررسی بلاک PDI پایان یافت.');
+        }
+
+        $this->newLine();
+        $this->components->info('VIN خودروهای بلاک‌شده');
+
+        if ($blockedVins === []) {
+            $this->line('  خودرویی بلاک نشد.');
+        } else {
+            foreach ($blockedVins as $vin) {
+                $this->line('  '.OutputFormatter::escape($vin));
+            }
         }
 
     }
