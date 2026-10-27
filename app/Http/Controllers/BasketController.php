@@ -82,7 +82,7 @@ class BasketController extends CrudController
      */
     public function checkBasketBarcode($barcode): array
     {
-        $result = resolve(BasketsService::class)->get($barcode);
+        $result = resolve(BasketsService::class)->post($barcode);
 
         if (!$result['success']) {
             return ['status' => 'error', 'message' => $result['error']['message']];

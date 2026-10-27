@@ -22,7 +22,7 @@ class BasketsServiceTest extends TestCase
         Http::preventStrayRequests();
     }
 
-    public function test_it_sends_the_exact_get_request_with_a_json_body_and_shared_authentication(): void
+    public function test_it_sends_the_exact_post_request_with_a_json_body_and_shared_authentication(): void
     {
         Http::fake(function (Request $request, array $options) {
             $this->assertSame(['test-user', 'test-password', 'ntlm'], $options['auth']);
@@ -33,11 +33,11 @@ class BasketsServiceTest extends TestCase
             return Http::response([], 200);
         });
 
-        $result = resolve(BasketsService::class)->get('BKJ1038520');
+        $result = resolve(BasketsService::class)->post('BKJ1038520');
 
         $this->assertSame(['success' => true, 'data' => [], 'error' => null, 'http_status' => 200], $result);
         Http::assertSentCount(1);
-        Http::assertSent(fn (Request $request) => $request->method() === 'GET'
+        Http::assertSent(fn (Request $request) => $request->method() === 'POST'
             && $request->url() === self::ERP_URL
             && $request->hasHeader('Content-Type', 'application/json')
             && $request->hasHeader('Accept', 'application/json')
@@ -58,7 +58,7 @@ class BasketsServiceTest extends TestCase
     #[DataProvider('emptyBarcodes')]
     public function test_empty_barcodes_are_rejected_before_http(string $barcode): void
     {
-        $result = resolve(BasketsService::class)->get($barcode);
+        $result = resolve(BasketsService::class)->post($barcode);
 
         $this->assertFalse($result['success']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
@@ -88,7 +88,7 @@ class BasketsServiceTest extends TestCase
     {
         Http::fake([self::ERP_URL => Http::response($body, $status)]);
 
-        $result = resolve(BasketsService::class)->get('BKJ1038520');
+        $result = resolve(BasketsService::class)->post('BKJ1038520');
 
         $this->assertFalse($result['success']);
         $this->assertSame($code, $result['error']['code']);
@@ -101,7 +101,7 @@ class BasketsServiceTest extends TestCase
     {
         Http::fake(fn () => throw new ConnectionException('Connection timed out. password=wire-secret'));
 
-        $result = resolve(BasketsService::class)->get('BKJ1038520');
+        $result = resolve(BasketsService::class)->post('BKJ1038520');
 
         $this->assertFalse($result['success']);
         $this->assertSame('ERP_CONNECTION_ERROR', $result['error']['code']);

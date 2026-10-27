@@ -8,7 +8,7 @@ readonly class BasketsService
 {
     public function __construct(private Server $server) {}
 
-    public function get(string $barcodeInfo): array
+    public function post(string $barcodeInfo): array
     {
         if (trim($barcodeInfo) === '') {
             return [
@@ -22,6 +22,6 @@ readonly class BasketsService
             ];
         }
 
-        return $this->server->get('Baskets', body: ['BarcodeInfo' => $barcodeInfo]);
+        return $this->server->post('Baskets', ['BarcodeInfo' => $barcodeInfo]);
     }
 }

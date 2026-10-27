@@ -53,7 +53,7 @@ class BasketBarcodeRestErpTest extends TestCase
 
         $this->assertSame(['status' => 'ok', 'data' => $body], $result);
         Http::assertSentCount(1);
-        Http::assertSent(fn (Request $request) => $request->method() === 'GET'
+        Http::assertSent(fn (Request $request) => $request->method() === 'POST'
             && $request->url() === self::ERP_URL
             && json_decode($request->body(), true) === ['BarcodeInfo' => 'BKJ1038520']);
         $this->assertDatabaseCount('baskets', 0);
