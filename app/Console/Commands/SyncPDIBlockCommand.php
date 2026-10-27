@@ -45,7 +45,7 @@ class SyncPDIBlockCommand extends Command
                 $bar->start();
                 $count = 0;
                 foreach ($content->value as $row) {
-
+                    dd($row);
                     if ($row->PDI_Result == '' || $row->LastPDIDate == '0001-01-01' || $row->Blocked) {
                         continue;
                     }
