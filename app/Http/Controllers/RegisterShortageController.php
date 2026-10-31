@@ -303,4 +303,19 @@ class RegisterShortageController extends Controller
             'message' => 'با موفقیت حذف گردید',
         ]);
     }
+
+    public function printRegisterShortage(string $vin)
+    {
+        try {
+            $data = RegisterShortage::query()
+                ->where('vin', $vin)
+                ->whereNull('register_shortage_id')
+                ->with(['vehicle', 'carModel', 'makeCode', 'user','resolvedBy','children'])
+                ->get();
+
+            return RegisterShortageResource::make($data);
+        }catch (Exception $e){
+            return $this->responseError($e->getMessage(), 500);
+        }
+    }
 }
