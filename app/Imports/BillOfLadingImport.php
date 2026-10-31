@@ -35,7 +35,7 @@ class BillOfLadingImport implements ToCollection, WithMapping, WithStartRow
         private $locationDestinationID = null,
         private $userId = null,
         private string $type = '',
-        private string $item_type = ''
+        private ?string $item_type = ''
     ) {}
 
     public function map($row): array
