@@ -226,7 +226,7 @@ class ProductionLineTrackingService extends BaseTrackingService
         if ($tracking and $tracking->getAttribute('type') === 'exit') {
             return false;
         }
-        $this->checkShortages($data['vin']);
+//        $this->checkShortages($data['vin']);
         return $this->prepareData($data);
     }
 

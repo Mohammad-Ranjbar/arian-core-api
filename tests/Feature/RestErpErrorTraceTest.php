@@ -87,11 +87,11 @@ class RestErpErrorTraceTest extends TestCase
         return $job;
     }
 
-    private function assertStoredErrorWithoutErpOutcome(string $message): RestErpJob
+    private function assertStoredErrorWithoutActionLog(string $message): RestErpJob
     {
         $job = RestErpJob::query()->sole();
         $this->assertSame($message, $job->description);
-        $this->assertSame(['rest_erp_created'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame([], $job->actionLogs()->orderBy('id')->pluck('action')->all());
 
         return $job;
     }
@@ -120,7 +120,7 @@ class RestErpErrorTraceTest extends TestCase
         ])))));
         $result = resolve(RestErpJobService::class)->send($endpoint, $payload);
         $this->assertSame(['code' => 'Internal_ServerError', 'message' => "\u{2067}خطای بیزینس سنترال :: \u{2068}ERP processing failed. \u{2069}\u{2069}"], $result['error']);
-        $job = $this->assertAuditedMessage("\u{2067}خطای بیزینس سنترال :: \u{2068}ERP processing failed. \u{2069}\u{2069}");
+        $job = $this->assertStoredErrorWithoutActionLog("\u{2067}خطای بیزینس سنترال :: \u{2068}ERP processing failed. \u{2069}\u{2069}");
         $this->assertSame(500, $job->provider_http_status);
         $this->assertSame('uncertain', $job->status);
     }
@@ -134,7 +134,7 @@ class RestErpErrorTraceTest extends TestCase
         $this->assertStringContainsString('cURL error 28: request timed out.', $result['error']['message']);
         $this->assertStringContainsString('Socket timeout.', $result['error']['message']);
         $this->assertStringNotContainsString('wire-secret', $result['error']['message']);
-        $job = $this->assertStoredErrorWithoutErpOutcome($result['error']['message']);
+        $job = $this->assertStoredErrorWithoutActionLog($result['error']['message']);
         $this->assertSame('uncertain', $job->status);
         $this->assertNull($job->provider_http_status);
     }
@@ -147,7 +147,7 @@ class RestErpErrorTraceTest extends TestCase
         $result = resolve(RestErpJobService::class)->execute($job->id);
         $this->assertSame('ERP_JOB_ERROR', $result['error']['code']);
         $this->assertSame('InvalidArgumentException: داده‌های درخواست بیزینس سنترال پس از ثبت تغییر کرده‌اند؛ ارسال درخواست متوقف شد.', $result['error']['message']);
-        $this->assertStoredErrorWithoutErpOutcome($result['error']['message']);
+        $this->assertStoredErrorWithoutActionLog($result['error']['message']);
         Http::assertNothingSent();
     }
 
@@ -160,7 +160,7 @@ class RestErpErrorTraceTest extends TestCase
         } catch (RestErpQueueException $exception) {
             $message = $exception->getResponse()->getData(true)['error']['message'];
             $this->assertSame('RuntimeException: Redis connection refused. password=[REDACTED]', $message);
-            $job = $this->assertStoredErrorWithoutErpOutcome($message);
+            $job = $this->assertStoredErrorWithoutActionLog($message);
             $this->assertSame('ERP_QUEUE_ERROR', $job->error_code);
             $this->assertSame(503, $exception->getResponse()->getStatusCode());
         }
@@ -172,7 +172,7 @@ class RestErpErrorTraceTest extends TestCase
         $job = RestErpJob::query()->findOrFail($queued['data']['rest_erp_job_id']);
         $job->update(['status' => 'in-progress', 'tries' => 1, 'started_at' => now()]);
         (new SendToRestErpJob((string) $job->id))->failed(new RuntimeException('Worker terminated while reading the ERP response.'));
-        $this->assertStoredErrorWithoutErpOutcome('RuntimeException: Worker terminated while reading the ERP response.');
+        $this->assertStoredErrorWithoutActionLog('RuntimeException: Worker terminated while reading the ERP response.');
         $this->assertSame('uncertain', $job->fresh()->status);
         $this->assertSame('ERP_EXECUTION_UNCERTAIN', $job->fresh()->error_code);
     }
@@ -193,7 +193,7 @@ class RestErpErrorTraceTest extends TestCase
         $result = resolve(RestErpJobService::class)->send('ExitPrints', ['VIN' => 'VIN-1', 'ItemType' => '2']);
         $this->assertSame('ERP_CONFIGURATION_ERROR', $result['error']['code']);
         $this->assertSame("\u{2067}خطای بیزینس سنترال :: \u{2068}تنظیمات لازم برای اتصال به بیزینس سنترال کامل نیست: نام کاربری بیزینس سنترال، رمز عبور بیزینس سنترال \u{2069}\u{2069}", $result['error']['message']);
-        $this->assertStoredErrorWithoutErpOutcome($result['error']['message']);
+        $this->assertStoredErrorWithoutActionLog($result['error']['message']);
         Http::assertNothingSent();
     }
 
@@ -202,7 +202,7 @@ class RestErpErrorTraceTest extends TestCase
         $result = resolve(RestErpJobService::class)->enqueue('ExitPrints', ['VIN' => "\xFF", 'ItemType' => '2']);
         $this->assertSame('VALIDATION_ERROR', $result['error']['code']);
         $this->assertStringContainsString('UTF-8', $result['error']['message']);
-        $this->assertAuditedMessage($result['error']['message']);
+        $this->assertStoredErrorWithoutActionLog($result['error']['message']);
         Queue::assertNothingPushed();
     }
 

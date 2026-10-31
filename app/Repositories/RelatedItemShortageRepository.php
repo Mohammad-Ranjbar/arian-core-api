@@ -68,8 +68,12 @@ class RelatedItemShortageRepository extends BaseRepository
     {
         return DB::transaction(function () use ($data): MainItemShortage {
             $main = $this->mainItemShortage($data['main_item_shortage_id']);
-            if (! $main->isDraft() || $main->getAttribute('location_code') !== $data['location_code']) {
-                $main = $main->forkVersion($data['location_code']);
+            if ($main->getAttribute('location_code') !== $data['location_code']){
+                $main->update(['location_code' => $data['location_code']]);
+                $main->refresh();
+            }
+            if (! $main->isDraft() && !empty($data['item_no'])) {
+                $main = $main->forkVersion($main->getAttribute('location_code'));
             }
             if (filled($data['item_no'] ?? null) && filled($data['description'] ?? null)) {
                 $main->relatedItems()->create([

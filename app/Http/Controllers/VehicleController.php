@@ -233,13 +233,12 @@ class VehicleController extends CrudController
      */
     public function checkShortages(string $vin, array $validatedData): void
     {
-        //maede goft location toye qc mohem nist
         $carModelId = Vehicle::query()->where('vin', $vin)->first()->car_model_id;
         $shortages = RegisterShortage::query()
             ->where('vin', $vin)
             ->where('status', RegisterShortage::STATUS_HAS_SHORTAGE)
             ->get();
-        if (intval($validatedData['qc_status']) === 84) {
+        if (in_array(intval($validatedData['qc_status']) ,[84,24])) {
             foreach ($shortages as $shortage) {
                 if ($this->checkSpecificShortage($carModelId, $shortage->item_no)) {
                     continue;
@@ -249,7 +248,7 @@ class VehicleController extends CrudController
         }
 
         foreach ($shortages as $shortage) {
-            if (!in_array($validatedData['qc_status'], [24, 85])) {
+            if (!in_array($validatedData['qc_status'], [85])) {
                 if ($this->checkSpecificShortage($carModelId, $shortage->item_no)) {
                     continue;
                 }

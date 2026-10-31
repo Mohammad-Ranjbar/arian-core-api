@@ -181,8 +181,11 @@ class RestErpDependencyTest extends TestCase
         foreach ($index->json('data') as $job) {
             $this->assertSame($group->id, $job['depends_on_id']);
         }
-        foreach ($prints[0]->actionLogs()->get() as $log) {
-            $this->assertSame($group->id, $log->data['snapshot']['depends_on_id']);
-        }
+        $this->assertSame(0, $prints[0]->actionLogs()->count());
+        Http::fake(['*' => Http::response([], 200)]);
+        $service = resolve(RestErpJobService::class);
+        $service->execute($group->id);
+        $service->execute($prints[0]->id);
+        $this->assertSame($group->id, $prints[0]->actionLogs()->sole()->data['snapshot']['depends_on_id']);
     }
 }

@@ -2,32 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ErpJobEvent;
 use App\Filters\SynchronousProductionLineIdFilter;
 use App\Filters\SynchronousTitleFilter;
 use App\Http\Requests\UpdateCrossReferenceRequest;
 use App\Http\Resources\SynchronousResource;
 use App\Jobs\ExportJob;
-use App\Models\ColorMap;
-use App\Models\ErpJob;
 use App\Models\Job;
 use App\Models\NavColor;
 use App\Models\Synchronous;
 use App\Models\SynchronousItem;
 use App\Services\Erp\ErpCrossReference;
+use App\Services\Erp\RestApi\CreateSynchroensService;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
 
 class SynchronousController extends Controller
 {
 
-    public function __construct(private readonly ErpCrossReference $erpCrossReference)
-    {
-    }
+    public function __construct(
+        private readonly ErpCrossReference $erpCrossReference,
+        private readonly CreateSynchroensService $createSynchroens
+    ) {}
 
     /**
      * @throws AuthorizationException
@@ -127,6 +127,9 @@ class SynchronousController extends Controller
         return new SynchronousResource($synchronous);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function updateCrossReference(
         UpdateCrossReferenceRequest $request,
         SynchronousItem $synchronousItem
@@ -146,21 +149,33 @@ class SynchronousController extends Controller
                 'message' => 'کراس رفرنس وارد شده نامعتبر است'
             ], 422);
         }
-        $synchronousItem->update([
-            'cross_reference' => $validatedData['cross_reference'],
-            'checked'         => true
-        ]);
-
-        $count = SynchronousItem::query()
-            ->where('synchronous_id', $synchronousItem->getAttribute('synchronous_id'))
-            ->where('checked', false)->count();
-        if ($count == 0) {
+        return DB::transaction(function () use ($synchronousItem, $validatedData): JsonResponse|bool {
+            // Serialize all item confirmations for this synchronous group, including the final ERP dispatch.
+            $synchronous = Synchronous::query()
+                ->whereKey($synchronousItem->getAttribute('synchronous_id'))
+                ->lockForUpdate()->firstOrFail();
             $items = SynchronousItem::query()
-                ->where('synchronous_id', $synchronousItem->getAttribute('synchronous_id'))->get();
+                ->where('synchronous_id', $synchronous->getKey())
+                ->orderBy('id')->lockForUpdate()->get();
+            // Route-bound models can be stale after waiting for another request's transaction.
+            $currentItem = $items->firstWhere('id', $synchronousItem->getKey());
+            abort_unless($currentItem, 404, 'قلم سنکرون پیدا نشد.');
+            if ($currentItem->getAttribute('checked')) {
+                abort(422, 'سنکرون قبلا ارسال شده است');
+            }
+            $currentItem->update([
+                'cross_reference' => $validatedData['cross_reference'],
+                'checked' => true,
+            ]);
+
+            if ($items->contains(fn (SynchronousItem $item) => !$item->getAttribute('checked'))) {
+                return true;
+            }
+
             $crossReferences = $items->pluck('cross_reference')->implode(',');
-            $docP = $synchronousItem->synchronous->number;
-            $locationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->central_location;
-            $newLocationCodeP = $synchronousItem->synchronous->synchronousType->productionLine->location;
+            $docP = $synchronous->number;
+            $locationCodeP = $synchronous->synchronousType->productionLine->central_location;
+            $newLocationCodeP = $synchronous->synchronousType->productionLine->location;
 
             $variantCodeP = $items->map(function ($item) {
 
@@ -178,31 +193,20 @@ class SynchronousController extends Controller
             $numberP = $items->count();
             $batchNoP = Carbon::now()->toDateTimeString();
 
-            $parameters = [
-                'crossReferenceP'  => $crossReferences,
-                'docP'             => $docP,
-                'locationCodeP'    => $locationCodeP,
-                'newLocationCodeP' => $newLocationCodeP,
-                'variantCodeP'     => $variantCodeP,
-                'numberP'          => $numberP,
-                'batchNoP'         => $batchNoP,
-            ];
-            // TODO check submitted by user ? user_id = Auth::id()
-            $insert = [
-                'model_id'   => $synchronousItem->getAttribute('id'),
-                'model_type' => SynchronousItem::class,
-                'section'    => 'synchronous',
-                'user_id'    => 1,
-                'method'     => 'CreateSynchroen',
-                'url'        => config('erp.synchronous_v2'),
-                'parameters' => $parameters,
-                'queue'      => ErpJob::QUEUE_UNIQUE
-            ];
-            $erpJob = ErpJob::query()->create($insert);
+            $result = $this->createSynchroens->dispatch(
+                $crossReferences, $docP, $locationCodeP, $newLocationCodeP,
+                $variantCodeP, $numberP, $batchNoP,
+                model: $currentItem, userId: Auth::id()
+            );
 
-            ErpJobEvent::dispatch($erpJob);
-        }
+            if (!$result['success']) {
+                return response()->json([
+                    'error' => $result['error'],
+                    'rest_erp_job_id' => $result['rest_erp_job_id'] ?? null,
+                ], $result['http_status']);
+            }
 
-        return true;
+            return response()->json($result['data'], $result['http_status'] === 202 ? 202 : 200);
+        });
     }
 }

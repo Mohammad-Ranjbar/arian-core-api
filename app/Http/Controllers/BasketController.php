@@ -8,7 +8,7 @@ use App\Http\Resources\BasketResource;
 use App\Models\Basket;
 use App\Models\ErpJob;
 use App\Repositories\BasketRepository;
-use App\Services\Erp\ErpWsdlClient;
+use App\Services\Erp\RestApi\BasketsService;
 use App\Services\Erp\RestApi\ItemReclassJournalsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Throwable;
 
@@ -33,6 +35,8 @@ class BasketController extends CrudController
 
 
     /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws InvalidArgumentException
      */
     public function store(Request $request)
@@ -72,11 +76,20 @@ class BasketController extends CrudController
         }
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function checkBasketBarcode($barcode): array
     {
-        return ErpWsdlClient::run(config('erp.check_basket'), 'GetValidationItem_No', [
-            'barcodeInfoP' => $barcode
-        ]);
+        $result = resolve(BasketsService::class)->post($barcode);
+
+        if (!$result['success']) {
+            return ['status' => 'error', 'message' => $result['error']['message']];
+        }
+        $data = json_decode($result['data']['Result'],true);
+
+        return ['status' => 'ok', 'data' => $data['Data']];
     }
 
     /**

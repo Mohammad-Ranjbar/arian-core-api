@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -126,5 +127,16 @@ class RegisterShortage extends Model
             ->orderBy('created_at')
             ->orderBy('id')
             ->get();
+    }
+
+    public function is84(): Attribute
+    {
+        return Attribute::get(function (){
+           return SpecificShortageItem::query()
+               ->where('car_model_id',$this->getAttribute('car_model_id'))
+               ->where('is_active',1)
+               ->where('item_no',$this->getAttribute('item_no'))
+               ->exists();
+        });
     }
 }

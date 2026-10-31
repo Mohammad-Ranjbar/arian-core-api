@@ -127,7 +127,7 @@ class GatePermitTransferControllerTest extends TestCase
         $this->assertSame(GatePermit::class, $job->model_type);
         $this->assertSame((string) $permit->id, $job->model_id);
         $this->assertSame($endpoint, $job->endpoint);
-        $this->assertCount(2, $job->actionLogs()->get());
+        $this->assertSame(['rest_erp_success'], $job->actionLogs()->pluck('action')->all());
         $this->assertNoQueuedOrLegacyDispatch();
     }
 
@@ -166,7 +166,7 @@ class GatePermitTransferControllerTest extends TestCase
         $this->assertSame($code, $job->error_code);
         $this->assertSame($httpStatus, $job->http_status);
         $this->assertSame('sync', $job->execution_mode);
-        $this->assertSame(['rest_erp_created', ...($providerStatus === 0 ? [] : ['rest_erp_'.$job->status])], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame($job->status === 'failed' ? ['rest_erp_failed'] : [], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         Http::assertSentCount($providerStatus === 0 ? 0 : 1);
         $this->assertSame(0, DB::transactionLevel());
         $this->assertNoQueuedOrLegacyDispatch();
@@ -215,7 +215,7 @@ class GatePermitTransferControllerTest extends TestCase
         $this->assertDatabaseCount('production_tracking', 0);
         $job = RestErpJob::query()->sole();
         $this->assertSame('success', $job->status);
-        $this->assertSame(['rest_erp_created', 'rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
+        $this->assertSame(['rest_erp_success'], $job->actionLogs()->orderBy('id')->pluck('action')->all());
         $this->assertSame(0, DB::transactionLevel());
         $this->assertNoQueuedOrLegacyDispatch();
     }

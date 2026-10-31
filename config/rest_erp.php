@@ -2,6 +2,7 @@
 
 use App\Services\Erp\RestApi\ApproveExitZonesService;
 use App\Services\Erp\RestApi\ApproveReturnZonesService;
+use App\Services\Erp\RestApi\CreateSynchroensService;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
 use App\Services\Erp\RestApi\ExitPrintsService;
 use App\Services\Erp\RestApi\ExitRequestsService;
@@ -16,6 +17,7 @@ use App\Services\Erp\RestApi\TrackingsService;
 use App\Services\Erp\RestApi\TransferVehicleProdZonesService;
 use App\Services\Erp\RestApi\VehicleTypeBlockingsService;
 use App\Services\Erp\RestApi\VehicleUnblocksService;
+use App\Services\Erp\RestApi\VINChangesService;
 
 return [
     'base_url' => env('ERP_REST_BASE_URL', 'http://172.16.0.154:7048/PreBC/api/arianCapital'),
@@ -29,6 +31,28 @@ return [
     'log_depth_limit' => 8,
     'log_byte_limit' => 65536,
     'endpoints' => [
+        'VINChanges' => [
+            'service' => VINChangesService::class,
+            'mode' => 'sync',
+            'rules' => [
+                'ProductionNo' => ['required', 'string'],
+                'TempVIN' => ['present', 'string'],
+                'VIN' => ['required', 'string'],
+            ],
+        ],
+        'CreateSynchroens' => [
+            'service' => CreateSynchroensService::class,
+            'mode' => 'unique',
+            'rules' => [
+                'CrossReference' => ['required', 'string'],
+                'Doc' => ['required', 'string'],
+                'LocationCode' => ['required', 'string'],
+                'NewLocationCode' => ['required', 'string'],
+                'VariantCode' => ['present', 'string'],
+                'Number' => ['required', 'string', 'regex:/^[1-9][0-9]*$/'],
+                'BatchNo' => ['required', 'string'],
+            ],
+        ],
         'ProductionPostingBINs' => [
             'service' => ProductionPostingBINsService::class,
             'mode' => 'unique',

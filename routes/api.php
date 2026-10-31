@@ -140,7 +140,7 @@ Route::get('/print-synchronous/{synchronous}',
 Route::get('/synchronous/{number}',
     [SynchronousController::class, 'getBySynchronousNumber'])->name('search-synchronous-by-number');
 Route::put('/synchronous-items/{synchronousItem}',
-    [SynchronousController::class, 'updateCrossReference'])->name('update-synchronous-item');
+    [SynchronousController::class, 'updateCrossReference'])->middleware('auth:sanctum')->name('update-synchronous-item');
 
 Route::get('check-login', [AuthController::class, 'checkLogin'])->name('check-login');
 Route::get('/display-board/{salon}', DisplayBoardController::class)->name('display-board');
@@ -154,6 +154,7 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 Route::get('/get-bom-certified-items/{carModel}', [ItemsController::class, 'certifiedItems'])->name('bom-certified-items');
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
+    Route::get('print-register-shortage/{vin}',[RegisterShortageController::class, 'printRegisterShortage'])->name('print-register-shortage');
     Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
     Route::post('/send-alternatives/{alternative}', [AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
     Route::get('/alternatives-list', [AlternativeController::class, 'listAlternatives'])->name('alternatives-list');
