@@ -313,7 +313,7 @@ class RegisterShortageController extends Controller
                 ->with(['vehicle', 'carModel', 'makeCode', 'user','resolvedBy','children'])
                 ->get();
 
-            return RegisterShortageResource::make($data);
+            return RegisterShortageResource::collection($data);
         }catch (Exception $e){
             return $this->responseError($e->getMessage(), 500);
         }

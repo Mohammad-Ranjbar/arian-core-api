@@ -249,6 +249,44 @@ class RegisterShortageTest extends TestCase
             ->assertJsonStructure(['data', 'links', 'meta']);
     }
 
+    public function test_print_returns_only_the_requested_vin_roots_with_nested_children(): void
+    {
+        Schema::create('specific_shortage_items', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('car_model_id');
+            $table->string('item_no');
+            $table->boolean('is_active')->default(true);
+        });
+
+        $parent = $this->createRegisterShortage([
+            'item_no' => 'MAIN-1',
+            'type' => RegisterShortage::TYPE_MAIN,
+        ]);
+        $child = $this->createRegisterShortage([
+            'item_no' => 'CHILD-1',
+            'register_shortage_id' => $parent->id,
+        ]);
+        $single = $this->createRegisterShortage(['item_no' => 'SINGLE-1']);
+        $this->createRegisterShortage(['vin' => 'VIN-2']);
+
+        $this->getJson('/api/print-register-shortage/VIN-1')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $parent->id)
+            ->assertJsonPath('data.0.vehicle.vin', 'VIN-1')
+            ->assertJsonCount(1, 'data.0.children')
+            ->assertJsonPath('data.0.children.0.id', $child->id)
+            ->assertJsonPath('data.0.children.0.children', [])
+            ->assertJsonPath('data.1.id', $single->id);
+    }
+
+    public function test_print_returns_an_empty_collection_when_the_vin_has_no_shortages(): void
+    {
+        $this->getJson('/api/print-register-shortage/VIN-1')
+            ->assertOk()
+            ->assertExactJson(['data' => []]);
+    }
+
     public function test_report_job_accepts_a_gregorian_date_range(): void
     {
         Queue::fake();
