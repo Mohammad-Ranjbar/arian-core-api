@@ -167,7 +167,7 @@ class BillOfLadingController extends CrudController
             'location_source_id' => $validatedData['location_source_id'],
             'location_destination_id' => $validatedData['location_destination_id'],
             'type' => $validatedData['type_bill_of_lading'],
-            'item_type' => $validatedData['item_type'],
+            'item_type' => $validatedData['item_type'] ?? null,
         ];
         $job = Job::query()->create($validatedData);
 
