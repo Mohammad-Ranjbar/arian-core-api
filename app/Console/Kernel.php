@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();
         $schedule->command(RetryErpJobCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(RecoverRestErpJobsCommand::class)->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command(UpdateOnlineOrdersCommand::class)->everyTenMinutes()->withoutOverlapping();
+      //  $schedule->command(UpdateOnlineOrdersCommand::class)->everyTenMinutes()->withoutOverlapping();
       //  $schedule->command(UpdateContractOkCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(SyncPDIBlockCommand::class)->daily()->at('02:00')->withoutOverlapping();
         $schedule->command(SyncProductItemsCommand::class)->everyTenMinutes()->withoutOverlapping();
