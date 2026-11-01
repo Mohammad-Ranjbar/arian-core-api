@@ -32,7 +32,7 @@ class SyncInvitationsCommand extends Command
             $companies = SaleCompany::query()->get();
             foreach ($companies as $company) {
                 if (!empty($company->getAttribute('invitation'))) {
-                    $this->syncInvitation($company);
+                 //   $this->syncInvitation($company);
                 }
                 if (!empty($company->getAttribute('contract'))) {
                    // $this->syncContract($company);
