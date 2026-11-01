@@ -4,11 +4,10 @@ namespace App\Services\Exporter;
 
 use App\Events\JobProcessEvent;
 use App\Exports\TrackingExitDoorReportExport;
-use App\Exports\TrackingReportExport;
 use App\Models\Tracking;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Exception;
 
 class ExportTrackingExitDoorService extends BaseExporterService
 {
@@ -19,8 +18,8 @@ class ExportTrackingExitDoorService extends BaseExporterService
     }
 
     /**
-     * @return string
-     * @throws BindingResolutionException
+     * @throws Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function export(): string
     {
