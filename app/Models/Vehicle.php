@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property mixed $carModel
@@ -112,6 +113,10 @@ class Vehicle extends Model
      */
     public function hasAccess($userId): bool
     {
+        $user = Auth::user();
+        if($user->hasRole('super-admin')){
+            return true;
+        }
         return $this->makeCode->users()?->where('users.id', $userId)->exists() ?? false;
     }
 

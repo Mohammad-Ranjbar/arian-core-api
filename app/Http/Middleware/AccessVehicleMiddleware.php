@@ -19,9 +19,7 @@ class AccessVehicleMiddleware
     {
         /** @var User $user  */
         $user = Auth::user();
-        if($user->hasRole('super-admin')){
-            return $next($request);
-        }
+
         if($user->can('access', $request->route()->parameter('vehicle'))) return $next($request);
         abort('403', 'access denied');
     }
