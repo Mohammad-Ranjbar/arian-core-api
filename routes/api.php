@@ -582,16 +582,3 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::get('pending-invoices', PendingInvoiceController::class)->name('sales-company.pending-invoices');
 });
-
-Route::prefix('sb')->group(function () {
-    Route::prefix('{companyPrefix}')->group(function () {
-        Route::get('/', [SalesBridgeController::class, 'getOrderIds']);
-        Route::get('/{id}', [SalesBridgeController::class, 'getOrderDetail']);
-        Route::get('/cf/{reference}', [SalesBridgeController::class, 'getCustomerFinance']);
-        Route::get('/sp/{id}', [SalesBridgeController::class, 'getSecondPayment']);
-        Route::get('/import/users', [SalesBridgeController::class, 'getNationalCodes']);
-        Route::get('/import/users/{nationalCode}', [SalesBridgeController::class, 'getMember']);
-        Route::get('/import/payments', [SalesBridgeController::class, 'getPayments']);
-        Route::get('/import/orders', [SalesBridgeController::class, 'getOrders']);
-    })->whereIn('companyPrefix', ['l', 'd', 'p', 'a', 'portal','test']);
-});
