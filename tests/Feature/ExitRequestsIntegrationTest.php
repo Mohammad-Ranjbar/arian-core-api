@@ -161,10 +161,12 @@ class ExitRequestsIntegrationTest extends TestCase
     }
 
     #[DataProvider('configuredPermitModes')]
-    public function test_exit_permit_explicit_parallel_mode_overrides_configuration(string $mode): void
+    public function test_exit_permit_runs_exit_synchronously_and_queues_print_regardless_of_configuration(string $mode): void
     {
         config()->set('rest_erp.endpoints.ExitRequests.mode', $mode);
         config()->set('rest_erp.endpoints.ExitPrints.mode', $mode);
+
+        Http::fake(['*' => Http::response(['value' => 'OK'], 200)]);
 
         $response = $this->store();
 
@@ -173,19 +175,21 @@ class ExitRequestsIntegrationTest extends TestCase
         $jobs = RestErpJob::query()->orderBy('id')->get();
         $this->assertCount(2, $jobs);
         $this->assertSame($jobs[0]->id, $jobs[1]->depends_on_id);
-        foreach ($jobs as $job) {
-            $this->assertSame('queue', $job->execution_mode);
-            $this->assertSame('parallel', $job->queue);
-            $this->assertSame('pending', $job->status);
-        }
+        $this->assertSame('sync', $jobs[0]->execution_mode);
+        $this->assertSame('success', $jobs[0]->status);
+        $this->assertSame('queue', $jobs[1]->execution_mode);
+        $this->assertSame('parallel', $jobs[1]->queue);
+        $this->assertSame('pending', $jobs[1]->status);
         Queue::assertPushedOn('parallel', SendToRestErpJob::class);
         Queue::assertPushed(SendToRestErpJob::class, 1);
-        $this->assertNull($jobs[1]->dispatched_at);
-        Http::assertNothingSent();
+        $this->assertNotNull($jobs[1]->dispatched_at);
+        Http::assertSentCount(1);
     }
 
     public function test_manual_permit_returns_202_with_job_ids_and_preserves_the_resource(): void
     {
+        Http::fake(['*' => Http::response(['value' => 'OK'], 200)]);
+
         $response = $this->store();
         $this->assertSame(202, $response->getStatusCode(), json_encode($response->getData(true)));
         $permit = GatePermit::query()->sole();
@@ -196,7 +200,7 @@ class ExitRequestsIntegrationTest extends TestCase
         $this->assertSame(GatePermit::class, $print->model_type);
         $this->assertSame((string) $permit->id, $print->model_id);
         $this->assertSame('pending', $print->status);
-        $this->assertNull($print->dispatched_at);
+        $this->assertNotNull($print->dispatched_at);
         $this->assertDatabaseCount('rest_erp_jobs', 2);
         $body = $response->getData(true);
         $this->assertSame($permit->id, $body['data']['id']);
@@ -206,17 +210,18 @@ class ExitRequestsIntegrationTest extends TestCase
         $this->assertSame(['VIN' => self::VIN, 'TypeOfExit' => '1', 'Destination' => 'CT004156', 'ItemType' => '2'], $job->parameters);
         $this->assertSame(GatePermit::class, $job->model_type);
         $this->assertSame((string) $permit->id, $job->model_id);
-        $this->assertSame('pending', $job->status);
+        $this->assertSame('success', $job->status);
         $this->assertSame(0, DB::transactionLevel());
         Queue::assertPushedOn('parallel', SendToRestErpJob::class);
         Queue::assertPushed(SendToRestErpJob::class, 1);
         $this->soap->shouldNotHaveReceived('run');
-        Http::assertNothingSent();
+        Http::assertSentCount(1);
         $this->assertDatabaseCount('erp_jobs', 0);
     }
 
     public function test_controller_preserves_broker_failure_status_and_saved_job(): void
     {
+        Http::fake(['*' => Http::response([], 200)]);
         Bus::shouldReceive('dispatch')->once()->andThrow(new RuntimeException('Redis connection refused. password=broker-secret'));
         try {
             $this->store();
@@ -225,12 +230,14 @@ class ExitRequestsIntegrationTest extends TestCase
             $this->assertSame(503, $exception->getResponse()->getStatusCode());
             $this->assertDatabaseCount('gate_permits', 1);
             $job = RestErpJob::query()->where('endpoint', 'ExitRequests')->sole();
-            $this->assertSame('failed', $job->status);
+            $this->assertSame('success', $job->status);
+            $print = RestErpJob::query()->where('endpoint', 'ExitPrints')->sole();
+            $this->assertSame('failed', $print->status);
             $this->assertDatabaseCount('rest_erp_jobs', 2);
-            $this->assertSame($job->id, $exception->getResponse()->getData(true)['rest_erp_job_id']);
+            $this->assertSame($print->id, $exception->getResponse()->getData(true)['rest_erp_job_id']);
             $this->assertSame(0, DB::transactionLevel());
         }
-        Http::assertNothingSent();
+        Http::assertSentCount(1);
     }
 
     public function test_invalid_destination_rolls_back_the_permit_and_never_dispatches(): void

@@ -74,7 +74,16 @@ readonly class RestErpJobService
 
         $result = $job->status === 'rejected' ? $this->rejectedResult($job) : $this->execute($job->getKey());
 
-        return $reuseExistingJob ? $this->storedResult($job->refresh()) : $result;
+        if ($reuseExistingJob) {
+            return $this->storedResult($job->refresh());
+        }
+
+        if ($result['success'] ?? false) {
+            $result['rest_erp_job_id'] = $job->getKey();
+            $result['request_id'] = $job->uuid;
+        }
+
+        return $result;
     }
 
     public function enqueue(string $endpoint, array $parameters, ?Model $model = null, string $section = 'ارتباط با ERP', ?int $userId = null, ?int $dependsOnId = null): array
