@@ -47,10 +47,6 @@ class GatePermitController extends CrudController
         return $this->collect($data);
     }
 
-    /**
-     * @param Request $request
-     * @return mixed
-     */
     public function store(Request $request): mixed
     {
         $validatedData = $request->validate(array_merge($this->repository->getCreateRules(), $this->customStoreRules()));
@@ -99,7 +95,7 @@ class GatePermitController extends CrudController
                         $saveItem->getAttribute('model_id'), $saveItem->getAttribute('exit_type'),
                         (string) $location->getAttribute('code'), (string) $saveItem->getAttribute('item_type'),
                         model: $saveItem
-                    )->parallel();
+                    )->sync();
                     if (! $result['success']) {
                         throw new HttpResponseException(response()->json(['error' => $result['error']], $result['http_status']));
                     }
