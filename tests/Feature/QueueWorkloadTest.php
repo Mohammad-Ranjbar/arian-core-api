@@ -90,7 +90,7 @@ class QueueWorkloadTest extends TestCase
             [new ImportJob('import-id'), 'imports'],
             [new SmsJob('09120000000', 'test'), 'sms'],
             [new PrintSynchronousJob(1), 'printing'],
-            [new PrintEngineLableJob('engine', 'vin', '127.0.0.1', '1'), 'printing'],
+            [new PrintEngineLableJob('engine', '127.0.0.1'), 'printing'],
         ];
 
         foreach ($jobs as [$job, $queue]) {

@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
-use Picqer\Barcode\BarcodeGeneratorPNG;
+use Picqer\Barcode\BarcodeGeneratorSVG;
 use Picqer\Barcode\Exceptions\UnknownTypeException;
 
 class PrintEngineLableJob implements ShouldQueue
@@ -26,9 +26,7 @@ class PrintEngineLableJob implements ShouldQueue
 
     public function __construct(
         protected readonly string $engineNumber,
-        protected readonly string $vin,
-        protected readonly string $printerAddress,
-        protected readonly string $id
+        protected readonly string $printerAddress
     ) {
         $this->onQueue('printing');
     }
@@ -41,34 +39,35 @@ class PrintEngineLableJob implements ShouldQueue
     {
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
-            'format' => 'A5',
+            'format' => [100, 20],
             'tempDir' => storage_path('app/mpdf_temp'),
-            'default_font' => 'xbriyaz',
-            'orientation' => 'L',
+            'margin_left' => 0,
+            'margin_right' => 0,
+            'margin_top' => 0,
+            'margin_bottom' => 0,
         ]);
-        $data['vin_barcode'] = '';
-        $data['vin'] = '';
-        $data['id'] = $this->id;
-        $generator = new BarcodeGeneratorPNG;
-        if (! empty($this->vin)) {
-            $vinBarcode = $generator->getBarcode($this->vin, $generator::TYPE_CODE_128);
-            $barcodeImage = base64_encode($vinBarcode);
-            $data['vin_barcode'] = 'data:image/png;base64,'.$barcodeImage;
-            $data['vin'] = $this->vin;
+
+        $generator = new BarcodeGeneratorSVG;
+        $mpdf->imageVars['engineBarcode'] = $generator->getBarcode(
+            $this->engineNumber,
+            $generator::TYPE_CODE_128,
+        );
+        $mpdf->AddPage();
+        $mpdf->Image('var:engineBarcode', 18, 3, 64, 9);
+
+        $mpdf->SetFont('dejavusans', '', 12);
+        $textWidth = $mpdf->GetStringWidth($this->engineNumber);
+        if ($textWidth > 90) {
+            $mpdf->SetFontSize(12 * 90 / $textWidth);
         }
 
-        $engineBarcode = $generator->getBarcode($this->engineNumber, $generator::TYPE_CODE_128);
-        $barcodeImage = base64_encode($engineBarcode);
-        $data['engine_barcode'] = 'data:image/png;base64,'.$barcodeImage;
-        $data['engine'] = $this->engineNumber;
+        $mpdf->SetXY(0, 13);
+        $mpdf->Cell(100, 5, $this->engineNumber, 0, 0, 'C');
 
-        $content = view('pdf.lable-engine', $data)->render();
-        $mpdf->SetDirectionality('rtl');
-        $mpdf->WriteHTML($content);
         $path = storage_path('engine-lable-'.Str::uuid().'.pdf');
-        $mpdf->Output($path, 'F');
 
         try {
+            $mpdf->Output($path, 'F');
             app(RawPrinterService::class)->sendFile($this->printerAddress, $path);
         } finally {
             if (is_file($path)) {

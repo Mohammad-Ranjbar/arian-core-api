@@ -51,7 +51,6 @@ class EnterEngineController extends Controller
     {
         try {
             $data = EnterEngine::query()->create($request->validated());
-            $this->sendPrinter($data);
             return EnterEngineResource::make($data);
         } catch (Exception $exception) {
             return response()->json([
@@ -60,11 +59,15 @@ class EnterEngineController extends Controller
         }
     }
 
-    public function sendPrinter($data): void
+    public function sendPrinter(EnterEngine $enterEngine): JsonResponse
     {
-        if (!empty($data->productionLine->printer_address)) {
-            PrintEngineLableJob::dispatch($data->engine_no, $data->vin, $data->productionLine->printer_address, $data->id);
-        }
+        $this->authorize('enter-engines.store');
+
+        PrintEngineLableJob::dispatch($enterEngine->getAttribute('engine_no'), '192.168.147.193')->afterCommit();
+
+        return response()->json([
+            'message' => 'درخواست چاپ برچسب شماره موتور در صف قرار گرفت.',
+        ], 202);
     }
 
     public function destroy(EnterEngine $enterEngine): JsonResponse
