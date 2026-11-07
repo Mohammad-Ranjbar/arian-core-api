@@ -8,9 +8,9 @@ class RawPrinterService
 {
     public function sendFile(string $ip, string $path): void
     {
-        $pdf = file_get_contents($path);
+        $data = file_get_contents($path);
 
-        if ($pdf === false) {
+        if ($data === false) {
             throw new RuntimeException('خواندن فایل چاپ امکان‌پذیر نیست.');
         }
 
@@ -20,7 +20,7 @@ class RawPrinterService
             stream_set_blocking($socket, false);
             // Bound the entire write, including a printer that accepts data very slowly.
             $deadline = microtime(true) + 10;
-            $length = strlen($pdf);
+            $length = strlen($data);
             $offset = 0;
 
             while ($offset < $length) {
@@ -44,7 +44,7 @@ class RawPrinterService
                     throw new RuntimeException('ارتباط با چاپگر قطع شد.');
                 }
 
-                $written = @fwrite($socket, substr($pdf, $offset, 65536));
+                $written = @fwrite($socket, substr($data, $offset, 65536));
 
                 if ($written === false || $written === 0) {
                     throw new RuntimeException('ارسال کامل فایل به چاپگر انجام نشد.');

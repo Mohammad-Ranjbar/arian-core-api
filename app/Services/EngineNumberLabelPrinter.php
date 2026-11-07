@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Validation\ValidationException;
-use Mpdf\Mpdf;
-use Mpdf\Output\Destination;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use RuntimeException;
 
@@ -20,7 +18,7 @@ class EngineNumberLabelPrinter
             throw new RuntimeException('آدرس چاپگر لیبل موتور در printers.engine_label.ip تنظیم نشده یا معتبر نیست؛ ENGINE_LABEL_PRINTER_IP و کش تنظیمات را بررسی کنید.');
         }
 
-        $pdf = $this->renderPdf($engineNumber);
+        $data = $this->renderZpl($engineNumber);
         $path = tempnam(storage_path('app'), 'engine-number-label-');
 
         if ($path === false) {
@@ -28,7 +26,7 @@ class EngineNumberLabelPrinter
         }
 
         try {
-            if (file_put_contents($path, $pdf) !== strlen($pdf)) {
+            if (file_put_contents($path, $data) !== strlen($data)) {
                 throw new RuntimeException('ذخیره فایل لیبل امکان‌پذیر نیست.');
             }
 
@@ -40,7 +38,7 @@ class EngineNumberLabelPrinter
         }
     }
 
-    public function renderPdf(string $engineNumber): string
+    public function renderZpl(string $engineNumber): string
     {
         if (trim($engineNumber) === '' || ! preg_match('/\A[\x20-\x7E]+\z/', $engineNumber)) {
             throw ValidationException::withMessages([
@@ -50,39 +48,58 @@ class EngineNumberLabelPrinter
 
         $generator = new BarcodeGeneratorPNG;
         $barcode = $generator->getBarcode($engineNumber, $generator::TYPE_CODE_128, 2, 80);
-        // Each Code 128 module is 0.25 mm; retain at least 5 mm of white space on each side.
-        $barcodeWidth = getimagesizefromstring($barcode)[0] / 2 * 0.25;
+        $barcodeImage = imagecreatefromstring($barcode);
+        $barcodeWidth = imagesx($barcodeImage);
 
-        if ($barcodeWidth > 90) {
+        // GI-2408T: 8 dots/mm, so 100 x 20 mm is 800 x 160 dots.
+        // Keep at least 5 mm (40 dots) of white space on both sides.
+        if ($barcodeWidth > 720) {
+            imagedestroy($barcodeImage);
+
             throw ValidationException::withMessages([
                 'engine_no' => 'شماره موتور برای بارکد این لیبل بیش از حد طولانی است.',
             ]);
         }
 
-        $mpdf = new Mpdf([
-            'mode' => 'utf-8',
-            'format' => [100, 20],
-            'orientation' => 'P',
-            'margin_left' => 0,
-            'margin_right' => 0,
-            'margin_top' => 0,
-            'margin_bottom' => 0,
-            'margin_header' => 0,
-            'margin_footer' => 0,
-            'default_font' => 'dejavusansmono',
-            'tempDir' => storage_path('app/mpdf_temp'),
-        ]);
-        $mpdf->SetAutoPageBreak(false);
-        $mpdf->AddPage();
-        $mpdf->Image('data:image/png;base64,'.base64_encode($barcode), (100 - $barcodeWidth) / 2, 2, $barcodeWidth, 10, 'png');
-        $mpdf->SetFont('dejavusansmono', '', 12);
-        $textWidth = $mpdf->GetStringWidth($engineNumber);
-        if ($textWidth > 90) {
-            $mpdf->SetFontSize(12 * 90 / $textWidth);
-        }
-        $mpdf->SetXY(5, 13);
-        $mpdf->Cell(90, 5, $engineNumber, 0, 0, 'C');
+        $label = imagecreate(800, 160);
+        imagecolorallocate($label, 255, 255, 255);
+        $black = imagecolorallocate($label, 0, 0, 0);
+        $font = 5;
+        $textWidth = imagefontwidth($font) * strlen($engineNumber);
+        $textHeight = imagefontheight($font);
+        $text = imagecreate($textWidth, $textHeight);
+        imagecolorallocate($text, 255, 255, 255);
+        $textBlack = imagecolorallocate($text, 0, 0, 0);
 
-        return $mpdf->Output('', Destination::STRING_RETURN);
+        try {
+            imagecopy($label, $barcodeImage, intdiv(800 - $barcodeWidth, 2), 16, 0, 0, $barcodeWidth, 80);
+            imagestring($text, $font, 0, 0, $engineNumber, $textBlack);
+            $scale = min(2, 720 / $textWidth);
+            $width = (int) floor($textWidth * $scale);
+            $height = (int) floor($textHeight * $scale);
+            imagecopyresized($label, $text, intdiv(800 - $width, 2), 104, 0, 0, $width, $height, $textWidth, $textHeight);
+
+            // ZPL ^GFA uses MSB-first monochrome rows: one means a black dot.
+            // Rasterize user text too, so quotes, ^ and ~ cannot become commands.
+            $raster = '';
+            for ($y = 0; $y < 160; $y++) {
+                for ($x = 0; $x < 800; $x += 8) {
+                    $byte = 0;
+                    for ($bit = 0; $bit < 8; $bit++) {
+                        if (imagecolorat($label, $x + $bit, $y) === $black) {
+                            $byte |= 1 << (7 - $bit);
+                        }
+                    }
+                    $raster .= chr($byte);
+                }
+            }
+
+            return "^XA\r\n^PW800\r\n^LL160\r\n^LH0,0\r\n^LT0\r\n^LS0\r\n^PON\r\n^FWN\r\n^LRN\r\n"
+                .'^FO0,0^GFA16000,16000,100,'.strtoupper(bin2hex($raster))."^FS\r\n^PQ1\r\n^XZ\r\n";
+        } finally {
+            imagedestroy($barcodeImage);
+            imagedestroy($label);
+            imagedestroy($text);
+        }
     }
 }

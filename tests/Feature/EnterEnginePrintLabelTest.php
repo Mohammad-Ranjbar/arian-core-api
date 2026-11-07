@@ -8,10 +8,8 @@ use App\Services\RawPrinterService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Mpdf\Mpdf;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
-use setasign\Fpdi\PdfParser\StreamReader;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -55,7 +53,7 @@ class EnterEnginePrintLabelTest extends TestCase
 
             public function sendFile(string $ip, string $path): void
             {
-                $this->sent[] = ['ip' => $ip, 'path' => $path, 'pdf' => file_get_contents($path)];
+                $this->sent[] = ['ip' => $ip, 'path' => $path, 'data' => file_get_contents($path)];
 
                 if ($this->fail) {
                     throw new RuntimeException('Simulated printer failure');
@@ -65,7 +63,7 @@ class EnterEnginePrintLabelTest extends TestCase
         $this->app->instance(RawPrinterService::class, $this->printer);
     }
 
-    public function test_prints_the_selected_engine_as_one_100_by_20_mm_pdf_and_removes_the_temporary_file(): void
+    public function test_sends_one_100_by_20_mm_zpl_label_and_removes_the_temporary_file(): void
     {
         $this->postJson('/api/enter-engines/7/print', ['printer_ip' => '127.0.0.1', 'engine_no' => 'OTHER'])
             ->assertOk()
@@ -78,12 +76,10 @@ class EnterEnginePrintLabelTest extends TestCase
         $sent = $this->printer->sent[0];
         $this->assertSame('192.168.147.193', $sent['ip']);
         $this->assertFileDoesNotExist($sent['path']);
-        $this->assertStringStartsWith('%PDF-', $sent['pdf']);
-        $reader = new Mpdf(['tempDir' => storage_path('app/mpdf_temp')]);
-        $this->assertSame(1, $reader->setSourceFile(StreamReader::createByString($sent['pdf'])));
-        $size = $reader->getTemplateSize($reader->importPage(1));
-        $this->assertEqualsWithDelta(100, $size['width'], 0.01);
-        $this->assertEqualsWithDelta(20, $size['height'], 0.01);
+        $this->assertStringStartsWith("^XA\r\n^PW800\r\n^LL160\r\n", $sent['data']);
+        $this->assertStringContainsString('^GFA16000,16000,100,', $sent['data']);
+        $this->assertStringEndsWith("^PQ1\r\n^XZ\r\n", $sent['data']);
+        $this->assertSame(app(EngineNumberLabelPrinter::class)->renderZpl('00123ABC456789'), $sent['data']);
         $this->assertDatabaseHas('enter_engines', ['id' => 7, 'engine_no' => '00123ABC456789']);
     }
 
@@ -176,14 +172,14 @@ class EnterEnginePrintLabelTest extends TestCase
         $this->assertSame([], $this->printer->sent);
     }
 
-    public function test_missing_printer_configuration_is_reported_before_rendering_the_pdf(): void
+    public function test_missing_printer_configuration_is_reported_before_rendering_the_label(): void
     {
         config(['printers' => []]);
         $service = $this->getMockBuilder(EngineNumberLabelPrinter::class)
             ->setConstructorArgs([$this->printer])
-            ->onlyMethods(['renderPdf'])
+            ->onlyMethods(['renderZpl'])
             ->getMock();
-        $service->expects($this->never())->method('renderPdf');
+        $service->expects($this->never())->method('renderZpl');
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('آدرس چاپگر لیبل موتور در printers.engine_label.ip تنظیم نشده یا معتبر نیست؛ ENGINE_LABEL_PRINTER_IP و کش تنظیمات را بررسی کنید.');
