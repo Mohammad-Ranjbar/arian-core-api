@@ -51,7 +51,7 @@ class EnterEngineController extends Controller
 
     public function printLabel(EnterEngine $enterEngine, EngineNumberLabelPrinter $printer): JsonResponse
     {
-        $this->authorize('enter-engines.print-label');
+        $this->authorize('enter-engines.print');
 
         try {
             $printer->print($enterEngine->engine_no);
