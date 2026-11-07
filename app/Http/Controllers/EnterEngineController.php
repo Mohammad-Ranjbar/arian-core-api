@@ -9,12 +9,14 @@ use App\Http\Requests\StoreEnterEngineRequest;
 use App\Http\Resources\EnterEngineResource;
 use App\Jobs\PrintEngineLableJob;
 use App\Models\EnterEngine;
+use App\Services\EngineNumberLabelPrinter;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
+use RuntimeException;
 
 class EnterEngineController extends Controller
 {
@@ -45,6 +47,31 @@ class EnterEngineController extends Controller
     {
         $this->authorize('enter-engines.show');
         return EnterEngineResource::make($enterEngine);
+    }
+
+    public function printLabel(EnterEngine $enterEngine, EngineNumberLabelPrinter $printer): JsonResponse
+    {
+        $this->authorize('enter-engines.print-label');
+
+        try {
+            $printer->print($enterEngine->engine_no);
+        } catch (RuntimeException $exception) {
+            report($exception);
+
+            return response()->json([
+                'message' => 'ارسال لیبل به چاپگر انجام نشد؛ ارتباط چاپگر و وضعیت آن را بررسی کنید.',
+            ], 502);
+        }
+
+        return response()->json([
+            'message' => 'داده‌های لیبل به چاپگر ارسال شد.',
+            'data' => [
+                'id' => $enterEngine->id,
+                'engine_no' => $enterEngine->engine_no,
+                'printer_ip' => config('printers.engine_label.ip'),
+                'label_size_mm' => [100, 20],
+            ],
+        ]);
     }
 
     public function store(StoreEnterEngineRequest $request): EnterEngineResource|JsonResponse

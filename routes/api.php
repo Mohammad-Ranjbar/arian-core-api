@@ -175,8 +175,8 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
 
     Route::resource('/change-vins', ChangeVinController::class)->only(['index', 'store', 'destroy']);
     Route::apiResource('enter-engines', EnterEngineController::class)->except(['update']);
-    Route::post('enter-engines/{enterEngine}/print', [EnterEngineController::class, 'sendPrinter'])
-        ->name('enter-engines.print');
+    Route::post('enter-engines/{enterEngine}/print-label', [EnterEngineController::class, 'printLabel'])
+        ->name('enter-engines.print-label');
 
     Route::get('/info-barcode/{code}', [BarcodeController::class, 'getInfo'])->name('info-barcode');
     Route::delete('/production-tracking/{tracking}',
