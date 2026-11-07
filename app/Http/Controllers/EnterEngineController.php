@@ -59,7 +59,7 @@ class EnterEngineController extends Controller
             report($exception);
 
             return response()->json([
-                'message' => 'ارسال لیبل به چاپگر انجام نشد؛ ارتباط چاپگر و وضعیت آن را بررسی کنید.',
+                'message' => 'ارسال لیبل به چاپگر انجام نشد؛ تنظیمات، ارتباط و وضعیت چاپگر را بررسی کنید.',
             ], 502);
         }
 

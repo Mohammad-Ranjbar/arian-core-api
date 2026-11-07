@@ -14,6 +14,12 @@ class EngineNumberLabelPrinter
 
     public function print(string $engineNumber): void
     {
+        $ip = config('printers.engine_label.ip');
+
+        if (! is_string($ip) || trim($ip) === '') {
+            throw new RuntimeException('آدرس چاپگر لیبل موتور در printers.engine_label.ip تنظیم نشده یا معتبر نیست؛ ENGINE_LABEL_PRINTER_IP و کش تنظیمات را بررسی کنید.');
+        }
+
         $pdf = $this->renderPdf($engineNumber);
         $path = tempnam(storage_path('app'), 'engine-number-label-');
 
@@ -26,7 +32,7 @@ class EngineNumberLabelPrinter
                 throw new RuntimeException('ذخیره فایل لیبل امکان‌پذیر نیست.');
             }
 
-            $this->printer->sendFile(config('printers.engine_label.ip'), $path);
+            $this->printer->sendFile($ip, $path);
         } finally {
             if (is_file($path)) {
                 unlink($path);

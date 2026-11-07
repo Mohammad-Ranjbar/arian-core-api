@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\EngineNumberLabelPrinter;
 use App\Services\RawPrinterService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,7 @@ class EnterEnginePrintLabelTest extends TestCase
         DB::table('users')->insert(['id' => 1, 'name' => 'Print operator']);
         DB::table('enter_engines')->insert(['id' => 7, 'engine_no' => '00123ABC456789']);
         $user = User::findOrFail(1);
-        $user->givePermissionTo(Permission::create(['name' => 'enter-engines.print-label', 'guard_name' => 'web']));
+        $user->givePermissionTo(Permission::create(['name' => 'enter-engines.print', 'guard_name' => 'web']));
         $this->actingAs($user);
 
         $this->printer = new class extends RawPrinterService
@@ -66,7 +67,7 @@ class EnterEnginePrintLabelTest extends TestCase
 
     public function test_prints_the_selected_engine_as_one_100_by_20_mm_pdf_and_removes_the_temporary_file(): void
     {
-        $this->postJson('/api/enter-engines/7/print-label', ['printer_ip' => '127.0.0.1', 'engine_no' => 'OTHER'])
+        $this->postJson('/api/enter-engines/7/print', ['printer_ip' => '127.0.0.1', 'engine_no' => 'OTHER'])
             ->assertOk()
             ->assertJsonPath('data.id', 7)
             ->assertJsonPath('data.engine_no', '00123ABC456789')
@@ -90,7 +91,7 @@ class EnterEnginePrintLabelTest extends TestCase
     {
         $this->printer->fail = true;
 
-        $this->postJson('/api/enter-engines/7/print-label')->assertStatus(502);
+        $this->postJson('/api/enter-engines/7/print')->assertStatus(502);
 
         $this->assertCount(1, $this->printer->sent);
         $this->assertFileDoesNotExist($this->printer->sent[0]['path']);
@@ -98,16 +99,16 @@ class EnterEnginePrintLabelTest extends TestCase
 
     public function test_unknown_id_returns_404_without_printing(): void
     {
-        $this->postJson('/api/enter-engines/999/print-label')->assertNotFound();
+        $this->postJson('/api/enter-engines/999/print')->assertNotFound();
 
         $this->assertSame([], $this->printer->sent);
     }
 
     public function test_print_permission_is_required(): void
     {
-        $this->app['auth']->user()->revokePermissionTo('enter-engines.print-label');
+        $this->app['auth']->user()->revokePermissionTo('enter-engines.print');
 
-        $this->postJson('/api/enter-engines/7/print-label')->assertForbidden();
+        $this->postJson('/api/enter-engines/7/print')->assertForbidden();
 
         $this->assertSame([], $this->printer->sent);
     }
@@ -116,7 +117,7 @@ class EnterEnginePrintLabelTest extends TestCase
     {
         $this->app['auth']->forgetGuards();
 
-        $this->postJson('/api/enter-engines/7/print-label')->assertUnauthorized();
+        $this->postJson('/api/enter-engines/7/print')->assertUnauthorized();
 
         $this->assertSame([], $this->printer->sent);
     }
@@ -137,7 +138,7 @@ class EnterEnginePrintLabelTest extends TestCase
     {
         DB::table('enter_engines')->where('id', 7)->update(['engine_no' => $engineNumber]);
 
-        $this->postJson('/api/enter-engines/7/print-label')->assertUnprocessable()->assertJsonValidationErrors('engine_no');
+        $this->postJson('/api/enter-engines/7/print')->assertUnprocessable()->assertJsonValidationErrors('engine_no');
 
         $this->assertSame([], $this->printer->sent);
     }
@@ -146,8 +147,47 @@ class EnterEnginePrintLabelTest extends TestCase
     {
         config(['printers.engine_label.ip' => '192.0.2.10']);
 
-        $this->postJson('/api/enter-engines/7/print-label')->assertOk()->assertJsonPath('data.printer_ip', '192.0.2.10');
+        $this->postJson('/api/enter-engines/7/print')->assertOk()->assertJsonPath('data.printer_ip', '192.0.2.10');
 
         $this->assertSame('192.0.2.10', $this->printer->sent[0]['ip']);
+    }
+
+    public static function invalidPrinterConfigurations(): array
+    {
+        return [
+            'missing config file or stale cache' => [[]],
+            'null address' => [['engine_label' => ['ip' => null]]],
+            'empty address' => [['engine_label' => ['ip' => '']]],
+            'blank address' => [['engine_label' => ['ip' => '   ']]],
+            'boolean address' => [['engine_label' => ['ip' => false]]],
+            'array address' => [['engine_label' => ['ip' => []]]],
+        ];
+    }
+
+    #[DataProvider('invalidPrinterConfigurations')]
+    public function test_missing_or_invalid_printer_configuration_returns_502_without_printing(array $configuration): void
+    {
+        config(['printers' => $configuration]);
+
+        $this->postJson('/api/enter-engines/7/print')
+            ->assertStatus(502)
+            ->assertJsonPath('message', 'ارسال لیبل به چاپگر انجام نشد؛ تنظیمات، ارتباط و وضعیت چاپگر را بررسی کنید.');
+
+        $this->assertSame([], $this->printer->sent);
+    }
+
+    public function test_missing_printer_configuration_is_reported_before_rendering_the_pdf(): void
+    {
+        config(['printers' => []]);
+        $service = $this->getMockBuilder(EngineNumberLabelPrinter::class)
+            ->setConstructorArgs([$this->printer])
+            ->onlyMethods(['renderPdf'])
+            ->getMock();
+        $service->expects($this->never())->method('renderPdf');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('آدرس چاپگر لیبل موتور در printers.engine_label.ip تنظیم نشده یا معتبر نیست؛ ENGINE_LABEL_PRINTER_IP و کش تنظیمات را بررسی کنید.');
+
+        $service->print('00123ABC456789');
     }
 }
