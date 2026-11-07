@@ -1,6 +1,6 @@
 <?php
 return [
-
+    'vehicle_allocation' => env('VEHICLE_ALLOCATION', "http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/SubmitVehicleAllocation"),
     'last_location' =>env('LAST_LOCATION_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/LastLocationByVIN"),
     'production_line_location' =>env('PRODUCTION_LINE_LOCATION_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/Location"),
     'shortage_bom' =>env('SHORTAGE_BOM_URL',"http://172.16.0.154:7048/PreBC/ODataV4/Company('Pars')/ShortageArianCore"),

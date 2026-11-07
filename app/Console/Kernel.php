@@ -10,6 +10,7 @@ use App\Console\Commands\SyncInvitationsCommand;
 use App\Console\Commands\SyncPDIBlockCommand;
 use App\Console\Commands\SyncProductItemsCommand;
 use App\Console\Commands\SyncServiceItemsCommand;
+use App\Console\Commands\SyncVehicleAllocationsCommand;
 use App\Console\Commands\UpdateContractOkCommand;
 use App\Console\Commands\UpdateOnlineOrdersCommand;
 use Illuminate\Console\Scheduling\Schedule;
@@ -24,6 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command(SyncVehicleAllocationsCommand::class)->hourly()->withoutOverlapping();
         $schedule->command(SyncProductItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
         $schedule->command(SyncServiceItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
         $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();

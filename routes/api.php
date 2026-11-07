@@ -112,6 +112,7 @@ use App\Http\Controllers\TorqueTestGroupController;
 use App\Http\Controllers\TrackingHistoryController;
 use App\Http\Controllers\TransitCompanyController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VehicleAllocationController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleFaultController;
 use App\Http\Controllers\VehicleOverviewController;
@@ -154,6 +155,7 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 Route::get('/get-bom-certified-items/{carModel}', [ItemsController::class, 'certifiedItems'])->name('bom-certified-items');
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
+    Route::post('vehicle-allocations', [VehicleAllocationController::class, 'store'])->name('vehicle-allocations.store');
     Route::get('print-register-shortage/{vin}',[RegisterShortageController::class, 'printRegisterShortage'])->name('print-register-shortage');
     Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
     Route::post('/send-alternatives/{alternative}', [AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
