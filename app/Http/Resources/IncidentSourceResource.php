@@ -16,10 +16,18 @@ class IncidentSourceResource extends JsonResource
             'car_model_id' => $this->resource->car_model_id,
             'element_id' => $this->resource->element_id,
             'incident_id' => $this->resource->incident_id,
-
-            'carModel' => new CarModelResource($this->resource->carModel),
-            'element' => new ElementResource($this->resource->element),
-            'incident' => new IncidentResource($this->resource->incident),
+            'carModel' => [
+                'id' => $this->resource->carModel->id,
+                'title' => $this->resource->carModel->title,
+            ],
+            'element' => [
+                'id' => $this->resource->element->id,
+                'title' => $this->resource->element->title,
+            ],
+            'incident' => [
+                'id' => $this->resource->incident->id,
+                'title' => $this->resource->incident->title,
+            ],
 
             'model_type' => $this->resource->model?->getTable() ?? '',
             'model_id' => $this->resource->model?->id ?? '',
