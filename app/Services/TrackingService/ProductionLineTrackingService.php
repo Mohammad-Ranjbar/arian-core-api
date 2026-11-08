@@ -24,6 +24,10 @@ class ProductionLineTrackingService extends BaseTrackingService
 {
     const string MODEL_TYPE = 'App\Models\ProductionLine';
 
+    public function pbs(): bool
+    {
+        return true;
+    }
 
     /**
      * @throws ContainerExceptionInterface

@@ -34,7 +34,30 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
+            if ($validatedData['type'] == 'pbs' && $validatedData['model_type'] == 'production_lines') {
+                $condition = Tracking::query()
+                    ->where('model_type', ProductionLine::class)
+                    ->where('type', 'pbs')
+                    ->where('vin', $validatedData['vin'])
+                    ->where('model_id', $validatedData['model_id'])
+                    ->exists();
+                if ($condition) {
+                    return $this->responseError('شماره وارد شده قبلا به PBS وارد شده است');
+                }
+
+            }
             if ($validatedData['type'] == 'enter' && $validatedData['model_type'] == 'production_lines') {
+                $condition = !Tracking::query()
+                    ->where('model_type', ProductionLine::class)
+                    ->where('type', 'pbs')
+                    ->where('vin', $validatedData['vin'])
+                    ->where('model_id', $validatedData['model_id'])
+                    ->exists();
+                if ($condition) {
+                    return $this->responseError('ابتدا باید ورود به PBS ثبت شود');
+                }
+
+
                 $condition = Tracking::query()
                     ->where('model_type', ProductionLine::class)
                     ->where('type', 'enter')
@@ -49,6 +72,8 @@ class ProductionTrackingController extends Controller
             if ($validatedData['type'] == 'exit' && !Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists()) {
                 return $this->responseError('لطفا ابتدا ثبت ورود را انجام دهید');
             }
+
+
             Tracking::query()->where('vin', $vehicle->vin)->where('type', 'enter')->exists();
 
             DB::beginTransaction();
@@ -75,11 +100,11 @@ class ProductionTrackingController extends Controller
             }
             $record = $vehicle->tracking()->create($data);
             $erpSubmission = null;
-            if (method_exists($modelTrackingService, 'sendToErp')) {
+            if (!$validatedData['type'] !== 'pbs' &&method_exists($modelTrackingService, 'sendToErp')) {
                 if ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
                     $erpSubmission = $modelTrackingService->sendToErp($record);
                     // This is local validation/queue acceptance; the ERP result arrives in the job.
-                    if (! $erpSubmission['success']) {
+                    if (!$erpSubmission['success']) {
                         DB::rollBack();
                         return response()->json(['error' => $erpSubmission['error']], $erpSubmission['http_status']);
                     }
@@ -122,7 +147,7 @@ class ProductionTrackingController extends Controller
             $tracking->update(['user_id' => auth()->id()]);
             try {
                 $erpSubmission = $modelTrackingService->sendToErp($tracking);
-                if (! $erpSubmission['success']) {
+                if (!$erpSubmission['success']) {
                     DB::rollBack();
                     return response()->json(['error' => $erpSubmission['error']], $erpSubmission['http_status']);
                 }
