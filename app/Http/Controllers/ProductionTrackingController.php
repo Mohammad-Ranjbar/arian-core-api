@@ -34,6 +34,9 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
+            if ($validatedData['type'] == 'pbs' && !$validatedData['model_type'] == 'production_lines'){
+                return $this->responseError('ثبت PBS صرفا برای خط تولید امکان پذیر است لطفا خط تولید انتخاب شود');
+            }
             if ($validatedData['type'] == 'pbs' && $validatedData['model_type'] == 'production_lines') {
                 $condition = Tracking::query()
                     ->where('model_type', ProductionLine::class)
