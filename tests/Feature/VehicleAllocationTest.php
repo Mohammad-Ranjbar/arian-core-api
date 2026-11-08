@@ -112,10 +112,22 @@ class VehicleAllocationTest extends TestCase
         $this->fakeOdata([$this->page([$this->record()]), $this->page([$changed])]);
 
         $this->artisan('app:sync-vehicle-allocations')
-            ->expectsOutput('همگام‌سازی تخصیص خودرو انجام شد؛ کل: 1، جدید: 1، به‌روزشده: 0، ردشده: 0')
+            ->expectsTable(['Metric', 'Count'], [
+                ['Allocations received', 1],
+                ['Allocations created', 1],
+                ['Existing allocations updated', 0],
+                ['Allocations skipped', 0],
+            ])
+            ->expectsOutputToContain('Vehicle allocation synchronization completed successfully.')
             ->assertExitCode(0);
         $this->artisan('app:sync-vehicle-allocations')
-            ->expectsOutput('همگام‌سازی تخصیص خودرو انجام شد؛ کل: 1، جدید: 0، به‌روزشده: 1، ردشده: 0')
+            ->expectsTable(['Metric', 'Count'], [
+                ['Allocations received', 1],
+                ['Allocations created', 0],
+                ['Existing allocations updated', 1],
+                ['Allocations skipped', 0],
+            ])
+            ->expectsOutputToContain('Vehicle allocation synchronization completed successfully.')
             ->assertExitCode(0);
 
         $allocation = VehicleAllocation::query()->sole();
@@ -131,7 +143,7 @@ class VehicleAllocationTest extends TestCase
         $this->fakeOdata([new Response(503)]);
 
         $this->artisan('app:sync-vehicle-allocations')
-            ->expectsOutput('همگام‌سازی تخصیص خودرو ناموفق بود.')
+            ->expectsOutputToContain('Vehicle allocation synchronization failed.')
             ->expectsOutput('دریافت اطلاعات تخصیص خودرو از ERP ناموفق بود یا پاسخ OData معتبر نیست.')
             ->assertExitCode(1);
 
@@ -148,8 +160,14 @@ class VehicleAllocationTest extends TestCase
         ]);
 
         $this->artisan('app:sync-vehicle-allocations')
-            ->expectsOutput('همگام‌سازی تخصیص خودرو انجام شد؛ کل: 2، جدید: 1، به‌روزشده: 0، ردشده: 1')
-            ->expectsOutput('VINهای ردشده: '.$missingVin)
+            ->expectsTable(['Metric', 'Count'], [
+                ['Allocations received', 2],
+                ['Allocations created', 1],
+                ['Existing allocations updated', 0],
+                ['Allocations skipped', 1],
+            ])
+            ->expectsOutputToContain('Synchronization completed with skipped allocations.')
+            ->expectsTable(['Skipped vehicle VIN'], [[$missingVin]])
             ->assertExitCode(0);
 
         $this->assertSame($this->record()['VINNo'], VehicleAllocation::query()->sole()->vin);
@@ -179,7 +197,7 @@ class VehicleAllocationTest extends TestCase
         ]);
 
         $this->artisan('app:sync-vehicle-allocations')
-            ->expectsOutput('همگام‌سازی تخصیص خودرو انجام شد؛ کل: 1، جدید: 1، به‌روزشده: 0، ردشده: 0')
+            ->expectsOutputToContain('Vehicle allocation synchronization completed successfully.')
             ->assertExitCode(0);
 
         $vehicle = Vehicle::query()->withoutEagerLoads()->sole();
@@ -291,7 +309,7 @@ class VehicleAllocationTest extends TestCase
         $this->app->instance(VehicleController::class, $controller);
 
         $this->artisan('app:sync-vehicle-allocations')
-            ->expectsOutput('همگام‌سازی تخصیص خودرو ناموفق بود.')
+            ->expectsOutputToContain('Vehicle allocation synchronization failed.')
             ->expectsOutput('Simulated database failure')
             ->assertExitCode(1);
 
