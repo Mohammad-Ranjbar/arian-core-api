@@ -46,7 +46,7 @@ class ProductionLine extends Model
      */
     public function workGroupCenters(): HasMany
     {
-        return $this->hasMany(Station::class);
+        return $this->hasMany(WorkGroupCenter::class);
     }
 
     /**

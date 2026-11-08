@@ -31,6 +31,7 @@ class ProductionLineResource extends JsonResource
             'production_line_type' => $this->resource->production_line_type,
             'printer_address' => $this->resource->printer_address,
             'batch_name' => $this->resource->batch_name,
+            'workGroupCenters' => WorkGroupCenterResource::collection($this->resource->workGroupCenters),
         ];
     }
 }
