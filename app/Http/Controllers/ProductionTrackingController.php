@@ -101,6 +101,7 @@ class ProductionTrackingController extends Controller
                 DB::rollBack();
                 return $this->responseError('cant not exit or enter to this location', 400);
             }
+            dd($data);
             $record = $vehicle->tracking()->create($data);
             $erpSubmission = null;
             if (!$validatedData['type'] !== 'pbs' &&method_exists($modelTrackingService, 'sendToErp')) {
