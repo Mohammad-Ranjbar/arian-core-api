@@ -70,6 +70,12 @@ class ProductionLineRepository extends BaseRepository
             return [
                 'id' => $item->id,
                 'title' => $item->title . ' - ' . $item->location_code,
+                'workGroupCenters' => $this->model->workGroupCenters->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'title' => $item->title,
+                    ];
+                })
             ];
         })->all();
     }
