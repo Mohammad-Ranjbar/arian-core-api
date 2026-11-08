@@ -34,7 +34,7 @@ class ProductionTrackingController extends Controller
     {
         $validatedData = $request->validated();
         try {
-            if ($validatedData['type'] == 'pbs' && !$validatedData['model_type'] == 'production_lines'){
+            if ($validatedData['type'] === 'pbs' && $validatedData['model_type'] !== 'production_lines') {
                 return $this->responseError('ثبت PBS صرفا برای خط تولید امکان پذیر است لطفا خط تولید انتخاب شود');
             }
             if ($validatedData['type'] == 'pbs' && $validatedData['model_type'] == 'production_lines') {
@@ -104,7 +104,7 @@ class ProductionTrackingController extends Controller
 
             $record = $vehicle->tracking()->create($data);
             $erpSubmission = null;
-            if (!$validatedData['type'] !== 'pbs' &&method_exists($modelTrackingService, 'sendToErp')) {
+            if ($validatedData['type'] !== 'pbs' && method_exists($modelTrackingService, 'sendToErp')) {
                 if ($record->getAttribute('type') === 'exit' && $record->getAttribute('model')->sendErp?->on_exit) {
                     $erpSubmission = $modelTrackingService->sendToErp($record);
                     // This is local validation/queue acceptance; the ERP result arrives in the job.

@@ -4,12 +4,15 @@ namespace Tests\Feature;
 
 use App\Events\TrackingEvent;
 use App\Http\Controllers\ProductionTrackingController;
+use App\Http\Requests\TrackingRequest;
+use App\Http\Resources\VehicleResource;
 use App\Jobs\SendToRestErpJob;
 use App\Models\ProductionLine;
 use App\Models\RestErpJob;
 use App\Models\SendErp;
 use App\Models\Station;
 use App\Models\Tracking;
+use App\Models\Vehicle;
 use App\Models\WorkGroupCenter;
 use App\Services\Erp\RestApi\ProductionPostingBINsService;
 use App\Services\Erp\RestApi\RestErpJobService;
@@ -80,6 +83,60 @@ class ProductionPostingBINsServiceTest extends TestCase
         $record->setRelation('temporaryProduction', null);
 
         return $record;
+    }
+
+    private function submitPbs(string $modelType = 'production_lines'): \Illuminate\Http\JsonResponse|VehicleResource
+    {
+        $request = \Mockery::mock(TrackingRequest::class);
+        $request->shouldReceive('validated')->once()->andReturn([
+            'type' => 'pbs', 'model_type' => $modelType, 'model_id' => 7,
+            'vin' => self::VIN, 'user_id' => Auth::id(),
+        ]);
+
+        return resolve(ProductionTrackingController::class)->submit($request, new Vehicle(['vin' => self::VIN]));
+    }
+
+    public function test_submit_pbs_saves_tracking_without_sending_to_erp(): void
+    {
+        $response = $this->submitPbs();
+
+        $this->assertInstanceOf(VehicleResource::class, $response);
+        $record = Tracking::query()->sole();
+        $this->assertSame(self::VIN, $record->vin);
+        $this->assertSame('pbs', $record->type);
+        $this->assertSame(ProductionLine::class, $record->model_type);
+        $this->assertSame(7, $record->model_id);
+        $this->assertSame(Auth::id(), $record->user_id);
+        $this->assertSame(0, DB::transactionLevel());
+        $this->assertDatabaseCount('rest_erp_jobs', 0);
+        Queue::assertNothingPushed();
+        Http::assertNothingSent();
+    }
+
+    public function test_submit_pbs_rejects_a_duplicate_for_the_same_vehicle_and_line(): void
+    {
+        $this->tracking(type: 'pbs');
+
+        $response = $this->submitPbs();
+
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertSame('شماره وارد شده قبلا به PBS وارد شده است', $response->getData(true)['message']);
+        $this->assertDatabaseCount('production_tracking', 1);
+        $this->assertSame(0, DB::transactionLevel());
+        Queue::assertNothingPushed();
+        Http::assertNothingSent();
+    }
+
+    public function test_submit_pbs_rejects_a_location_other_than_a_production_line(): void
+    {
+        $response = $this->submitPbs('stations');
+
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertSame('ثبت PBS صرفا برای خط تولید امکان پذیر است لطفا خط تولید انتخاب شود', $response->getData(true)['message']);
+        $this->assertDatabaseCount('production_tracking', 0);
+        $this->assertSame(0, DB::transactionLevel());
+        Queue::assertNothingPushed();
+        Http::assertNothingSent();
     }
 
     public function test_sample_payload_is_posted_exactly_and_send_is_lazy(): void

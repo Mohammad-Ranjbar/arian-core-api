@@ -24,7 +24,7 @@ class ProductionLineTrackingService extends BaseTrackingService
 {
     const string MODEL_TYPE = 'App\Models\ProductionLine';
 
-    public function pbs(): array|false
+    public function pbs($data): array|false
     {
         return $this->prepareData($data);
     }
