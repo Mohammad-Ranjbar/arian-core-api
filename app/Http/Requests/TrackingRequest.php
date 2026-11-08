@@ -26,7 +26,7 @@ class TrackingRequest extends FormRequest
         return [
             'model_type' => 'bail|required|in:salons,production_lines,stations,inventories,sale_locations,locations',
             'model_id' => 'required_if:model_type,!=,""|exists:' . $this->input('model_type') . ',id',
-            'type' => 'required|in:enter,exit',
+            'type' => 'required|in:enter,exit,pbs',
             'vin' => 'nullable',
             'user_id' => 'nullable',
             'grade' => 'nullable|in:1,2',
