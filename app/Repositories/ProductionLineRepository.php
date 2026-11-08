@@ -64,16 +64,16 @@ class ProductionLineRepository extends BaseRepository
             default => 'vehicle'
         };
 
-        return $this->model->newQuery()->whereHas('users',function ($query){
+        return $this->model->newQuery()->with('workGroupCenters')->whereHas('users',function ($query){
             $query->where('users.id', auth()->id());
         })->where('production_line_type', $type)->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'title' => $item->title . ' - ' . $item->location_code,
-                'workGroupCenters' => $this->model->workGroupCenters->map(function ($item) {
+                'workGroupCenters' => $item->workGroupCenters->map(function ($workGroupCenter) {
                     return [
-                        'id' => $item->id,
-                        'title' => $item->title,
+                        'id' => $workGroupCenter->id,
+                        'title' => $workGroupCenter->title,
                     ];
                 })
             ];
