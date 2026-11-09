@@ -69,12 +69,19 @@ class VehicleAllocationService
             }
         }
 
+        // Compare against every returned VIN, including records skipped locally.
+        $completed = VehicleAllocation::query()
+            ->where('is_complete', false)
+            ->whereNotIn('vin', array_column($records, 'VINNo'))
+            ->update(['is_complete' => true]);
+
         return [
             'total' => count($records),
             'created' => $created,
             'updated' => $updated,
             'skipped' => count($skippedVins),
             'skipped_vins' => $skippedVins,
+            'completed' => $completed,
         ];
     }
 

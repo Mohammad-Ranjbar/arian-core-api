@@ -55,6 +55,7 @@ class SyncVehicleAllocationsCommand extends Command
             ['Allocations created', $counts['created']],
             ['Existing allocations updated', $counts['updated']],
             ['Allocations skipped', $counts['skipped']],
+            ['Absent allocations marked complete', $counts['completed']],
         ]);
         $this->components->twoColumnDetail('Duration', number_format(microtime(true) - $startedAt, 2).' s');
 
@@ -65,7 +66,7 @@ class SyncVehicleAllocationsCommand extends Command
                 $counts['skipped_vins'],
             ));
         } elseif ($counts['total'] === 0) {
-            $this->components->info('No vehicle allocations were returned by ERP. Nothing to synchronize.');
+            $this->components->info('No vehicle allocations were returned by ERP. All incomplete local allocations were marked complete.');
         } else {
             $this->components->info('Vehicle allocation synchronization completed successfully.');
         }

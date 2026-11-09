@@ -81,7 +81,7 @@ class VehicleAllocationTest extends TestCase
 
         $this->postJson('/api/vehicle-allocations', ['vin' => 'IGNORED'])
             ->assertOk()
-            ->assertJsonPath('data', ['total' => 1, 'created' => 1, 'updated' => 0, 'skipped' => 0, 'skipped_vins' => []]);
+            ->assertJsonPath('data', ['total' => 1, 'created' => 1, 'updated' => 0, 'skipped' => 0, 'skipped_vins' => [], 'completed' => 0]);
 
         $allocation = VehicleAllocation::query()->sole();
         $this->assertSame($record['VINNo'], $allocation->vin);
@@ -117,6 +117,7 @@ class VehicleAllocationTest extends TestCase
                 ['Allocations created', 1],
                 ['Existing allocations updated', 0],
                 ['Allocations skipped', 0],
+                ['Absent allocations marked complete', 0],
             ])
             ->expectsOutputToContain('Vehicle allocation synchronization completed successfully.')
             ->assertExitCode(0);
@@ -126,6 +127,7 @@ class VehicleAllocationTest extends TestCase
                 ['Allocations created', 0],
                 ['Existing allocations updated', 1],
                 ['Allocations skipped', 0],
+                ['Absent allocations marked complete', 0],
             ])
             ->expectsOutputToContain('Vehicle allocation synchronization completed successfully.')
             ->assertExitCode(0);
@@ -165,6 +167,7 @@ class VehicleAllocationTest extends TestCase
                 ['Allocations created', 1],
                 ['Existing allocations updated', 0],
                 ['Allocations skipped', 1],
+                ['Absent allocations marked complete', 0],
             ])
             ->expectsOutputToContain('Synchronization completed with skipped allocations.')
             ->expectsTable(['Skipped vehicle VIN'], [[$missingVin]])
@@ -217,14 +220,78 @@ class VehicleAllocationTest extends TestCase
         $this->assertSame("http://erp.test/vehicles?\$filter=VIN eq '".$record['VINNo']."'", rawurldecode((string) $this->history[1]['request']->getUri()));
     }
 
-    public function test_command_is_scheduled_hourly_without_overlapping(): void
+    public function test_command_is_scheduled_every_ten_minutes_without_overlapping(): void
     {
         $events = collect($this->app->make(Schedule::class)->events())
             ->filter(fn ($event) => str_contains($event->command ?? '', 'app:sync-vehicle-allocations'));
 
         $this->assertCount(1, $events);
-        $this->assertSame('0 * * * *', $events->first()->expression);
+        $this->assertSame('*/10 * * * *', $events->first()->expression);
         $this->assertTrue($events->first()->withoutOverlapping);
+    }
+
+    public function test_command_completes_only_allocations_absent_from_all_pages_and_preserves_other_fields(): void
+    {
+        $this->createVehicle();
+        $this->createVehicle('SECOND-VIN', 'SECOND-PO');
+        $this->fakeOdata([
+            $this->page([$this->record(), $this->record(['VINNo' => 'SECOND-VIN'])]),
+            $this->page([], '?$skiptoken=next'),
+            $this->page([$this->record()]),
+            $this->page([$this->record()]),
+        ]);
+        $this->artisan('app:sync-vehicle-allocations')->assertExitCode(0);
+        $absent = VehicleAllocation::where('vin', 'SECOND-VIN')->firstOrFail();
+        $absent->update(['erp_response' => ['success' => true], 'user_id' => 1]);
+        $original = $absent->getAttributes();
+
+        $this->artisan('app:sync-vehicle-allocations')
+            ->expectsTable(['Metric', 'Count'], [
+                ['Allocations received', 1],
+                ['Allocations created', 0],
+                ['Existing allocations updated', 1],
+                ['Allocations skipped', 0],
+                ['Absent allocations marked complete', 1],
+            ])
+            ->assertExitCode(0);
+
+        $this->assertTrue($absent->refresh()->is_complete);
+        foreach (['vin', 'data', 'production_order_number', 'due_date', 'variant_code', 'car_model_id', 'make_code_id', 'erp_response', 'user_id'] as $field) {
+            $this->assertSame($original[$field], $absent->getAttributes()[$field]);
+        }
+        $this->assertFalse(VehicleAllocation::where('vin', $this->record()['VINNo'])->firstOrFail()->is_complete);
+
+        $this->postJson('/api/vehicle-allocations')->assertOk()->assertJsonPath('data.completed', 0);
+    }
+
+    public function test_returned_but_skipped_allocation_is_not_marked_complete(): void
+    {
+        $this->createVehicle();
+        $this->fakeOdata([$this->page([$this->record()]), $this->page([$this->record()])]);
+        $this->artisan('app:sync-vehicle-allocations')->assertExitCode(0);
+        Vehicle::query()->firstOrFail()->delete();
+
+        $this->artisan('app:sync-vehicle-allocations')->assertExitCode(0);
+
+        $this->assertFalse(VehicleAllocation::query()->sole()->is_complete);
+    }
+
+    public function test_failed_or_invalid_feed_does_not_complete_existing_allocations(): void
+    {
+        $this->createVehicle();
+        $this->fakeOdata([
+            $this->page([$this->record()]),
+            $this->page([], '?$skiptoken=next'),
+            new Response(503),
+            $this->page([$this->record(['VINNo' => null])]),
+        ]);
+        $this->artisan('app:sync-vehicle-allocations')->assertExitCode(0);
+
+        $this->artisan('app:sync-vehicle-allocations')->assertExitCode(1);
+        $this->assertFalse(VehicleAllocation::query()->sole()->is_complete);
+
+        $this->artisan('app:sync-vehicle-allocations')->assertExitCode(1);
+        $this->assertFalse(VehicleAllocation::query()->sole()->is_complete);
     }
 
     public function test_reimport_updates_the_same_vin_and_preserves_completion_response_and_user(): void
@@ -237,7 +304,7 @@ class VehicleAllocationTest extends TestCase
         $allocation->update(['is_complete' => true, 'erp_response' => ['success' => true], 'user_id' => 1]);
 
         $this->postJson('/api/vehicle-allocations')->assertOk()
-            ->assertJsonPath('data', ['total' => 1, 'created' => 0, 'updated' => 1, 'skipped' => 0, 'skipped_vins' => []]);
+            ->assertJsonPath('data', ['total' => 1, 'created' => 0, 'updated' => 1, 'skipped' => 0, 'skipped_vins' => [], 'completed' => 0]);
 
         $this->assertSame(1, VehicleAllocation::count());
         $allocation->refresh();
@@ -278,7 +345,7 @@ class VehicleAllocationTest extends TestCase
         ]);
 
         $this->postJson('/api/vehicle-allocations')->assertOk()
-            ->assertJsonPath('data', ['total' => 2, 'created' => 1, 'updated' => 0, 'skipped' => 1, 'skipped_vins' => [$missingVin]]);
+            ->assertJsonPath('data', ['total' => 2, 'created' => 1, 'updated' => 0, 'skipped' => 1, 'skipped_vins' => [$missingVin], 'completed' => 0]);
 
         $this->assertSame($this->record()['VINNo'], VehicleAllocation::query()->sole()->vin);
         $this->assertSame(1, Vehicle::count());
@@ -397,15 +464,16 @@ class VehicleAllocationTest extends TestCase
         $this->assertSame(0, VehicleAllocation::count());
     }
 
-    public function test_empty_feed_does_not_delete_existing_allocations(): void
+    public function test_empty_feed_completes_existing_allocations_without_deleting_them(): void
     {
         $this->createVehicle();
         $this->fakeOdata([$this->page([$this->record()]), $this->page([])]);
         $this->postJson('/api/vehicle-allocations')->assertOk();
 
         $this->postJson('/api/vehicle-allocations')->assertOk()
-            ->assertJsonPath('data', ['total' => 0, 'created' => 0, 'updated' => 0, 'skipped' => 0, 'skipped_vins' => []]);
+            ->assertJsonPath('data', ['total' => 0, 'created' => 0, 'updated' => 0, 'skipped' => 0, 'skipped_vins' => [], 'completed' => 1]);
         $this->assertSame(1, VehicleAllocation::count());
+        $this->assertTrue(VehicleAllocation::query()->sole()->is_complete);
     }
 
     public function test_cross_origin_next_link_is_rejected_before_sending_credentials(): void
