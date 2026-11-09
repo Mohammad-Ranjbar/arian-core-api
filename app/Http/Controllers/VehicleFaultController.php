@@ -11,9 +11,12 @@ use App\Jobs\ExportJob;
 use App\Models\IncidentSource;
 use App\Models\Job;
 use App\Models\Location;
+use App\Models\ProductionLine;
+use App\Models\Salon;
 use App\Models\Station;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
+use App\Models\WorkGroupCenter;
 use App\Repositories\IncidentSourceRepository;
 use App\Repositories\VehicleIncidentRepository;
 use Exception;
@@ -41,6 +44,7 @@ class VehicleFaultController extends Controller
 
     public function destroy(Vehicle $vehicle, $id): JsonResponse
     {
+        unset($vehicle);
         $this->repository->destroy($id);
 
         return response()->json(['message' => 'ایراد مورد نظر با موفقیت حذف گردید']);
@@ -117,9 +121,10 @@ class VehicleFaultController extends Controller
         try {
             $validatedData = $request->validated();
             $validatedData['model_type'] = match ($validatedData['model_type']) {
-                'salons' => 'App\Models\Salon',
-                'production_lines' => 'App\Models\ProductionLine',
-                'stations' => 'App\Models\Station',
+                'salons' => Salon::class,
+                'production_lines' => ProductionLine::class,
+                'stations' => Station::class,
+                'work_group_centers' => WorkGroupCenter::class,
             };
             $data = $this->incidentSourceRepository->update($incidentSource->id, $validatedData);
             return new IncidentSourceResource($data);
@@ -343,7 +348,7 @@ class VehicleFaultController extends Controller
                     foreach ($labels as $date) {
                         $dataSet[$date] = isset($x[$date]) ? $x[$date] : 0;
                     }
-                    $color = isset($colors[$value]) ? $colors[$value] : '#757575';
+                    $color = $colors[$value] ?? '#757575';
                     $datasets[] = ['label' => $value, 'data' => array_values($dataSet), 'backgroundColor' => $color,
                         'borderColor' => $color,];
                 }
