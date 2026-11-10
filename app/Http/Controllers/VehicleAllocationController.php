@@ -11,6 +11,7 @@ class VehicleAllocationController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('vehicle-allocations');
         $validated = $request->validate([
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
