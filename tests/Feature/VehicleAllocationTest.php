@@ -54,6 +54,7 @@ class VehicleAllocationTest extends TestCase
         });
         foreach ([
             '2023_10_31_101331_create_make_codes_table.php',
+            '2023_10_31_102012_create_make_code_user_table.php',
             '2023_10_31_110719_create_car_models_table.php',
             '2026_09_07_133553_create_car_model_locations_table.php',
             '2023_10_31_152617_create_vehicles_table.php',
@@ -70,6 +71,87 @@ class VehicleAllocationTest extends TestCase
         DB::table('make_codes')->insert(['id' => 3, 'reference' => 'LOCAL-MAKE', 'title' => 'Local make']);
         DB::table('car_models')->insert(['id' => 7, 'reference' => 'LOCAL-MODEL', 'title' => 'Local model']);
         $this->actingAs(User::findOrFail(1));
+    }
+
+    public function test_index_only_lists_allocations_for_the_users_assigned_make_codes(): void
+    {
+        $allowed = $this->createIndexAllocation('ALLOWED-VIN', 3);
+        DB::table('make_codes')->insert(['id' => 4, 'reference' => 'OTHER', 'title' => 'Other make']);
+        $this->createIndexAllocation('OTHER-VIN', 4);
+        DB::table('users')->insert(['id' => 2, 'name' => 'Other operator']);
+        User::findOrFail(2)->makeCodes()->attach(4);
+        User::findOrFail(1)->makeCodes()->attach(3);
+
+        $this->getJson('/api/vehicle-allocations?make_code_id=4')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.id', $allowed->id)
+            ->assertJsonPath('data.0.make_code.reference', 'LOCAL-MAKE')
+            ->assertJsonPath('data.0.car_model.reference', 'LOCAL-MODEL')
+            ->assertJsonPath('data.0.due_date', '2026-08-19')
+            ->assertJsonPath('data.0.is_complete', false)
+            ->assertJsonPath('data.0.data', ['SourceNo' => 'SOURCE'])
+            ->assertJsonPath('data.0.erp_response', null)
+            ->assertJsonPath('data.0.user', null);
+    }
+
+    public function test_index_returns_no_allocations_without_assigned_make_codes(): void
+    {
+        $this->createIndexAllocation('UNASSIGNED-VIN', 3);
+
+        $this->getJson('/api/vehicle-allocations')->assertOk()
+            ->assertJsonCount(0, 'data')->assertJsonPath('meta.total', 0);
+    }
+
+    public function test_index_paginates_multiple_assigned_make_codes_in_descending_id_order(): void
+    {
+        $this->createIndexAllocation('FIRST-VIN', 3);
+        DB::table('make_codes')->insert(['id' => 4, 'reference' => 'OTHER', 'title' => 'Other make']);
+        $latest = $this->createIndexAllocation('LATEST-VIN', 4);
+        $latest->update(['user_id' => 1, 'is_complete' => true]);
+        User::findOrFail(1)->makeCodes()->attach([3, 4]);
+
+        $this->getJson('/api/vehicle-allocations?per_page=1')->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.per_page', 1)
+            ->assertJsonPath('data.0.id', $latest->id)
+            ->assertJsonPath('data.0.user.name', 'Allocation operator')
+            ->assertJsonPath('data.0.is_complete', true);
+        $this->getJson('/api/vehicle-allocations?per_page=1&page=2')->assertOk()
+            ->assertJsonPath('data.0.vin', 'FIRST-VIN');
+    }
+
+    public function test_index_validates_page_size(): void
+    {
+        foreach ([0, -1, 101, 'invalid'] as $perPage) {
+            $this->getJson('/api/vehicle-allocations?per_page='.$perPage)
+                ->assertUnprocessable()->assertJsonValidationErrors('per_page');
+        }
+    }
+
+    public function test_index_requires_authentication(): void
+    {
+        $this->app['auth']->forgetGuards();
+
+        $this->getJson('/api/vehicle-allocations')->assertUnauthorized();
+    }
+
+    private function createIndexAllocation(string $vin, int $makeCodeId): VehicleAllocation
+    {
+        $this->createVehicle($vin, 'PO-'.$vin);
+        DB::table('vehicles')->where('vin', $vin)->update(['make_code_id' => $makeCodeId]);
+
+        return VehicleAllocation::query()->create([
+            'vin' => $vin,
+            'data' => ['SourceNo' => 'SOURCE'],
+            'production_order_number' => 'PO-'.$vin,
+            'variant_code' => 'VAR-SILVER',
+            'car_model_id' => 7,
+            'make_code_id' => $makeCodeId,
+            'due_date' => '2026-08-19',
+        ]);
     }
 
     public function test_imports_the_sample_using_vehicle_foreign_keys_and_configured_odata_connection(): void

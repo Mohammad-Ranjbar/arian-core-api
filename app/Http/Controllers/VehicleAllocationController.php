@@ -2,16 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Erp\VehicleAllocationService;
-use Illuminate\Http\JsonResponse;
+use App\Http\Resources\VehicleAllocationResource;
+use App\Models\VehicleAllocation;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class VehicleAllocationController extends Controller
 {
-    public function store(VehicleAllocationService $service): JsonResponse
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json([
-            'message' => 'اطلاعات تخصیص خودرو با موفقیت دریافت و ذخیره شد.',
-            'data' => $service->sync(),
+        $validated = $request->validate([
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
+
+        $allocations = VehicleAllocation::query()
+            ->whereIn('make_code_id', $request->user()->makeCodes()->select('make_codes.id'))
+            ->with([
+                'makeCode:id,title,reference',
+                'carModel' => fn ($query) => $query->withoutEagerLoads()->select('id', 'title', 'reference'),
+                'user:id,name',
+            ])
+            ->latest('id')
+            ->paginate($validated['per_page'] ?? 10);
+
+        return VehicleAllocationResource::collection($allocations);
     }
 }

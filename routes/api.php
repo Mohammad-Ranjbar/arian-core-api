@@ -155,7 +155,7 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 Route::get('/get-bom-certified-items/{carModel}', [ItemsController::class, 'certifiedItems'])->name('bom-certified-items');
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
-    Route::post('vehicle-allocations', [VehicleAllocationController::class, 'store'])->name('vehicle-allocations.store');
+    Route::get('/vehicle-allocations',[VehicleAllocationController::class,'index'])->name('vehicle-allocations');
     Route::get('print-register-shortage/{vin}',[RegisterShortageController::class, 'printRegisterShortage'])->name('print-register-shortage');
     Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
     Route::post('/send-alternatives/{alternative}', [AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
