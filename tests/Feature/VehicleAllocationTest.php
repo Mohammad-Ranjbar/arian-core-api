@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class VehicleAllocationTest extends TestCase
@@ -53,6 +54,7 @@ class VehicleAllocationTest extends TestCase
             $table->softDeletes();
         });
         foreach ([
+            '2023_10_29_103259_create_permission_tables.php',
             '2023_10_31_101331_create_make_codes_table.php',
             '2023_10_31_102012_create_make_code_user_table.php',
             '2023_10_31_110719_create_car_models_table.php',
@@ -71,6 +73,7 @@ class VehicleAllocationTest extends TestCase
         DB::table('make_codes')->insert(['id' => 3, 'reference' => 'LOCAL-MAKE', 'title' => 'Local make']);
         DB::table('car_models')->insert(['id' => 7, 'reference' => 'LOCAL-MODEL', 'title' => 'Local model']);
         $this->actingAs(User::findOrFail(1));
+        auth()->user()->givePermissionTo(Permission::create(['name' => 'vehicle-allocations', 'guard_name' => 'web']));
     }
 
     public function test_index_only_lists_allocations_for_the_users_assigned_make_codes(): void
@@ -82,7 +85,7 @@ class VehicleAllocationTest extends TestCase
         User::findOrFail(2)->makeCodes()->attach(4);
         User::findOrFail(1)->makeCodes()->attach(3);
 
-        $this->getJson('/api/vehicle-allocations?make_code_id=4')
+        $this->getJson('/api/vehicle-allocations')
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('meta.total', 1)
@@ -94,6 +97,75 @@ class VehicleAllocationTest extends TestCase
             ->assertJsonPath('data.0.data', ['SourceNo' => 'SOURCE'])
             ->assertJsonPath('data.0.erp_response', null)
             ->assertJsonPath('data.0.user', null);
+
+        $this->getJson('/api/vehicle-allocations?make_code_id=4')->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
+    public function test_index_filters_all_supported_fields_and_combines_them(): void
+    {
+        $matching = $this->createIndexAllocation('MATCH-VIN', 3);
+        $matching->forceFill(['user_id' => 1, 'created_at' => '2026-08-19 23:59:59'])->save();
+        $other = $this->createIndexAllocation('OTHER-VIN', 3);
+        DB::table('car_models')->insert(['id' => 8, 'reference' => 'SECOND', 'title' => 'Second model']);
+        DB::table('make_codes')->insert(['id' => 4, 'reference' => 'SECOND', 'title' => 'Second make']);
+        $other->forceFill([
+            'is_complete' => true, 'variant_code' => 'VAR-BLACK',
+            'due_date' => '2026-08-20', 'created_at' => '2026-08-20 00:00:00',
+            'car_model_id' => 8, 'make_code_id' => 4,
+        ])->save();
+        DB::table('vehicles')->where('vin', 'MATCH-VIN')->update(['engine_no' => 'ENGINE-1', 'cabin_no' => 'CABIN-1']);
+        User::findOrFail(1)->makeCodes()->attach([3, 4]);
+
+        $filters = [
+            'id' => $matching->id,
+            'vin' => 'MATCH',
+            'production_order_number' => 'PO-MATCH-VIN',
+            'variant_code' => 'VAR-SILVER',
+            'make_code_id' => 3,
+            'car_model_id' => 7,
+            'user_id' => 1,
+            'is_complete' => 0,
+            'engine_no' => 'ENGINE-1',
+            'cabin_no' => 'CABIN-1',
+            'due_date' => '2026-08-19',
+            'due_date_to' => '2026-08-19',
+            'created_at_to' => '2026-08-19',
+        ];
+        foreach ($filters as $field => $value) {
+            $response = $this->getJson('/api/vehicle-allocations?'.http_build_query([$field => $value]))->assertOk();
+            $this->assertCount(1, $response->json('data'), $field);
+            $response->assertJsonPath('data.0.id', $matching->id);
+        }
+        $this->getJson('/api/vehicle-allocations?'.http_build_query($filters))
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $matching->id);
+
+        foreach ([
+            ['is_complete' => 1],
+            ['due_date_from' => '2026-08-20'],
+            ['created_at_from' => '2026-08-20'],
+        ] as $filter) {
+            $this->getJson('/api/vehicle-allocations?'.http_build_query($filter))
+                ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $other->id);
+        }
+        $this->getJson('/api/vehicle-allocations?per_page=1&is_complete=0')
+            ->assertOk()->assertJsonPath('links.first', url('/api/vehicle-allocations').'?per_page=1&is_complete=0&page=1');
+    }
+
+    public function test_index_rejects_invalid_filters(): void
+    {
+        foreach ([
+            ['is_complete' => 'invalid'],
+            ['make_code_id' => [3]],
+            ['car_model_id' => 'invalid'],
+            ['user_id' => -1],
+            ['vin' => ['VIN']],
+            ['due_date' => '2026-02-30'],
+            ['due_date_from' => '2026-08-20', 'due_date_to' => '2026-08-19'],
+            ['created_at_from' => '2026-08-20', 'created_at_to' => '2026-08-19'],
+        ] as $filters) {
+            $this->getJson('/api/vehicle-allocations?'.http_build_query($filters))->assertUnprocessable();
+        }
     }
 
     public function test_index_returns_no_allocations_without_assigned_make_codes(): void
