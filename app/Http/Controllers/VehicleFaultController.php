@@ -125,6 +125,8 @@ class VehicleFaultController extends Controller
                 'production_lines' => ProductionLine::class,
                 'stations' => Station::class,
                 'work_group_centers' => WorkGroupCenter::class,
+                'locations' => Location::class,
+                default => throw new Exception('ورودی نا معتبر'),
             };
             $data = $this->incidentSourceRepository->update($incidentSource->id, $validatedData);
             return new IncidentSourceResource($data);
