@@ -22,7 +22,7 @@ class IncidentSourceRequest extends FormRequest
     {
 
         return [
-            'model_type' => 'bail|required|in:salons,production_lines,stations,work_group_centers',
+            'model_type' => 'bail|required|in:salons,production_lines,stations,work_group_centers,locations',
             'model_id'   => 'required_if:model_type,!=,""|exists:'.$this->input('model_type').',id',
         ];
     }
