@@ -168,6 +168,31 @@ class VehicleAllocationTest extends TestCase
         }
     }
 
+    public function test_index_returns_persian_validation_messages(): void
+    {
+        foreach ([
+            [['make_code_id' => 'invalid'], 'make_code_id', 'شناسهٔ برند خودرو باید عدد صحیح باشد.'],
+            [['user_id' => -1], 'user_id', 'شناسهٔ کاربر باید حداقل 1 باشد.'],
+            [['vin' => ['VIN']], 'vin', 'شمارهٔ شاسی باید رشتهٔ متنی باشد.'],
+            [['vin' => str_repeat('X', 256)], 'vin', 'شمارهٔ شاسی نباید بیش از 255 کاراکتر باشد.'],
+            [['per_page' => 101], 'per_page', 'تعداد رکورد در هر صفحه نباید بیشتر از 100 باشد.'],
+            [['is_complete' => 'invalid'], 'is_complete', 'وضعیت تکمیل باید ۰ (تکمیل‌نشده) یا ۱ (تکمیل‌شده) باشد.'],
+            [['due_date' => '2026-02-30'], 'due_date', 'تاریخ سررسید باید یک تاریخ معتبر میلادی با قالب YYYY-MM-DD باشد.'],
+            [
+                ['due_date_from' => '2026-08-20', 'due_date_to' => '2026-08-19'],
+                'due_date_to', 'تاریخ پایان سررسید باید برابر یا بعد از تاریخ شروع سررسید باشد.',
+            ],
+            [
+                ['created_at_from' => '2026-08-20', 'created_at_to' => '2026-08-19'],
+                'created_at_to', 'تاریخ پایان ایجاد باید برابر یا بعد از تاریخ شروع ایجاد باشد.',
+            ],
+        ] as [$filters, $field, $message]) {
+            $this->getJson('/api/vehicle-allocations?'.http_build_query($filters))
+                ->assertUnprocessable()
+                ->assertJsonPath('errors.'.$field.'.0', $message);
+        }
+    }
+
     public function test_index_returns_no_allocations_without_assigned_make_codes(): void
     {
         $this->createIndexAllocation('UNASSIGNED-VIN', 3);

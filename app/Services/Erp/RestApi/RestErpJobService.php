@@ -8,6 +8,7 @@ use App\Http\Resources\TrackingResource;
 use App\Jobs\SendToRestErpJob;
 use App\Models\RestErpJob;
 use App\Models\Tracking;
+use App\Models\VehicleAllocation;
 use App\Services\Erp\RestApi\Servers\Server;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -268,9 +269,13 @@ readonly class RestErpJobService
             } else {
                 $job = RestErpJob::query()->create($attributes);
                 $this->recordActor($job, $userId);
+                $this->recordVehicleAllocation($job, userId: $userId);
                 if (! $invalid) {
                     $this->recordProductionTracking($job);
                 }
+            }
+            if ($invalid) {
+                $this->recordVehicleAllocation($job, $error);
             }
             if ($queued && ! $invalid) {
                 $this->publishAfterCommit($job);
@@ -444,6 +449,7 @@ readonly class RestErpJobService
                 'execute_time' => round(microtime(true) - $start, 4),
                 'completed_at' => now(), 'failed_at' => $result['success'] ? null : now(),
             ]);
+            $this->recordVehicleAllocation($job, $result);
             if ($providerStatus !== null) {
                 $this->audit($job);
             }
@@ -491,11 +497,31 @@ readonly class RestErpJobService
                 'http_status' => 503, 'failed_at' => now(), 'completed_at' => now(),
                 'execute_time' => $uncertain && $job->started_at ? round(max(0, microtime(true) - $job->started_at->getTimestamp()), 4) : 0,
             ]);
+            $this->recordVehicleAllocation($job, [
+                'success' => false, 'data' => null,
+                'error' => ['code' => $job->error_code, 'message' => $message],
+                'http_status' => 503,
+            ]);
             Log::warning($message, [
                 'request_id' => $job->uuid, 'rest_erp_job_id' => $job->id,
                 'endpoint' => $job->endpoint, 'status' => $job->status, 'error_code' => $job->error_code,
             ]);
         });
+    }
+
+    private function recordVehicleAllocation(RestErpJob $job, ?array $response = null, ?int $userId = null): void
+    {
+        if ($job->endpoint !== 'ProductionPostingBINs' || $job->model_type !== (new VehicleAllocation)->getMorphClass()) {
+            return;
+        }
+
+        $allocation = VehicleAllocation::query()->lockForUpdate()->find($job->model_id);
+        if ($allocation) {
+            $allocation->update([
+                'erp_response' => $this->sanitizer->sanitize($response),
+                ...($userId !== null ? ['user_id' => $userId] : []),
+            ]);
+        }
     }
 
     private function productionTrackingResponse(array $result, mixed $providerBody): array
@@ -513,6 +539,7 @@ readonly class RestErpJobService
                 }
             }
         }
+
         return ['status' => 'ok', 'message' => $this->sanitizer->errorText($message ?? '')];
     }
 
@@ -579,6 +606,7 @@ readonly class RestErpJobService
             ...$attributes,
         ]);
         $this->recordProductionTracking($job);
+        $this->recordVehicleAllocation($job, userId: $userId);
     }
 
     public function ignore(RestErpJob $job, int $userId): RestErpJob
