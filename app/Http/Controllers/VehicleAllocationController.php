@@ -49,7 +49,7 @@ class VehicleAllocationController extends Controller
                 'user:id,name',
             ])
             ->latest('id')
-            ->paginate($validated['per_page'] ?? 10)
+            ->paginate($validated['per_page'] ?? 25)
             ->withQueryString();
 
         return VehicleAllocationResource::collection($allocations);
