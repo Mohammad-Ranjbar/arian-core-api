@@ -23,6 +23,8 @@ return [
              'KSPCO020DP' => '',//hirkani
              'KSPCO010CP' => '',//neo
              'DSPCO020DP' => '',//lamariX
+             'CSPCO010DP' => '',//lamariCapri
+
             ]
         ],
         [
