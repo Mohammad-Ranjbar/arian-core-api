@@ -28,14 +28,10 @@ class Kernel extends ConsoleKernel
         $schedule->command(SyncVehicleAllocationsCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(SyncProductItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
         $schedule->command(SyncServiceItemsCommand::class)->daily()->at('00:00')->withoutOverlapping();
-        $schedule->command(SyncInvitationsCommand::class)->everyMinute()->withoutOverlapping();
         $schedule->command(RetryErpJobCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(RecoverRestErpJobsCommand::class)->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command(UpdateOnlineOrdersCommand::class)->everyTenMinutes()->withoutOverlapping();
-      //  $schedule->command(UpdateContractOkCommand::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(SyncPDIBlockCommand::class)->daily()->at('02:00')->withoutOverlapping();
         $schedule->command(SyncProductItemsCommand::class)->everyTenMinutes()->withoutOverlapping();
-        $schedule->command(SyncCustomerClubDataCommand::class)->daily()->at('02:00')->withoutOverlapping();
         $schedule->command(ClearLogCommand::class)->daily()->at('00:00')->withoutOverlapping();
     }
 

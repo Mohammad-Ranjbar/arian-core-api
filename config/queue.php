@@ -26,6 +26,14 @@ return [
                 'durable' => env('RABBITMQ_EXCHANGE_DURABLE', true),
                 'auto_delete' => env('RABBITMQ_EXCHANGE_AUTODELETE', false),
             ],
+            'options' => [
+                'connection' => [
+                    'heartbeat' => 60,
+                    'connection_timeout' => 10,
+                    'read_write_timeout' => 130,
+                    'keepalive' => true,
+                ],
+            ],
         ],
 
         'sync' => [
