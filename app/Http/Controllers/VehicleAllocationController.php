@@ -54,4 +54,9 @@ class VehicleAllocationController extends Controller
 
         return VehicleAllocationResource::collection($allocations);
     }
+
+    public function send(VehicleAllocation $vehicleAllocation, Request $request)
+    {
+
+    }
 }
