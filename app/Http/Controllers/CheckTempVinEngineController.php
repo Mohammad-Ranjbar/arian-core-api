@@ -30,7 +30,17 @@ class CheckTempVinEngineController extends Controller
 
             $data = $makeCodePrefix->where('type', 'custom_engine')->first();
 
-            $prefix = is_array($data['prefix']) ? $data['prefix'][$vehicle->getRelation('carModel')->reference] : $data['prefix'];
+            $prefix = $data['prefix'];
+
+            if (is_array($prefix)) {
+                $carModelReference = $vehicle->getRelation('carModel')->reference;
+
+                if (!array_key_exists($carModelReference, $prefix)) {
+                    throw new Exception("کلید مدل خودرو «{$carModelReference}» برای prefix موتور در تنظیمات serial_barcodes تعریف نشده است.");
+                }
+
+                $prefix = $prefix[$carModelReference];
+            }
 
             return response()->json([
                 'vehicle' => !empty($vehicle) ? VehicleResource::make($vehicle) : null,
