@@ -9,21 +9,21 @@ use App\Http\Resources\IncidentSourceResource;
 use App\Http\Resources\VehicleIncidentResource;
 use App\Jobs\ExportJob;
 use App\Models\IncidentSource;
+use App\Models\IncidentSourceSelection;
 use App\Models\Job;
 use App\Models\Location;
-use App\Models\ProductionLine;
-use App\Models\Salon;
 use App\Models\Station;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
-use App\Models\WorkGroupCenter;
 use App\Repositories\IncidentSourceRepository;
 use App\Repositories\VehicleIncidentRepository;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -118,20 +118,39 @@ class VehicleFaultController extends Controller
         IncidentSourceRequest $request,
         IncidentSource $incidentSource
     ): IncidentSourceResource|JsonResponse {
+        $lock = Cache::lock('incident-source-update:user:'.$request->user()->getAuthIdentifier(), 30);
+        if (! $lock->get()) {
+            return response()->json(['message' => 'درخواست قبلی شما برای ثبت منشأ ایراد در حال پردازش است. لطفاً صبر کنید.'], 429);
+        }
+
         try {
-            $validatedData = $request->validated();
-            $validatedData['model_type'] = match ($validatedData['model_type']) {
-                'salons' => Salon::class,
-                'production_lines' => ProductionLine::class,
-                'stations' => Station::class,
-                'work_group_centers' => WorkGroupCenter::class,
-                'locations' => Location::class,
-                default => throw new Exception('ورودی نا معتبر'),
-            };
-            $data = $this->incidentSourceRepository->update($incidentSource->id, $validatedData);
+            $data = DB::transaction(function () use ($request, $incidentSource) {
+                $source = IncidentSource::query()->lockForUpdate()->findOrFail($incidentSource->id);
+                $selections = $source->selections()->get();
+                $keep = [];
+                foreach ($request->validated('sources') as $item) {
+                    $model = new (IncidentSourceSelection::MODEL_TYPES[$item['model_type']]);
+                    $type = $model->getMorphClass();
+                    $selection = $selections->first(fn ($selection) => $selection->model_type === $type
+                        && $selection->model_id === (int) $item['model_id']);
+                    $selection ??= $source->selections()->create([
+                        'model_type' => $type,
+                        'model_id' => $item['model_id'],
+                        'user_id' => $request->user()->getAuthIdentifier(),
+                    ]);
+                    $keep[] = $selection->id;
+                }
+                $source->selections()->whereNotIn('id', $keep)->delete();
+                // Keep the legacy single-selection columns aligned for existing consumers.
+                $first = $source->selections()->first();
+                $source->update(['model_type' => $first?->model_type, 'model_id' => $first?->model_id]);
+
+                return $source->load(IncidentSource::resourceRelations());
+            });
+
             return new IncidentSourceResource($data);
-        } catch (Exception $exception) {
-            return $this->responseError($exception->getMessage(), 500);
+        } finally {
+            $lock->release();
         }
     }
 
@@ -141,7 +160,7 @@ class VehicleFaultController extends Controller
      */
     public function showIncidentSource(IncidentSource $incidentSource): IncidentSourceResource
     {
-        return new IncidentSourceResource($incidentSource);
+        return new IncidentSourceResource($incidentSource->loadMissing(IncidentSource::resourceRelations()));
     }
 
 
@@ -151,8 +170,26 @@ class VehicleFaultController extends Controller
      */
     public function listIncidentSource(): JsonResponse|AnonymousResourceCollection
     {
-        return IncidentSourceResource::collection($this->incidentSourceRepository->paginate(request()->input('paginate',
-            15)));
+        $validated = request()->validate([
+            'model_type' => ['sometimes', 'bail', 'string', Rule::in(array_keys(IncidentSourceSelection::MODEL_TYPES))],
+            'model_id' => ['sometimes', 'bail', 'integer', 'min:1'],
+            'paginate' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+        ], [
+            'model_type.string' => 'نوع منشأ ایراد باید رشتهٔ متنی باشد.',
+            'model_type.in' => 'نوع منشأ ایراد باید مرکز گروه کاری یا موقعیت باشد.',
+            'model_id.integer' => 'شناسهٔ منشأ ایراد باید عدد صحیح باشد.',
+            'model_id.min' => 'شناسهٔ منشأ ایراد باید بزرگ‌تر از صفر باشد.',
+            'paginate.integer' => 'تعداد رکورد در هر صفحه باید عدد صحیح باشد.',
+            'paginate.min' => 'تعداد رکورد در هر صفحه باید حداقل ۱ باشد.',
+            'paginate.max' => 'تعداد رکورد در هر صفحه نباید بیشتر از ۱۰۰ باشد.',
+            'page.integer' => 'شمارهٔ صفحه باید عدد صحیح باشد.',
+            'page.min' => 'شمارهٔ صفحه باید حداقل ۱ باشد.',
+        ]);
+
+        return IncidentSourceResource::collection(
+            $this->incidentSourceRepository->paginateForResource((int) ($validated['paginate'] ?? 15), $validated)
+        );
     }
 
 
