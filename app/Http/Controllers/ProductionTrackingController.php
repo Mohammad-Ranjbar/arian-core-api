@@ -50,15 +50,15 @@ class ProductionTrackingController extends Controller
 
             }
             if ($validatedData['type'] == 'enter' && $validatedData['model_type'] == 'production_lines') {
-                $condition = !Tracking::query()
-                    ->where('model_type', ProductionLine::class)
-                    ->where('type', 'pbs')
-                    ->where('vin', $validatedData['vin'])
-                    ->where('model_id', $validatedData['model_id'])
-                    ->exists();
-                if ($condition) {
-                    return $this->responseError('ابتدا باید ورود به PBS ثبت شود');
-                }
+//                $condition = !Tracking::query()
+//                    ->where('model_type', ProductionLine::class)
+//                    ->where('type', 'pbs')
+//                    ->where('vin', $validatedData['vin'])
+//                    ->where('model_id', $validatedData['model_id'])
+//                    ->exists();
+//                if ($condition) {
+//                    return $this->responseError('ابتدا باید ورود به PBS ثبت شود');
+//                }
 
 
                 $condition = Tracking::query()
