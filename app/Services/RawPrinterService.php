@@ -14,6 +14,11 @@ class RawPrinterService
             throw new RuntimeException('خواندن فایل چاپ امکان‌پذیر نیست.');
         }
 
+        $this->sendData($ip, $data);
+    }
+
+    public function sendData(string $ip, string $data): void
+    {
         $socket = $this->connect($ip);
 
         try {
