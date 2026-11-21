@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\TemplateExport;
 use App\Http\Requests\ImportFileRequest;
+use App\Http\Requests\StorePDIRequest;
 use App\Http\Resources\PDIResource;
 use App\Jobs\ImportJob;
 use App\Models\Job;
@@ -12,11 +13,9 @@ use App\Models\Vehicle;
 use App\Services\Erp\RestApi\ImportVehiclesService;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Laravel\Octane\Exceptions\DdException;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
@@ -31,32 +30,20 @@ class PDIController extends Controller
         return PDIResource::collection($data);
     }
 
+
     /**
-     * @throws DdException
-     * @throws Exception
+     * @throws Throwable
      */
-    public function store(Vehicle $vehicle, Request $request): PDIResource|JsonResponse
+    public function store(Vehicle $vehicle, StorePDIRequest $request): PDIResource|JsonResponse
     {
         if (empty($vehicle->carModel->production)) {
             throw new Exception("لطفا برای مدل خودرو {$vehicle->getAttribute('carModel')->title} نوع تولید را مشخص کنید. ");
         }
-        $rules = [
-            'pdi_result' => 'nullable|string|max:255',
-            'pdi_result_description' => 'nullable|string|max:250',
-            'pdi_result_description_2' => 'nullable|string|max:100',
-
-            'police_inspection_date' => 'nullable|string|max:255'
-        ];
-        if ($vehicle->carModel->production == 'imported') {
-            $rules['model_year'] = 'nullable|string|max:255';
-            $rules['engine_no'] = 'nullable|string|max:255';
-        }
-
-        $validatedData = $request->validate($rules);
+        $validatedData = $request->validated();
 
         if (empty(array_values($validatedData))) {
             return response()->json([
-                'message' => 'مقادیر وارد شده معتبر نمیباشد'
+                'message' => 'حداقل یک مورد از اطلاعات PDI را وارد کنید.'
             ], 422);
         }
         $validatedData['vin'] = $vehicle->vin;
@@ -83,6 +70,9 @@ class PDIController extends Controller
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public static function sendPDIToErp(string $vin, array $data): array
     {
         // return ErpWsdlClient::run(config('erp.pdi_result'), 'ImportVehicleInformation',
@@ -104,6 +94,10 @@ class PDIController extends Controller
         ];
     }
 
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
     public function getTemplateEngine(): BinaryFileResponse
     {
         $headers = PDI::HEADING_ENGINE;
@@ -177,6 +171,10 @@ class PDIController extends Controller
         ]);
     }
 
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
     public function getTemplatePolice(): BinaryFileResponse
     {
         $headers = PDI::HEADING_POLICE;
@@ -184,6 +182,10 @@ class PDIController extends Controller
         return Excel::download($export, 'template-for-police' . time() . '.xlsx');
     }
 
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
     public function getTemplatePdi(): BinaryFileResponse
     {
         $headers = PDI::HEADING_PDI;

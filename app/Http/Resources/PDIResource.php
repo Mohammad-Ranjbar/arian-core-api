@@ -23,6 +23,7 @@ class PDIResource extends JsonResource
             'pdi_result' => $this->resource->pdi_result,
             'pdi_result_description' => $this->resource->pdi_result_description,
             'pdi_result_description_2' => $this->resource->pdi_result_description_2,
+            'mileage' => $this->resource->mileage,
             'model_year' => $this->resource->model_year,
             'engine_no' => $this->resource->engine_no,
             'police_inspection_date' => $this->resource->police_inspection_date,
