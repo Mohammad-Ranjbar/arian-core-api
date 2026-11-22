@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AssignItemToAlternativeCategoryRequest;
 use App\Http\Resources\AlternativeCategoryResource;
 use App\Models\AlternativeCategory;
+use App\Models\AlternativeItem;
+use App\Models\ErpProductItem;
 use App\Repositories\AlternativeCategoryRepository;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class AlternativeCategoryController extends CrudController
 {
@@ -20,10 +23,32 @@ class AlternativeCategoryController extends CrudController
     {
         try {
             $validatedData = $request->validated();
-            if ($alternativeCategory->items()->where('erp_product_item_id', $validatedData['erp_product_item_id'])->exists()) {
-                return $this->responseError('ایتم مورد نظر در لیست ایتم های این گروه موجود است');
+            $error = DB::transaction(function () use ($alternativeCategory, $validatedData) {
+                // Serialize assignments of the same ERP product, including across categories.
+                ErpProductItem::query()->whereKey($validatedData['erp_product_item_id'])->lockForUpdate()->firstOrFail();
+
+                $existing = AlternativeItem::query()
+                    ->with(['user' => fn ($query) => $query->withTrashed()])
+                    ->where('erp_product_item_id', $validatedData['erp_product_item_id'])
+                    ->where('user_id', '!=', $validatedData['user_id'])
+                    ->first();
+
+                if ($existing) {
+                    $name = $existing->user?->name ?? 'نامشخص';
+                    return "این قطعه با کد انتخابی برای کاربر دیگری با نام {$name} ایجاد شده است.";
+                }
+
+                if ($alternativeCategory->items()->where('erp_product_item_id', $validatedData['erp_product_item_id'])->exists()) {
+                    return 'ایتم مورد نظر در لیست ایتم های این گروه موجود است';
+                }
+
+                $alternativeCategory->items()->create($validatedData);
+                return null;
+            });
+
+            if ($error !== null) {
+                return $this->responseError($error);
             }
-            $alternativeCategory->items()->create($validatedData);
             $alternativeCategory->refresh();
             return AlternativeCategoryResource::make($alternativeCategory);
 
