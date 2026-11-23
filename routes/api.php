@@ -161,6 +161,7 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
     Route::post('/send-alternatives/{alternative}', [AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
     Route::get('/alternatives-list', [AlternativeController::class, 'listAlternatives'])->name('alternatives-list');
+    Route::get('/alternatives-list/all', [AlternativeController::class, 'listAllAlternatives'])->name('alternatives-list.all');
     Route::post('/alternative-category/{alternativeCategory}/assign-item', [AlternativeCategoryController::class, 'assignItem'])->name('alternative-category.assign-item');
     Route::delete('/alternative-category/{alternativeCategory}/delete-item/{erpItemId}', [AlternativeCategoryController::class, 'deleteItem'])->name('alternative-category.delete-item');
     Route::get('/bom-alternatives/{productionOrderNumber}', [AlternativeManagementController::class, 'getBomItems'])->name('get-bom-alternatives');

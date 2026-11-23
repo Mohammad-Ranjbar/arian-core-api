@@ -13,6 +13,7 @@ use App\Repositories\AlternativeRepository;
 // use App\Services\Erp\ErpWsdlClient;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Support\Str;
@@ -41,6 +42,18 @@ class AlternativeController extends CrudController
         $alternatives = Alternative::query()
             ->whereIn('item_no', $alternativeGroupItems);
 
+        return $this->filteredAlternatives($alternatives);
+    }
+
+    public function listAllAlternatives()
+    {
+        $this->authorize('viewAny', Alternative::class);
+
+        return $this->filteredAlternatives(Alternative::query());
+    }
+
+    private function filteredAlternatives(Builder $alternatives)
+    {
         if ($status = request('status')) {
             if ($status === 'success') {
                 $alternatives->whereNotNull('success_at')

@@ -35,6 +35,7 @@ class VehicleResource extends JsonResource
             'qc_description' => $this->resource->qc_description,
             'qc_status' => $this->resource->qc_status,
             'production_type' => $this->resource->getProductionType(),
+            'is_exit' => $this->resource->tracking()->where('type', 'exit')->exists(),
             'is_block' => !empty($this->resource->blockItems()->whereNull('unblocked_at')->latest()->first()) ? BlockItemResource::make($this->resource->blockItems()->whereNull('unblocked_at')->latest()->first()) : null,
             'makeCode' => [
                 'id' => (int)$this->resource->makeCode->id,
