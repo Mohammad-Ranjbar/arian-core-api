@@ -47,6 +47,7 @@ class AlternativeController extends CrudController
 
     public function listAllAlternatives()
     {
+        abort_unless(Auth::user()?->hasRole('super-admin'), 403);
         $this->authorize('viewAny', Alternative::class);
 
         return $this->filteredAlternatives(Alternative::query());
