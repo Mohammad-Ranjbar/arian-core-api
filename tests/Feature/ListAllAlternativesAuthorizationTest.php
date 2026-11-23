@@ -44,12 +44,12 @@ class ListAllAlternativesAuthorizationTest extends TestCase
         $this->getJson('/api/alternatives-list/all')->assertOk()->assertJsonCount(0, 'data');
     }
 
-    public function test_super_admin_still_requires_view_permission(): void
+    public function test_super_admin_can_access_the_list_without_view_permission(): void
     {
         $this->actingAsUserWithRole(true);
         Gate::before(fn () => false);
 
-        $this->getJson('/api/alternatives-list/all')->assertForbidden();
+        $this->getJson('/api/alternatives-list/all')->assertOk()->assertJsonCount(0, 'data');
     }
 
     private function actingAsUserWithRole(bool $hasRole): void
