@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ExportJob;
-use App\Models\Job;
-use App\Services\AlternativeFilters;
 use App\Http\Requests\AlternativeReportExcelRequest;
 use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
+use App\Jobs\ExportJob;
 use App\Models\Alternative;
 use App\Models\AlternativeCategory;
+use App\Models\Job;
 use App\Repositories\AlternativeRepository;
-// use App\Services\Erp\ErpWsdlClient;
+use App\Services\AlternativeFilters;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
 use Exception;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+
+// use App\Services\Erp\ErpWsdlClient;
 
 class AlternativeController extends CrudController
 {
@@ -45,19 +47,19 @@ class AlternativeController extends CrudController
         return $this->filteredAlternatives($alternatives);
     }
 
-    public function listAllAlternatives()
-    {
-        abort_unless(Auth::user()?->hasRole('super-admin'), 403);
-
-        return $this->filteredAlternatives(Alternative::query());
-    }
-
-    private function filteredAlternatives(\Illuminate\Database\Eloquent\Builder $alternatives)
+    private function filteredAlternatives(Builder $alternatives)
     {
         $alternatives = AlternativeFilters::apply($alternatives, request()->all())->latest()
             ->paginate(request('per_page') ?? 10);
 
         return AlternativeResource::collection($alternatives);
+    }
+
+    public function listAllAlternatives()
+    {
+        abort_unless(Auth::user()?->hasRole('super-admin'), 403);
+
+        return $this->filteredAlternatives(Alternative::query());
     }
 
     public function reportExcel(AlternativeReportExcelRequest $request): JsonResponse
@@ -152,7 +154,7 @@ class AlternativeController extends CrudController
                 documentNo: $parameters['documentNo'],
                 model: $alternative,
             )->sync();
-            if (! $response['success']) {
+            if (!$response['success']) {
                 $alternative->update([
                     'failed_at' => now(),
                     'status' => 'failed',

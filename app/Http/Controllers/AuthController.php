@@ -98,6 +98,7 @@ class AuthController extends Controller
         return response()->json([
             'user'        => new UserResource($request->user()),
             'permissions' => $request->user()->getAllPermissions()->pluck('name')->all(),
+            'roles'       => $request->user()->roles->pluck('name')->all(),
             'debug_mode' => config('app.env') !== 'production'
         ]);
     }
