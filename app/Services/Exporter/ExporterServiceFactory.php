@@ -2,19 +2,17 @@
 
 namespace App\Services\Exporter;
 
-
 use Exception;
 
 class ExporterServiceFactory
 {
-
-
     /**
      * @throws Exception
      */
     public static function getInstance($job)
     {
         return match ($job->type) {
+            'export-alternatives' => new ExportAlternativesService($job),
             'export-block-items' => new ExportBlockItemsService($job),
             'export-general-product-items' => new ExportGeneralProductItemsService($job),
             'export-production-test-results' => new ExportProductionTestResultService($job),
@@ -37,7 +35,7 @@ class ExporterServiceFactory
             'export-vehicle-torque-test' => new ExportVehicleTorqueTestService($job),
             'export-change-vins' => new ExportChangeVinService($job),
             'export-synchronous-engine' => new ExportSynchronousEngineService($job),
-            default => throw  new Exception('Invalid input for type: '.$job->type),
+            default => throw new Exception('Invalid input for type: '.$job->type),
         };
     }
 }

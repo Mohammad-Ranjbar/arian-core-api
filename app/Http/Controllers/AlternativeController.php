@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\CreatedAtFromFilter;
-use App\Filters\CreatedAtToFilter;
-use App\Filters\ItemNoFilter;
+use App\Jobs\ExportJob;
+use App\Models\Job;
+use App\Services\AlternativeFilters;
 use App\Http\Requests\SendAlternativeRequest;
 use App\Http\Resources\AlternativeResource;
 use App\Models\Alternative;
@@ -14,7 +14,7 @@ use App\Repositories\AlternativeRepository;
 use App\Services\Erp\RestApi\CreateTransferZonesService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Pipeline;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class AlternativeController extends CrudController
@@ -41,28 +41,28 @@ class AlternativeController extends CrudController
         $alternatives = Alternative::query()
             ->whereIn('item_no', $alternativeGroupItems);
 
-        if ($status = request('status')) {
-            if ($status === 'success') {
-                $alternatives->whereNotNull('success_at')
-                    ->whereHas('alternativeItem', fn($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
-            } elseif ($status === 'send') {
-                $alternatives->whereNull('success_at')
-                    ->whereHas('alternativeItem', fn($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
-            } elseif ($status === 'failed') {
-                $alternatives->whereNotNull('failed_at')->whereNull('success_at')->whereHas('alternativeItem', fn($q) => $q->whereColumn('packing_qty', 'alternatives.counter'));
-            }
-        }
-
-        $alternatives = Pipeline::send($alternatives)
-            ->through([
-                ItemNoFilter::class,
-                CreatedAtFromFilter::class,
-                CreatedAtToFilter::class,
-
-            ])->thenReturn()->latest()
+        $alternatives = AlternativeFilters::apply($alternatives, request()->all())->latest()
             ->paginate(request('per_page') ?? 10);
 
         return AlternativeResource::collection($alternatives);
+    }
+
+    public function reportExcel(Request $request)
+    {
+        abort_unless($request->user()?->hasRole('super-admin'), 403);
+        $filters = $request->validate([
+            'status' => ['nullable', 'in:success,send,failed'],
+            'item_no' => ['nullable', 'string', 'max:255'],
+            'created_at_from' => ['nullable', 'date'],
+            'created_at_to' => ['nullable', 'date'],
+        ]);
+        $job = Job::query()->create(['type' => 'export-alternatives', 'user_id' => Auth::id(), 'data' => $filters]);
+        ExportJob::dispatch($job->uuid)->afterCommit();
+
+        return response()->json(['message' => 'درخواست گزارش ثبت شد.', 'data' => [
+            'uuid' => $job->uuid,
+            'tracking_url' => route('alternatives.report.tracking', $job->uuid),
+        ]], 202);
     }
 
     public function sendAlternatives(Alternative $alternative, SendAlternativeRequest $request)

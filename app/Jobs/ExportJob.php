@@ -51,7 +51,9 @@ class ExportJob implements ShouldQueue
         $file = $service->export();
         $job->update([
             'result' => [
-                'file' => route('dl', ['path' => 'exports/'.$file]),
+                'file' => $job->type === 'export-alternatives'
+                    ? route('alternatives.report.download', $job->uuid)
+                    : route('dl', ['path' => 'exports/'.$file]),
             ],
         ]);
 
