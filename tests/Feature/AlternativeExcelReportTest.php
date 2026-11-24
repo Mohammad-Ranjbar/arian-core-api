@@ -65,6 +65,7 @@ class AlternativeExcelReportTest extends TestCase
             $t->string('production_order_number');
             $t->integer('counter');
             $t->string('status');
+            $t->json('data')->nullable();
             $t->timestamp('send_at')->nullable();
             $t->timestamp('failed_at')->nullable();
             $t->timestamp('success_at')->nullable();
@@ -78,6 +79,10 @@ class AlternativeExcelReportTest extends TestCase
             ['id' => 82, 'alternative_item_id' => 1, 'user_id' => 42, 'item_no' => 'OTHER', 'document_number' => null, 'production_order_number' => 'PO-2', 'counter' => 1, 'status' => 'create', 'success_at' => null, 'created_at' => '2026-04-01 10:00:00'],
         ]);
         DB::table('alternative_variants')->insert(['alternative_id' => 81, 'variant_code' => 'V01', 'quantity' => 2]);
+        DB::table('alternatives')->where('id', 81)->update(['data' => json_encode([
+            'code' => 'ERP_ERROR', 'message' => '=خطای نمونه',
+            'details' => ['description' => 'اطلاعات تکمیلی', 'id' => 789, 'user_id' => 456, 'valid' => false],
+        ], JSON_UNESCAPED_UNICODE)]);
         $this->withoutMiddleware(CheckActiveUserMiddleware::class);
         Event::fake([JobProcessEvent::class]);
         Storage::fake('local');
@@ -120,7 +125,18 @@ class AlternativeExcelReportTest extends TestCase
         $this->assertSame('s', $sheet->getCell('C2')->getDataType());
         $this->assertStringStartsWith('1405/01/01', $sheet->getCell('J2')->getValue());
         $this->assertSame(2, $sheet->getHighestDataRow());
-        $this->assertNotContains('شناسه', $sheet->rangeToArray('A1:M1')[0]);
+        $this->assertNotContains('شناسه', $sheet->rangeToArray('A1:N1')[0]);
+        $this->assertSame('جزئیات پاسخ ERP', $sheet->getCell('N1')->getValue());
+        $details = $sheet->getCell('N2')->getValue();
+        $this->assertStringContainsString('code : ERP_ERROR', $details);
+        $this->assertStringContainsString('message : =خطای نمونه', $details);
+        $this->assertStringContainsString('details › description : اطلاعات تکمیلی', $details);
+        $this->assertStringContainsString('details › valid : خیر', $details);
+        $this->assertStringNotContainsString('789', $details);
+        $this->assertStringNotContainsString('456', $details);
+        $this->assertSame('s', $sheet->getCell('N2')->getDataType());
+        $this->assertGreaterThan(36, $sheet->getRowDimension(2)->getRowHeight());
+        $this->assertTrue($sheet->getStyle('N2')->getAlignment()->getWrapText());
         $this->asUser(42, true);
         $this->getJson('/api/job-tracking/'.$job->uuid)->assertOk()->assertJsonPath('status', 'finished');
     }
