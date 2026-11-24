@@ -36,7 +36,6 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\EnterEngineController;
 use App\Http\Controllers\ErpJobController;
-use App\Http\Controllers\RestErpJobController;
 use App\Http\Controllers\ErpProductItemController;
 use App\Http\Controllers\ExportBomController;
 use App\Http\Controllers\FileController;
@@ -80,6 +79,7 @@ use App\Http\Controllers\ReceiptVehicleController;
 use App\Http\Controllers\RegisterShortageController;
 use App\Http\Controllers\RelatedItemShortageController;
 use App\Http\Controllers\ResolveShortageController;
+use App\Http\Controllers\RestErpJobController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleCompanyController;
 use App\Http\Controllers\SaleInvoicesController;
@@ -124,8 +124,6 @@ use App\Http\Middleware\CheckActiveUserMiddleware;
 use Illuminate\Support\Facades\Route;
 
 
-
-
 Route::get('compliance/{vin}', [ComplianceController::class, 'generate'])->name('compliance.generate');
 Route::get('/report-bol/{batch}', [BillOfLadingController::class, 'reportBol']);
 Route::post('sms-gateway', SendSmsGatewayController::class);
@@ -155,13 +153,14 @@ Route::any('/gateway-vehicle-information', SamtController::class);
 Route::get('/get-bom-certified-items/{carModel}', [ItemsController::class, 'certifiedItems'])->name('bom-certified-items');
 
 Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(function () {
-    Route::post('/vehicle-allocations/{vehicleAllocation}',[VehicleAllocationController::class, 'send'])->name('vehicle-allocations.send');
-    Route::get('/vehicle-allocations',[VehicleAllocationController::class,'index'])->name('vehicle-allocations');
-    Route::get('print-register-shortage/{vin}',[RegisterShortageController::class, 'printRegisterShortage'])->name('print-register-shortage');
+    Route::post('/vehicle-allocations/{vehicleAllocation}', [VehicleAllocationController::class, 'send'])->name('vehicle-allocations.send');
+    Route::get('/vehicle-allocations', [VehicleAllocationController::class, 'index'])->name('vehicle-allocations');
+    Route::get('print-register-shortage/{vin}', [RegisterShortageController::class, 'printRegisterShortage'])->name('print-register-shortage');
     Route::post('/resolved-shortage', ResolveShortageController::class)->name('resolve-shortage');
     Route::post('/send-alternatives/{alternative}', [AlternativeController::class, 'sendAlternatives'])->name('send-alternatives');
     Route::get('/alternatives-list', [AlternativeController::class, 'listAlternatives'])->name('alternatives-list');
     Route::get('/alternatives-list/all', [AlternativeController::class, 'listAllAlternatives'])->name('alternatives-list.all');
+    Route::get('/report-excel-alternatives', [AlternativeController::class, 'reportExcel'])->name('report-excel-alternatives');
     Route::post('/alternative-category/{alternativeCategory}/assign-item', [AlternativeCategoryController::class, 'assignItem'])->name('alternative-category.assign-item');
     Route::delete('/alternative-category/{alternativeCategory}/delete-item/{erpItemId}', [AlternativeCategoryController::class, 'deleteItem'])->name('alternative-category.delete-item');
     Route::get('/bom-alternatives/{productionOrderNumber}', [AlternativeManagementController::class, 'getBomItems'])->name('get-bom-alternatives');
