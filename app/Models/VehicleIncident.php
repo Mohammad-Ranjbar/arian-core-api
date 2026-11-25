@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,13 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VehicleIncident extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     /**
      * @var string[]
      */
     protected $fillable = [
-        'type', 'intensity', 'method', 'description', 'user_id', 'production_tracking_id', 'element_id', 'incident_id','production_type',
+        'type', 'intensity', 'method', 'description', 'user_id', 'production_tracking_id', 'element_id', 'incident_id', 'production_type',
         'vin', 'checked_at', 'custom_location_type', 'custom_location_id', 'created_at', 'checked_at', 'vin_type', 'incident_category_id'
     ];
 
