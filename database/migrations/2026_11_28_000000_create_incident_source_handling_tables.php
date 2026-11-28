@@ -28,7 +28,9 @@ return new class extends Migration
         });
         Schema::create('incident_source_handling_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('incident_source_handling_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('incident_source_handling_id');
+            $table->foreign('incident_source_handling_id', 'is_event_handling_fk')
+                ->references('id')->on('incident_source_handlings')->cascadeOnDelete();
             $table->string('type');
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->json('data')->nullable();
