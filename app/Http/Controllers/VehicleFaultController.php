@@ -15,6 +15,7 @@ use App\Models\Location;
 use App\Models\Station;
 use App\Models\Vehicle;
 use App\Models\VehicleIncident;
+use App\Models\WorkGroupCenter;
 use App\Repositories\IncidentSourceRepository;
 use App\Repositories\VehicleIncidentRepository;
 use Exception;
@@ -170,6 +171,21 @@ class VehicleFaultController extends Controller
      */
     public function listIncidentSource(): JsonResponse|AnonymousResourceCollection
     {
+        return $this->incidentSourcesFor();
+    }
+
+    public function locationIncidentSources(Location $location): AnonymousResourceCollection
+    {
+        return $this->incidentSourcesFor(['model_type' => 'locations', 'model_id' => $location->getKey()]);
+    }
+
+    public function workGroupCenterIncidentSources(WorkGroupCenter $workGroupCenter): AnonymousResourceCollection
+    {
+        return $this->incidentSourcesFor(['model_type' => 'work_group_centers', 'model_id' => $workGroupCenter->getKey()]);
+    }
+
+    private function incidentSourcesFor(array $routeFilters = []): AnonymousResourceCollection
+    {
         $validated = request()->validate([
             'model_type' => ['sometimes', 'bail', 'string', Rule::in(array_keys(IncidentSourceSelection::MODEL_TYPES))],
             'model_id' => ['sometimes', 'bail', 'integer', 'min:1'],
@@ -188,7 +204,7 @@ class VehicleFaultController extends Controller
         ]);
 
         return IncidentSourceResource::collection(
-            $this->incidentSourceRepository->paginateForResource((int) ($validated['paginate'] ?? 15), $validated)
+            $this->incidentSourceRepository->paginateForResource((int) ($validated['paginate'] ?? 15), array_replace($validated, $routeFilters))
         );
     }
 

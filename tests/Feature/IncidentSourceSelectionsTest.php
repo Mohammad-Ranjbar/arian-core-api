@@ -346,6 +346,67 @@ class IncidentSourceSelectionsTest extends TestCase
         $this->getJson('/api/incident-sources?model_type=work_group_centers&model_id=2')->assertOk()->assertJsonCount(0, 'data');
     }
 
+    public function test_nested_lists_filter_by_exact_type_and_id_and_use_existing_pagination(): void
+    {
+        DB::table('incident_source_selections')->delete();
+        DB::table('incident_sources')->insert([
+            ['id' => 2, 'car_model_id' => 1, 'element_id' => 1, 'incident_id' => 1],
+            ['id' => 3, 'car_model_id' => 1, 'element_id' => 1, 'incident_id' => 1],
+        ]);
+        DB::table('incident_source_selections')->insert([
+            ['incident_source_id' => 1, 'model_type' => Location::class, 'model_id' => 1],
+            ['incident_source_id' => 1, 'model_type' => Location::class, 'model_id' => 2],
+            ['incident_source_id' => 2, 'model_type' => WorkGroupCenter::class, 'model_id' => 1],
+            ['incident_source_id' => 3, 'model_type' => Location::class, 'model_id' => 2],
+        ]);
+
+        $this->getJson('/api/locations/1/incident-sources?paginate=1&model_type=work_group_centers&model_id=2')
+            ->assertOk()->assertJsonPath('meta.total', 1)->assertJsonPath('data.0.id', 1)
+            ->assertJsonCount(2, 'data.0.sources')->assertJsonPath('meta.per_page', 1);
+        $this->getJson('/api/work-group-centers/1/incident-sources')->assertOk()
+            ->assertJsonPath('meta.total', 1)->assertJsonPath('data.0.id', 2);
+        $this->getJson('/api/work-group-centers/2/incident-sources')->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson('/api/locations/999/incident-sources')->assertNotFound();
+        DB::table('work_group_centers')->where('id', 1)->update(['deleted_at' => now()]);
+        $this->getJson('/api/work-group-centers/1/incident-sources')->assertNotFound();
+        $this->getJson('/api/locations/1/incident-sources?paginate=101')->assertUnprocessable();
+        User::findOrFail(1)->revokePermissionTo('incident-sources.index');
+        $this->actingAs(User::findOrFail(1));
+        $this->getJson('/api/locations/1/incident-sources')->assertForbidden();
+        $this->getJson('/api/work-group-centers/2/incident-sources')->assertForbidden();
+    }
+
+    public function test_nested_list_query_count_does_not_grow_with_results(): void
+    {
+        DB::table('incident_source_selections')->delete();
+        $seed = function (int $id) {
+            if ($id > 1) {
+                DB::table('incident_sources')->insert(['id' => $id, 'car_model_id' => 1, 'element_id' => 1, 'incident_id' => 1]);
+            }
+            DB::table('incident_source_selections')->insert([
+                'incident_source_id' => $id, 'model_type' => WorkGroupCenter::class, 'model_id' => 1, 'user_id' => 1,
+            ]);
+        };
+        $seed(1);
+        $this->getJson('/api/work-group-centers/1/incident-sources')->assertOk();
+        Model::preventLazyLoading();
+        DB::enableQueryLog();
+        try {
+            DB::flushQueryLog();
+            $this->getJson('/api/work-group-centers/1/incident-sources')->assertOk()->assertJsonCount(1, 'data');
+            $small = count(DB::getQueryLog());
+            foreach (range(2, 10) as $id) {
+                $seed($id);
+            }
+            DB::flushQueryLog();
+            $this->getJson('/api/work-group-centers/1/incident-sources')->assertOk()->assertJsonCount(10, 'data');
+            $this->assertSame($small, count(DB::getQueryLog()));
+        } finally {
+            DB::disableQueryLog();
+            Model::preventLazyLoading(false);
+        }
+    }
+
     public function test_list_rejects_invalid_selection_filters_with_persian_messages(): void
     {
         foreach ([
