@@ -263,11 +263,21 @@ Accept: application/json
 }
 ```
 
-### ثبت اقدام
+### ثبت اقدام انجام‌شده (Action Taken)
 
-**Permission:** `incident-sources.selections.action`
+**مسیر:** `POST /api/incident-sources/{incidentSource}/selections/{selection}/action`
 
-`description` الزامی، رشته و حداکثر ۱۰٬۰۰۰ کاراکتر است. رسیدگی باید `in_progress` و فاقد اقدام قبلی باشد؛ فعلاً فقط یک اقدام پذیرفته می‌شود.
+**Route name و Permission:** `incident-sources.selections.action`
+
+`incidentSource` شناسه رکورد منشأ ایراد و `selection` شناسه انتخاب منشأ مربوط به همان رکورد است. در پاسخ فهرست، این دو به‌ترتیب `data[].id` و `data[].sources[].id` هستند. این مسیر برای انتخاب موقعیت و مرکز گروه کاری یکسان است.
+
+پیش از ثبت اقدام باید با مسیر `POST /api/incident-sources/{incidentSource}/selections/{selection}/start` رسیدگی را شروع کنید؛ این درخواست به permission جداگانه `incident-sources.selections.start` نیاز دارد. رسیدگی باید `in_progress` و فاقد اقدام قبلی باشد؛ فعلاً فقط یک اقدام پذیرفته می‌شود.
+
+| فیلد body | اعتبارسنجی |
+|---|---|
+| `description` | الزامی؛ رشته، حداکثر ۱۰٬۰۰۰ کاراکتر |
+
+نمونه درخواست:
 
 ```http
 POST /api/incident-sources/42/selections/91/action
@@ -295,6 +305,21 @@ Content-Type: application/json
   }
 }
 ```
+
+پس از موفقیت، `data.status` برابر `action_taken` است؛ متن و کاربر ثبت‌کننده در `data.action` و رویداد ثبت اقدام در `data.events` بازگردانده می‌شوند. شناسه کاربر از حساب احراز هویت‌شده دریافت می‌شود و نیازی به ارسال آن در body نیست.
+
+اگر رسیدگی شروع نشده باشد یا قبلاً اقدام داشته باشد، پاسخ `422 Unprocessable Entity` است:
+
+```json
+{
+  "message": "برای ثبت اقدام، رسیدگی باید شروع شده و فاقد اقدام قبلی باشد.",
+  "errors": {
+    "status": ["برای ثبت اقدام، رسیدگی باید شروع شده و فاقد اقدام قبلی باشد."]
+  }
+}
+```
+
+برای `description` نامعتبر نیز `422` و خطای مربوط در `errors.description` برمی‌گردد. نبود احراز هویت یا غیرفعال‌بودن کاربر `401`، نداشتن permission برابر `403` و شناسه ناموجود یا انتخاب نامرتبط با رکورد برابر `404` است.
 
 ### انتقال مسئولیت
 
