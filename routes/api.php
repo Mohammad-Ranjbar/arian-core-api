@@ -45,6 +45,7 @@ use App\Http\Controllers\GeneralProductItemController;
 use App\Http\Controllers\GetVehicleCheckListController;
 use App\Http\Controllers\IncidentCategoryController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\IncidentSourceHandlingController;
 use App\Http\Controllers\IncomingVehicleController;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\InventoryController;
@@ -399,6 +400,19 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
             VehicleFaultController::class, 'showIncidentSource'
         ])->middleware('can:incident-sources.show')->name('incident-sources.show');
     });
+
+    Route::get('/incident-sources/{incidentSource}/handlings', [IncidentSourceHandlingController::class, 'index'])
+        ->middleware('can:incident-sources.handlings.index')->name('incident-sources.handlings.index');
+    Route::get('/incident-sources/{incidentSource}/vins', [IncidentSourceHandlingController::class, 'vins'])
+        ->middleware('can:incident-sources.vins.index')->name('incident-sources.vins.index');
+    Route::post('/incident-sources/{incidentSource}/selections/{selection}/viewed', [IncidentSourceHandlingController::class, 'viewed'])
+        ->middleware('can:incident-sources.selections.viewed')->name('incident-sources.selections.viewed');
+    Route::post('/incident-sources/{incidentSource}/selections/{selection}/start', [IncidentSourceHandlingController::class, 'start'])
+        ->middleware('can:incident-sources.selections.start')->name('incident-sources.selections.start');
+    Route::post('/incident-sources/{incidentSource}/selections/{selection}/action', [IncidentSourceHandlingController::class, 'action'])
+        ->middleware('can:incident-sources.selections.action')->name('incident-sources.selections.action');
+    Route::post('/incident-sources/{incidentSource}/selections/{selection}/transfer', [IncidentSourceHandlingController::class, 'transfer'])
+        ->middleware('can:incident-sources.selections.transfer')->name('incident-sources.selections.transfer');
 
     Route::get('/locations/{location}/incident-sources', [VehicleFaultController::class, 'locationIncidentSources'])
         ->middleware('can:locations.incident-sources.index')->name('locations.incident-sources.index');

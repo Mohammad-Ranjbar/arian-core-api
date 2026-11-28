@@ -460,6 +460,68 @@ class IncidentSourceSelectionsTest extends TestCase
         ]])->assertOk()->assertJsonPath('data.sources.0.production_line', null);
     }
 
+    public function test_handling_is_independent_and_transfer_preserves_history(): void
+    {
+        (require database_path('migrations/2026_11_28_000000_create_incident_source_handling_tables.php'))->up();
+        foreach (['index', 'viewed', 'start', 'action', 'transfer'] as $name) {
+            $permission = $name === 'index' ? 'incident-sources.handlings.index' : 'incident-sources.selections.'.$name;
+            User::findOrFail(1)->givePermissionTo(Permission::create(['name' => $permission, 'guard_name' => 'web']));
+        }
+        $this->actingAs(User::findOrFail(1));
+        $sources = $this->putJson('/api/incident-sources/1', ['sources' => [
+            ['model_type' => 'locations', 'model_id' => 1],
+            ['model_type' => 'locations', 'model_id' => 2],
+        ]])->assertOk()->json('data.sources');
+        $first = $sources[0]['id'];
+        $second = $sources[1]['id'];
+        $base = '/api/incident-sources/1/selections/'.$first;
+        $this->postJson($base.'/viewed')->assertOk()->assertJsonPath('data.status', 'viewed');
+        $this->postJson($base.'/viewed')->assertOk()->assertJsonCount(1, 'data.events');
+        $this->postJson($base.'/start')->assertOk()->assertJsonPath('data.status', 'in_progress');
+        $this->postJson($base.'/action', ['description' => 'اقدام انجام شد'])->assertOk()->assertJsonPath('data.status', 'action_taken');
+        $this->postJson($base.'/action', ['description' => 'تکرار'])->assertUnprocessable();
+        $this->postJson('/api/incident-sources/1/selections/'.$second.'/start')->assertOk()->assertJsonPath('data.status', 'in_progress');
+        $this->postJson($base.'/transfer', ['model_type' => 'work_group_centers', 'model_id' => 1, 'reason' => 'ارجاع'])
+            ->assertOk()->assertJsonPath('data.status', 'transferred')->assertJsonPath('data.events.3.data.reason', 'ارجاع');
+        $this->assertDatabaseMissing('incident_source_selections', ['id' => $first]);
+        $this->getJson('/api/incident-sources/1/handlings')->assertOk()->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.incident_source_selection_id', null)
+            ->assertJsonPath('data.0.action.description', 'اقدام انجام شد')
+            ->assertJsonPath('data.1.status', 'in_progress');
+        $this->assertDatabaseHas('incident_source_selections', ['incident_source_id' => 1, 'model_type' => WorkGroupCenter::class, 'model_id' => 1]);
+        $this->putJson('/api/incident-sources/1', ['sources' => [
+            ['model_type' => 'locations', 'model_id' => 2],
+            ['model_type' => 'work_group_centers', 'model_id' => 1],
+        ]])->assertOk()->assertJsonCount(2, 'data.sources');
+        $this->putJson('/api/incident-sources/1', ['sources' => []])->assertOk();
+        $this->getJson('/api/incident-sources/1/handlings')->assertOk()->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.1.incident_source_selection_id', null);
+    }
+
+    public function test_vins_are_distinct_and_match_incident_and_element_only(): void
+    {
+        Schema::create('vehicle_incidents', function (Blueprint $table) {
+            $table->id();
+            $table->string('vin');
+            $table->unsignedBigInteger('incident_id');
+            $table->unsignedBigInteger('element_id');
+            $table->softDeletes();
+        });
+        DB::table('vehicle_incidents')->insert([
+            ['vin' => 'VIN1', 'incident_id' => 1, 'element_id' => 1, 'deleted_at' => null],
+            ['vin' => 'VIN1', 'incident_id' => 1, 'element_id' => 1, 'deleted_at' => null],
+            ['vin' => 'VIN2', 'incident_id' => 1, 'element_id' => 1, 'deleted_at' => null],
+            ['vin' => 'OTHER', 'incident_id' => 2, 'element_id' => 1, 'deleted_at' => null],
+            ['vin' => 'DELETED', 'incident_id' => 1, 'element_id' => 1, 'deleted_at' => now()],
+        ]);
+        User::findOrFail(1)->givePermissionTo(Permission::create(['name' => 'incident-sources.vins.index', 'guard_name' => 'web']));
+        $this->actingAs(User::findOrFail(1));
+        $this->getJson('/api/incident-sources/1/vins?paginate=1')->assertOk()
+            ->assertJsonPath('total', 2)->assertJsonPath('data.0.vin', 'VIN1');
+        $this->getJson('/api/incident-sources/1/vins?paginate=1&page=2')->assertOk()
+            ->assertJsonPath('data.0.vin', 'VIN2');
+    }
+
     private function migration(): Migration
     {
         return require database_path('migrations/2026_11_16_000000_create_incident_source_selections_table.php');

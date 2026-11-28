@@ -43,6 +43,7 @@ class IncidentSourceRequest extends FormRequest
         $validator->after(function (Validator $validator) {
             $seen = [];
             $modelType = null;
+            $existingTypes = null;
             $sources = $this->input('sources');
             if (! is_array($sources)) {
                 return;
@@ -53,7 +54,12 @@ class IncidentSourceRequest extends FormRequest
                 }
                 $modelType ??= $source['model_type'];
                 if ($source['model_type'] !== $modelType) {
-                    $validator->errors()->add("sources.$index.model_type", 'تمام منشأهای ایراد انتخاب‌شده باید از یک نوع باشند.');
+                    $existingTypes ??= $this->route('incidentSource')->selections()->pluck('model_type')->all();
+                    $firstType = (new (IncidentSourceSelection::MODEL_TYPES[$modelType]))->getMorphClass();
+                    $currentType = (new (IncidentSourceSelection::MODEL_TYPES[$source['model_type']]))->getMorphClass();
+                    if (! in_array($firstType, $existingTypes, true) || ! in_array($currentType, $existingTypes, true)) {
+                        $validator->errors()->add("sources.$index.model_type", 'تمام منشأهای ایراد انتخاب‌شده باید از یک نوع باشند.');
+                    }
                 }
                 $key = $source['model_type'].':'.(int) $source['model_id'];
                 if (isset($seen[$key])) {
