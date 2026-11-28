@@ -17,7 +17,7 @@ class StorePDIRequest extends FormRequest
             'pdi_result' => 'nullable|string|max:255',
             'pdi_result_description' => 'nullable|string|max:250',
             'pdi_result_description_2' => 'nullable|string|max:100',
-            'mileage' => ['bail', 'nullable', 'numeric', 'gt:0', 'regex:/\A.{1,255}\z/s'],
+            'mileage' => ['bail', 'nullable', 'numeric', 'gt:1', 'regex:/\A.{1,255}\z/s'],
             'police_inspection_date' => 'nullable|string|max:255',
         ];
 
