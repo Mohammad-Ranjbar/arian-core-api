@@ -2,12 +2,12 @@
 
 این دو مسیر، رکوردهای `incident-sources` را برمی‌گردانند که موقعیت یا مرکز گروه کاری مشخص‌شده در انتخاب‌های منشأ آن‌ها ثبت شده است.
 
-| Method | مسیر | شناسه |
-|---|---|---|
-| `GET` | `/api/locations/{location}/incident-sources` | شناسه موقعیت |
-| `GET` | `/api/work-group-centers/{workGroupCenter}/incident-sources` | شناسه مرکز گروه کاری |
+| Method | مسیر | شناسه | Route name و Permission |
+|---|---|---|---|
+| `GET` | `/api/locations/{location}/incident-sources` | شناسه موقعیت | `locations.incident-sources.index` |
+| `GET` | `/api/work-group-centers/{workGroupCenter}/incident-sources` | شناسه مرکز گروه کاری | `work-group-centers.incident-sources.index` |
 
-هر دو مسیر به احراز هویت Sanctum، کاربر فعال و مجوز `incident-sources.index` نیاز دارند. بدنه درخواست لازم نیست.
+هر دو مسیر به احراز هویت Sanctum، کاربر فعال و مجوز مستقل مشخص‌شده در جدول نیاز دارند. بدنه درخواست لازم نیست.
 
 ```http
 Authorization: Bearer {token}

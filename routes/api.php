@@ -401,9 +401,9 @@ Route::middleware(['auth:sanctum', CheckActiveUserMiddleware::class])->group(fun
     });
 
     Route::get('/locations/{location}/incident-sources', [VehicleFaultController::class, 'locationIncidentSources'])
-        ->middleware('can:incident-sources.index')->name('locations.incident-sources.index');
+        ->middleware('can:locations.incident-sources.index')->name('locations.incident-sources.index');
     Route::get('/work-group-centers/{workGroupCenter}/incident-sources', [VehicleFaultController::class, 'workGroupCenterIncidentSources'])
-        ->middleware('can:incident-sources.index')->name('work-group-centers.incident-sources.index');
+        ->middleware('can:work-group-centers.incident-sources.index')->name('work-group-centers.incident-sources.index');
 
     Route::apiResource('sms-templates', SmsServiceController::class)->only(['index', 'update', 'show']);
     Route::apiResource('production-line-activities', ProductionLineActivityController::class)->except('store');

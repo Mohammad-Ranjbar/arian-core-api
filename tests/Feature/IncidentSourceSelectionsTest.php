@@ -71,6 +71,10 @@ class IncidentSourceSelectionsTest extends TestCase
             User::findOrFail(1)->givePermissionTo($permission);
             User::findOrFail(2)->givePermissionTo($permission);
         }
+        foreach (['locations.incident-sources.index', 'work-group-centers.incident-sources.index'] as $name) {
+            $permission = Permission::create(['name' => $name, 'guard_name' => 'web']);
+            User::findOrFail(1)->givePermissionTo($permission);
+        }
     }
 
     public function test_migration_preserves_legacy_source_without_inventing_an_author(): void
@@ -370,9 +374,14 @@ class IncidentSourceSelectionsTest extends TestCase
         DB::table('work_group_centers')->where('id', 1)->update(['deleted_at' => now()]);
         $this->getJson('/api/work-group-centers/1/incident-sources')->assertNotFound();
         $this->getJson('/api/locations/1/incident-sources?paginate=101')->assertUnprocessable();
-        User::findOrFail(1)->revokePermissionTo('incident-sources.index');
+        User::findOrFail(1)->revokePermissionTo('locations.incident-sources.index');
         $this->actingAs(User::findOrFail(1));
         $this->getJson('/api/locations/1/incident-sources')->assertForbidden();
+        $this->getJson('/api/work-group-centers/2/incident-sources')->assertOk();
+        User::findOrFail(1)->givePermissionTo('locations.incident-sources.index');
+        User::findOrFail(1)->revokePermissionTo('work-group-centers.incident-sources.index');
+        $this->actingAs(User::findOrFail(1));
+        $this->getJson('/api/locations/1/incident-sources')->assertOk();
         $this->getJson('/api/work-group-centers/2/incident-sources')->assertForbidden();
     }
 
