@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class IncidentSourceHandling extends Model
 {
@@ -16,6 +17,11 @@ class IncidentSourceHandling extends Model
     public function selection(): BelongsTo
     {
         return $this->belongsTo(IncidentSourceSelection::class, 'incident_source_selection_id');
+    }
+
+    public function model(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function actions(): HasMany

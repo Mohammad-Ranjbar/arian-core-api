@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\IncidentSource;
 use App\Models\IncidentSourceHandling;
 use App\Models\IncidentSourceSelection;
+use App\Models\Location;
 use App\Models\VehicleIncident;
+use App\Models\WorkGroupCenter;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,10 +19,22 @@ class IncidentSourceHandlingController extends Controller
 {
     public function index(IncidentSource $incidentSource): JsonResponse
     {
-        return response()->json(['data' => IncidentSourceHandling::query()
+        $handlings = IncidentSourceHandling::query()
             ->where('incident_source_id', $incidentSource->id)
-            ->with(['action.user:id,name', 'events.user:id,name'])
-            ->orderBy('id')->get()]);
+            ->with(['action.user:id,name', 'events.user:id,name', 'model' => function (MorphTo $morphTo) {
+                $morphTo->constrain([
+                    Location::class => fn ($query) => $query->select(['id', 'title']),
+                    WorkGroupCenter::class => fn ($query) => $query->withTrashed()->select(['id', 'title']),
+                ]);
+            }])
+            ->orderBy('id')->get();
+
+        $handlings->each(function (IncidentSourceHandling $handling) {
+            $handling->setAttribute('title', $handling->model?->title);
+            $handling->unsetRelation('model');
+        });
+
+        return response()->json(['data' => $handlings]);
     }
 
     public function vins(Request $request, IncidentSource $incidentSource): JsonResponse

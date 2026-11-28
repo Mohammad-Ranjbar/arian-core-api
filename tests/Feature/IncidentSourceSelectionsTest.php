@@ -522,6 +522,43 @@ class IncidentSourceSelectionsTest extends TestCase
             ->assertJsonPath('data.0.vin', 'VIN2');
     }
 
+    public function test_handling_list_includes_titles_without_n_plus_one_even_for_transferred_or_deleted_sources(): void
+    {
+        (require database_path('migrations/2026_11_28_000000_create_incident_source_handling_tables.php'))->up();
+        User::findOrFail(1)->givePermissionTo(Permission::create(['name' => 'incident-sources.handlings.index', 'guard_name' => 'web']));
+        $this->actingAs(User::findOrFail(1));
+        $seed = function (int $count) {
+            foreach (range(1, $count) as $index) {
+                DB::table('incident_source_handlings')->insert([
+                    'incident_source_id' => 1,
+                    'model_type' => $index % 2 ? Location::class : WorkGroupCenter::class,
+                    'model_id' => 1,
+                    'status' => 'transferred',
+                ]);
+            }
+        };
+        $seed(2);
+        DB::table('work_group_centers')->where('id', 1)->update(['deleted_at' => now()]);
+        $this->getJson('/api/incident-sources/1/handlings')->assertOk()
+            ->assertJsonPath('data.0.title', 'اول')->assertJsonPath('data.1.title', 'اول');
+        Model::preventLazyLoading();
+        DB::enableQueryLog();
+        try {
+            DB::flushQueryLog();
+            $this->getJson('/api/incident-sources/1/handlings')->assertOk();
+            $small = count(DB::getQueryLog());
+            $seed(10);
+            DB::flushQueryLog();
+            $this->getJson('/api/incident-sources/1/handlings')->assertOk()->assertJsonCount(12, 'data');
+            $this->assertSame($small, count(DB::getQueryLog()));
+        } finally {
+            DB::disableQueryLog();
+            Model::preventLazyLoading(false);
+        }
+        DB::table('locations')->where('id', 1)->delete();
+        $this->getJson('/api/incident-sources/1/handlings')->assertOk()->assertJsonPath('data.0.title', null);
+    }
+
     private function migration(): Migration
     {
         return require database_path('migrations/2026_11_16_000000_create_incident_source_selections_table.php');
