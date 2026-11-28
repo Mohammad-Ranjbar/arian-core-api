@@ -104,6 +104,7 @@ return [
                 'PDIResult' => ['present', 'string'],
                 'PDIDescription' => ['present', 'string'],
                 'PDIResultDesc' => ['present', 'string'],
+                'PDIMileage' => ['present', 'string'],
                 'EngineNo' => ['present', 'string'],
                 'ModelYear' => ['present', 'string'],
                 'PoliceInspectionDate' => ['present', 'string'],

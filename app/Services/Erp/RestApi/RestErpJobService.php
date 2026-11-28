@@ -41,6 +41,7 @@ readonly class RestErpJobService
         'PDIResult' => 'نتیجه بازرسی پیش از تحویل',
         'PDIDescription' => 'توضیحات بازرسی پیش از تحویل',
         'PDIResultDesc' => 'توضیحات تکمیلی بازرسی پیش از تحویل',
+        'PDIMileage' => 'کارکرد خودرو',
         'EngineNo' => 'شماره موتور', 'ModelYear' => 'سال مدل خودرو',
         'PoliceInspectionDate' => 'تاریخ بازدید پلیس',
         'QCStatus' => 'وضعیت کنترل کیفیت', 'QCType' => 'نوع کنترل کیفیت',

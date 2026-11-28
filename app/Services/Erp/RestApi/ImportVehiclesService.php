@@ -25,6 +25,7 @@ readonly class ImportVehiclesService
             'PDIResult' => (string) ($data['pdi_result'] ?? ''),
             'PDIDescription' => (string) ($data['pdi_result_description'] ?? ''),
             'PDIResultDesc' => (string) ($data['pdi_result_description_2'] ?? ''),
+            'PDIMileage' => (string) ($data['mileage'] ?? ''),
             'EngineNo' => (string) ($data['engine_no'] ?? ''),
             'ModelYear' => (string) ($data['model_year'] ?? ''),
             'PoliceInspectionDate' => (string) ($data['police_inspection_date'] ?? ''),
